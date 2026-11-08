@@ -1300,3 +1300,92 @@ svg .solid-cur { fill: currentColor; stroke: none; }
   word-break: auto-phrase;
   text-wrap: balance;
 }
+
+/* ===== blue-first palette (Japan's most liked colours: blue, sky blue, white) =====
+   瑠璃 lapis for numbers, labels and lines; 空色 sky for surfaces; gold stays for the
+   emblem, the stars and the main button. */
+:root {
+  --ruri: #1e50a2;
+  --ruri-2: #3a7fd8;
+  --sora: #a0d8ef;
+  --mizu: #eef7fd;
+  --blue-grad: linear-gradient(120deg, #1e50a2 0%, #3a7fd8 55%, #5b9be6 100%);
+  --blue-text: linear-gradient(120deg, #1a4590 0%, #3a7fd8 45%, #1e50a2 75%, #3a7fd8 100%);
+}
+.section-soft { background: linear-gradient(180deg, var(--mizu) 0%, #fff 100%); }
+.sec-no { background: var(--blue-grad); color: #fff; }
+.sec-ja::before, .sec-head-center .sec-ja::after { background: var(--blue-grad); }
+.dot { background: var(--ruri-2); box-shadow: 0 0 0 4px rgb(58 127 216 / 18%); }
+.link-more { background-image: linear-gradient(var(--ruri-2), var(--ruri-2)); }
+.link-more:hover { color: var(--ruri); }
+.progress { background: linear-gradient(90deg, var(--ruri) 0%, var(--ruri-2) 60%, #d6b056 100%); }
+.proof-value b, .s-num b, .vs-num b, .stat-value b, .fc-big b, .creds-num {
+  background: var(--blue-text);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.flow::after { background: var(--blue-grad); }
+.flow-no { background: var(--ruri); }
+.work-no, .acc-meta, .cred-grid time, .review-date, .eyebrow, .pager .en { color: var(--ruri); }
+.svc-price { color: var(--ruri); }
+.num { color: var(--ruri); }
+.case-meta dt, .case-detail dt { color: var(--ruri); }
+.svc-card:hover, .s-card:hover, .cred-grid li:hover, .acc[open] { border-color: #bcd7f5; }
+[data-spot]::before { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgb(160 216 239 / 30%), transparent 45%); }
+.filters button[aria-pressed="true"] { background: var(--ruri); border-color: var(--ruri); }
+.btn-navy { background: var(--ruri); box-shadow: 0 14px 30px -14px rgb(30 80 162 / 60%); }
+.btn-navy:hover { background: #2460bd; }
+.strengths { background: radial-gradient(900px 420px at 50% 0%, #e7f3fd 0%, transparent 70%), #fff; }
+.voice { background: radial-gradient(800px 360px at 85% 10%, #e7f3fd 0%, transparent 70%), #fff; }
+.values li { background: var(--mizu); }
+.values li:hover { background: #e3f1fc; }
+
+/* ===== image-first home ===== */
+.hint { display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px 4px 10px; border-radius: 999px; background: #fff; box-shadow: var(--shadow-1); font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.hint .ic { width: 14px; height: 14px; color: var(--ruri-2); }
+.hero-lead { font-size: clamp(1rem, 1.3vw, 1.12rem); color: var(--ink-2); }
+
+.s-card { display: grid; justify-items: center; text-align: center; padding: 34px 26px 30px; }
+.s-card .s-num { margin-top: 14px; }
+.s-card h3 { margin: 0; }
+.s-ic:has(> .ic-img) { width: 112px; height: 112px; margin: -8px 0 -6px; }
+
+.svc-card-compact .svc-body { gap: 4px; padding: 18px 22px 18px; }
+.svc-card-compact .svc-foot { padding-top: 8px; }
+.cover-hidden { display: none; }
+
+.gallery-tilt { gap: 18px; }
+.g-row-covers { --dur: 80s; }
+.g-item-cover { width: clamp(220px, 21vw, 320px); aspect-ratio: 1200 / 939; }
+
+.flow-compact li { padding: 10px 0; }
+.flow-compact h3 { margin-top: 4px; }
+@media (max-width: 1023px) { .flow-compact li { align-items: center; } .flow-compact h3 { margin: 0; } }
+
+.voice .marquee { --dur: 110s; }
+
+.creds-band { padding: clamp(56px, 7vw, 88px) 0; background: linear-gradient(180deg, #fff 0%, var(--mizu) 100%); }
+.creds-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+.creds-count { display: flex; align-items: center; gap: 16px; margin: 0; font-family: var(--en); font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 600; font-style: italic; color: var(--navy); line-height: 1.1; }
+.creds-count small { display: block; font-family: var(--font); font-size: 12.5px; font-style: normal; font-weight: 600; color: var(--muted); }
+.creds-num { font-family: var(--en); font-size: clamp(3.4rem, 6vw, 4.6rem); font-style: normal; line-height: 1; }
+.cred-marquee { --dur: 70s; padding: 6px 0; }
+.cred-chip { display: inline-flex; align-items: center; gap: 10px; margin-right: 14px; padding: 10px 20px 10px 12px; border: 1px solid var(--line); border-radius: 999px; background: #fff; box-shadow: var(--shadow-1); font-size: 14px; font-weight: 600; color: var(--navy); white-space: nowrap; }
+.cred-chip .ic-img, .cred-chip .ic-feature { width: 28px; height: 28px; }
+
+.cta-text { font-size: 1.05rem; }
+.section { padding: clamp(72px, 8.5vw, 120px) 0; }
+.page-home .sec-head { margin-bottom: clamp(32px, 4vw, 52px); }
+
+/* service illustrations (site/assets/art/services/*.webp) */
+.svc-media-art { background: linear-gradient(160deg, #eaf3ff 0%, #dde9fb 100%); }
+.svc-media-art img { object-position: 50% 55%; }
+.svc-card:hover .svc-media-art img { transform: scale(1.07) translateY(-2%); }
+.motion .svc-card .svc-media-art img { animation: art-breathe 7s ease-in-out infinite; }
+.motion .svc-card:nth-child(2n) .svc-media-art img { animation-delay: -3.5s; }
+@keyframes art-breathe { 50% { translate: 0 -6px; } }
+.hero-media-art { background: linear-gradient(160deg, #eaf3ff 0%, #dde9fb 100%); }
+.hero-media-art img { aspect-ratio: 3 / 2; object-fit: cover; }
+.motion .hero-media-art img { animation: art-breathe 7s ease-in-out infinite; }

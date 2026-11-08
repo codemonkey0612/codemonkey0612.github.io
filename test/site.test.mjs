@@ -114,9 +114,10 @@ test("service pages show each package's cover and promo video", () => {
       assert.ok(html.includes(`poster="../../${p.cover}"`), `${s.id}: poster of ${p.id}`);
     }
     if (s.packages.some((x) => x.video)) assert.match(html, /案内役は、AIで生成したキャラクターです/, `${s.id} says the presenter is AI`);
-    if (s.cover) {
-      assert.ok(files["index.html"].includes(`src="./${s.cover}"`), `home card of ${s.id} has its cover`);
-      assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.cover, site.profile.site_url).href}">`), `${s.id} share image`);
+    const pic = s.art ?? s.cover;
+    if (pic) {
+      assert.ok(files["index.html"].includes(`src="./${pic}"`), `home card of ${s.id} has its picture`);
+      assert.ok(html.includes(`<meta property="og:image" content="${new URL(pic, site.profile.site_url).href}">`), `${s.id} share image`);
     }
   }
 });
@@ -210,4 +211,13 @@ test("Lancers works use your own portfolio images, and assets carry a version", 
   assert.match(site.assetVersion, /^[0-9a-f]{8}$/);
   assert.ok(files["index.html"].includes(`assets/style.css?v=${site.assetVersion}`));
   assert.ok(files["works/index.html"].includes(`assets/app.js?v=${site.assetVersion}`));
+});
+
+test("every service has its illustration, used on the cards and the service page", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  for (const s of site.services) {
+    assert.ok(s.art, `${s.id} has site/assets/art/services/${s.id}.webp`);
+    assert.ok(files[`services/${s.id}/index.html`].includes(`src="../../${s.art}"`), `${s.id} page shows its illustration`);
+  }
 });

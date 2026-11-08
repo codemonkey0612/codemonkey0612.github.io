@@ -2,9 +2,13 @@
 # read from https://www.lancers.jp/profile/navi_work on 2026-11-08.
 # Keep prices in sync with Lancers. Service pages show the plan tables of the
 # packages they list; /prices/ lists every package here.
+# cover / video: files under site/assets/, shown on the service pages
+# (the cover is also the page's share image). See README → Images and videos.
 
 "1319797":
   title: "WordPressサイトの構築・移行・保守運用を行います"
+  cover: media/packages/1319797.webp   # cover image from the Lancers package
+  video: media/packages/1319797.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 48000
@@ -20,6 +24,8 @@
       desc: "最大15ページの高機能サイトを構築。高度なデザイン・SEO・高速化・移行・API連携・保守運用まで対応。修正3回まで。"
 "1351569":
   title: "ChatGPT・生成AIを活用した業務効率化AIアプリを開発します"
+  cover: media/packages/1351569.webp   # cover image from the Lancers package
+  video: media/packages/1351569.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 48000
@@ -35,6 +41,8 @@
       desc: "企業向けAIシステムを開発。RAG・AIエージェント・管理画面・API連携3種類まで対応。導入支援・修正3回込み。"
 "1351735":
   title: "高品質なWebサイト・ホームページを制作します"
+  cover: media/packages/1351735.webp   # cover image from the Lancers package
+  video: media/packages/1351735.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 98000
@@ -50,6 +58,8 @@
       desc: "最大20ページの高機能Webサイトを制作。オリジナルデザイン・CMS開発・AIチャットボット・外部API連携に対応。※修正3回"
 "1351723":
   title: "WordPress・CMSで高品質なWebサイトを構築します"
+  cover: media/packages/1351723.webp   # cover image from the Lancers package
+  video: media/packages/1351723.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 98000
@@ -65,6 +75,8 @@
       desc: "最大20ページの高機能CMSサイトを構築。独自デザイン・カスタム機能・外部API連携・AIチャットボットに対応。※修正3回"
 "1319670":
   title: "民泊・求人向けの高機能マッチングシステムを要件定義から開発運用まで一括構築します"
+  cover: media/packages/1319670.webp   # cover image from the Lancers package
+  video: media/packages/1319670.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 298000
@@ -80,6 +92,8 @@
       desc: "スタンダード内容すべて、独自マッチングアルゴリズム設計、オンライン決済機能（Stripe等）、スマホ最適化UI設計、API連携、フルカスタマイズ対応"
 "1351689":
   title: "Shopify・ECサイトを売上向上を目指して構築します"
+  cover: media/packages/1351689.webp   # cover image from the Lancers package
+  video: media/packages/1351689.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 98000
@@ -95,6 +109,8 @@
       desc: "Shopifyで商品100点までの高機能ECサイトを構築。独自デザイン、外部API連携、SEO・購入導線最適化まで対応。※修正3回"
 "1351631":
   title: "AWS・Azureで生成AI基盤とクラウド環境を構築します"
+  cover: media/packages/1351631.webp   # cover image from the Lancers package
+  video: media/packages/1351631.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 98000
@@ -110,6 +126,8 @@
       desc: null
 "1351667":
   title: "ChatGPT・生成AIの導入コンサルティングと業務改善を支援します"
+  cover: media/packages/1351667.webp   # cover image from the Lancers package
+  video: media/packages/1351667.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 98000
@@ -125,6 +143,8 @@
       desc: "企業向けAI導入を総合支援。業務分析・導入戦略・PoC実施・運用ルール策定・社内研修まで対応します。※修正3回"
 "1351686":
   title: "ChatGPT・LINE対応の高機能AIチャットボットを開発します"
+  cover: media/packages/1351686.webp   # cover image from the Lancers package
+  video: media/packages/1351686.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 98000
@@ -140,6 +160,8 @@
       desc: "高度なRAG・AIエージェント・外部API連携に対応。企業向け高機能AIチャットボットを設計・開発します。※修正3回"
 "1351705":
   title: "iOS・Android対応の高品質なスマホアプリを開発します"
+  cover: media/packages/1351705.webp   # cover image from the Lancers package
+  video: media/packages/1351705.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 98000
@@ -155,6 +177,8 @@
       desc: "最大15画面の高機能アプリを開発。AI連携・認証・DB・外部API・管理画面・ストア公開支援に対応。※修正3回"
 "1351762":
   title: "HTML/CSSで高品質なWebサイトをコーディングします"
+  cover: media/packages/1351762.webp   # cover image from the Lancers package
+  video: media/packages/1351762.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 48000
@@ -170,6 +194,8 @@
       desc: "最大15ページの高品質コーディング。JavaScript最大6機能・高度なアニメーション・表示速度改善・品質確認に対応。※修正3回"
 "1351769":
   title: "システムの不具合調査・デバッグ・コードレビューを行います"
+  cover: media/packages/1351769.webp   # cover image from the Lancers package
+  video: media/packages/1351769.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 48000
@@ -200,6 +226,8 @@
       desc: "最大5ステージの高品質ゲームを開発。カスタムUI・AI/NPC・ゲームシステム・最適化・詳細テストに対応。修正3回。"
 "1319677":
   title: "Web・システムのセキュリティ診断と対策を行います"
+  cover: media/packages/1319677.webp   # cover image from the Lancers package
+  video: media/packages/1319677.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 48000
@@ -215,6 +243,8 @@
       desc: "中規模システムの総合セキュリティ診断。Web・クラウド・認証・データ保護を確認し、改善支援と再確認まで対応します。"
 "1319794":
   title: "Windows・Mac対応のデスクトップアプリを開発します"
+  cover: media/packages/1319794.webp   # cover image from the Lancers package
+  video: media/packages/1319794.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 48000
@@ -245,6 +275,8 @@
       desc: "複数サイト対応、Bot対策回避設計、プロキシ対応、クラウドデプロイ（VPS/AWS）、DB保存設計、自動定期実行、1ヶ月サポート"
 "1319683":
   title: "サーバー・クラウド環境の構築・移行・運用を行います"
+  cover: media/packages/1319683.webp   # cover image from the Lancers package
+  video: media/packages/1319683.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 48000
@@ -260,6 +292,8 @@
       desc: "最大5台の高度なインフラを構築。クラウド連携・複数環境移行・監視・バックアップ・高速化・セキュリティ強化に対応。修正3回まで。"
 "1319674":
   title: "IT・AI・システムの技術相談から導入まで支援します"
+  cover: media/packages/1319674.webp   # cover image from the Lancers package
+  video: media/packages/1319674.mp4    # its promo video (720p)
   plans:
     - name: ベーシック
       price: 48000

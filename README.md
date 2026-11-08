@@ -14,7 +14,8 @@ articles/   Zenn articles      (live when published: true)
 public/     Qiita articles     (live when ignorePublish: false)
 notes/      note drafts        (ready when status: ready; pasted by hand)
 site/       hub site: one page per service (services/*.md), Lancers prices
-            (packages.yml), about text, styles
+            (packages.yml), package covers and videos (assets/media/),
+            about text, styles
 templates/  article and proposal-demo templates
 profile.yml who you are: services, Lancers stats, past projects, certifications
             (read by the site, the templates and every check)
@@ -28,8 +29,9 @@ ideas.md    post ideas built from your own projects and reviews
 2. **`profile.yml`** is filled from your Lancers profile. Two TODOs are left: your
    Qiita username and note urlname. Create those accounts and fill them in; until
    then, only Qiita/note posts are blocked (Zenn posts aren't).
-3. **Push to GitHub** as a new repository with `main` as the default branch.
-   Name it `codemonkey0612.github.io` and the site lives at
+3. **Push to GitHub** (done 2026-11-08, along with step 4: this is
+   `codemonkey0612/codemonkey0612.github.io`) as a new repository with `main` as
+   the default branch. Name it `codemonkey0612.github.io` and the site lives at
    <https://codemonkey0612.github.io/>, which is what `site_url` says. With any
    other name it lives at `https://codemonkey0612.github.io/<repo>/`: update
    `site_url` to match. A custom domain works too (Settings → Pages). On the
@@ -85,6 +87,8 @@ where to upload images. After publishing on note, paste the post's link into
   list of all 20 Lancers packages, works, all 26 client reviews in full,
   profile, 404, plus `sitemap.xml`, `robots.txt` and `llms.txt`. Pages carry
   Open Graph tags and schema.org data (Person, Service, FAQ, breadcrumbs).
+  Service cards on the home page show the package cover; service pages show
+  each package's promo video, and use its cover as the share image.
 - **Where things come from:** names, summaries, projects, reviews and
   certifications from `profile.yml`; each service page's text and FAQ from
   `site/services/<id>.md`; the price tables from `site/packages.yml`; the
@@ -103,6 +107,21 @@ where to upload images. After publishing on note, paste the post's link into
   but have no service page with plan details. They don't fit the AI/Web
   positioning, and their Lancers plans make claims or offers (95% accuracy, a
   3.2× guarantee, getting around bot protection) the site shouldn't repeat.
+- **Images and videos.** The cover image and promo video of each package on a
+  service page are copied from Lancers (2026-11-08) into
+  `site/assets/media/packages/<id>.webp` and `.mp4`, and listed as `cover:` and
+  `video:` in `site/packages.yml`. They're served from this site because
+  Lancers' video links expire. The build fails if a listed file is missing. To
+  replace one, save the new files under the same names, shrunk like this:
+
+  ```bash
+  ffmpeg -i new.mp4 -vf scale=-2:720 -c:v libx264 -preset slow -crf 30 \
+    -c:a aac -b:a 80k -movflags +faststart site/assets/media/packages/<id>.mp4
+  python3 -c "from PIL import Image; Image.open('new.png').convert('RGB').save('site/assets/media/packages/<id>.webp', quality=82)"
+  ```
+
+  Covers should be 16:9. The videos' presenter is an AI-generated character, so
+  each service page with videos says so under 料金の目安.
 
 `npm run site` also writes `dist/github-profile/README.md`: copy it into your
 `codemonkey0612/codemonkey0612` repository so your GitHub profile shows the same

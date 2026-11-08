@@ -225,8 +225,22 @@ a.card:hover { border-color: var(--primary); transform: translateY(-2px); }
 .prose h2:first-child { margin-top: 0; }
 .prose ul { padding-left: 1.3em; }
 .prose li { margin-bottom: 0.35em; }
-.package { margin-top: 28px; }
+.package { margin-top: 36px; }
 .package h3 a { color: var(--ink); }
+
+/* Package covers and promo videos (16:9) */
+.cover {
+  display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
+  border-radius: calc(var(--radius) - 4px); background: var(--surface-alt);
+}
+.card.service .cover { margin: -8px -8px 14px; width: calc(100% + 16px); max-width: none; }
+.package-intro { display: grid; gap: 14px 24px; align-items: center; margin-bottom: 14px; }
+.package-intro h3 { margin-bottom: 0.35em; }
+.package-intro p { margin: 0; }
+@media (min-width: 760px) {
+  .package-intro { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+video.cover { border: 1px solid var(--line); box-shadow: var(--shadow); }
 .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
 th, td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--line); }

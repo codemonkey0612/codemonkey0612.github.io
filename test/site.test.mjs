@@ -32,8 +32,10 @@ test("the real site builds: every page, link and structured-data block is valid"
     assert.match(html, new RegExp(profile.contact_url.replace(/[.?]/g, "\\$&")), `${page} links to the contact page`);
     for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)) JSON.parse(m[1]);
     if (page === "404.html") continue; // uses absolute links
-    // Every relative link points at a file the build produces.
-    for (const [, href] of html.matchAll(/href="([^"#:]+)(?:#[^"]*)?"/g)) {
+    // Media is served from this site, never hotlinked from Lancers (its video URLs expire).
+    assert.doesNotMatch(html, /(?:src|poster)="https?:\/\/[^"]*lancers\.jp/, `${page} hotlinks Lancers media`);
+    // Every relative link, image and video points at a file the build produces.
+    for (const [, href] of html.matchAll(/(?:href|src|poster)="([^"#:]+)(?:#[^"]*)?"/g)) {
       let target = path.posix.normalize(path.posix.join(path.posix.dirname(page), href));
       if (target === "." || target === "./") target = "";
       const file = target === "" || target.endsWith("/") ? `${target}index.html` : target;
@@ -94,6 +96,28 @@ test("a service page that references a missing case or package fails the build",
   assert.throws(() => loadSite({ root: badPkg, profile, today }), /package 2/);
   const missing = tmpRepo(base);
   assert.throws(() => loadSite({ root: missing, profile, today }), /site\/services\/a\.md is missing/);
+  const noVideo = tmpRepo({
+    "site/packages.yml": '"1":\n  title: P\n  video: media/packages/1.mp4\n  plans: []\n',
+    "site/services/a.md": "---\npackages: [1]\n---\n",
+  });
+  assert.throws(() => loadSite({ root: noVideo, profile, today }), /site\/assets\/media\/packages\/1\.mp4 does not exist/);
+});
+
+test("service pages show each package's cover and promo video", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  for (const s of site.services) {
+    const html = files[`services/${s.id}/index.html`];
+    for (const p of s.packages.filter((x) => x.video)) {
+      assert.ok(html.includes(`<source src="../../${p.video}" type="video/mp4">`), `${s.id}: video of ${p.id}`);
+      assert.ok(html.includes(`poster="../../${p.cover}"`), `${s.id}: poster of ${p.id}`);
+    }
+    if (s.packages.some((x) => x.video)) assert.match(html, /案内役は、AIで生成したキャラクターです/, `${s.id} says the presenter is AI`);
+    if (s.cover) {
+      assert.ok(files["index.html"].includes(`src="./${s.cover}"`), `home card of ${s.id} has its cover`);
+      assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.cover, site.profile.site_url).href}">`), `${s.id} share image`);
+    }
+  }
 });
 
 test("the site lists every Lancers review and package profile.yml counts", () => {

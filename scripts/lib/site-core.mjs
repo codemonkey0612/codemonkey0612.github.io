@@ -76,6 +76,16 @@ export function loadSite({ root, profile, today = new Date() }) {
   };
   const caseById = byId(profile.cases, "case");
   const testimonialById = byId(profile.testimonials, "testimonial");
+  // Media paths in packages.yml are relative to site/assets/; fail the build on a typo.
+  const asset = (rel, where) => {
+    if (rel == null) return null;
+    if (!fs.existsSync(path.join(root, "site", "assets", rel))) throw new Error(`${where}: site/assets/${rel} does not exist`);
+    return `assets/${rel}`;
+  };
+  const media = (id, p) => ({
+    cover: asset(p.cover, `site/packages.yml ${id} cover`),
+    video: asset(p.video, `site/packages.yml ${id} video`),
+  });
 
   const services = (profile.services ?? []).map((s) => {
     const rel = `site/services/${s.id}.md`;
@@ -85,13 +95,14 @@ export function loadSite({ root, profile, today = new Date() }) {
     const pkgs = (data.packages ?? []).map((id) => {
       const p = packages[String(id)];
       if (!p) throw new Error(`${rel}: package ${id} is not in site/packages.yml`);
-      return { id: String(id), url: LANCERS_PACKAGE(id), title: p.title, plans: p.plans ?? [] };
+      return { id: String(id), url: LANCERS_PACKAGE(id), title: p.title, plans: p.plans ?? [], ...media(id, p) };
     });
     const prices = pkgs.flatMap((p) => p.plans.map((x) => x.price)).filter(Number.isFinite);
     return {
       ...s,
       description: data.description ?? s.summary,
       packages: pkgs,
+      cover: pkgs.find((p) => p.cover)?.cover ?? null,
       priceFrom: prices.length ? Math.min(...prices) : null,
       cases: (data.cases ?? []).map((id) => caseById(id, rel)),
       testimonials: (data.testimonials ?? []).map((id) => testimonialById(id, rel)),
@@ -116,6 +127,7 @@ export function loadSite({ root, profile, today = new Date() }) {
       url: LANCERS_PACKAGE(id),
       title: p.title,
       plans,
+      ...media(id, p),
       minPrice: prices.length ? Math.min(...prices) : null,
       maxPrice: prices.length ? Math.max(...prices) : null,
       minDays: days.length ? Math.min(...days) : null,
@@ -170,11 +182,13 @@ function personLd(site) {
 
 // ---------- layout ----------
 
-function layout(site, { route, title, description, body, ld = [], absolute = false }) {
+function layout(site, { route, title, description, body, ld = [], absolute = false, image = null }) {
   const { profile } = site;
   const depth = route.split("/").filter(Boolean).length;
   const base = absolute ? profile.site_url : depth ? "../".repeat(depth) : "./";
   const canonical = new URL(route, profile.site_url).href;
+  // Share image: the page's own, else the first service's cover.
+  const shareImage = image ?? site.services.find((s) => s.cover)?.cover;
   const fullTitle = route === "" ? `${profile.brand}｜${profile.title}` : `${title}｜${profile.brand}`;
   const links = sameAs(profile);
   const label = (u) =>
@@ -193,7 +207,7 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
 <meta property="og:url" content="${esc(canonical)}">
 <meta property="og:site_name" content="${esc(profile.brand)}">
 <meta property="og:locale" content="ja_JP">
-<meta name="twitter:card" content="summary">
+${shareImage ? `<meta property="og:image" content="${esc(new URL(shareImage, profile.site_url).href)}">\n<meta name="twitter:card" content="summary_large_image">` : `<meta name="twitter:card" content="summary">`}
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="${base}assets/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -338,8 +352,13 @@ function faqBlock(items) {
 </section>`;
 }
 
+// Covers are 1000×563 (16:9); width/height keep the layout from jumping while they load.
+const coverImg = (src, base, alt = "", cls = "cover") =>
+  `<img class="${cls}" src="${base}${esc(src)}" alt="${esc(alt)}" width="1000" height="563" loading="lazy" decoding="async">`;
+
 function serviceCard(s, base) {
   return `<a class="card service" href="${base}services/${esc(s.id)}/">
+        ${s.cover ? coverImg(s.cover, base) : ""}
         ${s.pillar ? `<p class="eyebrow">${esc(s.pillar)}</p>` : ""}
         <h3>${esc(s.name)}</h3>
         <p>${esc(s.summary)}</p>
@@ -443,10 +462,22 @@ export function renderService(site, s) {
   const base = "../../";
   const route = `services/${s.id}/`;
   const url = new URL(route, profile.site_url).href;
+  const media = (p) =>
+    p.video
+      ? `<video class="cover" controls preload="none" playsinline poster="${base}${esc(p.cover ?? "")}" width="1280" height="720" aria-label="${esc(p.title)}の紹介動画"><source src="${base}${esc(p.video)}" type="video/mp4"></video>`
+      : p.cover
+        ? coverImg(p.cover, base, p.title)
+        : "";
   const packages = s.packages
     .map(
       (p) => `<div class="package">
-      <h3><a href="${esc(p.url)}">${esc(p.title)}</a></h3>
+      <div class="package-intro">
+        ${media(p)}
+        <div>
+          <h3><a href="${esc(p.url)}">${esc(p.title)}</a></h3>
+          <p class="muted small">${p.video ? "紹介動画つき・" : ""}<a href="${esc(p.url)}">ランサーズでパッケージを見る</a></p>
+        </div>
+      </div>
       <div class="table-scroll"><table class="plans">
         <thead><tr><th scope="col">プラン</th><th scope="col">料金</th><th scope="col">納期の目安</th><th scope="col">内容</th></tr></thead>
         <tbody>
@@ -484,7 +515,7 @@ ${
     ? `<section class="section alt" id="price">
   <div class="wrap">
     <h2>料金の目安</h2>
-    <p class="muted">ランサーズで出品しているパッケージの料金です（${jaDate(profile.lancers?.as_of)}時点）。内容に合わせた個別のお見積もりもできます。</p>
+    <p class="muted">ランサーズで出品しているパッケージの料金です（${jaDate(profile.lancers?.as_of)}時点）。内容に合わせた個別のお見積もりもできます。${s.packages.some((p) => p.video) ? "紹介動画の案内役は、AIで生成したキャラクターです。" : ""}</p>
     ${packages}
   </div>
 </section>`
@@ -540,7 +571,7 @@ ${cta(site, `${s.name}のご相談`)}
       ],
     },
   ];
-  return layout(site, { route, title: s.name, description: s.description, body, ld });
+  return layout(site, { route, title: s.name, description: s.description, body, ld, image: s.cover });
 }
 
 export function renderWorks(site) {

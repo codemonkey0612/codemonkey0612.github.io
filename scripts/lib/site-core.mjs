@@ -170,6 +170,8 @@ export function loadSite({ root, profile, today = new Date() }) {
       service: g.service ? serviceById(g.service, `site/media.yml gallery[${i}]`) : null,
     })),
   };
+  const iconDir = path.join(root, "site", "assets", "icons");
+  art.icons = new Set(fs.existsSync(iconDir) ? fs.readdirSync(iconDir).filter((f) => f.endsWith(".webp")).map((f) => f.slice(0, -5)) : []);
   // Each service's promo video: the first of its packages that has one.
   for (const s of services) s.video = s.packages.find((p) => p.video) ?? null;
 
@@ -249,25 +251,40 @@ const ext = (url, text, cls = "") =>
 const KANJI = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
 const AI_NOTE = "画像・動画に登場する人物は、AIで生成したイメージキャラクターです。";
 
-// Line icons (24×24, stroke = currentColor).
+// Two-tone icons (24×24): .f = soft fill, .s = main stroke, .a = gold accent, .dot = accent dot.
+// Colours come from CSS (currentColor, --ic-accent, --ic-fill), so one set works everywhere.
+const SHIELD = "M12 3l7.5 3v5.6c0 4.4-3.1 7.7-7.5 9.4-4.4-1.7-7.5-5-7.5-9.4V6z";
+const HEART = "M12 17.5s-6-3.8-6-8.4A3.4 3.4 0 0 1 12 7a3.4 3.4 0 0 1 6 2.1c0 4.6-6 8.4-6 8.4z";
+const BUBBLE = "M3.5 6.5a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3V11a3 3 0 0 1-3 3H10l-3.8 3v-3H6.5a3 3 0 0 1-3-3z";
+const both = (d, tag = "path") => (tag === "path" ? `<path class="f" d="${d}"/><path class="s" d="${d}"/>` : `<${tag} class="f" ${d}/><${tag} class="s" ${d}/>`);
 const ICON = {
-  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
-  chat: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/>',
-  search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
-  shield: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
-  heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
-  clipboard: '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 3h6v3H9zM9 11h6M9 15h4"/>',
-  pen: '<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>',
-  code: '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/>',
-  rocket: '<path d="M14 4c3 0 6 3 6 6l-7 7-6-6z"/><path d="M7 11l-3 1 2 2M13 17l-1 3-2-2M6 18l-2 2"/><circle cx="14.5" cy="9.5" r="1.5"/>',
-  play: '<path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/>',
-  star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.5 2.9 1-6.1L3 9.5l6.1-.9z" fill="currentColor" stroke="none"/>',
-  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
-  external: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
-  sparkle: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/>',
+  target: `${both('cx="11" cy="13" r="8"', "circle")}<circle class="s" cx="11" cy="13" r="4.2"/><circle class="dot" cx="11" cy="13" r="1.5"/><path class="a" d="M11 13l8.3-8.3M16.4 4.6h3v3"/>`,
+  chat: `${both(BUBBLE)}<path class="a" d="M14.6 17.6h3.1l3 2.4v-2.6a2.4 2.4 0 0 0 1-2V12a2.4 2.4 0 0 0-1.4-2.2"/><circle class="dot" cx="7.8" cy="9" r=".95"/><circle class="dot" cx="10.5" cy="9" r=".95"/><circle class="dot" cx="13.2" cy="9" r=".95"/>`,
+  search: `${both('cx="10.5" cy="10.5" r="6.5"', "circle")}<path class="s" d="M15.4 15.4l5 5"/><path class="a" d="M7.6 9.4a3.2 3.2 0 0 1 2.6-2.3"/>`,
+  shield: `${both(SHIELD)}<path class="a" d="M8.6 12.1l2.4 2.4 4.6-4.8"/>`,
+  heart: `${both(HEART)}<path class="a" d="M2.8 15.6c2.1 0 3.3 1 4.6 2.2 1.1 1 2.4 1.7 4.6 1.7h6.8"/>`,
+  clipboard: `${both('x="5" y="4.5" width="14" height="16.5" rx="2.5"', "rect")}<path class="s" d="M9 3.2h6v3H9z"/><path class="a" d="M8.4 12l1.7 1.7 3.2-3.2M8.4 17h7.2"/>`,
+  pen: `${both("M14.5 4.5l5 5-8.5 8.5H6v-5z")}<path class="s" d="M12.5 6.5l5 5"/><path class="a" d="M3.5 21h10"/>`,
+  code: `${both('x="3.5" y="5" width="17" height="11" rx="2.2"', "rect")}<path class="s" d="M1.8 19.5h20.4"/><path class="a" d="M10 8.7l-2.3 2.3 2.3 2.3M14 8.7l2.3 2.3-2.3 2.3"/>`,
+  rocket: `${both("M14.5 3.5c3.2.3 5.7 2.8 6 6l-6.8 6.8-6-6z")}<circle class="s" cx="15" cy="9" r="1.7"/><path class="a" d="M7.7 10.3l-3.2.7 2 2M13.7 16.3l-.7 3.2-2-2M6.6 17.4L3.8 20.2"/>`,
+  trophy: `${both("M7 4h10v5a5 5 0 0 1-10 0z")}<path class="s" d="M7 6H4.6a2.6 2.6 0 0 0 2.7 3.5M17 6h2.4a2.6 2.6 0 0 1-2.7 3.5M12 14v3.4M8.4 20.6h7.2M9.6 17.5h4.8"/><path class="dot" d="M12 6.1l.8 1.6 1.8.3-1.3 1.2.3 1.8-1.6-.8-1.6.8.3-1.8-1.3-1.2 1.8-.3z"/>`,
+  repeat: `<path class="f" d="${"M12 15.4s-3.2-2-3.2-4.4A1.8 1.8 0 0 1 12 9.9a1.8 1.8 0 0 1 3.2 1.1c0 2.4-3.2 4.4-3.2 4.4z"}"/><path class="s" d="M19 9.4A7.6 7.6 0 0 0 5.5 7.3M5 14.6a7.6 7.6 0 0 0 13.5 2.1"/><path class="a" d="M5.3 3.7v3.9h3.9M18.7 20.3v-3.9h-3.9"/><path class="s" d="M12 15.4s-3.2-2-3.2-4.4A1.8 1.8 0 0 1 12 9.9a1.8 1.8 0 0 1 3.2 1.1c0 2.4-3.2 4.4-3.2 4.4z"/>`,
+  video: `${both('x="2.8" y="6.5" width="12.7" height="11" rx="2.6"', "rect")}<path class="a" d="M15.5 10.4l5.2-3v9.2l-5.2-3"/><circle class="dot" cx="6.4" cy="10" r="1"/>`,
+  lock: `${both('x="5" y="10.5" width="14" height="10" rx="2.6"', "rect")}<path class="s" d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><path class="a" d="M12 14.2v2.8"/><circle class="dot" cx="12" cy="14" r="1.3"/>`,
+  safe: `${both(SHIELD)}<path class="a" d="M9.4 8.4l2.6 3.3 2.6-3.3M12 11.7v4.6M9.9 12.9h4.2M9.9 14.8h4.2"/>`,
+  sparkle: `${both("M12 2.6l2.1 5.8 5.8 2.1-5.8 2.1L12 18.4l-2.1-5.8-5.8-2.1 5.8-2.1z")}<path class="a" d="M19 16.4v4.2M16.9 18.5h4.2"/>`,
+  play: '<path class="solid-cur" d="M8 5.8v12.4a1 1 0 0 0 1.5.86l10-6.2a1 1 0 0 0 0-1.72l-10-6.2A1 1 0 0 0 8 5.8z"/>',
+  star: '<path class="solid" d="M12 2.8l2.75 5.6 6.15.9-4.45 4.33 1.05 6.12L12 16.86l-5.5 2.9 1.05-6.13L3.1 9.3l6.15-.9z"/>',
+  arrow: '<path class="s" d="M4.5 12h14.5M13.6 6.5L19 12l-5.4 5.5"/>',
+  external: '<path class="s" d="M13.5 4.5h6v6M19.5 4.5l-8.5 8.5M17.5 14v4.5a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5V8.5A1.5 1.5 0 0 1 6 7h4.5"/>',
 };
 const icon = (name, cls = "ic") =>
   `<svg class="${cls}" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]}</svg>`;
+/** A feature icon: your own image from site/assets/icons/<name>.webp when it exists, else the built-in SVG. */
+const fi = (site, base, name) =>
+  site.art?.icons?.has(name)
+    ? `<img class="ic-img" src="${base}assets/icons/${esc(name)}.webp" alt="" width="128" height="128" loading="lazy" decoding="async">`
+    : icon(name, "ic ic-feature");
 const stars = (n = 5) => `<span class="stars" aria-hidden="true">${icon("star", "st").repeat(n)}</span>`;
 
 function sameAs(profile) {
@@ -345,6 +362,7 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
 ${ld.length ? jsonld({ "@context": "https://schema.org", "@graph": ld }) : ""}
 </head>
 <body class="page-${page}">
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><linearGradient id="tk-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4dc93"/><stop offset=".5" stop-color="#d2a84c"/><stop offset="1" stop-color="#a57a22"/></linearGradient></defs></svg>
 <a class="skip" href="#main">本文へ移動</a>
 <div class="intro" aria-hidden="true"><div class="intro-inner"><img src="${emblemSmall}" alt="" width="120" height="120"><p class="intro-word">TAKUMI</p><p class="intro-sub">AI・Webシステム開発</p></div></div>
 <div class="progress" aria-hidden="true"></div>
@@ -442,9 +460,9 @@ function cta(site, base, heading = "まずは、お気軽にご相談くださ�
       <h2 id="cta-title" class="cta-title" data-reveal>${esc(heading)}</h2>
       <p class="cta-text" data-reveal>${esc(text)}</p>
       <ul class="cta-points" data-reveal>
-        <li>${icon("shield")}ランサーズの仮払いで安心</li>
-        <li>${icon("chat")}ビデオ通話にも対応</li>
-        <li>${icon("pen")}NDA（秘密保持契約）対応</li>
+        <li>${fi(site, base, "safe")}ランサーズの仮払いで安心</li>
+        <li>${fi(site, base, "video")}ビデオ通話にも対応</li>
+        <li>${fi(site, base, "lock")}NDA（秘密保持契約）対応</li>
       </ul>
       <p class="actions" data-reveal>
         <a class="btn btn-gold btn-lg" href="${esc(profile.contact_url)}" data-magnetic>ランサーズで無料相談する${icon("arrow")}</a>
@@ -745,7 +763,7 @@ export function renderIndex(site) {
       </div>
       <div class="float-card fc-1" data-depth="18"><span class="fc-big"><b data-count="${num(l.reviews)}">${num(l.reviews)}</b>件</span><span>評価すべて「満足」${stars()}</span></div>
       <div class="float-card fc-2" data-depth="-14"><span class="fc-big"><b data-count="${years}">${years}</b>年</span><span>開発歴</span></div>
-      <div class="float-card fc-3" data-depth="10">${icon("sparkle")}<span>ChatGPT・RAG・WordPress・AWS</span></div>
+      <div class="float-card fc-3" data-depth="10">${fi(site, base, "sparkle")}<span>ChatGPT・RAG・WordPress・AWS</span></div>
     </div>`
         : ""
     }
@@ -763,26 +781,26 @@ ${marquee(techList(site), { cls: "tech-marquee", render: (t) => `<span class="te
     ${sectionHead("01", "Why Takumi", "選ばれる理由", "技術力だけでなく、目的の理解と、こまめな共有を大切にしています。ランサーズでいただいた評価は、すべて「満足」です。", { center: true })}
     <div class="strength-cards">
       <article class="s-card" data-reveal data-spot>
-        <span class="s-ic">${icon("star")}</span>
+        <span class="s-ic">${fi(site, base, "trophy")}</span>
         <p class="s-num"><b data-count="${num(l.reviews)}">${num(l.reviews)}</b>件</p>
         <h3>すべての評価が「満足」</h3>
         <p>前任者からの引き継ぎや、仕様変更の多い案件でも、最後まで丁寧に対応してきました。</p>
       </article>
       <article class="s-card" data-reveal data-spot>
-        <span class="s-ic">${icon("heart")}</span>
+        <span class="s-ic">${fi(site, base, "repeat")}</span>
         <p class="s-num"><b data-count="${num(l.repeat_clients)}">${num(l.repeat_clients)}</b>人</p>
         <h3>リピーターのお客さま</h3>
         <p>同じお客さまから、追加開発・保守・次のフェーズを続けてご依頼いただいています。</p>
       </article>
       <article class="s-card" data-reveal data-spot>
-        <span class="s-ic">${icon("code")}</span>
+        <span class="s-ic">${fi(site, base, "code")}</span>
         <p class="s-num"><b data-count="${years}">${years}</b>年</p>
         <h3>AIからWeb・業務システムまで</h3>
         <p>ChatGPT・RAG、WordPress・Shopify、業務システム、セキュリティ診断まで、ひとりで通して担当します。</p>
       </article>
     </div>
     <ol class="values">
-      ${(profile.values ?? []).map((v, i) => `<li data-reveal><span class="v-ic">${icon(VALUE_ICONS[i] ?? "sparkle")}</span><span class="v-no" aria-hidden="true">${KANJI[i] ?? i + 1}</span><p>${esc(v)}</p></li>`).join("\n      ")}
+      ${(profile.values ?? []).map((v, i) => `<li data-reveal><span class="v-ic">${fi(site, base, VALUE_ICONS[i] ?? "sparkle")}</span><span class="v-no" aria-hidden="true">${KANJI[i] ?? i + 1}</span><p>${esc(v)}</p></li>`).join("\n      ")}
     </ol>
   </div>
 </section>
@@ -871,7 +889,7 @@ ${
   <div class="wrap">
     ${sectionHead("06", "Flow", "ご相談の流れ", "契約と支払いはランサーズを通して行います。代金は納品をご確認いただいてから支払われるので、はじめての方も安心です。", { center: true })}
     <ol class="flow" data-flow>
-      ${FLOW.map(([ic, h, t], i) => `<li data-reveal><span class="flow-ic">${icon(ic)}<span class="flow-no">${pad2(i + 1)}</span></span><h3>${esc(h)}</h3><p>${esc(t)}</p></li>`).join("\n      ")}
+      ${FLOW.map(([ic, h, t], i) => `<li data-reveal><span class="flow-ic">${fi(site, base, ic)}<span class="flow-no">${pad2(i + 1)}</span></span><h3>${esc(h)}</h3><p>${esc(t)}</p></li>`).join("\n      ")}
     </ol>
   </div>
 </section>
@@ -1226,7 +1244,7 @@ ${stats(site)}
   <div class="wrap narrow-wrap">
     ${sectionHead("", "Approach", "大切にしていること")}
     <ol class="values values-col">
-      ${(profile.values ?? []).map((v, i) => `<li data-reveal><span class="v-ic">${icon(VALUE_ICONS[i] ?? "sparkle")}</span><span class="v-no" aria-hidden="true">${KANJI[i] ?? i + 1}</span><p>${esc(v)}</p></li>`).join("\n      ")}
+      ${(profile.values ?? []).map((v, i) => `<li data-reveal><span class="v-ic">${fi(site, base, VALUE_ICONS[i] ?? "sparkle")}</span><span class="v-no" aria-hidden="true">${KANJI[i] ?? i + 1}</span><p>${esc(v)}</p></li>`).join("\n      ")}
     </ol>
   </div>
 </section>

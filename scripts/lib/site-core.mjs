@@ -172,11 +172,6 @@ export function loadSite({ root, profile, today = new Date() }) {
   };
   const iconDir = path.join(root, "site", "assets", "icons");
   art.icons = new Set(fs.existsSync(iconDir) ? fs.readdirSync(iconDir).filter((f) => f.endsWith(".webp")).map((f) => f.slice(0, -5)) : []);
-  const artDir = path.join(root, "site", "assets", "art", "services");
-  for (const s of services) {
-    const f = path.join(artDir, `${s.id}.webp`);
-    s.art = fs.existsSync(f) ? `assets/art/services/${s.id}.webp` : null;
-  }
   // Each service's promo video: the first of its packages that has one.
   for (const s of services) s.video = s.packages.find((p) => p.video) ?? null;
 
@@ -593,15 +588,14 @@ const img = (src, base, { alt = "", w, h, cls = "", eager = false } = {}) =>
 const coverImg = (src, base, alt = "", cls = "cover") => img(src, base, { alt, w: 1600, h: 900, cls });
 
 /** A service card: banner image, and its promo video plays on hover (mouse) or in the player (tap). */
-function serviceCard(s, base, { big = false, compact = false } = {}) {
+function serviceCard(s, base, { big = false } = {}) {
   const v = s.video;
-  const pic = s.art ? img(s.art, base, { alt: "", w: 1536, h: 1024 }) : s.cover ? coverImg(s.cover, base) : "";
-  return `<a class="svc-card${big ? " svc-card-big" : ""}${compact ? " svc-card-compact" : ""}" href="${base}services/${esc(s.id)}/" data-spot${v ? ` data-hover-video="${base}${esc(v.video)}"` : ""} data-reveal>
-        <span class="svc-media${s.art ? " svc-media-art" : ""}">${pic}${v ? `<span class="svc-play">${icon("play")}動画</span>` : ""}</span>
+  return `<a class="svc-card${big ? " svc-card-big" : ""}" href="${base}services/${esc(s.id)}/" data-spot${v ? ` data-hover-video="${base}${esc(v.video)}"` : ""} data-reveal>
+        <span class="svc-media">${s.cover ? coverImg(s.cover, base) : ""}${v ? `<span class="svc-play">${icon("play")}動画あり</span>` : ""}</span>
         <span class="svc-body">
           <span class="svc-pillar">${esc(s.pillar ?? "")}</span>
           <span class="svc-name">${esc(s.name)}</span>
-          ${compact ? "" : `<span class="svc-sum">${esc(s.summary)}</span>`}
+          <span class="svc-sum">${esc(s.summary)}</span>
           <span class="svc-foot">${s.priceFrom ? `<span class="svc-price"><small>料金の目安</small>${yen(s.priceFrom)}〜</span>` : "<span></span>"}<span class="svc-arrow">${icon("arrow")}</span></span>
         </span>
       </a>`;
@@ -623,13 +617,13 @@ function siteFrames(w, base, { eager = false } = {}) {
     </div>`;
 }
 
-function siteFeature(w, base, { compact = false } = {}) {
+function siteFeature(w, base) {
   return `<article class="site-card" data-reveal>
     <a class="site-media" href="${base}works/${esc(w.id)}/" aria-label="${esc(w.name)}の詳細">${siteFrames(w, base)}</a>
     <div class="site-text">
       <p class="kicker"><span class="dot" aria-hidden="true"></span>Live site・${esc(w.kind)}</p>
       <h3 class="site-title">${esc(w.name)}</h3>
-      ${compact ? "" : `<p class="site-sum">${esc(w.summary)}</p>`}
+      <p class="site-sum">${esc(w.summary)}</p>
       <p class="site-role">${esc(w.role)}</p>
       <p class="site-links"><a class="link-more" href="${base}works/${esc(w.id)}/">詳しく見る${icon("arrow")}</a>${ext(w.url, `${esc(w.host)} ${icon("external", "ic ic-xs")}`, "link-ext")}</p>
     </div>
@@ -728,15 +722,20 @@ export function renderIndex(site) {
   const description = `${profile.title}の${profile.name}です。開発歴${years}年。ChatGPT・RAGを使った業務アプリやAIチャットボット、WordPress・Shopify、業務システムの開発を、要件の整理から保守まで担当します。`;
   const featured = works.lancers.filter((w) => w.featured);
   const reviews = (profile.testimonials ?? []).filter((t) => t.comment);
+  const half = Math.ceil(reviews.length / 2);
+  const reviewCard = (t) => quoteCard(t, { max: 92, cls: "quote quote-mq" });
   const big = new Set(services.slice(0, 2).map((s) => s.id));
   const theater = services.filter((s) => s.video);
   const first = theater[0];
+  const galleryRow = (items, hidden) =>
+    items
+      .map(
+        (g) =>
+          `<a class="g-item" href="${g.service ? `services/${esc(g.service.id)}/` : "#services"}"${hidden ? ' tabindex="-1"' : ""}>${img(g.image, base, { alt: hidden ? "" : g.alt, w: 960, h: 540 })}</a>`,
+      )
+      .join("");
   const g = art.gallery;
   const gHalf = Math.ceil(g.length / 2);
-  const tile = (href, src, alt, hidden, cls = "g-item") =>
-    `<a class="${cls}" href="${href}"${hidden ? ' tabindex="-1"' : ""}>${img(src, base, { alt: hidden ? "" : alt, w: 960, h: 540 })}</a>`;
-  const bannerTile = (x, hidden) => tile(x.service ? `services/${esc(x.service.id)}/` : "#services", x.image, x.alt, hidden);
-  const coverTile = (w, hidden) => tile(`works/${esc(w.id)}/`, w.cover, w.headline, hidden, "g-item g-item-cover");
   const rotator = ["生成AI・ChatGPTアプリ", "AIチャットボット（RAG）", "WordPress・Webサイト", "Shopify・ECサイト", "業務システム・スマホアプリ", "不具合調査・セキュリティ診断"];
 
   const body = `<section class="hero" data-hero>
@@ -747,7 +746,7 @@ export function renderIndex(site) {
       <p class="hero-badge" data-hero-in><span class="badge-rank">${esc(l.rank ?? "Lancers")}</span>${stars()}<span>評価${num(l.reviews)}件すべて「満足」</span></p>
       <h1 class="hero-title"><span class="line" data-split>目的から考える、</span><span class="line line-gold" data-split>AI・Web</span><span class="line" data-split>システム開発。</span></h1>
       <p class="hero-rotator" data-hero-in><span class="rot-label">得意なこと</span><span class="rotator" data-rotator>${rotator.map((r, i) => `<span${i ? ' aria-hidden="true"' : ""}>${esc(r)}</span>`).join("")}</span></p>
-      <p class="hero-lead" data-hero-in>要件の整理から納品後の保守まで、${esc(profile.name)}がひとりで担当します。</p>
+      <p class="hero-lead" data-hero-in>ChatGPT・RAGを使った業務アプリやAIチャットボットから、WordPress・Shopifyのサイト、業務システムまで。要件の整理から納品後の保守まで、${esc(profile.name)}がひとりで担当します。</p>
       <p class="actions" data-hero-in>
         <a class="btn btn-gold btn-lg" href="${esc(profile.contact_url)}" data-magnetic>ランサーズで無料相談する${icon("arrow")}</a>
         <a class="btn btn-ghost btn-lg" href="#works">実績を見る</a>
@@ -779,22 +778,25 @@ export function renderIndex(site) {
 ${marquee(techList(site), { cls: "tech-marquee", render: (t) => `<span class="tech">${esc(t)}</span>` })}
 <section class="section strengths" id="strengths">
   <div class="wrap">
-    ${sectionHead("01", "Why Takumi", "選ばれる理由", "", { center: true })}
+    ${sectionHead("01", "Why Takumi", "選ばれる理由", "技術力だけでなく、目的の理解と、こまめな共有を大切にしています。ランサーズでいただいた評価は、すべて「満足」です。", { center: true })}
     <div class="strength-cards">
       <article class="s-card" data-reveal data-spot>
         <span class="s-ic">${fi(site, base, "trophy")}</span>
         <p class="s-num"><b data-count="${num(l.reviews)}">${num(l.reviews)}</b>件</p>
         <h3>すべての評価が「満足」</h3>
+        <p>前任者からの引き継ぎや、仕様変更の多い案件でも、最後まで丁寧に対応してきました。</p>
       </article>
       <article class="s-card" data-reveal data-spot>
         <span class="s-ic">${fi(site, base, "repeat")}</span>
         <p class="s-num"><b data-count="${num(l.repeat_clients)}">${num(l.repeat_clients)}</b>人</p>
         <h3>リピーターのお客さま</h3>
+        <p>同じお客さまから、追加開発・保守・次のフェーズを続けてご依頼いただいています。</p>
       </article>
       <article class="s-card" data-reveal data-spot>
         <span class="s-ic">${fi(site, base, "code")}</span>
         <p class="s-num"><b data-count="${years}">${years}</b>年</p>
         <h3>AIからWeb・業務システムまで</h3>
+        <p>ChatGPT・RAG、WordPress・Shopify、業務システム、セキュリティ診断まで、ひとりで通して担当します。</p>
       </article>
     </div>
     <ol class="values">
@@ -804,33 +806,32 @@ ${marquee(techList(site), { cls: "tech-marquee", render: (t) => `<span class="te
 </section>
 <section class="section section-soft services-home" id="services">
   <div class="wrap">
-    ${sectionHead("02", "Services", "サービス", `<span class="hint">${icon("play")}カードにマウスを乗せると、紹介動画が流れます</span>`)}
+    ${sectionHead("02", "Services", "サービス", `AIの導入から、サイト・業務システムの開発、引き継いだシステムの不具合調査まで。ランサーズで${site.packages.length}のパッケージを出品しています。カードにマウスを乗せると、紹介動画が流れます。`)}
     <div class="svc-grid">
-      ${services.map((s) => serviceCard(s, base, { big: big.has(s.id), compact: true })).join("\n      ")}
+      ${services.map((s) => serviceCard(s, base, { big: big.has(s.id) })).join("\n      ")}
     </div>
-    <p class="more-row center"><a class="btn btn-ghost" href="prices/">${site.packages.length}のパッケージと料金を見る${icon("arrow")}</a></p>
+    <p class="more-row center"><a class="btn btn-ghost" href="prices/">${site.packages.length}のパッケージと料金をすべて見る${icon("arrow")}</a></p>
   </div>
 </section>
 ${
   g.length
-    ? `<section class="gallery" aria-label="サービスと実績のギャラリー">
+    ? `<section class="gallery" aria-label="サービスのバナー">
   <div class="gallery-tilt">
-    ${marquee(g.slice(0, gHalf), { cls: "g-row", render: bannerTile })}
-    ${marquee(works.lancers, { cls: "g-row g-row-covers", reverse: true, render: coverTile })}
-    ${marquee(g.slice(gHalf), { cls: "g-row", render: bannerTile })}
+    ${marquee(g.slice(0, gHalf), { cls: "g-row", render: (x, hidden) => galleryRow([x], hidden) })}
+    ${marquee(g.slice(gHalf), { cls: "g-row", reverse: true, render: (x, hidden) => galleryRow([x], hidden) })}
   </div>
 </section>`
     : ""
 }
 <section class="section works-home" id="works">
   <div class="wrap">
-    ${sectionHead("03", "Works", "実績")}
+    ${sectionHead("03", "Works", "実績", "開発に参加した公開中のサイトと、ランサーズでお受けした案件です。ランサーズの案件は、すべてお客さまの評価とあわせて紹介しています。")}
     <div class="site-cards">
-      ${works.sites.map((w) => siteFeature(w, base, { compact: true })).join("\n      ")}
+      ${works.sites.map((w) => siteFeature(w, base)).join("\n      ")}
     </div>
     <div class="works-sub">
-      <p class="works-sub-title" data-reveal><span class="en">Lancers works</span>評価をいただいた案件</p>
-      <a class="link-more" href="works/" data-reveal>すべて見る（${works.all.length}件）${icon("arrow")}</a>
+      <p class="works-sub-title" data-reveal><span class="en">Lancers works</span>評価をいただいた案件から</p>
+      <a class="link-more" href="works/" data-reveal>すべての実績（${works.all.length}件）${icon("arrow")}</a>
     </div>
     <ul class="work-grid">
       ${featured.map((w) => workCard(w, base)).join("\n      ")}
@@ -842,7 +843,7 @@ ${
   first
     ? `<section class="section section-soft theater" id="movie">
   <div class="wrap">
-    ${sectionHead("04", "Movie", "紹介動画", `<span class="hint">案内役は、AIで生成したキャラクターです</span>`)}
+    ${sectionHead("04", "Movie", "紹介動画", "サービスごとの紹介動画です。一覧から選ぶと再生できます。案内役は、AIで生成したキャラクターです。")}
     <div class="theater-grid" data-theater>
       <div class="theater-main" data-reveal>
         <div class="theater-screen">
@@ -878,16 +879,17 @@ ${
       <p class="vs-label">ランサーズの評価が、すべて「満足」</p>
     </div>
   </div>
-  ${marquee(reviews, { render: (t) => quoteCard(t, { max: 58, cls: "quote quote-mq" }), label: "お客さまの声" })}
+  ${marquee(reviews.slice(0, half), { render: (t) => reviewCard(t), label: "お客さまの声（1）" })}
+  ${marquee(reviews.slice(half), { render: (t) => reviewCard(t), reverse: true, label: "お客さまの声（2）" })}
   <div class="wrap">
-    <p class="more-row center"><a class="btn btn-ghost" href="reviews/">${(profile.testimonials ?? []).length}件の評価をすべて読む${icon("arrow")}</a></p>
+    <p class="more-row center"><a class="btn btn-ghost" href="reviews/">${(profile.testimonials ?? []).length}件の評価を原文のまま読む${icon("arrow")}</a></p>
   </div>
 </section>
 <section class="section section-soft flow-sec">
   <div class="wrap">
-    ${sectionHead("06", "Flow", "ご相談の流れ", "契約と支払いはランサーズで。代金は納品の確認後に支払われます。", { center: true })}
-    <ol class="flow flow-compact" data-flow>
-      ${FLOW.map(([ic, h], i) => `<li data-reveal><span class="flow-ic">${fi(site, base, ic)}<span class="flow-no">${pad2(i + 1)}</span></span><h3>${esc(h)}</h3></li>`).join("\n      ")}
+    ${sectionHead("06", "Flow", "ご相談の流れ", "契約と支払いはランサーズを通して行います。代金は納品をご確認いただいてから支払われるので、はじめての方も安心です。", { center: true })}
+    <ol class="flow" data-flow>
+      ${FLOW.map(([ic, h, t], i) => `<li data-reveal><span class="flow-ic">${fi(site, base, ic)}<span class="flow-no">${pad2(i + 1)}</span></span><h3>${esc(h)}</h3><p>${esc(t)}</p></li>`).join("\n      ")}
     </ol>
   </div>
 </section>
@@ -909,17 +911,20 @@ ${
 </section>`
     : ""
 }
-<section class="creds-band" aria-label="保有資格">
-  <div class="wrap creds-head">
-    <p class="creds-count"><span class="creds-num">${(profile.certifications ?? []).length}</span><span>Certifications<small>AI・クラウド・セキュリティの資格</small></span></p>
-    <a class="link-more" href="about/">資格をすべて見る${icon("arrow")}</a>
+<section class="section creds">
+  <div class="wrap">
+    ${sectionHead("07", "Credentials", "保有資格", `AI・クラウド・セキュリティの資格を${(profile.certifications ?? []).length}件保有しています。`)}
+    <ul class="cred-grid">
+      ${(profile.certifications ?? []).map((c) => `<li data-reveal data-spot><time datetime="${esc(c.date)}">${dotDate(c.date)}</time><span>${esc(c.name)}</span></li>`).join("\n      ")}
+    </ul>
   </div>
-  ${marquee(profile.certifications ?? [], { cls: "cred-marquee", render: (c) => `<span class="cred-chip">${fi(site, base, "shield")}${esc(c.name)}</span>` })}
 </section>
-${cta(site, base, "まずは、お気軽にご相談ください。", "「こんなことは実現できる？」という段階からで大丈夫です。")}`;
+${faqBlock(COMMON_FAQ, { soft: true })}
+${cta(site, base)}`;
   const ld = [
     personLd(site),
     { "@type": "WebSite", "@id": `${profile.site_url}#website`, url: profile.site_url, name: profile.brand, inLanguage: "ja" },
+    { "@type": "FAQPage", mainEntity: COMMON_FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
   ];
   return layout(site, { route: "", title: profile.brand, description, body, ld, page: "home" });
 }
@@ -962,9 +967,8 @@ export function renderService(site, s) {
     .join("\n    ");
   const related = site.works.all.filter((w) => w.service?.id === s.id);
   const faq = [...s.faq, ...COMMON_FAQ];
-  const heroPic = s.art ? img(s.art, base, { alt: "", w: 1536, h: 1024, eager: true }) : s.cover ? coverImg(s.cover, base, "") : "";
-  const aside = heroPic
-    ? `<div class="hero-media${s.art ? " hero-media-art" : ""}">${heroPic}${s.video ? `<a class="reel-play" href="${base}${esc(s.video.video)}" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}"><span class="reel-play-ic">${icon("play")}</span>紹介動画を見る</a>` : ""}</div>`
+  const aside = s.cover
+    ? `<div class="hero-media">${coverImg(s.cover, base, "")}${s.video ? `<a class="reel-play" href="${base}${esc(s.video.video)}" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}"><span class="reel-play-ic">${icon("play")}</span>紹介動画を見る</a>` : ""}</div>`
     : "";
   const body = `${pageHero(site, base, {
     en: s.pillar === "AI" ? "AI Service" : "Service",
@@ -1055,7 +1059,7 @@ ${cta(site, base, `${s.name}のご相談`)}
       ],
     },
   ];
-  return layout(site, { route, title: s.name, description: s.description, body, ld, image: s.art ?? s.cover });
+  return layout(site, { route, title: s.name, description: s.description, body, ld, image: s.cover });
 }
 
 export function renderWorks(site) {

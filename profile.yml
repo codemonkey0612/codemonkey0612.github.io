@@ -1,0 +1,334 @@
+# Who you are, in one place. The hub site, article templates, the call-to-action
+# check and the fact-checker all read this file. Filled from the Lancers profile
+# https://www.lancers.jp/profile/navi_work on 2026-11-08; update it when that changes.
+# validate refuses to publish while a TODO it needs is left.
+
+name: 匠（たくみ）
+brand: 匠｜AI・Webシステム開発
+title: フリーランスのAI・Webエンジニア
+tagline: 技術には妥協しない。仕事には誠実に。
+site_url: https://codemonkey0612.github.io/   # the hub site (GitHub Pages; change if you use another repo name or a domain)
+contact_url: https://www.lancers.jp/profile/navi_work/contact_light   # every "相談する" button goes through Lancers
+persona: 私           # the one first-person word used in every post
+
+# Facts posts may mention. The fact-checker treats everything below (facts,
+# lancers, certifications, cases) as ground truth for what posts say about you.
+facts:
+  career_start: 2015-04      # 開発歴11年
+  freelance_since: 2015-04   # every project on the Lancers profile is listed as freelance
+  work_style: リモート（ビデオ面談対応）
+  nda: 対応可
+  hourly_rate: 5,000円/時間（ランサーズの基本単価）
+
+lancers:
+  profile_url: https://www.lancers.jp/profile/navi_work
+  reviews_url: https://www.lancers.jp/profile/navi_work/feedback
+  portfolio_url: https://www.lancers.jp/profile/navi_work/portfolio
+  joined: 2026-01-05
+  as_of: 2026-11-08          # the numbers below were read on this date
+  rank: 認定ランサー
+  jobs: 28件
+  reviews: 26件（満足26件・残念0件）
+  completion_rate: 100%
+  repeat_clients: 5人
+  reply_rate_24h: 100%
+  external_record: 他社サービスでの実績12件（満足率100%）
+  verified: [本人確認, 機密保持確認, 電話確認]
+  packages: 20件
+  portfolio: 14件
+  business_experience: 10件（ログインしていない人に見える件数）
+
+# 匠が大切にしていること (from the Lancers self-introduction)
+values:
+  - 目的を理解してから開発すること
+  - 分かりやすく、こまめに進捗を共有すること
+  - 問題は表面的に直さず、原因から向き合うこと
+  - 品質、保守性、セキュリティを妥協しないこと
+  - 納品して終わりではなく、その後も頼れる存在であること
+
+certifications:
+  - { name: "Microsoft Certified: Azure AI Developer Associate", date: 2026-08 }
+  - { name: "AWS Certified Machine Learning Engineer – Associate", date: 2026-05 }
+  - { name: "ITIL 4 Practitioner: Problem Management", date: 2025-11 }
+  - { name: "AWS Certified Solutions Architect – Professional", date: 2025-09 }
+  - { name: "Google Cloud Professional Machine Learning Engineer", date: 2025-03 }
+  - { name: "情報処理安全確保支援士試験 合格", date: 2024-12 }
+  - { name: "Google Cloud Professional Cloud Architect", date: 2024-09 }
+  - { name: "Python 3 エンジニア認定実践試験", date: 2024-05 }
+  - { name: "応用情報技術者試験 合格", date: 2023-12 }
+  - { name: "Certified Kubernetes Administrator (CKA)", date: 2023-07 }
+  - { name: "HashiCorp Certified: Terraform Associate", date: 2023-03 }
+  - { name: "AWS Certified Developer – Associate", date: 2022-09 }
+  - { name: "PHP技術者認定上級試験 合格", date: 2020-08 }
+
+# Past projects as published on Lancers (ビジネス経験): the 10 entries anyone can see
+# (logged out) on 2026-11-08. Client names stay anonymous.
+cases:
+  - id: ai-saas
+    title: 中堅IT企業向けAIエージェント・マルチテナントSaaS開発
+    period: 2024-04 – 2026-07
+    team: 7名（PM1・AIエンジニア2・バックエンド2・フロントエンド1・インフラ1）
+    role: AIエンジニア・テックリード（アーキテクチャ設計、RAG構築、LLM連携、API・DB設計、マルチテナント化、クラウド構築、コードレビュー）
+    challenge: 企業ごとに異なるデータ構造・権限・業務フローに対応しながら情報漏えいを防ぎ、AIの回答品質・速度・運用コストを両立する必要があった。
+    actions: 企業単位のデータ分離、ロール別権限、文書のインデックス化とベクトル検索、RAG回答生成、API認証を実装。回答の参照元表示、ログ管理、エラー監視、評価用データセットでの品質検証も整備した。
+    result: 複数企業が安全に使えるAI業務基盤を構築し、社内情報検索と問い合わせ対応を効率化。AIエージェントの追加や企業別の機能拡張にも対応できる構成にした。
+    stack: [Python, FastAPI, Next.js, TypeScript, OpenAI API, RAG, PostgreSQL, AWS, Docker]
+  - id: rag-docs
+    title: 中堅企業向けChatGPT・RAG文書解析システム開発
+    period: 2023-04 – 2024-03
+    team: 6名（PM1・AIエンジニア2・Webエンジニア2・業務担当1）
+    role: AIエンジニア（RAG設計、文書取り込み、テキスト抽出、ベクトル検索、LLM API連携、フロント・バックエンド開発）
+    challenge: 文書ごとに形式や書き方が違い、必要な情報を正確に探しにくかった。生成AIの誤回答や、参照元を確認できない問題への対策も必要だった。
+    actions: PDF・Office文書のテキスト抽出、分割、ベクトル化、検索、RAGによる回答生成を実装。回答に参照元を表示し、情報が足りないときは回答を控える仕組みにした。評価用の質問データで検索精度と回答品質の改善を繰り返した。
+    result: 担当者が大量の資料を1件ずつ確認する負担を減らし、社内文書の活用を効率化した。
+    stack: [Python, FastAPI, OpenAI API, LangChain, PostgreSQL, React, AWS]
+  - id: auth-security
+    title: 中堅IT企業向けWebアプリのセキュリティ強化（認証・権限管理の全面改善）
+    period: 2022-04 – 2023-02
+    team: 5名（PM1・エンジニア3・運用担当1）
+    role: バックエンド・セキュリティ開発（既存システム調査、認証設計、API保護、権限管理、セキュリティテスト）
+    challenge: 機能ごとに認証・権限管理の実装がばらばらで、アクセス制御の一貫性と不適切なデータアクセスへの対策が課題だった。
+    actions: OAuth 2.0、トークン管理、ロールベースアクセス制御、入力値検証、API認可、操作ログを整備。脆弱性につながる処理を調べて修正し、再テストした。
+    result: 認証・認可の処理を統一し、アクセス管理の運用負担を軽減。安全に運用を続けられる基盤を整えた。
+    stack: [Node.js, TypeScript, OAuth 2.0, JWT, PostgreSQL, AWS, OWASP]
+  - id: desktop-automation
+    title: 小売・サービス企業向け業務自動化デスクトップアプリ開発
+    period: 2021-05 – 2022-02
+    team: 3名（エンジニア1・業務担当2）
+    role: 単独の開発担当（業務分析、要件定義、UI設計、データ処理、テスト、導入支援）
+    challenge: 複数のExcelから手作業で転記・集計しており、時間がかかるうえに入力ミスや重複処理が起きていた。
+    actions: 複数ファイルの一括読み込み、形式の統一、重複チェック、自動集計、Excel帳票出力、処理履歴を実装。ITに詳しくない担当者でも使える画面にした。
+    result: 定型のデータ処理作業時間を約75%削減。手順を標準化し、入力ミスを防いだ。
+    stack: [Python, PySide, SQLite, Pandas, OpenPyXL, REST API]
+  - id: live-streaming
+    title: 教育・研修事業者向けライブ動画配信プラットフォーム開発
+    period: 2020-06 – 2021-01
+    team: 5名（PM1・エンジニア2・配信担当2）
+    role: フルスタックエンジニア（システム設計、会員管理、配信画面、動画処理、API開発、AWS構築、テスト）
+    challenge: 端末や通信環境によって視聴品質がばらつく中で、安定した配信と簡単な参加手続きを両立する必要があった。
+    actions: WebRTCによる配信、参加者認証、録画管理、動画変換、視聴ページを実装し、複数端末で動作を検証した。
+    result: 配信準備から参加者管理までの運営作業時間を約50%削減した。
+    stack: [React, Node.js, WebRTC, WebSocket, FFmpeg, AWS, MySQL]
+  - id: knowledge-search
+    title: 中堅企業向け社内文書検索・ナレッジ管理システム開発
+    period: 2019-05 – 2020-03
+    team: 5名（PM1・エンジニア2・業務担当2）
+    role: バックエンドエンジニア（検索基盤設計、文書取り込み、全文検索API、DB設計、権限管理）
+    challenge: 資料が複数の場所にばらばらの形式で保存され、必要な情報を探すのに時間がかかっていた。
+    actions: 文書の自動取り込み、テキスト抽出、全文検索インデックス、カテゴリ・キーワード検索、閲覧権限を実装し、検索条件とデータ構造を最適化した。
+    result: 社内情報の検索時間を約60%削減し、担当者への問い合わせを減らした。
+    stack: [Python, Django, PostgreSQL, Elasticsearch, JavaScript, REST API]
+  - id: delivery-management
+    title: 中堅物流会社向け配送・運行管理システム開発
+    period: 2018-04 – 2019-02
+    team: 6名（PM1・エンジニア3・物流業務担当2）
+    role: フルスタックエンジニア（画面・API・DB設計、配送情報管理、地図連携、テスト）
+    challenge: 配送状況が電話や複数の管理表に分散し、管理者が最新の状況をつかむまでに時間がかかっていた。
+    actions: 配送状況の一覧、担当者別検索、地図表示、ステータス更新、配送履歴を実装し、API連携で情報の更新と共有を効率化した。
+    result: 配送状況の確認にかかる時間を約70%短縮した。
+    stack: [React, Node.js, Express, PostgreSQL, REST API, Google Maps API]
+  - id: ec-inventory
+    title: 中堅EC事業者向け商品・在庫統合システム開発
+    period: 2017-05 – 2017-11
+    team: 5名（PM1・エンジニア2・EC運営担当2）
+    role: バックエンド開発（DB設計、API連携、在庫同期、受注データ処理、エラー管理、テスト）
+    challenge: 販売サイトごとに商品コードや在庫データの形式が違い、手作業の更新で在庫のずれや販売機会の損失が起きるおそれがあった。
+    actions: 商品マスターの統一、在庫同期API、定期実行バッチ、更新履歴、エラー通知、再試行処理を実装し、更新の競合や重複を防ぐ仕組みにした。
+    result: 在庫更新作業の約80%を自動化し、複数チャネルの管理負担を減らした。
+    stack: [PHP, Python, MySQL, REST API, JavaScript, Cron]
+  - id: wp-real-estate
+    title: 不動産会社向けWordPress物件検索サイト構築
+    period: 2016-05 – 2017-03
+    team: 4名（ディレクター1・エンジニア2・クライアント担当1）
+    role: WordPress開発（サイト設計、オリジナルテーマ、カスタム投稿・フィールド設計、検索機能、レスポンシブ、SEO内部対策）
+    challenge: 物件情報の項目が多く更新が煩雑で、エリアや価格帯での条件検索も使いにくかった。
+    actions: 物件種別・価格・所在地・間取り・設備を整理して管理画面をカスタマイズ。複数条件の絞り込み検索、物件詳細、問い合わせフォーム、スマホ対応を実装した。
+    result: 物件情報の更新作業時間を約65%削減し、検索性と問い合わせ導線を改善した。
+    stack: [WordPress, PHP, MySQL, JavaScript, jQuery, HTML/CSS]
+  - id: production-management
+    title: 中堅製造メーカー向け生産管理・工程可視化システム開発
+    period: 2015-04 – 2016-03
+    team: 5名（PM1・エンジニア2・業務担当2）
+    role: フルスタックエンジニア（業務ヒアリング、要件定義、画面・DB設計、フロント・バックエンド開発、テスト、導入支援）
+    challenge: 部門ごとに管理方法やデータ形式が違い、転記ミスや更新漏れが発生。生産状況を知るには複数の担当者に問い合わせる必要があった。
+    actions: 生産計画・工程進捗・在庫を統合したDBを設計し、担当者別の更新権限、工程別ステータス、検索、進捗ダッシュボードを実装した。
+    result: 手作業による管理工数を約40%削減し、進捗確認にかかる時間を約60%短縮した。
+    stack: [PHP, JavaScript, jQuery, MySQL, HTML/CSS, Linux]
+
+# All client reviews on Lancers (26件, all 満足), newest first, read 2026-11-08.
+# Shown in full on /reviews/; `quote` is the excerpt used on the home and service
+# pages; `featured` ones appear on the home page. Add new reviews at the top.
+testimonials:
+  - id: lancers-5491362
+    date: 2026-08-19
+    job: "IT・通信・インターネットのWebシステム開発・プログラミング"
+    comment: "この度は、完成まで丁寧にご対応いただき、誠にありがとうございました。修正のお願いが重なる中でも、その都度柔軟にご対応いただき、大変助かりました。"
+  - id: lancers-5454515
+    date: 2026-07-01
+    job: "【WordPress】不登校支援サイトのデザインリニューアル依頼"
+    comment: "サイトリニューアルをデザインからお願いしましたが、とても満足のいく結果となりました。デザイン、コーディング、サーバーサイド、SEOの知識が揃っている方で、しかも作業スピードが早くて助かりました。納品も前倒しで進めていただき、その点もありがたかったです。1点、作業後の実機確認については割愛されていることが多かった印象で、発注者側として事前の役割分担の相談が重要と感じました。"
+    quote: "デザイン、コーディング、サーバーサイド、SEOの知識が揃っている方で、しかも作業スピードが早くて助かりました。納品も前倒しで進めていただき、その点もありがたかったです。"
+  - id: lancers-5446140
+    date: 2026-07-01
+    job: "コンサルティング・シンクタンクのAI自動化・エージェント開発"
+    repeat: 5回リピート
+    comment: null
+  - id: lancers-5448077
+    date: 2026-06-24
+    job: "【急募】Elementorを使ったWordPressサイト構築のプロを探しています！"
+    comment: "厳しい条件にもかかわらず、快く着手いただき大変感謝しております。こまめに進捗をご連絡いただけたため、進行自体はとても安心感がありました。一方で、修正をお願いした内容が反映されず、やり取りが続いてしまう場面があり、その分少し時間がかかってしまった点だけが惜しいと感じました。こちらもより分かりやすい指示を心がけますが、もし進めづらい点があればお気軽に提案・ご相談をいただけますと、よりスムーズだったかと思います。終始誠実にご対応いただき、ありがとうございました。"
+  - id: lancers-5442460
+    date: 2026-06-17
+    job: "IT・通信・インターネットのサイト改修"
+    comment: "この度は、迅速かつ丁寧にご対応いただきました。ありがとうございました。"
+  - id: lancers-5440293
+    date: 2026-06-15
+    job: "IT・通信・インターネットのバグ修正"
+    repeat: 3回リピート
+    comment: "今回もこちらの要望に順次対応していただきありがとうございました。レスポンスの早さにも大変感謝しております。安心してご依頼できる、ランサー様です。また、機会がございましたらよろしくお願いいたします。"
+    quote: "今回もこちらの要望に順次対応していただきありがとうございました。レスポンスの早さにも大変感謝しております。安心してご依頼できる、ランサー様です。"
+  - id: lancers-5433081
+    date: 2026-06-05
+    job: "コンサルティング・シンクタンクのAI自動化・エージェント開発"
+    repeat: 5回リピート
+    comment: "この度は迅速かつ丁寧なバグ修正のご対応、誠にありがとうございました。こちらの細かな要望を深く汲み取り、文字数制限の安全装置や潜在的な不具合対策まで先回りして実装してくださった開発のプロフェッショナルな姿勢に、心より感謝申し上げます。外販向け製品として100%安心できる最高のシステムが完成いたしました。次期フェーズ（自動化拡張）の際は、真っ先にご相談させていただきます。今後ともどうぞよろしくお願いいたします。"
+    quote: "こちらの細かな要望を深く汲み取り、文字数制限の安全装置や潜在的な不具合対策まで先回りして実装してくださった開発のプロフェッショナルな姿勢に、心より感謝申し上げます。"
+  - id: lancers-5429398
+    date: 2026-06-01
+    job: "【医療機関HP刷新】Firebaseでの完全コピーサイト構築依頼"
+    comment: "非常に仕事が早く、レスポンスも丁寧な方です。締切のはるか前にタスクを終えることができました。この場を借りて、本ランサー様に御礼申し上げます。"
+  - id: lancers-5420737
+    date: 2026-05-22
+    job: "IT・通信・インターネットのバグ修正"
+    repeat: 3回リピート
+    comment: "丁寧かつ迅速にご対応いただき、終始安心してお取引することができました。大変感謝しております。また機会がございましたら、ぜひよろしくお願いいたします。"
+  - id: lancers-5417118
+    date: 2026-05-18
+    job: "コンサルティング・シンクタンクのAI自動化・エージェント開発"
+    repeat: 5回リピート
+    comment: "この度はストレスチェックシステム開発のフェーズ3a（基盤構築・マルチテナント化・サーバー移行）をご対応いただき、誠にありがとうございました。深夜から早朝にかけての熱心な作業と迅速なご対応により、想定以上のクオリティで非常に素晴らしいシステムを構築していただきました。各役割ごとの権限管理や複数企業の管理機能など、細部まで正確に実装されており、大変満足しております。高い技術力と誠実なコミュニケーションで、安心してお任せすることができました。引き続き次のフェーズもよろしくお願いいたします。"
+    quote: "各役割ごとの権限管理や複数企業の管理機能など、細部まで正確に実装されており、大変満足しております。高い技術力と誠実なコミュニケーションで、安心してお任せすることができました。"
+    featured: true
+  - id: lancers-5413213
+    date: 2026-05-13
+    job: "コンサルティング・シンクタンクのAI自動化・エージェント開発"
+    repeat: 5回リピート
+    comment: "前任者からの引き継ぎという難しい状況でしたが、非常に高い技術力と誠実な対応で、システムを完璧な状態に仕上げてくださいました。今回の追加実装（AI連携、グラフ生成、CSV拡張）も、こちらの期待を大きく上回るクオリティとスピードで完了いただき、大変感謝しております。また、突発的な不具合にも快く、かつ迅速にご対応いただけるなど、プロとしての責任感の強さに深く感銘を受けました。今後も継続してお仕事をお願いしたい、信頼できる素晴らしいパートナーです。"
+    quote: "前任者からの引き継ぎという難しい状況でしたが、非常に高い技術力と誠実な対応で、システムを完璧な状態に仕上げてくださいました。今回の追加実装（AI連携、グラフ生成、CSV拡張）も、こちらの期待を大きく上回るクオリティとスピードで完了いただき、大変感謝しております。"
+    featured: true
+  - id: lancers-5409308
+    date: 2026-05-08
+    job: "WordPress×OpenAI API連携｜ストレスチェックシステムの機能拡張（第2フェーズ）"
+    repeat: 5回リピート
+    comment: "非常に優秀で信頼できるエンジニア様です。前任者からの引き継ぎという難しい案件でしたが、こちらの意図を汲み取り、不具合の解消から高度なAI機能の実装まで、驚くほどスピーディーに対応してくださいました。専門用語を使わず分かりやすく進捗を報告してくださるため、終始安心してプロジェクトを進めることができました。また追加の依頼も検討しております。引き続きよろしくお願いいたします。"
+    quote: "前任者からの引き継ぎという難しい案件でしたが、こちらの意図を汲み取り、不具合の解消から高度なAI機能の実装まで、驚くほどスピーディーに対応してくださいました。専門用語を使わず分かりやすく進捗を報告してくださるため、終始安心してプロジェクトを進めることができました。"
+  - id: lancers-5396397
+    date: 2026-04-22
+    job: "金融・保険のHTML・CSSコーディング"
+    repeat: 1回リピート
+    comment: "この度もありがとうございました。引き続きよろしくお願いいたします。"
+  - id: lancers-5390007
+    date: 2026-04-15
+    job: "【急募・4/16納品】保険会社LP フォーム実装コーディング依頼（PHP対応必須）"
+    repeat: 1回リピート
+    comment: "作業も予定より早く仕上げていただき、メッセージのやりとりもとてもスムーズで大変助かりました。次回もよろしくお願いいたします。"
+  - id: lancers-5380632
+    date: 2026-04-05
+    job: "IT・通信・インターネットのソフトウェア・業務システム開発"
+    repeat: 1回リピート
+    comment: "今回も迅速な対応ありがとうございました。またお願いしたいです。"
+  - id: lancers-5380265
+    date: 2026-04-05
+    job: "【急募】Inkscapeエクステンション用SVGセキュリティ（暗号化・復号）構築"
+    repeat: 1回リピート
+    comment: "迅速な対応ありがとうございます。技術力も高く安心できました。また、よろしくお願いします。"
+  - id: lancers-5377030
+    date: 2026-04-01
+    job: "IT・通信・インターネットの受発注システム開発"
+    comment: "フルスタックの経験のある方で、要件定義からしっかり確認しながらコミュニケーションが取れたので安心感がありました。依頼側がしっかり要件を整理しておけば、かなり効率的に作業をしていただけます。今回はメニュー構築だけではなく、特にシステム側とのインタグレーションも相談することが出来たので、お願いして正解でした。"
+    quote: "フルスタックの経験のある方で、要件定義からしっかり確認しながらコミュニケーションが取れたので安心感がありました。"
+  - id: lancers-5368332
+    date: 2026-03-24
+    job: "IT・通信・インターネットのHTML・CSSコーディング"
+    repeat: 3回リピート
+    comment: "いつも迅速なご対応ありがとうございます。今後ともよろしくお願いいたします。"
+  - id: lancers-5367493
+    date: 2026-03-24
+    job: "ポータルサイトの情報登録フォーム修正"
+    comment: null
+  - id: lancers-5357534
+    date: 2026-03-12
+    job: "IT・通信・インターネットのWebシステム開発・プログラミング"
+    repeat: 3回リピート
+    comment: "とても丁寧にコミュニケーションをとって頂き、お仕事をお願いしやすかったです。今後ともよろしくお願いいたします。"
+  - id: lancers-5355988
+    date: 2026-03-11
+    job: "弊社構築システムの脆弱性診断業務のご依頼（オープンソース・ASPサービスなどは問わず）"
+    comment: "この度は迅速かつ丁寧なご対応誠にありがとうございました。"
+  - id: lancers-5354321
+    date: 2026-03-09
+    job: "IT・通信・インターネットのソフトウェア・業務システム開発"
+    comment: "丁寧に対応していただき、ありがとうございました！信頼のおける方で対応に大変満足をしています。"
+  - id: lancers-5340882
+    date: 2026-02-24
+    job: "IT・通信・インターネットのCMS構築・WordPress制作・導入"
+    repeat: 2回リピート
+    comment: "大量のUIデザインを高品質かつ柔軟な体制でご納品頂きました。非常におすすめのランサー様です。機会がありましたらまたお願い致します。"
+  - id: lancers-5338726
+    date: 2026-02-21
+    job: "IT・通信・インターネットの機械学習・ディープラーニング"
+    repeat: 2回リピート
+    comment: "対応が早く、不確定要素の高い案件にも上手く対応いただいています。返答も早く進行もスムーズです。これからも宜しくお願いいたします。"
+  - id: lancers-5336715
+    date: 2026-02-19
+    job: "IT・通信・インターネットのWebシステム開発・プログラミング"
+    comment: "将来が有望な開発者です。難易度の高い課題も的確に解決してくださいました。今後も引き続きプロジェクトをお任せしたいと考えています。"
+  - id: lancers-5334069
+    date: 2026-02-17
+    job: "IT・通信・インターネットのWebシステム開発・プログラミング"
+    repeat: 2回リピート
+    comment: "非常に迅速なレスポンスと高い技術力を兼ね備えた開発者様です。正確な要件の実装はもちろん、率直かつ的確なご回答、そして豊富な経験に基づく開発力は圧巻でした。フルスタック開発者として必要な資質を完璧に備えた、経験豊富な方です。今後、開発案件があればぜひまたお願いしたいと思います。"
+    quote: "非常に迅速なレスポンスと高い技術力を兼ね備えた開発者様です。正確な要件の実装はもちろん、率直かつ的確なご回答、そして豊富な経験に基づく開発力は圧巻でした。"
+    featured: true
+
+# What you sell. Each service has a page at <site_url>services/<id>/ built from
+# site/services/<id>.md. `npm run new -- … --service <id>` links a post to it.
+services:
+  - id: ai-apps
+    pillar: AI
+    name: 生成AI・ChatGPT業務アプリ開発
+    summary: ChatGPTなどの生成AIを業務に組み込み、文書作成・要約・データ整理などの手作業を減らすアプリを作ります。
+  - id: ai-chatbot
+    pillar: AI
+    name: AIチャットボット・社内文書検索（RAG）
+    summary: 社内マニュアルやFAQをもとに、参照元を示して答えるチャットボットを作ります。Web・LINEに対応します。
+  - id: ai-consulting
+    pillar: AI
+    name: 生成AI導入コンサルティング・技術相談
+    summary: どの業務にAIを使うべきかを整理し、ツール選定から検証（PoC）、導入計画までを支援します。
+  - id: ai-infra
+    pillar: AI
+    name: 生成AI基盤・クラウド/サーバー構築
+    summary: AWS・Azureで、認証・ログ管理を備えた業務用の生成AI基盤やサーバー環境を構築・移行します。
+  - id: wordpress
+    pillar: Web・EC
+    name: WordPress・Webサイト制作
+    summary: WordPressでの企業サイト制作・リニューアル・移行・保守、HTML/CSSコーディングまで対応します。
+  - id: shopify
+    pillar: Web・EC
+    name: Shopify・ECサイト構築
+    summary: Shopifyでのネットショップ構築・移行と、商品数や在庫管理の手間を減らす仕組みづくりを支援します。
+  - id: system
+    pillar: システム開発
+    name: Web・業務システム／アプリ開発
+    summary: 予約・マッチング・管理画面などのWebシステム、スマホアプリ、業務ツール、データ収集ツールを開発します。
+  - id: quality
+    pillar: 品質・セキュリティ
+    name: 不具合調査・コードレビュー・セキュリティ診断
+    summary: 引き継いだシステムの不具合を原因から調べて直し、コードとセキュリティの問題点を報告します。
+
+platforms:
+  zenn: navi_work        # https://zenn.dev/navi_work (display name is still 「なび」)
+  qiita: TODO            # Qiita username — create the account, then fill in
+  note: TODO             # note urlname — create the account, then fill in
+  github: codemonkey0612

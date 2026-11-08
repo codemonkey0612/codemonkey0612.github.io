@@ -1,0 +1,100 @@
+# Runs on every pull request that touches an article or the site:
+# tests and a site build, then for changed articles
+# textlint (style) → validate (front matter, call to action, sources) → fact-check (Claude).
+# Make "check" a required status check on main so nothing publishes unchecked.
+name: Check articles
+
+on:
+  pull_request:
+    paths:
+      - "articles/**"
+      - "public/**"
+      - "notes/**"
+      - "site/**"
+      - "profile.yml"
+      - ".textlintrc.json"
+      - "prh.yml"
+      - "scripts/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      - name: Build the site and lint its copy
+        run: |
+          npm run site
+          npx textlint site/services/*.md site/about.md
+
+      - name: Find changed articles
+        id: changed
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          files=$(git diff --name-only --diff-filter=AM "origin/${BASE_REF}...HEAD" -- 'articles/*.md' 'public/*.md' 'notes/*.md' | tr '\n' ' ')
+          echo "files=${files}" >> "$GITHUB_OUTPUT"
+          echo "Changed: ${files:-none}"
+
+      - name: textlint
+        if: steps.changed.outputs.files != ''
+        env:
+          FILES: ${{ steps.changed.outputs.files }}
+        run: npx textlint $FILES
+
+      - name: Validate front matter, call to action and sources
+        if: always() && steps.changed.outputs.files != ''
+        env:
+          FILES: ${{ steps.changed.outputs.files }}
+        run: node scripts/validate.mjs $FILES
+
+      - name: Fact-check with Claude
+        id: factcheck
+        if: always() && steps.changed.outputs.files != '' && env.ANTHROPIC_API_KEY != ''
+        env:
+          FILES: ${{ steps.changed.outputs.files }}
+        run: node scripts/factcheck.mjs --report factcheck-report.md --json factcheck-report.json $FILES
+
+      - name: Note when fact-check is off
+        if: steps.changed.outputs.files != '' && env.ANTHROPIC_API_KEY == ''
+        run: echo "::warning::Fact-check skipped — add an ANTHROPIC_API_KEY repository secret to enable it."
+
+      - name: Post fact-check report on the PR
+        if: always() && hashFiles('factcheck-report.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          cat factcheck-report.md >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment "$PR" --edit-last --body-file factcheck-report.md 2>/dev/null \
+            || gh pr comment "$PR" --body-file factcheck-report.md
+
+      - name: Keep the raw fact-check results
+        if: always() && hashFiles('factcheck-report.json') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: factcheck-report
+          path: factcheck-report.json

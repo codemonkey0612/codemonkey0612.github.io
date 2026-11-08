@@ -1,0 +1,21 @@
+{
+  "filters": {
+    "comments": true
+  },
+  "rules": {
+    "preset-ja-technical-writing": {
+      "sentence-length": { "max": 120, "severity": "warning" },
+      "max-ten": { "max": 4, "severity": "warning" },
+      "no-doubled-joshi": { "strict": false, "allow": ["も", "や", "か"], "severity": "warning" },
+      "ja-no-successive-word": { "allowOnomatopee": true, "allow": ["…", "・"], "severity": "warning" },
+      "max-kanji-continuous-len": { "max": 7, "severity": "warning" },
+      "ja-no-mixed-period": { "allowPeriodMarks": ["！", "？", "…", "：", "）", "」"], "allowEmojiAtEnd": true },
+      "arabic-kanji-numbers": false,
+      "no-exclamation-question-mark": false,
+      "ja-no-weak-phrase": false
+    },
+    "prh": {
+      "rulePaths": ["./prh.yml"]
+    }
+  }
+}

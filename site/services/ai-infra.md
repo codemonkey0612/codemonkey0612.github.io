@@ -1,0 +1,32 @@
+---
+description: AWS・Azureでの生成AI基盤の構築と、サーバー・クラウド環境の構築・移行・運用を行います。認証、ログ管理、監視、Docker、CI/CDまで対応します。
+packages: [1351631, 1319683]
+cases: [ai-saas, auth-security, live-streaming]
+testimonials: [lancers-5417118]   # ids from profile.yml testimonials
+faq:
+  - q: 今のサーバーを止めずに移行できますか？
+    a: 事前に移行先で動作を確認し、切り替えの手順と戻し方を決めてから移行します。停止時間をなるべく短くする計画をご提案します。
+  - q: 構築後の運用もお願いできますか？
+    a: はい。監視やバックアップ、更新作業などの運用も継続してお受けします。社内で運用する場合は、手順書をお渡しします。
+---
+
+## こんな課題に
+
+- 生成AIを社内で使いたいが、入力した情報がどう扱われるか不安
+- 検証で作ったAIの仕組みを、業務で使える形にしたい
+- 古いサーバーから、クラウドへ安全に移行したい
+- サーバーの設定やSSLの更新、バックアップを任せられる人がいない
+
+## できること
+
+- AWS・Azureでの生成AIの検証環境と、業務用AI基盤の構築
+- 認証・アクセス権限・ログ管理・監視の設定
+- Dockerによる環境構築と、CI/CD（自動テスト・自動デプロイ）の整備
+- Linuxサーバーの構築、Webサーバー・DB・DNS・SSLの設定、サーバー移行
+- 構成と手順をまとめた手順書の作成
+
+クラウド設計の資格として、AWS Certified Solutions Architect – ProfessionalとGoogle Cloud Professional Cloud Architectを保有しています。コンテナとインフラの自動化では、Certified Kubernetes AdministratorとTerraform Associateを取得しています。
+
+## 進め方
+
+作って終わりにならないよう、運用する方が読める手順書を残します。費用が膨らみやすいクラウドの設定は、利用量の見込みと合わせて構成を決めます。

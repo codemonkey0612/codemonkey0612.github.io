@@ -1,0 +1,28 @@
+# Spelling of product names and terms. textlint suggests the expected form.
+# Add your own: client industries, your service names, words you misspell.
+version: 1
+rules:
+  - expected: GitHub
+    pattern: /\bGithub\b|\bgithub(?![.\/\w-])/
+  - expected: JavaScript
+    pattern: /\bJavascript\b|\bjavascript\b/
+  - expected: TypeScript
+    pattern: /\bTypescript\b|\btypescript\b/
+  - expected: WordPress
+    pattern: /\bWordpress\b|\bwordpress\b/
+  - expected: Node.js
+    pattern: /\bNodejs\b|\bNode\.JS\b|\bnode\.js\b/
+  - expected: Next.js
+    pattern: /\bNextjs\b|\bNext\.JS\b|\bnext\.js\b/
+  - expected: Docker
+    pattern: /\bdocker\b(?![-\w])/
+  - expected: AWS
+    pattern: /\bAws\b/
+  - expected: ChatGPT
+    pattern: /\bChatGpt\b|\bchatgpt\b|\bChat GPT\b/
+  - expected: Claude
+    pattern: /\bclaude\b(?![-.\w])/
+  - expected: インターフェース
+    pattern: /インタフェース|インターフェイス/
+  - expected: サーバー
+    pattern: /サーバ(?![ー])/

@@ -1,0 +1,37 @@
+{
+  "name": "writing",
+  "version": "1.0.0",
+  "scripts": {
+    "new": "node scripts/new.mjs",
+    "check": "node scripts/check.mjs",
+    "lint": "textlint",
+    "validate": "node scripts/validate.mjs",
+    "factcheck": "node scripts/factcheck.mjs",
+    "note": "node scripts/note-export.mjs",
+    "preview:zenn": "zenn preview",
+    "preview:qiita": "qiita preview",
+    "test": "node --test 'test/*.test.mjs'",
+    "site": "node scripts/site.mjs",
+    "site:preview": "node scripts/site.mjs --serve"
+  },
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@qiita/qiita-cli": "^1.12.0",
+    "textlint": "^15.8.0",
+    "textlint-filter-rule-comments": "^1.3.0",
+    "textlint-rule-preset-ja-technical-writing": "^12.0.2",
+    "textlint-rule-prh": "^6.1.1",
+    "zenn-cli": "^0.5.14"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
+    "gray-matter": "^4.0.3",
+    "marked": "^18.1.3",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

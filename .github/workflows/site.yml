@@ -1,0 +1,68 @@
+# Builds the hub site (profile.yml + site/ + published articles) and deploys it
+# to GitHub Pages. One-time setup: Settings → Pages → Source: "GitHub Actions".
+# Also runs after "Publish articles" so new Qiita posts get listed once Qiita
+# has assigned their ids.
+name: Site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "profile.yml"
+      - "site/**"
+      - "articles/**"
+      - "public/**"
+      - "notes/**"
+      - "scripts/site.mjs"
+      - "scripts/lib/**"
+      - ".github/workflows/site.yml"
+  workflow_run:
+    workflows: ["Publish articles"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # After "Publish articles", rebuild only if it succeeded (a push already deployed).
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # article dates come from git history
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci --omit=dev
+
+      - run: npm run site
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

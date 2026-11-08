@@ -36,7 +36,7 @@ test("the real site builds: every page, link and structured-data block is valid"
     // Media is served from this site, never hotlinked from Lancers (its video URLs expire).
     assert.doesNotMatch(html, /(?:src|poster)="https?:\/\/[^"]*lancers\.jp/, `${page} hotlinks Lancers media`);
     // Every relative link, image and video points at a file the build produces.
-    for (const [, href] of html.matchAll(/(?:href|src|poster)="([^"#:]+)(?:#[^"]*)?"/g)) {
+    for (const [, href] of html.matchAll(/(?:href|src|poster)="([^"#:?]+)(?:\?[^"#]*)?(?:#[^"]*)?"/g)) {
       let target = path.posix.normalize(path.posix.join(path.posix.dirname(page), href));
       if (target === "." || target === "./") target = "";
       const file = target === "" || target.endsWith("/") ? `${target}index.html` : target;
@@ -201,4 +201,13 @@ test("media.yml typos fail the build", () => {
   assert.throws(() => loadSite({ root: bad, profile, today }), /site\/assets\/brand\/missing\.webp does not exist/);
   const badSvc = tmpRepo({ "site/packages.yml": "{}\n", "site/assets/g.webp": "x", "site/media.yml": "gallery:\n  - { image: g.webp, service: nope }\n" });
   assert.throws(() => loadSite({ root: badSvc, profile, today }), /unknown service "nope"/);
+});
+
+test("Lancers works use your own portfolio images, and assets carry a version", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  for (const w of site.works.lancers) assert.match(w.cover, /^assets\/media\/portfolio\//, `${w.id} uses an image from your portfolio`);
+  assert.match(site.assetVersion, /^[0-9a-f]{8}$/);
+  assert.ok(files["index.html"].includes(`assets/style.css?v=${site.assetVersion}`));
+  assert.ok(files["works/index.html"].includes(`assets/app.js?v=${site.assetVersion}`));
 });

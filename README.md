@@ -109,6 +109,7 @@ where to upload images. After publishing on note, paste the post's link into
   (the checkerboard in that file is painted in, not transparent).
 - **Works** (`site/works.yml`): `sites:` are live sites you took part in
   building (screenshots in `site/assets/media/works/`, taken 2026-11-08);
+  the Lancers items use your own images in `site/assets/media/portfolio/`;
   `lancers:` are the 14 Lancers portfolio items, each tied to its client
   reviews, so every case page quotes them in full and links to them.
   `featured: true` puts a work on the home page. To add one, copy an entry, add

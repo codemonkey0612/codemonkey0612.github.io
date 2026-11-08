@@ -3,6 +3,7 @@
 // The look and motion live in site/assets/style.css and site/assets/app.js; every
 // page works without JavaScript, and motion is skipped for prefers-reduced-motion.
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
@@ -201,7 +202,18 @@ export function loadSite({ root, profile, today = new Date() }) {
   const rank = (p) => (p.service ? services.indexOf(p.service) : services.length);
   allPackages.sort((a, b) => rank(a) - rank(b) || (a.minPrice ?? 0) - (b.minPrice ?? 0));
 
+  // A short hash of the stylesheet and script, added to their URLs so browsers
+  // never keep an old copy after a deploy.
+  const assetVersion = createHash("sha1")
+    .update(["style.css", "app.js"].map((f) => {
+      const file = path.join(root, "site", "assets", f);
+      return fs.existsSync(file) ? fs.readFileSync(file) : "";
+    }).join("\n"))
+    .digest("hex")
+    .slice(0, 8);
+
   return {
+    assetVersion,
     profile,
     services,
     packages: allPackages,
@@ -327,9 +339,9 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Shippori+Mincho+B1:wght@600;800&display=swap">
-<link rel="stylesheet" href="${base}assets/style.css">
+<link rel="stylesheet" href="${base}assets/style.css?v=${site.assetVersion}">
 <script>(function (d) { d.classList.replace("no-js", "js"); if (matchMedia("(prefers-reduced-motion: reduce)").matches) return; d.classList.add("motion"); try { if (sessionStorage.getItem("tk-intro")) d.classList.add("intro-seen"); else sessionStorage.setItem("tk-intro", "1"); } catch (e) { d.classList.add("intro-seen"); } setTimeout(function () { if (!window.TAKUMI) d.classList.remove("motion"); }, 3000); })(document.documentElement);</script>
-<script src="${base}assets/app.js" defer></script>
+<script src="${base}assets/app.js?v=${site.assetVersion}" defer></script>
 ${ld.length ? jsonld({ "@context": "https://schema.org", "@graph": ld }) : ""}
 </head>
 <body class="page-${page}">

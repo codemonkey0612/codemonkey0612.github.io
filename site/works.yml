@@ -4,7 +4,8 @@
 #   lancers: your 14 Lancers portfolio items. Each is backed by client reviews
 #            (`reviews` = ids in profile.yml testimonials), so visitors can check them.
 # `service` links a work to a service page; `featured` ones appear on the home page;
-# images live in site/assets/.
+# images live in site/assets/: media/works/ holds the live-site screenshots,
+# media/portfolio/ your own Lancers portfolio images (from ~/dev/note/portfolio).
 # Generated from ~/dev/note/lancers-portfolio/items.mjs on 2026-11-08; keep the two in sync.
 
 sites:
@@ -39,7 +40,7 @@ lancers:
       - 15業種・役職に合わせて回答を出し分け
       - 前任者のコードを読み解いて引き継ぎ
       - 複数企業向けのデータ構造に見直し
-    cover: media/works/stress-ai.webp
+    cover: media/portfolio/stress-ai.webp
     category: AI・システム開発・運用 ＞ Webシステム開発・プログラミング
     industry: コンサルティング・シンクタンク
     days: 10
@@ -90,7 +91,7 @@ lancers:
       - AI連携機能を追加実装
       - 診断結果をグラフで見える化
       - 突発的な不具合にも迅速に対応
-    cover: media/works/stress-features.webp
+    cover: media/portfolio/stress-features.webp
     category: AI・システム開発・運用 ＞ AI自動化・エージェント開発
     industry: コンサルティング・シンクタンク
     days: null
@@ -132,7 +133,7 @@ lancers:
       - 複数企業の管理機能を実装
       - 役割ごとの権限管理
       - 文字数制限などの安全装置も先回りで実装
-    cover: media/works/stress-multitenant.webp
+    cover: media/portfolio/stress-multitenant.webp
     category: AI・システム開発・運用 ＞ AI自動化・エージェント開発
     industry: コンサルティング・シンクタンク
     days: null
@@ -176,7 +177,7 @@ lancers:
       - 無料相談への導線を見直し
       - お客さま自身で更新できる設計
       - 表示速度を保つ軽量な実装
-    cover: media/works/futoko-wordpress.webp
+    cover: media/portfolio/futoko-wordpress.webp
     category: Web制作・Webデザイン ＞ レスポンシブサイト制作
     industry: IT・通信・インターネット
     days: 22
@@ -219,7 +220,7 @@ lancers:
       - デザインカンプを再現
       - お知らせ・ブログを自社で更新できる設定
       - PC・スマホのレスポンシブ対応
-    cover: media/works/elementor-corporate.webp
+    cover: media/portfolio/elementor-corporate.webp
     category: Web制作・Webデザイン ＞ レスポンシブサイト制作
     industry: 広告・イベント・プロモーション
     days: 65
@@ -260,7 +261,7 @@ lancers:
       - 6〜10ページを再現
       - 管理権限をお客さまへ引き渡し
       - 締切よりはるかに早く納品
-    cover: media/works/firebase-medical.webp
+    cover: media/portfolio/firebase-medical.webp
     category: Web制作・Webデザイン ＞ レスポンシブサイト制作
     industry: 医療・医薬
     days: 5
@@ -301,7 +302,7 @@ lancers:
       - 入力→確認→完了の画面遷移
       - 自動返信・管理者通知メール
       - 4日で予定より早く納品
-    cover: media/works/insurance-lp.webp
+    cover: media/portfolio/insurance-lp.webp
     category: Web制作・Webデザイン ＞ HTML・CSSコーディング
     industry: 金融・保険
     days: 4
@@ -348,7 +349,7 @@ lancers:
       - 第三者による再利用を防止
       - 外部通信なし・ローカルで完結
       - 2日で納品
-    cover: media/works/inkscape-svg.webp
+    cover: media/portfolio/inkscape-svg.webp
     category: AI・システム開発・運用 ＞ Windowsアプリケーション開発
     industry: IT・通信・インターネット
     days: 2
@@ -397,7 +398,7 @@ lancers:
       - 公開側・管理側の両方を診断
       - 診断結果をご報告
       - 修正後の再診断まで対応
-    cover: media/works/vulnerability-assessment.webp
+    cover: media/portfolio/vulnerability-assessment.webp
     category: AI・システム開発・運用 ＞ セキュリティ対策
     industry: IT・通信・インターネット
     days: 8
@@ -436,7 +437,7 @@ lancers:
       - 要件定義から確認しながら進行
       - 受発注システムのメニュー構築
       - システム側との連携
-    cover: media/works/order-system.webp
+    cover: media/portfolio/order-system.webp
     category: AI・システム開発・運用 ＞ 受発注システム開発
     industry: IT・通信・インターネット
     days: null
@@ -471,7 +472,7 @@ lancers:
       - 大量の画面デザインを制作
       - 品質を保った柔軟な進行
       - リピートでのご依頼
-    cover: media/works/wordpress-ui-design.webp
+    cover: media/portfolio/wordpress-ui-design.webp
     category: Web制作・Webデザイン ＞ CMS構築・WordPress制作・導入
     industry: IT・通信・インターネット
     days: null
@@ -505,7 +506,7 @@ lancers:
       - 入力項目の変更
       - 情報収集用フォームの新設
       - 閲覧ページのレイアウト変更
-    cover: media/works/portal-form.webp
+    cover: media/portfolio/portal-form.webp
     category: Web制作・Webデザイン ＞ 各種フォーム作成
     industry: マスコミ・メディア
     days: 6
@@ -539,7 +540,7 @@ lancers:
       - Webシステムの開発・プログラミング
       - 重なる修正のご依頼にも、その都度対応
       - 完成まで丁寧に仕上げ
-    cover: media/works/web-system.webp
+    cover: media/portfolio/web-system.webp
     category: AI・システム開発・運用 ＞ Webシステム開発・プログラミング
     industry: IT・通信・インターネット
     days: null
@@ -577,7 +578,7 @@ lancers:
       - 開発→コーディング→不具合修正
       - ご要望に順次対応、早いレスポンス
       - 「安心してご依頼できる」とご評価
-    cover: media/works/repeat-client.webp
+    cover: media/portfolio/repeat-client.webp
     category: AI・システム開発・運用 ＞ Webシステム開発・プログラミング
     industry: IT・通信・インターネット
     days: null

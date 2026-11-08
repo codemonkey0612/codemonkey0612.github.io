@@ -1,0 +1,619 @@
+# Works on /works/ and the home page. Two kinds:
+#   sites:   live websites you took part in developing (as you told me on 2026-11-08).
+#            Add what you did in `role` when you can say it publicly.
+#   lancers: your 14 Lancers portfolio items. Each is backed by client reviews
+#            (`reviews` = ids in profile.yml testimonials), so visitors can check them.
+# `service` links a work to a service page; `featured` ones appear on the home page;
+# images live in site/assets/.
+# Generated from ~/dev/note/lancers-portfolio/items.mjs on 2026-11-08; keep the two in sync.
+
+sites:
+  - id: go-to-market
+    name: Go-to-Market Strategy
+    url: https://go-to-market.jp/
+    service: wordpress
+    kind: サービスサイト
+    summary: Go-to-Market（GTM）戦略の設計・実行を支援するサービスのWebサイトです。約3分で答えられる「GTM成熟度 無料診断」と、診断結果のレポートを提供しています。
+    role: 開発に参加しました。
+    page: media/works/go-to-market-page.webp
+    top: media/works/go-to-market-top.webp
+    phone: media/works/go-to-market-phone.webp
+  - id: a-worker
+    name: A-worker
+    url: https://a-worker.com/
+    service: system
+    kind: 求人サイト（Webシステム）
+    summary: 建築設計事務所に特化した、就職・転職・アルバイトの求人情報サイトです。職種・勤務地・雇用形態での求人検索、会員登録、採用担当者向けのページなどを備えています。
+    role: 開発に参加しました。
+    page: media/works/a-worker-page.webp
+    top: media/works/a-worker-top.webp
+    phone: media/works/a-worker-phone.webp
+lancers:
+  - id: stress-ai
+    featured: true
+    service: ai-apps
+    headline: 業種別AIアドバイス機能の追加開発
+    title: ストレスチェックシステムにOpenAI APIで業種別AIアドバイス機能を追加しました
+    subtitle: 前任者のコードを引き継ぎ、15業種・役職に合わせて回答を出し分けるAI機能と、複数企業向けのデータ構造を実装
+    points:
+      - 15業種・役職に合わせて回答を出し分け
+      - 前任者のコードを読み解いて引き継ぎ
+      - 複数企業向けのデータ構造に見直し
+    cover: media/works/stress-ai.webp
+    category: AI・システム開発・運用 ＞ Webシステム開発・プログラミング
+    industry: コンサルティング・シンクタンク
+    days: 10
+    price: 100000
+    job: 5532004
+    reviews:
+      - lancers-5409308
+    keywords:
+      - OpenAI API
+      - ChatGPT
+      - 生成AI
+      - WordPress
+      - PHP
+      - MySQL
+      - ストレスチェック
+      - 引き継ぎ開発
+      - マルチテナント
+      - 機能拡張
+    body: |-
+      コンサルティング会社さまが外販（BtoB）を予定している「AIストレスチェックシステム」の機能拡張（第2フェーズ）を担当しました。WordPress上で動くPHP／MySQLのシステムで、OpenAI APIと連携しています。第1フェーズは別の開発者が担当していたため、既存のコードを読み解いて引き継ぐところから始めました。
+
+      【担当した内容】
+      ・AIアドバイスの高度化：利用者の業種（15業種）・役職・勤務形態をAIに渡し、業種特有の悩みに沿った回答を生成するロジックを実装
+      ・毎回同じ回答にならないよう、回答の多様性を調整
+      ・複数の企業に提供するための、企業IDでデータを分けて管理できるデータベース構造への見直し
+      ・管理画面への入力項目の追加
+      ・引き継ぎ時に見つかった不具合の解消
+
+      【進め方】
+      専門用語を使わずに進捗をこまめにご報告し、確認をいただきながら進めました。
+
+      【クライアント様のご評価より】
+      「前任者からの引き継ぎという難しい案件でしたが、こちらの意図を汲み取り、不具合の解消から高度なAI機能の実装まで、驚くほどスピーディーに対応してくださいました。専門用語を使わず分かりやすく進捗を報告してくださるため、終始安心してプロジェクトを進めることができました。」
+
+      この後も、追加開発、第3フェーズ（マルチテナント化・サーバー移行）、品質強化と、続けてご依頼いただいています。
+
+      【掲載画像】
+      1枚目：トップページの画面イメージ（守秘義務のため、実際の画面ではなくイメージを掲載しています）
+
+      使用技術：WordPress／PHP／MySQL／OpenAI API
+      制作期間：10日
+  - id: stress-features
+    service: ai-apps
+    headline: AI連携・グラフ生成・CSV拡張
+    title: ストレスチェックシステムの追加開発（AI連携・グラフ生成・CSV拡張）を担当しました
+    subtitle: 「期待を大きく上回るクオリティとスピード」とご評価いただき、突発的な不具合にも迅速に対応しました
+    points:
+      - AI連携機能を追加実装
+      - 診断結果をグラフで見える化
+      - 突発的な不具合にも迅速に対応
+    cover: media/works/stress-features.webp
+    category: AI・システム開発・運用 ＞ AI自動化・エージェント開発
+    industry: コンサルティング・シンクタンク
+    days: null
+    price: null
+    job: null
+    reviews:
+      - lancers-5413213
+    keywords:
+      - OpenAI API
+      - 生成AI
+      - WordPress
+      - PHP
+      - グラフ
+      - CSV
+      - 追加開発
+      - 保守運用
+      - 不具合対応
+      - ストレスチェック
+    body: |-
+      第2フェーズに続き、同じコンサルティング会社さまの「AIストレスチェックシステム」で追加開発を担当しました。
+
+      【担当した内容】
+      ・AI連携機能の追加実装
+      ・診断結果のグラフ生成
+      ・CSV機能の拡張
+      ・運用中に発生した不具合の調査と修正
+
+      【クライアント様のご評価より】
+      「前任者からの引き継ぎという難しい状況でしたが、非常に高い技術力と誠実な対応で、システムを完璧な状態に仕上げてくださいました。今回の追加実装（AI連携、グラフ生成、CSV拡張）も、こちらの期待を大きく上回るクオリティとスピードで完了いただき、大変感謝しております。また、突発的な不具合にも快く、かつ迅速にご対応いただけるなど、プロとしての責任感の強さに深く感銘を受けました。」
+
+      使用技術：WordPress／PHP／MySQL／OpenAI API
+  - id: stress-multitenant
+    featured: true
+    service: ai-infra
+    headline: マルチテナント化・権限管理・サーバー移行
+    title: AIストレスチェックシステムのマルチテナント化・権限管理・サーバー移行を担当しました
+    subtitle: 複数企業の管理機能と役割ごとの権限管理を実装し、外販（BtoB）できる製品の基盤を整えました
+    points:
+      - 複数企業の管理機能を実装
+      - 役割ごとの権限管理
+      - 文字数制限などの安全装置も先回りで実装
+    cover: media/works/stress-multitenant.webp
+    category: AI・システム開発・運用 ＞ AI自動化・エージェント開発
+    industry: コンサルティング・シンクタンク
+    days: null
+    price: null
+    job: null
+    reviews:
+      - lancers-5417118
+      - lancers-5433081
+    keywords:
+      - マルチテナント
+      - 権限管理
+      - サーバー移行
+      - SaaS
+      - WordPress
+      - PHP
+      - MySQL
+      - OpenAI API
+      - BtoB
+      - 品質改善
+    body: |-
+      同じクライアント様のシステムを、複数の企業に提供できる製品にするための第3フェーズ（3a：基盤構築・マルチテナント化・サーバー移行）を担当しました。
+
+      【担当した内容】
+      ・複数の企業のデータを企業ごとに分けて扱える、マルチテナントの基盤構築
+      ・役割ごとの権限管理と、複数企業を管理する機能の実装
+      ・サーバー移行
+      ・その後の不具合修正では、文字数制限の安全装置や、潜在的な不具合への対策もあわせて実装
+
+      【クライアント様のご評価より】
+      フェーズ3a：「各役割ごとの権限管理や複数企業の管理機能など、細部まで正確に実装されており、大変満足しております。」
+      不具合修正：「こちらの細かな要望を深く汲み取り、文字数制限の安全装置や潜在的な不具合対策まで先回りして実装してくださった開発のプロフェッショナルな姿勢に、心より感謝申し上げます。外販向け製品として100%安心できる最高のシステムが完成いたしました。」
+
+      使用技術：WordPress／PHP／MySQL／OpenAI API
+  - id: futoko-wordpress
+    featured: true
+    service: wordpress
+    headline: 不登校支援サイトのリニューアル
+    title: 不登校支援サービスのWordPressサイトを、相談につながる構成でリニューアルしました
+    subtitle: デザインから新しいテーマの制作まで担当。更新のしやすさと表示速度を保ちながら、無料相談への導線を見直し
+    points:
+      - 無料相談への導線を見直し
+      - お客さま自身で更新できる設計
+      - 表示速度を保つ軽量な実装
+    cover: media/works/futoko-wordpress.webp
+    category: Web制作・Webデザイン ＞ レスポンシブサイト制作
+    industry: IT・通信・インターネット
+    days: 22
+    price: 200000
+    job: 5555040
+    reviews:
+      - lancers-5454515
+    keywords:
+      - WordPress
+      - サイトリニューアル
+      - オリジナルテーマ
+      - Webデザイン
+      - UI/UX
+      - 導線設計
+      - CV改善
+      - レスポンシブ
+      - 表示速度
+      - SEO
+    body: |-
+      不登校支援を行う事業者さまのWordPressサイトのリニューアルです。自作のサイトでは訪問者に信頼感が伝わりにくいことが課題で、再登校支援サービスの「無料相談フォーム」の送信を成果（CV）として設定されていました。
+
+      【担当した内容】
+      ・トップページと再登校支援サービスページの文言整理、UI/UX、無料相談への導線の改善提案
+      ・デザイン制作
+      ・既存のコンテンツを残したまま、新しいテーマファイルを作成・適用（Lightningの子テーマからの移行）
+      ・納品後、お客さま自身でテキストや画像を更新できる設計
+      ・PageSpeed Insightsのスコアを意識した軽量な実装で、表示速度を維持
+
+      【クライアント様のご評価より】
+      「サイトリニューアルをデザインからお願いしましたが、とても満足のいく結果となりました。デザイン、コーディング、サーバーサイド、SEOの知識が揃っている方で、しかも作業スピードが早くて助かりました。納品も前倒しで進めていただき、その点もありがたかったです。」
+
+      使用技術：WordPress／PHP／HTML／CSS／JavaScript
+      制作期間：22日
+  - id: elementor-corporate
+    service: wordpress
+    headline: コーポレートサイト構築（全14ページ）
+    title: 電気・エネルギー会社のコーポレートサイトを、FigmaからElementorで構築しました
+    subtitle: 広告会社さまからのご依頼。デザインカンプを再現した全14ページを、お知らせ・ブログを更新できる形で納品
+    points:
+      - デザインカンプを再現
+      - お知らせ・ブログを自社で更新できる設定
+      - PC・スマホのレスポンシブ対応
+    cover: media/works/elementor-corporate.webp
+    category: Web制作・Webデザイン ＞ レスポンシブサイト制作
+    industry: 広告・イベント・プロモーション
+    days: 65
+    price: 100000
+    job: 5518599
+    reviews:
+      - lancers-5448077
+    keywords:
+      - WordPress
+      - Elementor Pro
+      - Figma
+      - コーポレートサイト
+      - レスポンシブ
+      - CMS
+      - ブログ
+      - サイトリニューアル
+      - コーディング
+    body: |-
+      広告会社さまからのご依頼で、歴史ある電気・エネルギー会社さまのコーポレートサイトのフルリニューアルを担当しました。Figmaで作成されたデザインカンプをもとに、WordPress（Elementor Pro）でサイトを構築しています。
+
+      【担当した内容】
+      ・全14ページの構築（トップ、会社紹介、沿革、サービス一覧と各サービス、取り組み、お客さまの声、お知らせ・ブログの一覧と詳細、お問い合わせと完了ページ、プライバシーポリシー）
+      ・PC版デザインの意図を崩さないレスポンシブ対応
+      ・お知らせ・ブログをお客さま側で更新できるCMS設定
+      ・プラグインによる基本設定
+      ・制作の途中で追加になったページ（お問い合わせ完了、プライバシーポリシー）への対応
+
+      進捗をこまめにご報告しながら進めました。
+
+      使用技術：WordPress／Elementor Pro／Figma／HTML／CSS
+      制作期間：約2ヶ月（65日）
+  - id: firebase-medical
+    service: wordpress
+    headline: 既存サイトをFirebaseに再構築
+    title: 医療機関サイトのリニューアルに向けて、既存サイトをFirebaseに再構築しました
+    subtitle: 6〜10ページのサイトを再現して管理権限をお渡しし、締切よりはるかに早く納品しました
+    points:
+      - 6〜10ページを再現
+      - 管理権限をお客さまへ引き渡し
+      - 締切よりはるかに早く納品
+    cover: media/works/firebase-medical.webp
+    category: Web制作・Webデザイン ＞ レスポンシブサイト制作
+    industry: 医療・医薬
+    days: 5
+    price: 80000
+    job: 5547712
+    reviews:
+      - lancers-5429398
+    keywords:
+      - Firebase
+      - サイト移行
+      - 医療機関
+      - ホームページ
+      - リニューアル
+      - HTML
+      - CSS
+      - JavaScript
+      - 短納期
+    body: |-
+      医療機関さまがホームページの刷新を計画されるにあたり、その第一歩として、現在のサイトと同じ内容のサイトをFirebase上に構築しました。今後のセキュリティチェックやスマホ対応、LINE連携などを進めるための土台です。
+
+      【担当した内容】
+      ・既存サイト（6〜10ページ）の構成・デザイン・内容を再現したサイトの構築
+      ・Firebaseへの公開
+      ・お客さまへの管理権限の引き渡し
+
+      【クライアント様のご評価より】
+      「非常に仕事が早く、レスポンスも丁寧な方です。締切のはるか前にタスクを終えることができました。」
+
+      使用技術：Firebase／HTML／CSS／JavaScript
+      制作期間：5日
+  - id: insurance-lp
+    featured: true
+    service: wordpress
+    headline: 保険会社LP＋PHP申込フォーム
+    title: 保険会社のランディングページを、PHPの申込フォーム付きでコーディングしました
+    subtitle: 入力・確認・完了の画面遷移、自動返信メール、住所の自動入力まで実装し、4日で予定より早く納品
+    points:
+      - 入力→確認→完了の画面遷移
+      - 自動返信・管理者通知メール
+      - 4日で予定より早く納品
+    cover: media/works/insurance-lp.webp
+    category: Web制作・Webデザイン ＞ HTML・CSSコーディング
+    industry: 金融・保険
+    days: 4
+    price: 90000
+    job: 5525285
+    reviews:
+      - lancers-5390007
+      - lancers-5396397
+    keywords:
+      - LP制作
+      - コーディング
+      - PHP
+      - メールフォーム
+      - HTML
+      - CSS
+      - JavaScript
+      - jQuery
+      - 短納期
+      - 保険
+    body: |-
+      保険会社さまのランディングページ（LP）で、支給されたデザインをもとにしたHTML/CSSのコーディングと、PHPによる申込フォームの実装を担当しました。クライアント様の納品日が決まっていた、納期厳守の案件です。
+
+      【担当した内容】
+      ・デザインデータ（Figma）からのHTML/CSSコーディング
+      ・「ダウンロード申込」と「郵送申込」の2つのフォームのタブ切り替え
+      ・入力チェック（未入力の項目を赤く表示し、アラートでお知らせ）
+      ・郵便番号から都道府県・住所を自動入力（ajaxzip3）
+      ・入力→確認→送信完了の画面遷移（セッションで入力内容を引き継ぎ）と、セッション切れのエラー画面
+      ・お申込者さまへの自動返信メールと、管理者への通知メール
+
+      【クライアント様のご評価より】
+      「作業も予定より早く仕上げていただき、メッセージのやりとりもとてもスムーズで大変助かりました。次回もよろしくお願いいたします。」
+
+      その後も、金融・保険分野のHTML/CSSコーディングを続けてご依頼いただいています。
+
+      使用技術：HTML／CSS／JavaScript（jQuery）／PHP
+      制作期間：4日
+  - id: inkscape-svg
+    featured: true
+    service: system
+    headline: SVGファイルの暗号化・復号の仕組み
+    title: Inkscape拡張機能用SVGファイルの暗号化・復号の仕組みを構築しました
+    subtitle: SVGデータを第三者に再利用されないよう保護。外部通信を使わずローカルだけで完結し、2日で納品
+    points:
+      - 第三者による再利用を防止
+      - 外部通信なし・ローカルで完結
+      - 2日で納品
+    cover: media/works/inkscape-svg.webp
+    category: AI・システム開発・運用 ＞ Windowsアプリケーション開発
+    industry: IT・通信・インターネット
+    days: 2
+    price: 20000
+    job: 5520076
+    reviews:
+      - lancers-5380265
+    keywords:
+      - Python
+      - Inkscape
+      - SVG
+      - 暗号化
+      - 復号
+      - セキュリティ
+      - デスクトップツール
+      - Windows
+      - macOS
+      - 短納期
+    body: |-
+      Inkscapeのエクステンション（Python）が読み込むSVGファイルを、第三者に簡単に取り出されたり再利用されたりしないよう保護する仕組みを構築しました。
+
+      【ご依頼の条件】
+      ・SVGファイルは、そのままでは閲覧・再利用できない状態で配布・保持する
+      ・エクステンションを使うときだけ、必要最小限の形でSVGデータを利用できる
+      ・外部との通信や認証サーバーを使わず、ローカル環境だけで完結する
+      ・Windows・macOSの両方で動作する
+      ・20MB程度の大きなSVGでも実用的な速度で処理する
+
+      【担当した内容】
+      ・暗号化と復号の方式の提案と実装
+      ・既存のエクステンションから利用できる形での組み込み
+      ・ソースコード一式の納品
+
+      【クライアント様のご評価より】
+      「迅速な対応ありがとうございます。技術力も高く安心できました。また、よろしくお願いします。」
+
+      使用技術：Python／Inkscapeエクステンション
+      制作期間：2日
+  - id: vulnerability-assessment
+    featured: true
+    service: quality
+    headline: Webシステムの脆弱性診断
+    title: PHP＋MySQLで開発されたWebシステムの脆弱性診断と、修正後の再診断を行いました
+    subtitle: 公開側と管理画面の両方を診断して結果をご報告し、修正後の再診断まで8日で対応しました
+    points:
+      - 公開側・管理側の両方を診断
+      - 診断結果をご報告
+      - 修正後の再診断まで対応
+    cover: media/works/vulnerability-assessment.webp
+    category: AI・システム開発・運用 ＞ セキュリティ対策
+    industry: IT・通信・インターネット
+    days: 8
+    price: 100000
+    job: 5498175
+    reviews:
+      - lancers-5355988
+    keywords:
+      - 脆弱性診断
+      - セキュリティ診断
+      - Webアプリケーション
+      - PHP
+      - MySQL
+      - 管理画面
+      - 再診断
+      - セキュリティ対策
+    body: |-
+      IT企業さまが自社で開発したWebシステム（フレームワークを使わないPHP＋MySQL）の脆弱性診断です。修正はクライアント様側で行う体制のため、診断とご報告を担当しました。
+
+      【担当した内容】
+      ・公開側（利用者向けの画面）と管理側（管理画面）の両方を対象にした脆弱性診断
+      ・診断結果のご報告
+      ・修正後の再診断
+
+      【クライアント様のご評価より】
+      「この度は迅速かつ丁寧なご対応誠にありがとうございました。」
+
+      使用技術：PHP／MySQL／Webアプリケーションの脆弱性診断
+      制作期間：8日
+  - id: order-system
+    service: system
+    headline: 受発注システムの構築と連携
+    title: 受発注システムのメニュー構築と、システム側との連携（インテグレーション）を担当しました
+    subtitle: 要件定義の段階から確認を重ね、メニュー構築に加えてシステム側との連携まで対応しました
+    points:
+      - 要件定義から確認しながら進行
+      - 受発注システムのメニュー構築
+      - システム側との連携
+    cover: media/works/order-system.webp
+    category: AI・システム開発・運用 ＞ 受発注システム開発
+    industry: IT・通信・インターネット
+    days: null
+    price: null
+    job: null
+    reviews:
+      - lancers-5377030
+    keywords:
+      - 受発注システム
+      - 業務システム
+      - システム連携
+      - 要件定義
+      - フルスタック
+      - Webシステム
+      - 業務効率化
+    body: |-
+      受発注システムの開発案件です。要件定義の段階からクライアント様と確認を重ねながら進めました。
+
+      【担当した内容】
+      ・要件の確認と整理
+      ・受発注システムのメニュー構築
+      ・システム側とのインテグレーション（連携）のご相談と対応
+
+      【クライアント様のご評価より】
+      「フルスタックの経験のある方で、要件定義からしっかり確認しながらコミュニケーションが取れたので安心感がありました。依頼側がしっかり要件を整理しておけば、かなり効率的に作業をしていただけます。今回はメニュー構築だけではなく、特にシステム側とのインタグレーションも相談することが出来たので、お願いして正解でした。」
+  - id: wordpress-ui-design
+    service: wordpress
+    headline: WordPressサイトのUIデザイン
+    title: WordPressで構築するサイトの、多数のUIデザインを制作・納品しました
+    subtitle: 大量の画面デザインを、品質を保ちながら柔軟な体制で納品。リピートでいただいたご依頼です
+    points:
+      - 大量の画面デザインを制作
+      - 品質を保った柔軟な進行
+      - リピートでのご依頼
+    cover: media/works/wordpress-ui-design.webp
+    category: Web制作・Webデザイン ＞ CMS構築・WordPress制作・導入
+    industry: IT・通信・インターネット
+    days: null
+    price: null
+    job: null
+    reviews:
+      - lancers-5340882
+    keywords:
+      - UIデザイン
+      - Webデザイン
+      - WordPress
+      - CMS
+      - 画面設計
+      - デザイン制作
+      - リピート
+    body: |-
+      WordPressで構築するサイトの、多数の画面のUIデザインを制作しました。以前にもご依頼いただいていたクライアント様からの、リピートのご依頼です。
+
+      【担当した内容】
+      ・多数の画面のUIデザインの制作
+      ・ご要望に合わせた柔軟な進行と納品
+
+      【クライアント様のご評価より】
+      「大量のUIデザインを高品質かつ柔軟な体制でご納品頂きました。非常におすすめのランサー様です。機会がありましたらまたお願い致します。」
+  - id: portal-form
+    service: wordpress
+    headline: 情報登録フォームの改修と追加
+    title: ポータルサイトの情報登録フォームを改修し、情報収集用のフォームを追加しました
+    subtitle: 項目変更・新しいフォームの作成・閲覧ページのレイアウト変更を3つのマイルストーンに分け、6日で納品
+    points:
+      - 入力項目の変更
+      - 情報収集用フォームの新設
+      - 閲覧ページのレイアウト変更
+    cover: media/works/portal-form.webp
+    category: Web制作・Webデザイン ＞ 各種フォーム作成
+    industry: マスコミ・メディア
+    days: 6
+    price: 10000
+    job: 5501407
+    reviews:
+      - lancers-5367493
+    keywords:
+      - フォーム改修
+      - 入力フォーム
+      - ポータルサイト
+      - レイアウト変更
+      - Webサイト修正
+      - 短納期
+    body: |-
+      ポータルサイトの情報入力フォームの改修です。急ぎのご依頼だったため、作業を3つのマイルストーンに分けて進めました。
+
+      【担当した内容】
+      1. 既存の情報入力フォームの項目変更
+      2. 同じ内容のフォームを、情報取得用の簡易フォームとして別に作成（既存のシステムとは連携しない構成）
+      3. 1のフォームの情報を表示する閲覧ページのレイアウト変更
+
+      制作期間：6日
+  - id: web-system
+    featured: true
+    service: system
+    headline: Webシステムの開発を修正対応から完成まで
+    title: IT企業さまのWebシステム開発を、重なる修正にもその都度対応しながら完成まで担当しました
+    subtitle: 開発の途中で重なった修正のご依頼にも、その都度柔軟に対応し、完成まで丁寧に仕上げました
+    points:
+      - Webシステムの開発・プログラミング
+      - 重なる修正のご依頼にも、その都度対応
+      - 完成まで丁寧に仕上げ
+    cover: media/works/web-system.webp
+    category: AI・システム開発・運用 ＞ Webシステム開発・プログラミング
+    industry: IT・通信・インターネット
+    days: null
+    price: 500000
+    job: null
+    reviews:
+      - lancers-5491362
+    keywords:
+      - Webシステム開発
+      - Webアプリケーション
+      - システム開発
+      - 受託開発
+      - プログラミング
+      - 修正対応
+      - IT企業
+      - 開発パートナー
+    body: |-
+      IT・通信・インターネット業界のクライアント様から、Webシステムの開発をご依頼いただきました。ランサーズでお受けした案件の中で、もっとも規模の大きいプロジェクトです（2026年11月時点）。
+
+      【担当した内容】
+      ・Webシステムの開発・プログラミング
+      ・開発の途中で重なった修正のご依頼への対応
+      ・完成・納品までの対応
+
+      【クライアント様のご評価より】
+      「この度は、完成まで丁寧にご対応いただき、誠にありがとうございました。修正のお願いが重なる中でも、その都度柔軟にご対応いただき、大変助かりました。」
+
+      ※非公開のご依頼のため、システムの詳細は掲載を控えています。
+  - id: repeat-client
+    featured: true
+    service: system
+    headline: Webシステムの開発・改修を4回続けて担当
+    title: IT企業さまから4回続けてご依頼いただき、Webシステム開発・コーディング・不具合修正を担当しました
+    subtitle: Webシステム開発から始まり、HTML/CSSコーディング、2回の不具合修正まで、ご要望に順次対応しました
+    points:
+      - 開発→コーディング→不具合修正
+      - ご要望に順次対応、早いレスポンス
+      - 「安心してご依頼できる」とご評価
+    cover: media/works/repeat-client.webp
+    category: AI・システム開発・運用 ＞ Webシステム開発・プログラミング
+    industry: IT・通信・インターネット
+    days: null
+    price: 480000
+    job: null
+    reviews:
+      - lancers-5357534
+      - lancers-5368332
+      - lancers-5420737
+      - lancers-5440293
+    keywords:
+      - Webシステム開発
+      - HTML
+      - CSS
+      - コーディング
+      - 不具合修正
+      - バグ修正
+      - システム改修
+      - 保守運用
+      - 継続案件
+      - リピート
+    body: |-
+      IT企業さまから、2026年3月から6月にかけて4回続けてご依頼いただいた案件です。Webシステムの開発から始まり、HTML/CSSのコーディング、不具合の修正まで担当しました。
+
+      【ご依頼の流れ】（月はランサーズの評価日）
+      1. Webシステム開発・プログラミング（2026年3月）
+      2. HTML・CSSコーディング（2026年3月）
+      3. 不具合修正（2026年5月）
+      4. 不具合修正（2026年6月）
+
+      【クライアント様のご評価より】
+      1回目：「とても丁寧にコミュニケーションをとって頂き、お仕事をお願いしやすかったです。」
+      2回目：「いつも迅速なご対応ありがとうございます。」
+      3回目：「丁寧かつ迅速にご対応いただき、終始安心してお取引することができました。」
+      4回目：「今回もこちらの要望に順次対応していただきありがとうございました。レスポンスの早さにも大変感謝しております。安心してご依頼できる、ランサー様です。」
+
+      ※非公開のご依頼のため、システムの詳細は掲載を控えています。

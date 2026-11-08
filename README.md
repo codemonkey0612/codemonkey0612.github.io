@@ -13,9 +13,9 @@ the site goes to your Lancers profile, so contracts and payment stay on Lancers.
 articles/   Zenn articles      (live when published: true)
 public/     Qiita articles     (live when ignorePublish: false)
 notes/      note drafts        (ready when status: ready; pasted by hand)
-site/       hub site: one page per service (services/*.md), Lancers prices
-            (packages.yml), package covers and videos (assets/media/),
-            about text, styles
+site/       portfolio site: works (works.yml), one page per service
+            (services/*.md), Lancers prices (packages.yml), images and videos
+            (assets/media/), about text, styles and motion (assets/)
 templates/  article and proposal-demo templates
 profile.yml who you are: services, Lancers stats, past projects, certifications
             (read by the site, the templates and every check)
@@ -82,13 +82,30 @@ where to upload images. After publishing on note, paste the post's link into
 
 `npm run site:preview` builds it and serves it at <http://localhost:4321/>.
 
-- **Pages:** home (services, Lancers stats, past projects, client reviews,
-  how you work, latest articles, certifications), one page per service, a price
-  list of all 20 Lancers packages, works, all 26 client reviews in full,
-  profile, 404, plus `sitemap.xml`, `robots.txt` and `llms.txt`. Pages carry
-  Open Graph tags and schema.org data (Person, Service, FAQ, breadcrumbs).
-  Service cards on the home page show the package cover; service pages show
-  each package's promo video, and use its cover as the share image.
+- **Pages:** home (hero, works, services, client reviews, approach, the
+  consultation flow, certifications, latest articles), the works index with a
+  filter and one case page per work, one page per service, a price list of all
+  20 Lancers packages, all 26 client reviews in full, profile, 404, plus
+  `sitemap.xml`, `robots.txt` and `llms.txt`. Pages carry Open Graph tags (share
+  image `site/assets/og.png`, or the work's or service's own cover) and
+  schema.org data (Person, Service, CreativeWork, FAQ, breadcrumbs).
+- **Design and motion** (`site/assets/style.css`, `site/assets/app.js`, no
+  libraries). The home hero draws 匠 out of particles that gather on load, move
+  away from the cursor, scatter on click and drift apart as you scroll. Headings
+  rise in letter by letter, sections fade up as they enter, the Lancers works
+  scroll sideways while the page scrolls down (desktop), service rows show a
+  preview image that follows the cursor, reviews run in two slow marquees, and
+  a work's cover glides into its case page (View Transitions). Every page works
+  without JavaScript, and `prefers-reduced-motion` turns all motion off (the hero
+  shows a still 匠, the gallery becomes a normal swipe list).
+- **Works** (`site/works.yml`): `sites:` are live sites you took part in
+  building (screenshots in `site/assets/media/works/`, taken 2026-11-08);
+  `lancers:` are the 14 Lancers portfolio items, each tied to its client
+  reviews, so every case page quotes them in full and links to them.
+  `featured: true` puts a work on the home page. To add one, copy an entry, add
+  its image under `site/assets/media/works/`, and list its review ids. The
+  build fails on a missing image, an unknown review or a duplicate id. Keep the
+  `lancers:` text in sync with `~/dev/note/lancers-portfolio/items.mjs`.
 - **Where things come from:** names, summaries, projects, reviews and
   certifications from `profile.yml`; each service page's text and FAQ from
   `site/services/<id>.md`; the price tables from `site/packages.yml`; the

@@ -23,8 +23,9 @@ test("the real site builds: every page, link and structured-data block is valid"
   const site = loadSite({ root: ROOT, profile, today });
   const files = renderSite(site);
   const pages = Object.keys(files).filter((f) => f.endsWith(".html"));
-  assert.equal(pages.length, profile.services.length + 6);
+  assert.equal(pages.length, profile.services.length + site.works.all.length + 6);
   for (const s of profile.services) assert.ok(files[`services/${s.id}/index.html`], s.id);
+  for (const w of site.works.all) assert.ok(files[`works/${w.id}/index.html`], w.id);
 
   for (const page of pages) {
     const html = files[page];
@@ -131,4 +132,45 @@ test("the site lists every Lancers review and package profile.yml counts", () =>
   for (const p of site.packages) assert.match(files["prices/index.html"], new RegExp(`menu/detail/${p.id}"`));
   const ids = new Set(profile.testimonials.map((t) => t.id));
   assert.equal(ids.size, profile.testimonials.length, "testimonial ids are unique");
+});
+
+test("every work page is backed by something a visitor can check", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  assert.ok(site.works.sites.length >= 1 && site.works.lancers.length >= 1);
+  for (const w of site.works.sites) {
+    const html = files[`works/${w.id}/index.html`];
+    assert.ok(html.includes(`href="${w.url}" target="_blank" rel="noopener"`), `${w.id} links to the live site`);
+    assert.match(html, /開発に参加/, `${w.id} states the role`);
+  }
+  for (const w of site.works.lancers) {
+    assert.ok(w.reviews.length > 0, `${w.id} has at least one review`);
+    const html = files[`works/${w.id}/index.html`];
+    for (const t of w.reviews) {
+      assert.ok(html.includes(`reviews/#${t.id}`), `${w.id} links to review ${t.id}`);
+      if (t.comment) assert.ok(html.includes(esc(t.comment)), `${w.id} quotes review ${t.id} in full`);
+      assert.match(files["reviews/index.html"], new RegExp(`works/${w.id}/`), `review page links back to ${w.id}`);
+    }
+    if (w.job) assert.ok(html.includes(`https://www.lancers.jp/work/detail/${w.job}`), `${w.id} links to its public job post`);
+    assert.doesNotMatch(html, /【クライアント様のご評価より】|【掲載画像】/, `${w.id}: Lancers-only blocks are dropped`);
+  }
+  const featured = site.works.lancers.filter((w) => w.featured);
+  for (const w of featured) assert.ok(files["index.html"].includes(`works/${w.id}/`), `home shows featured ${w.id}`);
+  for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) {
+    assert.match(files[page], /<meta property="og:image" content="https:\/\/[^"]+\.(png|webp)">/, `${page} has a share image`);
+  }
+});
+
+test("works.yml typos fail the build", () => {
+  const base = {
+    "site/packages.yml": "{}\n",
+    "site/assets/media/w.webp": "x",
+  };
+  const profile = { site_url: "https://x.example/", services: [], cases: [], testimonials: [{ id: "t1", comment: "c" }] };
+  const badReview = tmpRepo({ ...base, "site/works.yml": "lancers:\n  - id: a\n    cover: media/w.webp\n    reviews: [t2]\n" });
+  assert.throws(() => loadSite({ root: badReview, profile, today }), /unknown testimonial "t2"/);
+  const badImage = tmpRepo({ ...base, "site/works.yml": "lancers:\n  - id: a\n    cover: media/missing.webp\n    reviews: [t1]\n" });
+  assert.throws(() => loadSite({ root: badImage, profile, today }), /site\/assets\/media\/missing\.webp does not exist/);
+  const dup = tmpRepo({ ...base, "site/works.yml": "lancers:\n  - { id: a, cover: media/w.webp, reviews: [t1] }\n  - { id: a, cover: media/w.webp, reviews: [t1] }\n" });
+  assert.throws(() => loadSite({ root: dup, profile, today }), /duplicate id "a"/);
 });

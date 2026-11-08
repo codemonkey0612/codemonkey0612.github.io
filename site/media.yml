@@ -1,0 +1,40 @@
+# Brand art and decoration (images and videos you made; the person in them is an
+# AI-generated character, and the site says so wherever she appears).
+# Paths are relative to site/assets/. The build fails if a file is missing.
+emblem: brand/emblem.webp          # gold 匠 emblem (cut out from your emblem image)
+navigator: brand/navigator.webp    # the AI character, cut out (closing section)
+# showreel: 6 clips (3.1–3.8 s) from packages 1351569, 1319797, 1351631, 1319683,
+# 1351735 and 1319797 (end card), joined with 0.5 s crossfades, 960×540, no audio,
+# H.264 crf 27 (ffmpeg xfade); poster = a frame at 1.2 s.
+showreel:
+  video: media/showreel.mp4        # 18 s muted montage of your promo videos (hero)
+  poster: media/showreel.webp
+  full: media/packages/1319797.mp4 # opened with sound from the hero
+  title: WordPressサイト 構築・移行・運用（紹介動画）
+# Banners from your Lancers packages, shown in the moving gallery. `service`
+# links each one to its service page.
+gallery:
+  - { image: media/gallery/g15.webp, service: ai-apps, alt: ChatGPT・生成AIで業務効率化AIアプリを開発します }
+  - { image: media/gallery/g04.webp, service: wordpress, alt: SEO対策込みで集客できるWordPressサイトを企画設計から制作・運用 }
+  - { image: media/gallery/g20.webp, service: ai-chatbot, alt: 生成AIでビジネスを加速する AIチャットボット開発 }
+  - { image: media/gallery/g21.webp, service: system, alt: iOS・Android対応の高品質なスマホアプリを開発します }
+  - { image: media/gallery/g12.webp, service: shopify, alt: Shopifyで売上アップするECサイトを構築します }
+  - { image: media/gallery/g26.webp, service: quality, alt: デバッグ・テスト検証・コードレビュー代行 }
+  - { image: media/gallery/g18.webp, service: ai-infra, alt: 生成AIでビジネスの未来をカタチに }
+  - { image: media/gallery/g33.webp, service: wordpress, alt: WordPressサイト 構築・移行・運用 }
+  - { image: media/gallery/g28.webp, service: ai-consulting, alt: ITサポート・コンサルティング }
+  - { image: media/gallery/g07.webp, service: system, alt: PHPシステム開発 }
+  - { image: media/gallery/g24.webp, service: wordpress, alt: Webサイト・ホームページ制作 }
+  - { image: media/gallery/g29.webp, service: quality, alt: セキュリティ・データ保護 }
+  - { image: media/gallery/g37.webp, service: ai-apps, alt: ChatGPT・生成AIを活用した業務効率化AIアプリを開発します }
+  - { image: media/gallery/g05.webp, service: wordpress, alt: WordPressで集客できるホームページを }
+  - { image: media/gallery/g13.webp, service: system, alt: 民泊・求人向けの高機能マッチングシステム }
+  - { image: media/gallery/g25.webp, service: wordpress, alt: HTML/CSSコーディング代行 }
+  - { image: media/gallery/g19.webp, service: ai-consulting, alt: 生成AI導入でビジネスの未来をカタチに }
+  - { image: media/gallery/g36.webp, service: shopify, alt: Shopify ECサイト構築 }
+  - { image: media/gallery/g08.webp, service: system, alt: Reactに特化したフロントエンド開発 }
+  - { image: media/gallery/g34.webp, service: ai-infra, alt: サーバー・インフラ 構築・移行 }
+  - { image: media/gallery/g10.webp, service: wordpress, alt: 成果重視のLPを制作 }
+  - { image: media/gallery/g23.webp, service: wordpress, alt: WordPress・CMSで高品質なWebサイトを構築します }
+  - { image: media/gallery/g31.webp, service: system, alt: デスクトップアプリ開発します }
+  - { image: media/gallery/g09.webp, service: system, alt: Google Apps Scriptで業務自動化ツール開発 }

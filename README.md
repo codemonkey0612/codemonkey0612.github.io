@@ -90,14 +90,23 @@ where to upload images. After publishing on note, paste the post's link into
   image `site/assets/og.png`, or the work's or service's own cover) and
   schema.org data (Person, Service, CreativeWork, FAQ, breadcrumbs).
 - **Design and motion** (`site/assets/style.css`, `site/assets/app.js`, no
-  libraries). The home hero draws 匠 out of particles that gather on load, move
-  away from the cursor, scatter on click and drift apart as you scroll. Headings
-  rise in letter by letter, sections fade up as they enter, the Lancers works
-  scroll sideways while the page scrolls down (desktop), service rows show a
-  preview image that follows the cursor, reviews run in two slow marquees, and
-  a work's cover glides into its case page (View Transitions). Every page works
-  without JavaScript, and `prefers-reduced-motion` turns all motion off (the hero
-  shows a still 匠, the gallery becomes a normal swipe list).
+  libraries). Bright white and sky surfaces, navy text and gold taken from the
+  匠 emblem; Shippori Mincho for headings, Cormorant Garamond for English and
+  numbers. A short emblem intro on the first visit of a session; the hero plays
+  a muted showreel of your promo videos (with a button to watch one with sound),
+  gold sparkles, rotating words and floating cards; service cards play their
+  promo video on hover; a tilted banner gallery and the reviews scroll on their
+  own; a movie theater switches between the service videos; works tilt toward
+  the cursor and their cover glides into the case page (View Transitions).
+  Every page works without JavaScript, and `prefers-reduced-motion` turns all
+  motion off (no autoplay, no intro).
+- **Brand art** (`site/media.yml`): the emblem, the AI character cut-out, the
+  showreel and the banner gallery. The originals are in `~/dev/note/portfolio`.
+  The person in the images and videos is an AI-generated character: every page
+  says so in the footer, and the closing section says so next to her. To
+  rebuild the showreel from the package videos, see the comment in
+  `site/media.yml`; the emblem is cut out of `Golden Kanji Artisan Emblem.png`
+  (the checkerboard in that file is painted in, not transparent).
 - **Works** (`site/works.yml`): `sites:` are live sites you took part in
   building (screenshots in `site/assets/media/works/`, taken 2026-11-08);
   `lancers:` are the 14 Lancers portfolio items, each tied to its client

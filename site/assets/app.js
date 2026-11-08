@@ -1,4 +1,4 @@
-/* 匠｜AI・Webシステム開発 — site motion.
+/* 匠 TAKUMI｜AI・Webシステム開発 — site motion.
    Every page works without this file. Motion is skipped for prefers-reduced-motion
    (the head script only adds .motion when motion is allowed). No dependencies. */
 (() => {
@@ -7,6 +7,7 @@
   const doc = document.documentElement;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const introOn = doc.classList.contains("motion") && !doc.classList.contains("intro-seen");
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -29,7 +30,7 @@
   addEventListener("resize", requestScroll);
 
   // ---------- split text into characters (screen readers get the plain text) ----------
-  const STICKY = /^[、。，．・！？」』）】〕：；ー〜]$/;
+  const STICKY = /^[、。，．・！？」』）】〕：；ー〜.,!?']$/;
   function split(el) {
     if (el.dataset.splitDone) return;
     el.dataset.splitDone = "1";
@@ -93,23 +94,29 @@
 
   // ---------- count-up numbers ----------
   if (!reduced && "IntersectionObserver" in window) {
+    const count = (el) => {
+      const to = parseFloat(el.dataset.count);
+      if (!Number.isFinite(to)) return;
+      const t0 = performance.now();
+      const dur = 1700;
+      const step = (t) => {
+        const p = clamp((t - t0) / dur, 0, 1);
+        el.textContent = String(Math.round(to * (1 - Math.pow(1 - p, 4))));
+        if (p < 1) requestAnimationFrame(step);
+      };
+      el.textContent = "0";
+      requestAnimationFrame(step);
+    };
     const countIO = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
           if (!e.isIntersecting) continue;
           countIO.unobserve(e.target);
-          const el = e.target;
-          const to = parseFloat(el.dataset.count);
-          if (!Number.isFinite(to)) continue;
-          const t0 = performance.now();
-          const dur = 1600;
-          const step = (t) => {
-            const p = clamp((t - t0) / dur, 0, 1);
-            el.textContent = String(Math.round(to * (1 - Math.pow(1 - p, 4))));
-            if (p < 1) requestAnimationFrame(step);
-          };
-          el.textContent = "0";
-          requestAnimationFrame(step);
+          const inHero = introOn && e.target.closest(".hero");
+          if (inHero) {
+            e.target.textContent = "0";
+            setTimeout(() => count(e.target), 1500);
+          } else count(e.target);
         }
       },
       { threshold: 0.5 },
@@ -117,18 +124,24 @@
     $$("[data-count]").forEach((el) => countIO.observe(el));
   }
 
-  // ---------- header and progress bar ----------
+  // ---------- header, progress bar, back-to-top ----------
   const header = $(".site-header");
   const bar = $(".progress");
+  const toTop = $(".to-top");
   let lastY = scrollY;
   onScroll.push((y) => {
     header.classList.toggle("is-scrolled", y > 24);
     if (Math.abs(y - lastY) > 8) {
-      header.classList.toggle("is-hidden", y > lastY && y > 400 && !doc.classList.contains("nav-open"));
+      header.classList.toggle("is-hidden", y > lastY && y > 480 && !doc.classList.contains("nav-open"));
       lastY = y;
     }
     const max = doc.scrollHeight - innerHeight;
-    bar.style.transform = `scaleX(${max > 0 ? clamp(y / max, 0, 1) : 0})`;
+    const p = max > 0 ? clamp(y / max, 0, 1) : 0;
+    bar.style.transform = `scaleX(${p})`;
+    if (toTop) {
+      toTop.classList.toggle("is-visible", y > 700);
+      toTop.style.setProperty("--p", p.toFixed(3));
+    }
   });
 
   // ---------- mobile menu ----------
@@ -149,277 +162,137 @@
         menuBtn.focus();
       }
     });
-    matchMedia("(min-width: 1024px)").addEventListener("change", (m) => m.matches && setMenu(false));
+    matchMedia("(min-width: 1100px)").addEventListener("change", (m) => m.matches && setMenu(false));
   }
 
-  // ---------- hero: particles that gather into 匠 ----------
-  function hero() {
-    const sec = $("[data-hero]");
-    if (!sec) return;
-    const cv = $(".hero-canvas", sec);
-    const slot = $(".hero-glyph", sec);
-    const ctx = cv && slot && cv.getContext("2d");
-    if (!ctx) {
-      slot?.classList.add("is-static");
-      sec.classList.add("is-ready");
-      return;
-    }
-    // [r, g, b, alpha, share]: paper white, softer whites, pale indigo, a few vermilion.
-    const PALETTE = [
-      [247, 245, 240, 0.95, 0.4],
-      [247, 245, 240, 0.62, 0.24],
-      [247, 245, 240, 0.34, 0.14],
-      [159, 190, 232, 0.85, 0.13],
-      [232, 102, 70, 1, 0.09],
-    ];
-    const pick = () => {
-      let r = Math.random();
-      for (let i = 0; i < PALETTE.length; i++) if ((r -= PALETTE[i][4]) <= 0) return i;
-      return 0;
-    };
-    let W = 0, H = 0, dpr = 1, size = 2, parts = [], buckets = [], dust = [];
-    let running = false, built = false, visible = true, scrollP = 0, lastW = 0, lastH = 0;
-    const mouse = { x: -1e5, y: -1e5, on: false };
+  // ---------- hero ----------
+  const hero = $("[data-hero]");
+  if (hero) {
+    setTimeout(() => hero.classList.add("is-ready"), introOn ? 1300 : 60);
 
-    function build() {
-      dpr = Math.min(devicePixelRatio || 1, 2);
-      const box = sec.getBoundingClientRect();
-      W = Math.round(box.width * dpr);
-      H = Math.round(box.height * dpr);
-      cv.width = W;
-      cv.height = H;
-      lastW = box.width;
-      lastH = box.height;
-      // Draw 匠 into the slot's square and sample its pixels.
-      const r = slot.getBoundingClientRect();
-      const side = Math.round(Math.min(r.width, r.height) * dpr);
-      if (side < 40) return;
-      const ox = (r.left - box.left) * dpr + (r.width * dpr - side) / 2;
-      const oy = (r.top - box.top) * dpr + (r.height * dpr - side) / 2;
-      const off = document.createElement("canvas");
-      off.width = off.height = side;
-      const o = off.getContext("2d", { willReadFrequently: true });
-      o.fillStyle = "#fff";
-      o.textAlign = "center";
-      o.textBaseline = "middle";
-      o.font = `800 ${side * 0.9}px "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif`;
-      o.fillText("匠", side / 2, side * 0.53);
-      const data = o.getImageData(0, 0, side, side).data;
-      const gap = Math.max(3 * dpr, Math.round(side / 96));
-      size = Math.max(1.3 * dpr, gap * 0.4);
-      const pts = [];
-      for (let y = 0; y < side; y += gap) {
-        for (let x = (y / gap) % 2 ? gap / 2 : 0; x < side; x += gap) {
-          if (data[((y | 0) * side + (x | 0)) * 4 + 3] > 120) pts.push([ox + x, oy + y]);
-        }
-      }
-      const old = parts;
-      parts = pts.map(([x, y], i) => {
-        const p = old[i] ?? {
-          x: Math.random() * W,
-          y: H * (0.25 + Math.random() * 0.95),
-          vx: 0,
-          vy: 0,
-          c: pick(),
-          k: 0.012 + Math.random() * 0.03,
-          ph: Math.random() * Math.PI * 2,
-          s: 0.75 + Math.random() * 0.7,
-        };
-        const a = Math.random() * Math.PI * 2;
-        p.tx = x;
-        p.ty = y;
-        p.ex = Math.cos(a) * (0.4 + Math.random());
-        p.ey = Math.sin(a) * (0.4 + Math.random()) - 0.6;
-        return p;
-      });
-      buckets = PALETTE.map((_, ci) => parts.filter((p) => p.c === ci));
-      built = true;
-      const n = Math.round((box.width * box.height) / 11000);
-      dust = Array.from({ length: n }, () => ({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        v: (0.08 + Math.random() * 0.3) * dpr,
-        a: 0.08 + Math.random() * 0.3,
-        s: (0.6 + Math.random()) * dpr,
-      }));
-      if (reduced) {
-        for (const p of parts) {
-          p.x = p.tx;
-          p.y = p.ty;
-        }
-        draw(0, false);
+    // the showreel plays (muted) while it is on screen
+    const reel = $(".reel-video", hero);
+    if (reel && !reduced && "IntersectionObserver" in window) {
+      new IntersectionObserver((es) => {
+        if (es[0].isIntersecting) reel.play().catch(() => {});
+        else reel.pause();
+      }).observe(reel);
+    }
+
+    // rotating words
+    const rot = $("[data-rotator]", hero);
+    if (rot) {
+      const items = [...rot.children];
+      let k = 0;
+      items[0].classList.add("is-active");
+      if (!reduced && items.length > 1) {
+        setInterval(() => {
+          if (document.hidden) return;
+          const cur = items[k];
+          k = (k + 1) % items.length;
+          const nxt = items[k];
+          cur.classList.remove("is-active");
+          cur.classList.add("is-out");
+          cur.setAttribute("aria-hidden", "true");
+          nxt.classList.remove("is-out");
+          nxt.classList.add("is-active");
+          nxt.removeAttribute("aria-hidden");
+          setTimeout(() => cur.classList.remove("is-out"), 720);
+        }, 2600);
       }
     }
 
-    function draw(t, move = true) {
-      ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = "rgb(200,215,235)";
-      for (const d of dust) {
-        if (move) {
-          d.y -= d.v;
-          if (d.y < -4) {
-            d.y = H + 4;
-            d.x = Math.random() * W;
-          }
+    // floating cards and the reel follow the mouse a little
+    const visual = $(".hero-visual", hero);
+    if (visual && fine && !reduced) {
+      const layers = $$("[data-depth]", visual);
+      const tilt = $("[data-tilt-soft]", visual);
+      let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+      const loop = () => {
+        x = lerp(x, tx, 0.08);
+        y = lerp(y, ty, 0.08);
+        for (const l of layers) {
+          const d = parseFloat(l.dataset.depth);
+          l.style.transform = `translate3d(${(x * d).toFixed(2)}px, ${(y * d).toFixed(2)}px, 0)`;
         }
-        ctx.globalAlpha = d.a;
-        ctx.fillRect(d.x, d.y, d.s, d.s);
-      }
-      const fade = 1 - scrollP * 0.85;
-      const spread = scrollP * scrollP * 700 * dpr;
-      const R = 120 * dpr;
-      const R2 = R * R;
-      for (let ci = 0; ci < PALETTE.length; ci++) {
-        const [r, g, b, a] = PALETTE[ci];
-        ctx.globalAlpha = a * fade;
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        for (const p of buckets[ci] ?? []) {
-          if (move) {
-            const tx = p.tx + p.ex * spread + Math.sin(t * 0.0011 + p.ph) * 0.9 * dpr;
-            const ty = p.ty + p.ey * spread + Math.cos(t * 0.0013 + p.ph) * 0.9 * dpr;
-            let ax = (tx - p.x) * p.k;
-            let ay = (ty - p.y) * p.k;
-            if (mouse.on) {
-              const dx = p.x - mouse.x;
-              const dy = p.y - mouse.y;
-              const d2 = dx * dx + dy * dy;
-              if (d2 < R2 && d2 > 1) {
-                const d = Math.sqrt(d2);
-                const f = (1 - d / R) * 2.6 * dpr;
-                ax += (dx / d) * f;
-                ay += (dy / d) * f;
-              }
-            }
-            p.vx = (p.vx + ax) * 0.84;
-            p.vy = (p.vy + ay) * 0.84;
-            p.x += p.vx;
-            p.y += p.vy;
-          }
-          const s = size * p.s;
-          ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
-        }
-      }
-      ctx.globalAlpha = 1;
-    }
-
-    const frame = (t) => {
-      if (!running) return;
-      draw(t);
-      requestAnimationFrame(frame);
-    };
-    const setRunning = (on) => {
-      on = on && built && !reduced && visible && !document.hidden;
-      if (on && !running) {
-        running = true;
-        requestAnimationFrame(frame);
-      } else if (!on) running = false;
-    };
-
-    const start = () => {
-      build();
-      sec.classList.add("is-ready");
-      setRunning(true);
-    };
-    const fonts = document.fonts?.load
-      ? Promise.race([document.fonts.load('800 120px "Shippori Mincho B1"', "匠"), new Promise((r) => setTimeout(r, 2500))])
-      : Promise.resolve();
-    fonts.then(start, start);
-
-    new IntersectionObserver((es) => {
-      visible = es[0].isIntersecting;
-      setRunning(true);
-    }).observe(sec);
-    document.addEventListener("visibilitychange", () => setRunning(true));
-    let rt = 0;
-    addEventListener("resize", () => {
-      clearTimeout(rt);
-      rt = setTimeout(() => {
-        const b = sec.getBoundingClientRect();
-        // Ignore the small height changes mobile browsers make while scrolling.
-        if (Math.abs(b.width - lastW) > 1 || Math.abs(b.height - lastH) > 120) build();
-      }, 220);
-    });
-    onScroll.push((y) => {
-      scrollP = clamp(y / (sec.offsetHeight * 0.85), 0, 1);
-    });
-
-    if (!reduced) {
-      const toCanvas = (e) => {
-        const b = cv.getBoundingClientRect();
-        mouse.x = (e.clientX - b.left) * dpr;
-        mouse.y = (e.clientY - b.top) * dpr;
+        if (tilt) tilt.style.transform = `perspective(1200px) rotateY(${(x * 4).toFixed(2)}deg) rotateX(${(-y * 4).toFixed(2)}deg)`;
+        raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.002 ? requestAnimationFrame(loop) : 0;
       };
-      sec.addEventListener("pointermove", (e) => {
-        if (e.pointerType === "touch") return;
-        toCanvas(e);
-        mouse.on = true;
+      hero.addEventListener("pointermove", (e) => {
+        const r = hero.getBoundingClientRect();
+        tx = (e.clientX - r.left) / r.width - 0.5;
+        ty = (e.clientY - r.top) / r.height - 0.5;
+        if (!raf) raf = requestAnimationFrame(loop);
       });
-      sec.addEventListener("pointerleave", () => (mouse.on = false));
-      // A click (or tap) away from the buttons scatters the particles; they gather again.
-      sec.addEventListener("pointerdown", (e) => {
-        if (e.target.closest("a, button")) return;
-        toCanvas(e);
-        for (const p of parts) {
-          const dx = p.x - mouse.x;
-          const dy = p.y - mouse.y;
-          const d = Math.sqrt(dx * dx + dy * dy) || 1;
-          const f = (18 + Math.random() * 26) * dpr * Math.max(0.15, 1 - d / (600 * dpr));
-          p.vx += (dx / d) * f;
-          p.vy += (dy / d) * f;
-        }
-        if (e.pointerType === "touch") mouse.on = false;
+      hero.addEventListener("pointerleave", () => {
+        tx = ty = 0;
+        if (!raf) raf = requestAnimationFrame(loop);
       });
     }
-  }
-  hero();
 
-  // ---------- works: vertical scroll drives a horizontal gallery (desktop) ----------
-  const hs = $("[data-hscroll]");
-  if (hs) {
-    const sticky = $(".hscroll-sticky", hs);
-    const track = $(".hscroll-track", hs);
-    const index = $("[data-hscroll-index]", hs);
-    const fill = $(".hscroll-bar span", hs);
-    const count = track.children.length - 1;
-    const wide = matchMedia("(min-width: 1024px)");
-    let dist = 0;
-    const measure = () => {
-      const pin = wide.matches && !reduced;
-      hs.classList.toggle("is-pinned", pin);
-      if (!pin) {
-        hs.style.height = "";
-        track.style.transform = "";
-        return;
-      }
-      dist = Math.max(0, track.scrollWidth - innerWidth);
-      hs.style.height = `${dist + innerHeight}px`;
-    };
-    const update = () => {
-      if (!hs.classList.contains("is-pinned")) return;
-      const p = dist ? clamp(-hs.getBoundingClientRect().top / dist, 0, 1) : 0;
-      track.style.transform = `translate3d(${(-p * dist).toFixed(1)}px,0,0)`;
-      if (fill) fill.style.transform = `scaleX(${p})`;
-      if (index) index.textContent = String(1 + Math.round(p * (count - 1))).padStart(2, "0");
-    };
-    measure();
-    update();
-    onScroll.push(update);
-    addEventListener("resize", () => {
-      measure();
-      update();
-    });
-    addEventListener("load", () => {
-      measure();
-      update();
-    });
-    // Keyboard: bring the focused card into view by scrolling the page, not the sticky box.
-    track.addEventListener("focusin", (e) => {
-      if (!hs.classList.contains("is-pinned")) return;
-      sticky.scrollLeft = 0;
-      const li = e.target.closest("li");
-      const p = clamp((li.offsetLeft - innerWidth * 0.2) / dist, 0, 1);
-      scrollTo({ top: hs.offsetTop + p * dist, behavior: "auto" });
-    });
+    // gold sparkles drifting up through the hero
+    const cv = $(".sparkles", hero);
+    const ctx = cv?.getContext("2d");
+    if (ctx && !reduced) {
+      let W = 0, H = 0, dpr = 1, parts = [], running = false, visible = true;
+      const sprite = document.createElement("canvas");
+      sprite.width = sprite.height = 32;
+      const s = sprite.getContext("2d");
+      const g = s.createRadialGradient(16, 16, 0, 16, 16, 16);
+      g.addColorStop(0, "rgba(255,243,200,1)");
+      g.addColorStop(0.35, "rgba(226,186,92,0.85)");
+      g.addColorStop(1, "rgba(226,186,92,0)");
+      s.fillStyle = g;
+      s.fillRect(0, 0, 32, 32);
+      const size = () => {
+        dpr = Math.min(devicePixelRatio || 1, 2);
+        const r = hero.getBoundingClientRect();
+        W = cv.width = Math.round(r.width * dpr);
+        H = cv.height = Math.round(r.height * dpr);
+        const n = Math.round(clamp((r.width * r.height) / 22000, 24, 70));
+        parts = Array.from({ length: n }, () => ({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: (2 + Math.random() * 7) * dpr,
+          v: (0.12 + Math.random() * 0.4) * dpr,
+          sway: Math.random() * Math.PI * 2,
+          tw: Math.random() * Math.PI * 2,
+        }));
+      };
+      const frame = (t) => {
+        if (!running) return;
+        ctx.clearRect(0, 0, W, H);
+        for (const p of parts) {
+          p.y -= p.v;
+          p.x += Math.sin(t * 0.0006 + p.sway) * 0.25 * dpr;
+          if (p.y < -20) {
+            p.y = H + 20;
+            p.x = Math.random() * W;
+          }
+          ctx.globalAlpha = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(t * 0.002 + p.tw));
+          ctx.drawImage(sprite, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+        }
+        requestAnimationFrame(frame);
+      };
+      const setRunning = () => {
+        const on = visible && !document.hidden;
+        if (on && !running) {
+          running = true;
+          requestAnimationFrame(frame);
+        } else if (!on) running = false;
+      };
+      size();
+      new IntersectionObserver((es) => {
+        visible = es[0].isIntersecting;
+        setRunning();
+      }).observe(hero);
+      document.addEventListener("visibilitychange", setRunning);
+      let rt = 0;
+      addEventListener("resize", () => {
+        clearTimeout(rt);
+        rt = setTimeout(size, 200);
+      });
+    }
   }
 
   // ---------- flow: the line fills as you read ----------
@@ -427,7 +300,7 @@
   if (flow) {
     onScroll.push(() => {
       const r = flow.getBoundingClientRect();
-      flow.style.setProperty("--p", clamp((innerHeight * 0.8 - r.top) / (r.height + innerHeight * 0.2), 0, 1).toFixed(3));
+      flow.style.setProperty("--p", clamp((innerHeight * 0.8 - r.top) / (r.height + innerHeight * 0.25), 0, 1).toFixed(3));
     });
   }
 
@@ -457,77 +330,107 @@
     });
   }
 
+  // ---------- video popup ----------
+  const modal = $(".video-modal");
+  if (modal && typeof modal.showModal === "function") {
+    const v = $(".vm-video", modal);
+    const title = $(".vm-title", modal);
+    const close = () => modal.open && modal.close();
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("[data-video]");
+      if (!a) return;
+      e.preventDefault();
+      v.src = a.dataset.video;
+      title.textContent = a.dataset.videoTitle ?? "";
+      modal.showModal();
+      v.play().catch(() => {});
+    });
+    $(".vm-close", modal).addEventListener("click", close);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) close();
+    });
+    modal.addEventListener("close", () => {
+      v.pause();
+      v.removeAttribute("src");
+      v.load();
+    });
+  }
+
+  // ---------- movie theater ----------
+  const theater = $("[data-theater]");
+  if (theater) {
+    const video = $(".theater-video", theater);
+    const ttl = $(".theater-title", theater);
+    const pil = $(".theater-pillar", theater);
+    const link = $(".theater-link", theater);
+    theater.addEventListener("click", (e) => {
+      const b = e.target.closest(".t-item");
+      if (!b) return;
+      for (const x of $$(".t-item", theater)) x.setAttribute("aria-pressed", String(x === b));
+      video.classList.add("is-switching");
+      setTimeout(() => {
+        video.pause();
+        video.poster = b.dataset.poster;
+        video.src = b.dataset.src;
+        video.classList.remove("is-switching");
+        video.play().catch(() => {});
+      }, reduced ? 0 : 250);
+      ttl.textContent = b.dataset.title;
+      pil.textContent = b.dataset.pillar;
+      link.href = b.dataset.href;
+      link.firstChild.textContent = `${b.dataset.name}を見る`;
+      if (innerWidth < 1024) theater.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    });
+  }
+
   // ---------- pointer niceties (mouse only) ----------
   if (fine && !reduced) {
-    // service rows: a preview image follows the cursor
-    const rows = $$("[data-preview]");
-    if (rows.length) {
-      const pv = document.createElement("img");
-      pv.className = "hover-preview";
-      pv.alt = "";
-      pv.setAttribute("aria-hidden", "true");
-      document.body.append(pv);
-      let x = 0, y = 0, tx = 0, ty = 0, on = false, raf = 0;
-      const loop = () => {
-        x = lerp(x, tx, 0.16);
-        y = lerp(y, ty, 0.16);
-        const rot = clamp((tx - x) * 0.05, -9, 9);
-        pv.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -62%) rotate(${rot.toFixed(2)}deg)`;
-        raf = on || Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(loop) : 0;
-      };
-      for (const r of rows) {
-        const im = new Image();
-        im.src = r.dataset.preview; // warm the cache
-        r.addEventListener("pointerenter", (e) => {
-          if (!pv.src.endsWith(r.dataset.preview.replace(/^\.\//, ""))) pv.src = r.dataset.preview;
-          if (!on && !pv.classList.contains("is-visible")) {
-            x = tx = e.clientX;
-            y = ty = e.clientY;
+    // a soft gold light follows the cursor on cards
+    document.addEventListener("pointermove", (e) => {
+      const el = e.target.closest?.("[data-spot]");
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    });
+
+    // service cards play their promo video (muted) on hover
+    for (const card of $$("[data-hover-video]")) {
+      const media = $(".svc-media", card);
+      let v = null;
+      let timer = 0;
+      card.addEventListener("pointerenter", () => {
+        timer = setTimeout(() => {
+          if (!v) {
+            v = document.createElement("video");
+            v.muted = true;
+            v.loop = true;
+            v.playsInline = true;
+            v.preload = "auto";
+            v.setAttribute("aria-hidden", "true");
+            v.src = card.dataset.hoverVideo;
+            v.addEventListener("playing", () => card.classList.add("is-playing"));
+            media.append(v);
           }
-          on = true;
-          pv.classList.add("is-visible");
-          if (!raf) raf = requestAnimationFrame(loop);
-        });
-        r.addEventListener("pointermove", (e) => {
-          tx = e.clientX;
-          ty = e.clientY;
-        });
-        r.addEventListener("pointerleave", () => {
-          on = false;
-          pv.classList.remove("is-visible");
-        });
-      }
+          v.play().catch(() => {});
+        }, 180);
+      });
+      card.addEventListener("pointerleave", () => {
+        clearTimeout(timer);
+        card.classList.remove("is-playing");
+        if (v) v.pause();
+      });
     }
 
-    // a small cursor that grows on links and says "View" on works
-    const cursor = $(".cursor");
-    const label = $(".cursor-label");
-    if (cursor) {
-      let x = innerWidth / 2, y = innerHeight / 2, tx = x, ty = y, raf = 0;
-      const loop = () => {
-        x = lerp(x, tx, 0.22);
-        y = lerp(y, ty, 0.22);
-        cursor.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-        raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(loop) : 0;
-      };
-      addEventListener(
-        "pointermove",
-        (e) => {
-          tx = e.clientX;
-          ty = e.clientY;
-          cursor.classList.add("is-active");
-          if (!raf) raf = requestAnimationFrame(loop);
-        },
-        { passive: true },
-      );
-      doc.addEventListener("pointerleave", () => cursor.classList.remove("is-active"));
-      document.addEventListener("pointerover", (e) => {
-        const view = e.target.closest("[data-cursor]");
-        const link = e.target.closest("a, button, summary");
-        cursor.classList.toggle("is-view", !!view);
-        cursor.classList.toggle("is-link", !view && !!link);
-        label.textContent = view ? view.dataset.cursor : "";
+    // works tilt toward the cursor
+    for (const el of $$("[data-tilt]")) {
+      el.addEventListener("pointermove", (e) => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.transform = `perspective(900px) rotateY(${(x * 7).toFixed(2)}deg) rotateX(${(-y * 7).toFixed(2)}deg) translateY(-4px)`;
       });
+      el.addEventListener("pointerleave", () => (el.style.transform = ""));
     }
 
     // magnetic buttons
@@ -536,7 +439,7 @@
         const r = el.getBoundingClientRect();
         const dx = e.clientX - (r.left + r.width / 2);
         const dy = e.clientY - (r.top + r.height / 2);
-        el.style.transform = `translate(${(dx * 0.22).toFixed(1)}px, ${(dy * 0.3).toFixed(1)}px)`;
+        el.style.transform = `translate(${(dx * 0.2).toFixed(1)}px, ${(dy * 0.3).toFixed(1)}px)`;
       });
       el.addEventListener("pointerleave", () => (el.style.transform = ""));
     }

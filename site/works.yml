@@ -340,7 +340,6 @@ lancers:
       使用技術：HTML／CSS／JavaScript（jQuery）／PHP
       制作期間：4日
   - id: inkscape-svg
-    featured: true
     service: system
     headline: SVGファイルの暗号化・復号の仕組み
     title: Inkscape拡張機能用SVGファイルの暗号化・復号の仕組みを構築しました
@@ -570,7 +569,6 @@ lancers:
 
       ※非公開のご依頼のため、システムの詳細は掲載を控えています。
   - id: repeat-client
-    featured: true
     service: system
     headline: Webシステムの開発・改修を4回続けて担当
     title: IT企業さまから4回続けてご依頼いただき、Webシステム開発・コーディング・不具合修正を担当しました

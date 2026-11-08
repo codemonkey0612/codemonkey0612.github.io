@@ -157,7 +157,7 @@ test("every work page is backed by something a visitor can check", () => {
   const featured = site.works.lancers.filter((w) => w.featured);
   for (const w of featured) assert.ok(files["index.html"].includes(`works/${w.id}/`), `home shows featured ${w.id}`);
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) {
-    assert.match(files[page], /<meta property="og:image" content="https:\/\/[^"]+\.(png|webp)">/, `${page} has a share image`);
+    assert.match(files[page], /<meta property="og:image" content="https:\/\/[^"]+\.(png|jpg|webp)">/, `${page} has a share image`);
   }
 });
 
@@ -173,4 +173,32 @@ test("works.yml typos fail the build", () => {
   assert.throws(() => loadSite({ root: badImage, profile, today }), /site\/assets\/media\/missing\.webp does not exist/);
   const dup = tmpRepo({ ...base, "site/works.yml": "lancers:\n  - { id: a, cover: media/w.webp, reviews: [t1] }\n  - { id: a, cover: media/w.webp, reviews: [t1] }\n" });
   assert.throws(() => loadSite({ root: dup, profile, today }), /duplicate id "a"/);
+});
+
+test("brand art and videos from site/media.yml are on the home page, with the AI disclosure", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  const home = files["index.html"];
+  const { art } = site;
+  assert.ok(art.emblem && art.showreel && art.gallery.length > 0);
+  assert.ok(home.includes(`<source src="./${art.showreel.video}" type="video/mp4">`), "showreel video");
+  assert.ok(home.includes(`poster="./${art.showreel.poster}"`), "showreel poster");
+  for (const g of art.gallery) assert.ok(home.includes(`src="./${g.image}"`), `gallery image ${g.image}`);
+  for (const s of site.services.filter((x) => x.video)) {
+    assert.ok(home.includes(`data-hover-video="./${s.video.video}"`), `${s.id} card plays its video on hover`);
+    assert.ok(home.includes(`data-src="./${s.video.video}"`), `${s.id} is in the movie theater`);
+  }
+  // The character in the images and videos is AI-generated; every page says so (footer).
+  for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) {
+    assert.match(files[page], /AIで生成したイメージキャラクター/, `${page} discloses the AI character`);
+  }
+  assert.match(files["works/index.html"], /カバー画像はイメージです/, "works index says the covers are illustrations");
+});
+
+test("media.yml typos fail the build", () => {
+  const profile = { site_url: "https://x.example/", services: [], cases: [], testimonials: [] };
+  const bad = tmpRepo({ "site/packages.yml": "{}\n", "site/media.yml": "emblem: brand/missing.webp\n" });
+  assert.throws(() => loadSite({ root: bad, profile, today }), /site\/assets\/brand\/missing\.webp does not exist/);
+  const badSvc = tmpRepo({ "site/packages.yml": "{}\n", "site/assets/g.webp": "x", "site/media.yml": "gallery:\n  - { image: g.webp, service: nope }\n" });
+  assert.throws(() => loadSite({ root: badSvc, profile, today }), /unknown service "nope"/);
 });

@@ -1,0 +1,38 @@
+[
+  {
+    "date": "2026-11-10 09:00",
+    "pillar": "sme",
+    "written_at": "2026-11-09T04:14:27.524Z",
+    "slug": "excel-transcription-automation-first-steps",
+    "title": "Excelの転記・集計作業を約75%減らしたとき、最初にやったこと",
+    "service": "system",
+    "status": "scheduled",
+    "fact_check_warnings": 3,
+    "file": "articles/excel-transcription-automation-first-steps.md",
+    "usage": {
+      "input_tokens": 479294,
+      "output_tokens": 37711,
+      "cache_read_input_tokens": 0,
+      "web_search_requests": 19
+    },
+    "cost_usd": 2.67
+  },
+  {
+    "date": "2026-11-11 09:00",
+    "pillar": "ai-software",
+    "written_at": "2026-11-09T04:14:27.524Z",
+    "slug": "multitenant-rag-rls-pgvector",
+    "title": "マルチテナントRAGの情報漏えいを防ぐ：PostgreSQLのRLSとpgvectorでの実装",
+    "service": "ai-chatbot",
+    "status": "scheduled",
+    "fact_check_warnings": 2,
+    "file": "articles/multitenant-rag-rls-pgvector.md",
+    "usage": {
+      "input_tokens": 1914950,
+      "output_tokens": 118345,
+      "cache_read_input_tokens": 0,
+      "web_search_requests": 49
+    },
+    "cost_usd": 10.03
+  }
+]

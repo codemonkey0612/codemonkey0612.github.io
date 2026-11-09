@@ -124,6 +124,10 @@ svg .solid { fill: currentColor; stroke: none; }
 .grid-2 .card-img { aspect-ratio: 16 / 10; }
 .card-img-site img { object-position: 50% 0; }
 .card-img-pkg { aspect-ratio: 16 / 9; }
+.pic { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-2); }
+.pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.pic .pic-fill { object-fit: cover; filter: blur(20px) saturate(1.15); opacity: 0.6; transform: scale(1.15); }
+.card:hover .card-img .pic-fill { transform: scale(1.15); }
 .card-meta { display: block; margin: 14px 0 4px; font-size: 12px; color: var(--muted); }
 .card-title { display: block; font-size: 16px; font-weight: 500; line-height: 1.6; color: var(--ink); transition: color 0.2s; }
 .card:hover .card-title { color: var(--gold-text); }
@@ -178,7 +182,7 @@ svg .solid { fill: currentColor; stroke: none; }
 .facts dt { font-size: 12px; color: var(--muted); }
 .facts dd { margin: 0; font-size: 16px; font-weight: 500; color: var(--ink); }
 .ph-art { position: relative; margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2); }
-.ph-art img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+
 .play { position: absolute; left: 14px; bottom: 14px; display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 8px; background: rgba(11, 20, 40, 0.86); color: #fff; font-size: 13px; text-decoration: none; }
 .play:hover { background: var(--ink); }
 .play .ic { width: 14px; height: 14px; color: var(--gold-light); }
@@ -196,7 +200,9 @@ svg .solid { fill: currentColor; stroke: none; }
 .prose ol li { margin-bottom: 6px; }
 
 .pkg { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; align-items: start; margin-bottom: 20px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
-.pkg-media video, .pkg-media img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; background: var(--bg-2); }
+.pkg-media { position: relative; overflow: hidden; border-radius: 8px; }
+.pkg .table tbody th { white-space: nowrap; }
+.pkg-media video { width: 100%; aspect-ratio: 16 / 9; background: #000; }
 .pkg-title { margin-bottom: 14px; font-size: 16px; font-weight: 500; }
 .pkg-title a { text-decoration: none; }
 .pkg-title a:hover { text-decoration: underline; text-underline-offset: 3px; }

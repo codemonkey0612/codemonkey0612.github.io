@@ -110,8 +110,8 @@ test("service pages show each package's cover and promo video", () => {
   for (const s of site.services) {
     const html = files[`services/${s.id}/index.html`];
     for (const p of s.packages.filter((x) => x.video)) {
-      assert.ok(html.includes(`<source src="../../${p.video}" type="video/mp4">`), `${s.id}: video of ${p.id}`);
-      assert.ok(html.includes(`poster="../../${p.cover}"`), `${s.id}: poster of ${p.id}`);
+      assert.ok(html.includes(`data-video="../../${p.video}"`), `${s.id}: video of ${p.id}`);
+      assert.ok(html.includes(`src="../../${p.cover}"`), `${s.id}: image of ${p.id}`);
     }
     if (s.packages.some((x) => x.video)) assert.match(html, /案内役は、AIで生成したキャラクターです/, `${s.id} says the presenter is AI`);
     assert.ok(files["index.html"].includes(`href="./services/${s.id}/"`), `home links to ${s.id}`);

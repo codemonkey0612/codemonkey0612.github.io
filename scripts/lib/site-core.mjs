@@ -299,6 +299,10 @@ const img = (site, src, base, { alt = "", cls = "", eager = false } = {}) => {
   return `<img${cls ? ` class="${cls}"` : ""} src="${base}${esc(src)}" alt="${esc(alt)}"${wh ? ` width="${wh[0]}" height="${wh[1]}"` : ""} ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`;
 };
 
+/** A package image shown whole in a 16:9 frame (Lancers images come in more than one
+ * shape); a blurred copy of the same image fills any space around it. */
+const pic = (site, src, base, opts = {}) => `<span class="pic">${img(site, src, base, { cls: "pic-fill" })}${img(site, src, base, opts)}</span>`;
+
 /** The brand mark: your gold 匠 emblem (a text 匠 if site/media.yml has none). */
 const mark = (site, base, size = 40) =>
   site.art.emblemSmall
@@ -540,7 +544,7 @@ const ldFaq = (items) => ({
 /** A service card: its Lancers package image, field, name and starting price. */
 function serviceCard(site, s, base) {
   return `<li data-reveal><a class="card" href="${base}services/${esc(s.id)}/">
-        ${s.cover ? `<span class="card-img card-img-pkg">${img(site, s.cover, base, { alt: s.name })}</span>` : ""}
+        ${s.cover ? `<span class="card-img card-img-pkg">${pic(site, s.cover, base, { alt: s.name })}</span>` : ""}
         <span class="card-meta">${esc(s.pillar ?? "")}</span>
         <span class="card-title">${esc(s.name)}</span>
         <span class="card-foot">${s.priceFrom ? `${yen(s.priceFrom)}〜` : "お見積もり"}${icon("arrow")}</span>
@@ -679,11 +683,12 @@ export function renderService(site, s) {
   const base = "../../";
   const route = `services/${s.id}/`;
   const url = new URL(route, profile.site_url).href;
+  // The package image, whole; its promo video opens in the popup (or plays on its own without JavaScript).
   const media = (p) =>
-    p.video
-      ? `<video controls preload="none" playsinline poster="${base}${esc(p.cover ?? "")}" width="1280" height="720" aria-label="${esc(p.title)}の紹介動画"><source src="${base}${esc(p.video)}" type="video/mp4"></video>`
-      : p.cover
-        ? img(site, p.cover, base, { alt: p.title })
+    p.cover
+      ? `${pic(site, p.cover, base, { alt: p.title })}${p.video ? `<a class="play" href="${base}${esc(p.video)}" data-video="${base}${esc(p.video)}" data-video-title="${esc(p.title)}">${icon("play")}紹介動画を見る</a>` : ""}`
+      : p.video
+        ? `<video controls preload="none" playsinline width="1280" height="720" aria-label="${esc(p.title)}の紹介動画"><source src="${base}${esc(p.video)}" type="video/mp4"></video>`
         : "";
   const related = site.works.all.filter((w) => w.service?.id === s.id);
   const faq = [...s.faq, ...COMMON_FAQ];
@@ -694,7 +699,7 @@ export function renderService(site, s) {
       </dl>
       <p class="actions"><a class="btn btn-primary btn-lg" href="${esc(profile.contact_url)}">ランサーズで相談する${icon("arrow")}</a>${s.packages.length ? `<a class="btn btn-secondary btn-lg" href="#price">料金を見る</a>` : ""}</p>`;
   const aside = s.cover
-    ? `<figure class="ph-art">${img(site, s.cover, base, { alt: s.name, eager: true })}${s.video ? `<a class="play" href="${base}${esc(s.video.video)}" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}">${icon("play")}紹介動画を見る</a>` : ""}</figure>`
+    ? `<figure class="ph-art">${pic(site, s.cover, base, { alt: s.name, eager: true })}${s.video ? `<a class="play" href="${base}${esc(s.video.video)}" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}">${icon("play")}紹介動画を見る</a>` : ""}</figure>`
     : "";
   const body = `${pageHero(base, { label: `Service ${s.no}`, title: esc(s.name), lead: esc(s.description), trail: [[`${base}#services`, "サービス"], [null, s.name]], extra, aside })}
 <section class="sec">

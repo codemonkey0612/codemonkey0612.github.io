@@ -135,3 +135,46 @@ test("a Zenn article's published_at must be a date and time", () => {
   assert.ok(validateArticle(article("2026-11-10 09:00"), p).errors.every((e) => !/published_at/.test(e)));
   assert.ok(validateArticle(article("明日の朝"), p).errors.some((e) => /published_at/.test(e)));
 });
+
+test("with note on, due articles also get a note copy with a header image; your own note posts and published ones are left alone", () => {
+  const dir = repo({
+    "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }),
+    "articles/own-note-post-1.md": zenn("自分のnote", { at: "2026-11-02 09:00" }),
+    "notes/own-note-post-1.md": "---\ntitle: 手書き\nstatus: ready\n---\n手書きのnote\n",
+  });
+  const covers = [];
+  const cover = ({ title, out }) => (covers.push(title), fs.writeFileSync(out, "png"), true);
+  const now = jst("2026-11-10T09:00");
+  const results = crosspost({ root: dir, profile, now, note: true, cover });
+  const note = Object.fromEntries(results.filter((r) => r.platform === "note").map((r) => [r.slug, r.action]));
+  assert.deepEqual(note, { "own-note-post-1": "skipped", "live-article-01": "created" });
+  const copy = path.join(dir, "notes/live-article-01.md");
+  const { data, content } = matter(fs.readFileSync(copy, "utf8"));
+  assert.deepEqual([data.title, data.status, data.hashtags, data.cover, data.url], ["今日の記事", "ready", ["ai", "rag"], "live-article-01.png", null]);
+  assert.match(content, /^<!-- crossposted from articles\/live-article-01\.md/);
+  assert.deepEqual(covers, ["今日の記事"], "one cover, for the new copy");
+
+  // Drafted on note (ids written back), then the Zenn article is edited: the copy follows, ids kept.
+  fs.writeFileSync(copy, fs.readFileSync(copy, "utf8").replace("url: null", 'note_id: "55"\nnote_key: nabc\nurl: null'));
+  const src = path.join(dir, "articles/live-article-01.md");
+  fs.writeFileSync(src, fs.readFileSync(src, "utf8").replace("本文。", "本文を直しました。"));
+  assert.equal(crosspost({ root: dir, profile, now, note: true, cover }).find((r) => r.platform === "note" && r.slug === "live-article-01").action, "updated");
+  const updated = matter(fs.readFileSync(copy, "utf8"));
+  assert.equal(updated.data.note_id, "55");
+  assert.match(updated.content, /本文を直しました/);
+  assert.equal(covers.length, 1, "the cover isn't made again");
+
+  // Once it's public on note, the copy is left alone.
+  fs.writeFileSync(copy, fs.readFileSync(copy, "utf8").replace("url: null", "url: https://note.com/shanaiai/n/nabc"));
+  fs.writeFileSync(src, fs.readFileSync(src, "utf8").replace("本文を直しました。", "もう一度直しました。"));
+  assert.equal(crosspost({ root: dir, profile, now, note: true, cover }).find((r) => r.platform === "note" && r.slug === "live-article-01").action, "unchanged");
+  assert.doesNotMatch(fs.readFileSync(copy, "utf8"), /もう一度/);
+});
+
+test("a header image you put at notes/<slug>.jpg (or .png) is used instead of making one", () => {
+  const dir = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }), "notes/live-article-01.jpg": "jpeg" });
+  let made = 0;
+  crosspost({ root: dir, profile, now: jst("2026-11-10T09:00"), note: true, cover: () => (made++, true) });
+  assert.equal(matter(fs.readFileSync(path.join(dir, "notes/live-article-01.md"), "utf8")).data.cover, "live-article-01.jpg");
+  assert.equal(made, 0);
+});

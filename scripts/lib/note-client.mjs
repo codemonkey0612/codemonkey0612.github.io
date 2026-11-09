@@ -1,11 +1,13 @@
-// A note.com client that can only save drafts.
+// A note.com client: saves drafts and, when asked, publishes one.
 //
 // note has no posting API for individual accounts (its "note API" from October 2026 is for
 // corporate note pro customers only), so this calls the internal endpoints note's own editor
 // uses, signed in with your login cookie. They are undocumented and can change without notice.
-// The endpoints and headers match two independent open-source clients (goodnasubi/note-mcp in
-// TypeScript, tuuu428/Note-CLI in Go). Only the calls in ALLOWED can be made: nothing here can
-// publish, delete or price a post — you publish on note yourself.
+// The draft endpoints and headers match two independent open-source clients (goodnasubi/note-mcp
+// in TypeScript, tuuu428/Note-CLI in Go). Publishing is PUT /api/v1/text_notes/{id} with
+// status "published", as in Note-CLI (with its full payload) and shimayuz/note-com-mcp; it's
+// less well documented, so callers check the public page afterwards. Only the calls in ALLOWED
+// can be made: nothing here can delete, price or unpublish a post.
 
 export const NOTE_ORIGIN = "https://note.com";
 export const EDITOR_ORIGIN = "https://editor.note.com";
@@ -18,6 +20,7 @@ const ALLOWED = [
   ["POST", /^\/api\/v1\/text_notes\/draft_save$/],
   ["POST", /^\/api\/v3\/images\/upload\/presigned_post$/],
   ["POST", /^\/api\/v1\/image_upload\/note_eyecatch$/],
+  ["PUT", /^\/api\/v1\/text_notes\/\d+$/], // publish (see publish())
 ];
 export const IMAGE_TYPES = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif" };
 
@@ -120,8 +123,40 @@ export class NoteClient {
     await this.request("POST", "/api/v1/image_upload/note_eyecatch", { form });
   }
 
+  /**
+   * Publishes a draft as a free post: comments on, followers notified, no magazine. note takes
+   * the whole post with this call (it has no partial update), so title and body are sent again.
+   */
+  async publish(id, { title, html, textLength, hashtags = [] }) {
+    if (!/^\d+$/.test(String(id))) throw new Error(`note post id must be a number: ${id}`);
+    await this.request("PUT", `/api/v1/text_notes/${id}`, {
+      json: {
+        status: "published",
+        name: title,
+        body: html,
+        body_length: textLength,
+        free_body: html,
+        pay_body: "",
+        separator: null,
+        price: 0,
+        is_refund: false,
+        hashtags: hashtags.map((t) => (String(t).startsWith("#") ? String(t) : `#${t}`)),
+        magazine_ids: [],
+        magazine_keys: [],
+        circle_permissions: [],
+        limited: false,
+        disable_comment: false,
+        send_notifications_flag: true,
+        author_ids: [],
+        image_keys: [],
+        index: false,
+        is_lead_form: false,
+      },
+    });
+  }
+
   async request(method, path, { query, json, form } = {}) {
-    if (!ALLOWED.some(([m, p]) => m === method && p.test(path))) throw new Error(`not a draft endpoint, refusing: ${method} ${path}`);
+    if (!ALLOWED.some(([m, p]) => m === method && p.test(path))) throw new Error(`not an allowed note endpoint, refusing: ${method} ${path}`);
     const url = new URL(path, NOTE_ORIGIN);
     for (const [k, v] of Object.entries(query ?? {})) url.searchParams.set(k, v);
     const headers = {

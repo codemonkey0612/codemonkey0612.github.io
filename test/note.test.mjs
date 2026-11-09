@@ -51,8 +51,9 @@ test("Markdown becomes note editor HTML: block ids, two heading levels, figures,
 });
 
 // A fake note: records calls, answers like the real endpoints.
-function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published = [] } = {}) {
+function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published = [], publishWorks = true } = {}) {
   const calls = [];
+  const keyOf = new Map();
   let nextId = 1000;
   const json = (body, init = {}) => new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json", ...init.headers } });
   const fetch = async (url, init = {}) => {
@@ -61,7 +62,15 @@ function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published =
     if (status !== 200) return new Response("", { status });
     if (u.hostname === "s3.example") return new Response(null, { status: 204 });
     if (u.pathname === "/api/v2/current_user") return json({ data: { id: 7, urlname } }, { headers: { "set-cookie": "XSRF-TOKEN=tok%3D; path=/" } });
-    if (u.pathname === "/api/v1/text_notes") return json({ data: { id: ++nextId, key: `nkey${nextId}` } });
+    if (u.pathname === "/api/v1/text_notes") {
+      keyOf.set(String(++nextId), `nkey${nextId}`);
+      return json({ data: { id: nextId, key: `nkey${nextId}` } });
+    }
+    const put = init.method === "PUT" && /^\/api\/v1\/text_notes\/(\d+)$/.exec(u.pathname);
+    if (put) {
+      if (publishWorks) published.push(keyOf.get(put[1]));
+      return json({ data: {} });
+    }
     if (u.pathname === "/api/v1/text_notes/draft_save") return json({ data: {} });
     if (u.pathname === "/api/v2/note_list/contents") return json({ data: { notes: drafts.map((id) => ({ id, status: "draft" })), isLastPage: true } });
     if (u.pathname === "/api/v3/images/upload/presigned_post") return json({ data: { url: "https://assets.st-note.com/up.png", action: "https://s3.example/", post: { key: "k", policy: "p" } } });
@@ -72,7 +81,7 @@ function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published =
   return { calls, fetch };
 }
 
-test("the note client only saves drafts, with the editor's headers and XSRF token", async () => {
+test("the note client saves drafts and publishes only through publish(), with the editor's headers and XSRF token", async () => {
   const note = fakeNote();
   const client = new NoteClient("_note_session_v5=abc", { fetch: note.fetch });
   assert.deepEqual(await client.currentUser(), { id: "7", urlname: "shanaiai" });
@@ -84,8 +93,15 @@ test("the note client only saves drafts, with the editor's headers and XSRF toke
   assert.equal(save.headers.Cookie, "_note_session_v5=abc; XSRF-TOKEN=tok%3D");
   assert.equal(save.headers["X-XSRF-TOKEN"], "tok=");
   assert.equal(save.headers.Origin, "https://editor.note.com");
-  await assert.rejects(client.request("PUT", `/api/v1/text_notes/${ref.id}`, { json: { status: "published" } }), /not a draft endpoint/);
-  assert.ok(!note.calls.some((c) => c.method === "PUT"), "publishing is never sent");
+  await client.publish(ref.id, { title: "タイトル", html: "<p>本文</p>", textLength: 2, hashtags: ["ai", "#RAG"] });
+  const put = note.calls.find((c) => c.method === "PUT");
+  assert.equal(put.path, `/api/v1/text_notes/${ref.id}`);
+  const payload = JSON.parse(put.body);
+  assert.deepEqual([payload.status, payload.name, payload.free_body, payload.pay_body, payload.price], ["published", "タイトル", "<p>本文</p>", "", 0]);
+  assert.deepEqual(payload.hashtags, ["#ai", "#RAG"]);
+  await assert.rejects(client.request("DELETE", `/api/v1/text_notes/${ref.id}`), /not an allowed note endpoint/);
+  await assert.rejects(client.request("PUT", "/api/v1/text_notes/nkey1"), /not an allowed note endpoint/);
+  await assert.rejects(client.publish("nkey1", { title: "t", html: "", textLength: 0 }), /must be a number/);
   for (const status of [401, 302]) {
     const expired = new NoteClient("abc", { fetch: fakeNote({ status }).fetch });
     await assert.rejects(expired.currentUser(), NoteAuthError);
@@ -151,4 +167,23 @@ test("note drafts refuse the wrong account and never overwrite a published post"
   assert.equal(r.action, "failed");
   assert.match(r.reason, /no longer one of your drafts/);
   assert.ok(!gone.calls.some((c) => c.path === "/api/v1/text_notes/draft_save"));
+});
+
+test("with publish, a ready post goes out on note and its public link is recorded; if note doesn't make it public, it says so", async () => {
+  const quiet = { wait: async () => {}, log: () => {} };
+  const dir = tmpNotes({ "notes/ai.md": post(), "notes/fig.png": PNG });
+  const file = path.join(dir, "notes/ai.md");
+  const live = fakeNote();
+  const [ok] = await syncNotes({ files: [file], client: new NoteClient("s", { fetch: live.fetch }), profile, fetchPage: live.fetch, publish: true, ...quiet });
+  assert.equal(ok.action, "published");
+  assert.equal(ok.url, "https://note.com/shanaiai/n/nkey1001");
+  assert.deepEqual(JSON.parse(live.calls.find((c) => c.method === "PUT").body).hashtags, ["#AI", "#業務効率化"]);
+  assert.match(fs.readFileSync(file, "utf8"), /url: https:\/\/note\.com\/shanaiai\/n\/nkey1001/);
+
+  const dir2 = tmpNotes({ "notes/ai.md": post(), "notes/fig.png": PNG });
+  const stuck = fakeNote({ publishWorks: false });
+  const [bad] = await syncNotes({ files: [path.join(dir2, "notes/ai.md")], client: new NoteClient("s", { fetch: stuck.fetch }), profile, fetchPage: stuck.fetch, publish: true, ...quiet });
+  assert.equal(bad.action, "failed");
+  assert.match(bad.reason, /isn't public: open https:\/\/editor\.note\.com\/notes\/nkey1001\/edit\//);
+  assert.doesNotMatch(fs.readFileSync(path.join(dir2, "notes/ai.md"), "utf8"), /^url: https/m);
 });

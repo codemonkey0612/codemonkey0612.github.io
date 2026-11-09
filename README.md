@@ -43,7 +43,7 @@ ideas.md    post ideas built from your own projects and reviews
 6. **Qiita:** signed in as `takumi_engineer`, create an access token with
    `read_qiita` and `write_qiita` at <https://qiita.com/settings/tokens/new>. Run `npx qiita login` locally (for
    preview), and add the token as the repository secret `QIITA_TOKEN`.
-7. **note (drafts):** in a browser signed in to note as `shanaiai`, open
+7. **note:** in a browser signed in to note as `shanaiai`, open
    DevTools → *Application* → *Cookies* → `https://note.com`, copy the value
    of `_note_session_v5`, and add it as the repository secret `NOTE_SESSION`.
    It's your login, so treat it like a password; it lasts about a month. When
@@ -120,12 +120,14 @@ checks and comments the fact-check report. Merge any time before its morning:
    timer can run late on busy days; then it goes out as soon as the job runs.
    Edit the Zenn article later and its Qiita copy follows. A Qiita article you
    write yourself in `public/` is never touched.
-3. **The hub site** rebuilds right after and lists the post (once, even though
-   it's on both).
-4. **note** (by hand): `npm run note -- articles/<slug>.md` writes a page
-   with one-click copy for the title, body and hashtags; make the 見出し画像
-   (1280 × 670, PNG or JPEG) and paste it in. To have note posts saved as
-   drafts for you instead, see below.
+3. **note:** the same run makes `notes/<slug>.md` (Zenn syntax converted,
+   tables as bullet lists, the topics as hashtags) and a 見出し画像
+   `notes/<slug>.png` (1280 × 670: the title, your emblem and the brand line),
+   then posts it to note (see below). To use your own 見出し画像, save it as
+   `notes/<slug>.png` or `.jpg` (1280 × 670; the slug is in `npm run schedule`)
+   before 09:00 on the article's morning, and it's used instead. With `note: draft` in `autopilot.yml` it
+   saves a draft for you instead; with `note: off` it does nothing, and
+   `npm run note -- articles/<slug>.md` still gives a copy-and-paste page.
 
 Topics become the Qiita tags, so give every article 1–5. To change a date,
 edit `published_at`; `npm run schedule` flags two posts on the same morning.
@@ -135,26 +137,29 @@ daily posts keep it active.
 **note** has no posting API for individual accounts (note's "note API" from
 October 2026 is for corporate note pro customers only), so the Publish job uses
 the same internal endpoints note's own editor uses, signed in with your
-`NOTE_SESSION` cookie, and only ever saves **drafts**:
+`NOTE_SESSION` cookie (`scripts/note-draft.mjs`):
 
-1. Set `status: ready`, push (or merge). The job turns the Markdown into note's
-   editor format (two heading levels; tables become bullet lists), uploads the
-   images, sets `cover:` (optional, a PNG/JPEG next to the post) as the header
-   image, and saves it as a draft. The job summary links the draft's edit page.
-2. Open it on note, check it, add the hashtags (drafts can't hold them; the
-   summary lists them) and press 公開, or schedule it.
-3. The next run sees it's published, writes its link into `url:` and the hub
-   site lists it.
+1. It turns each `notes/*.md` with `status: ready` into note's editor format
+   (two heading levels; tables become bullet lists), uploads its images and its
+   `cover:` as the 見出し画像, and saves it as a draft.
+2. With `note: auto` (or `--publish`) it then publishes it, free, with the
+   hashtags, and checks the public page. Only when that page is live does it
+   write the link into `url:`; otherwise the run fails and names the draft's
+   edit page so you can press 公開 yourself. With `note: draft` it stops at the
+   draft and the summary links it.
 
-The job records `note_id`, `note_key` and `note_hash` in the post's front
-matter, so pushing an edit updates the same draft (only when the text or images
-changed), and it never touches a post you've already published. It refuses a
-cookie from any account other than `platforms.note` in `profile.yml`.
+It records `note_id`, `note_key` and `note_hash` in the post's front matter, so
+the next run updates the same post rather than making a new one, and it never
+touches a post that's already public. It refuses a cookie from any account
+other than `platforms.note` in `profile.yml`. The draft calls match two
+independent open-source clients; the publish call (`PUT /api/v1/text_notes/{id}`)
+is less well documented, which is why the public page is checked.
 
 These endpoints are undocumented: note can change them without notice, and its
-terms let it restrict accounts it judges to be misusing the service. Keeping a
-person on the publish button keeps that risk low. If the job starts failing
-with "note may have changed its editor", the copy-and-paste route still works:
+terms let it restrict accounts it judges to be misusing the service (publishing
+without a person, your choice on 2026-11-09, adds to that). If the job starts
+failing with "note may have changed its editor", the copy-and-paste route still
+works:
 
 ```bash
 npm run note:draft -- --dry-run      # what would be sent, without contacting note

@@ -11,6 +11,8 @@ enabled: true
 mode: auto            # auto | review
 days_ahead: 2         # keep this many mornings filled (today's 09:00 counts until 08:00)
 max_per_run: 2        # at most this many articles per run
+note: auto            # auto: publish each article on note at 09:00 too (needs the NOTE_SESSION
+                      # secret) | draft: save it as a note draft for you | off: no note copies
 
 # What to write about. The writer rotates through these by weight, so over two weeks roughly
 # 3 in 8 posts are about small-business problems, 3 in 8 about AI and software work and 2 in 8

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// Saves your note posts as drafts in your note account: all that's left is to check each one
-// on note and press 公開. CI runs this on every push to main once the NOTE_SESSION secret is
-// set (see README).
+// Puts your note posts into your note account: as drafts for you to publish, or published
+// outright with --publish (autopilot.yml `note: auto` turns that on in CI). CI runs this on
+// every push to main and every morning once the NOTE_SESSION secret is set (see README).
 //   npm run note:draft                     every notes/*.md with status: ready and no url yet
 //   npm run note:draft -- notes/<slug>.md  only these
+//   npm run note:draft -- --publish        publish them too (checks the public page afterwards)
 //   npm run note:draft -- --dry-run        convert and report what would be sent; no network
 //
 // Each post gets note_id, note_key and note_hash in its front matter, so the next push updates
@@ -58,7 +59,16 @@ function readImage(mdFile, href) {
  * Brings each post's note draft up to date. Returns one result per file:
  * { file, action: "created" | "updated" | "unchanged" | "published" | "skipped" | "failed", ... }.
  */
-export async function syncNotes({ files, client, profile, dryRun = false, fetchPage = globalThis.fetch, log = console.log }) {
+export async function syncNotes({
+  files,
+  client,
+  profile,
+  dryRun = false,
+  publish = false,
+  fetchPage = globalThis.fetch,
+  wait = (ms) => new Promise((r) => setTimeout(r, ms)),
+  log = console.log,
+}) {
   const results = [];
   let user = null;
   if (!dryRun) {
@@ -111,7 +121,7 @@ export async function syncNotes({ files, client, profile, dryRun = false, fetchP
         .digest("hex")
         .slice(0, 12);
 
-      if (data.note_id && data.note_hash === hash) {
+      if (data.note_id && data.note_hash === hash && !publish) {
         done("unchanged", { edit: NoteClient.editUrl(data.note_key) });
         continue;
       }
@@ -135,6 +145,23 @@ export async function syncNotes({ files, client, profile, dryRun = false, fetchP
       await client.saveDraft(ref.id, { title: data.title, html: body.html, textLength: body.textLength });
       if (cover) await client.setEyecatch(ref.id, cover);
       setFrontMatter(file, { note_id: ref.id, note_key: ref.key, note_hash: hash });
+      if (publish) {
+        await client.publish(ref.id, { title: data.title, html: body.html, textLength: body.textLength, hashtags: data.hashtags ?? [] });
+        // The publish call is the least documented one, so trust the public page, not the reply.
+        const page = `${NOTE_ORIGIN}/${user.urlname}/n/${encodeURIComponent(ref.key)}`;
+        let live = false;
+        for (let i = 0; i < 6 && !live; i++) {
+          if (i) await wait(5000);
+          live = (await fetchPage(page, { method: "GET", redirect: "manual" })).status === 200;
+        }
+        if (live) {
+          setFrontMatter(file, { url: page });
+          done("published", { url: page, warnings: body.warnings });
+        } else {
+          done("failed", { reason: `note took the publish request, but ${page} isn't public: open ${NoteClient.editUrl(ref.key)} and publish it there` });
+        }
+        continue;
+      }
       done(data.note_id ? "updated" : "created", { edit: NoteClient.editUrl(ref.key), hashtags: data.hashtags ?? [], warnings: body.warnings });
     } catch (err) {
       if (err.name === "NoteAuthError") throw err; // every later post would fail the same way
@@ -158,6 +185,10 @@ function report(results) {
 if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
   const args = process.argv.slice(2);
   const dryRun = args.includes("--dry-run");
+  // autopilot.yml `note: auto` publishes; `draft` (the default) leaves drafts for you.
+  const autopilot = path.join(ROOT, "autopilot.yml");
+  const noteMode = fs.existsSync(autopilot) ? (YAML.parse(fs.readFileSync(autopilot, "utf8"))?.note ?? "draft") : "draft";
+  const publish = args.includes("--publish") || noteMode === "auto";
   const given = args.filter((a) => !a.startsWith("--"));
   const files = given.length ? given.map((f) => path.resolve(f)) : readyNotes();
   if (!dryRun && !process.env.NOTE_SESSION) {
@@ -166,11 +197,11 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
   }
   try {
     const client = dryRun ? null : new NoteClient(process.env.NOTE_SESSION);
-    const results = await syncNotes({ files, client, profile: loadProfile(), dryRun });
+    const results = await syncNotes({ files, client, profile: loadProfile(), dryRun, publish });
     const text = results.length ? report(results) : "note: no posts with status: ready waiting for note";
     console.log(text);
     if (process.env.GITHUB_STEP_SUMMARY && results.length) {
-      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### note drafts\n\n\`\`\`\n${text}\n\`\`\`\n`);
+      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### note\n\n\`\`\`\n${text}\n\`\`\`\n`);
     }
     if (results.some((r) => r.action === "failed")) process.exit(1);
   } catch (err) {

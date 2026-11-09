@@ -9,7 +9,7 @@ topics:
   - python
   - llm
 published: true
-published_at: 2026-11-09 14:19
+published_at: 2026-11-11 09:00
 ---
 
 複数の企業が同じRAGを使うSaaSでは、A社への回答にB社の文書が1件混ざるだけでも、重大な情報漏えいです。一方で、すべてのクエリに `WHERE tenant_id = ?` を書き忘れない運用は、開発者や機能が増えるほど破綻しやすくなります。

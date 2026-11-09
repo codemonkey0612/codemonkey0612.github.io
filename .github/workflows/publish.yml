@@ -40,6 +40,11 @@ jobs:
 
       - run: npm ci
 
+      # autopilot.yml `qiita: off` stops everything Qiita (no copies, no qiita-cli).
+      - name: Read settings
+        id: settings
+        run: echo "qiita=$(node -e 'const y=require("yaml");const fs=require("fs");console.log(y.parse(fs.readFileSync("autopilot.yml","utf8"))?.qiita ?? "auto")')" >> "$GITHUB_OUTPUT"
+
       # Zenn publishes each article itself at its published_at; this makes the Qiita and note
       # copies (with a note header image) of every article that's due. On the daily run it
       # first waits until 09:00 JST.
@@ -58,7 +63,7 @@ jobs:
         if: env.QIITA_TOKEN == ''
         run: echo "::notice::QIITA_TOKEN secret is not set, so Qiita publishing was skipped."
 
-      - if: env.QIITA_TOKEN != ''
+      - if: env.QIITA_TOKEN != '' && steps.settings.outputs.qiita != 'off'
         uses: increments/qiita-cli/actions/publish@v1
         with:
           qiita-token: ${{ secrets.QIITA_TOKEN }}

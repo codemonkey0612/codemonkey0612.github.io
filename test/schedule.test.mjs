@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import matter from "gray-matter";
-import { crosspost, msUntil } from "../scripts/crosspost.mjs";
+import { crosspost, msUntil, withoutCta } from "../scripts/crosspost.mjs";
 import { listArticles } from "../scripts/lib/site-core.mjs";
 import { isLive, nextFreeSlot, publishedAt, zennToNote, zennToQiita } from "../scripts/lib/schedule.mjs";
 import { validateArticle } from "../scripts/lib/validate-core.mjs";
@@ -177,4 +177,16 @@ test("a header image you put at notes/<slug>.jpg (or .png) is used instead of ma
   crosspost({ root: dir, profile, now: jst("2026-11-10T09:00"), note: true, cover: () => (made++, true) });
   assert.equal(matter(fs.readFileSync(path.join(dir, "notes/live-article-01.md"), "utf8")).data.cover, "live-article-01.jpg");
   assert.equal(made, 0);
+});
+
+test("qiita: off makes no Qiita copies; Qiita copies never carry the promotional closing paragraph", () => {
+  const dir = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }) });
+  const now = jst("2026-11-10T09:00");
+  assert.deepEqual(crosspost({ root: dir, profile, now, qiita: false, note: true, cover: () => false }).map((r) => r.platform), ["note"]);
+  assert.ok(!fs.existsSync(path.join(dir, "public/live-article-01.md")));
+
+  const md = "本文です。\n\n## まとめ\n\n- 要点\n\n---\n\n私は「AI」をお仕事としてお受けしています。\n→ [AIについて](https://codemonkey0612.github.io/services/ai/) ／ [相談](https://www.lancers.jp/x)\n";
+  assert.equal(withoutCta(md, { site_url: "https://codemonkey0612.github.io/", contact_url: "https://www.lancers.jp/x" }), "本文です。\n\n## まとめ\n\n- 要点\n");
+  const plain = "前半\n\n---\n\n後半はただの区切り\n";
+  assert.equal(withoutCta(plain, { site_url: "https://codemonkey0612.github.io/" }), plain, "a horizontal rule without your links stays");
 });

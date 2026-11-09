@@ -10,7 +10,7 @@ updated_at: '2026-11-09T15:00:26+09:00'
 id: 8dbe9c7b6c37fd66d858
 organization_url_name: null
 slide: false
-ignorePublish: false
+ignorePublish: true
 posting_campaign_uuid: null
 agreed_posting_campaign_term: false
 ---

@@ -13,6 +13,9 @@ days_ahead: 2         # keep this many mornings filled (today's 09:00 counts unt
 max_per_run: 2        # at most this many articles per run
 note: auto            # auto: publish each article on note at 09:00 too (needs the NOTE_SESSION
                       # secret) | draft: save it as a note draft for you | off: no note copies
+qiita: off            # auto: copy each article to Qiita at 09:00 | off: nothing goes to Qiita.
+                      # Off since 2026-11-09: Qiita's spam monitoring hid the first automatic post
+                      # (8dbe9c7b6c37fd66d858). Turn back on only once that's resolved.
 
 # What to write about. The writer rotates through these by weight, so over two weeks roughly
 # 3 in 8 posts are about small-business problems, 3 in 8 about AI and software work and 2 in 8

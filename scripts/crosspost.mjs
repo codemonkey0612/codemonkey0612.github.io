@@ -8,8 +8,9 @@
 //   node scripts/crosspost.mjs --at 09:00   if it's earlier than 09:00 JST, wait until then first
 //
 // Each copy carries a hidden marker line; a Qiita or note post you wrote yourself (no marker) is
-// never overwritten. autopilot.yml `note: off` skips the note copies. note copies get a header
-// image (notes/<slug>.png) made from the title.
+// never overwritten. autopilot.yml `qiita: off` / `note: off` skip those copies. note copies get
+// a header image (notes/<slug>.png) made from the title. Qiita copies leave out the closing
+// paragraph with your service and Lancers links: Qiita doesn't want posts that promote.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -31,7 +32,16 @@ function existing(file, slug) {
   return old.content.includes(MARK(slug)) ? old : "theirs";
 }
 
-function qiitaCopy(a, { root, base, topics }) {
+/** The article without its closing call to action (the part after the last --- that links to you). */
+export function withoutCta(markdown, profile) {
+  const i = markdown.lastIndexOf("\n---\n");
+  if (i < 0) return markdown;
+  const tail = markdown.slice(i);
+  const own = [profile.site_url, profile.contact_url].filter(Boolean);
+  return own.some((u) => tail.includes(new URL(u).host)) ? `${markdown.slice(0, i).trimEnd()}\n` : markdown;
+}
+
+function qiitaCopy(a, { root, base, topics, profile }) {
   const out = path.join(root, "public", `${a.slug}.md`);
   const old = existing(out, a.slug);
   if (old === "theirs") return ["skipped", "a Qiita article you wrote with the same name already exists"];
@@ -48,7 +58,7 @@ function qiitaCopy(a, { root, base, topics }) {
     posting_campaign_uuid: old?.data.posting_campaign_uuid ?? null,
     agreed_posting_campaign_term: old?.data.agreed_posting_campaign_term ?? false,
   };
-  const body = `${MARK(a.slug)}\n${zennToQiita(a.content.replace(/^\n+/, ""), { base })}`;
+  const body = `${MARK(a.slug)}\n${zennToQiita(withoutCta(a.content.replace(/^\n+/, ""), profile), { base })}`;
   // Compare what matters, not the bytes: qiita-cli rewrites the front matter in its own style.
   if (old && old.data.title === fm.title && JSON.stringify(old.data.tags) === JSON.stringify(fm.tags) && old.data.ignorePublish === false && old.content.trim() === body.trim()) {
     return ["unchanged"];
@@ -82,18 +92,18 @@ function noteCopy(a, { root, base, topics, cover }) {
  * Writes or refreshes the Qiita copy (and, with `note`, the note copy) of every due Zenn
  * article. `cover({ title, out })` makes a note header image; returns true when it did.
  */
-export function crosspost({ root = ROOT, profile, now = new Date(), note = false, cover = null }) {
+export function crosspost({ root = ROOT, profile, now = new Date(), qiita = true, note = false, cover = null }) {
   const base = imageBase(profile);
   const results = [];
   for (const a of zennArticles(root)) {
     if (!isLive(a.data, now)) continue;
     const topics = Array.isArray(a.data.topics) ? a.data.topics.filter(Boolean) : [];
     const record = (platform, dir, [action, reason = ""]) => results.push({ slug: a.slug, platform, file: rel(path.join(root, dir, `${a.slug}.md`)), action, reason });
-    if (!topics.length) {
+    if (qiita && !topics.length) {
       record("qiita", "public", ["failed", "add at least one topic: Qiita needs 1–5 tags"]);
       continue;
     }
-    record("qiita", "public", qiitaCopy(a, { root, base, topics }));
+    if (qiita) record("qiita", "public", qiitaCopy(a, { root, base, topics, profile }));
     if (note) record("note", "notes", noteCopy(a, { root, base, topics, cover }));
   }
   return results;
@@ -117,10 +127,12 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
   }
   const profile = loadProfile();
   const autopilot = path.join(ROOT, "autopilot.yml");
-  const noteMode = fs.existsSync(autopilot) ? (YAML.parse(fs.readFileSync(autopilot, "utf8"))?.note ?? "draft") : "draft";
+  const settings = fs.existsSync(autopilot) ? (YAML.parse(fs.readFileSync(autopilot, "utf8")) ?? {}) : {};
+  const noteMode = settings.note ?? "draft";
   const emblem = path.join(ROOT, "site", "assets", "brand", "emblem.webp");
   const results = crosspost({
     profile,
+    qiita: (settings.qiita ?? "auto") !== "off",
     note: noteMode !== "off",
     cover: ({ title, out }) => makeCover({ title, out, emblem, site: new URL(profile.site_url).host }),
   });

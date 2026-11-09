@@ -113,7 +113,10 @@ checks and comments the fact-check report. Merge any time before its morning:
 
 1. **Zenn** publishes it at its `published_at` by itself (Zenn's own scheduled
    publishing).
-2. **Qiita:** every morning the Publish workflow starts at 08:40, waits until
+2. **Qiita** (off since 2026-11-09: Qiita's spam monitoring hid the first
+   automatic post; `qiita: auto` in `autopilot.yml` turns it back on, and the
+   copies leave out the promotional closing paragraph): every morning the
+   Publish workflow starts at 08:40, waits until
    09:00, copies each article that's due to `public/<slug>.md` (Zenn-only
    syntax converted: `:::message` → `:::note`, `:::details` → `<details>`,
    embeds → links, `/images/…` → their GitHub URLs) and publishes it. GitHub's

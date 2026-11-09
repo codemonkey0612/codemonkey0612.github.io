@@ -123,7 +123,7 @@ svg .solid { fill: currentColor; stroke: none; }
 .card:hover .card-img img { transform: scale(1.03); }
 .grid-2 .card-img { aspect-ratio: 16 / 10; }
 .card-img-site img { object-position: 50% 0; }
-.card-img-art { aspect-ratio: 3 / 2; background: #e7eefb; }
+.card-img-pkg { aspect-ratio: 16 / 9; }
 .card-meta { display: block; margin: 14px 0 4px; font-size: 12px; color: var(--muted); }
 .card-title { display: block; font-size: 16px; font-weight: 500; line-height: 1.6; color: var(--ink); transition: color 0.2s; }
 .card:hover .card-title { color: var(--gold-text); }
@@ -177,8 +177,8 @@ svg .solid { fill: currentColor; stroke: none; }
 .facts { display: flex; flex-wrap: wrap; gap: 12px 40px; margin: 28px 0 0; }
 .facts dt { font-size: 12px; color: var(--muted); }
 .facts dd { margin: 0; font-size: 16px; font-weight: 500; color: var(--ink); }
-.ph-art { position: relative; margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #e7eefb; }
-.ph-art img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.ph-art { position: relative; margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2); }
+.ph-art img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .play { position: absolute; left: 14px; bottom: 14px; display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 8px; background: rgba(11, 20, 40, 0.86); color: #fff; font-size: 13px; text-decoration: none; }
 .play:hover { background: var(--ink); }
 .play .ic { width: 14px; height: 14px; color: var(--gold-light); }

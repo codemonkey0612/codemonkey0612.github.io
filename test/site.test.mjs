@@ -182,7 +182,7 @@ test("every page discloses the AI character", () => {
   assert.match(files["works/index.html"], /カバー画像はイメージです/, "works index says the covers are illustrations");
 });
 
-test("your emblem, service illustrations, showreel and promo videos are on the site", () => {
+test("your emblem, package images, showreel and promo videos are on the site", () => {
   const site = loadSite({ root: ROOT, profile: loadProfile(), today });
   const files = renderSite(site);
   const home = files["index.html"];
@@ -194,11 +194,11 @@ test("your emblem, service illustrations, showreel and promo videos are on the s
   assert.ok(home.includes(`<source src="./${art.showreel.video}" type="video/mp4">`), "showreel video");
   assert.ok(home.includes(`poster="./${art.showreel.poster}"`), "showreel poster");
   for (const s of site.services) {
-    assert.ok(s.art, `${s.id} has an illustration in site/assets/art/services/`);
-    assert.ok(home.includes(`src="./${s.art}"`), `home card of ${s.id} shows its illustration`);
+    assert.ok(s.cover, `${s.id} has a package image`);
+    assert.ok(home.includes(`src="./${s.cover}"`), `home card of ${s.id} shows its package image`);
     const html = files[`services/${s.id}/index.html`];
-    assert.ok(html.includes(`src="../../${s.art}"`), `${s.id} page shows its illustration`);
-    assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.art, site.profile.site_url).href}">`), `${s.id} share image`);
+    assert.ok(html.includes(`src="../../${s.cover}"`), `${s.id} page shows its package image`);
+    assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.cover, site.profile.site_url).href}">`), `${s.id} share image`);
     if (s.video) assert.ok(html.includes(`data-video="../../${s.video.video}"`), `${s.id} page opens its video`);
   }
   for (const w of site.works.lancers.filter((x) => x.featured)) assert.ok(home.includes(`src="./${w.cover}"`), `home shows the cover of ${w.id}`);

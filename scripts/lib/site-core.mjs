@@ -175,13 +175,8 @@ export function loadSite({ root, profile, today = new Date() }) {
     seen.add(w.id);
   }
   works.forEach((w, i) => (w.no = String(i + 1).padStart(2, "0")));
-  // Each service's promo video (the first of its packages that has one) and its
-  // illustration (site/assets/art/services/<id>.webp, when you've added one).
-  for (const s of services) {
-    s.video = s.packages.find((p) => p.video) ?? null;
-    const rel = `art/services/${s.id}.webp`;
-    s.art = fs.existsSync(path.join(root, "site", "assets", rel)) ? `assets/${rel}` : null;
-  }
+  // Each service's promo video: the first of its packages that has one.
+  for (const s of services) s.video = s.packages.find((p) => p.video) ?? null;
 
   // Brand art (site/media.yml): the emblem and the showreel.
   const mediaFile = path.join(root, "site", "media.yml");
@@ -542,10 +537,10 @@ const ldFaq = (items) => ({
   mainEntity: items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
 });
 
-/** A service card: your illustration, field, name and starting price. */
+/** A service card: its Lancers package image, field, name and starting price. */
 function serviceCard(site, s, base) {
   return `<li data-reveal><a class="card" href="${base}services/${esc(s.id)}/">
-        ${s.art ? `<span class="card-img card-img-art">${img(site, s.art, base)}</span>` : ""}
+        ${s.cover ? `<span class="card-img card-img-pkg">${img(site, s.cover, base, { alt: s.name })}</span>` : ""}
         <span class="card-meta">${esc(s.pillar ?? "")}</span>
         <span class="card-title">${esc(s.name)}</span>
         <span class="card-foot">${s.priceFrom ? `${yen(s.priceFrom)}〜` : "お見積もり"}${icon("arrow")}</span>
@@ -698,8 +693,8 @@ export function renderService(site, s) {
         ${related.length ? `<div><dt>実績</dt><dd>${related.length}件</dd></div>` : ""}
       </dl>
       <p class="actions"><a class="btn btn-primary btn-lg" href="${esc(profile.contact_url)}">ランサーズで相談する${icon("arrow")}</a>${s.packages.length ? `<a class="btn btn-secondary btn-lg" href="#price">料金を見る</a>` : ""}</p>`;
-  const aside = s.art
-    ? `<figure class="ph-art">${img(site, s.art, base, { eager: true })}${s.video ? `<a class="play" href="${base}${esc(s.video.video)}" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}">${icon("play")}紹介動画を見る</a>` : ""}</figure>`
+  const aside = s.cover
+    ? `<figure class="ph-art">${img(site, s.cover, base, { alt: s.name, eager: true })}${s.video ? `<a class="play" href="${base}${esc(s.video.video)}" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}">${icon("play")}紹介動画を見る</a>` : ""}</figure>`
     : "";
   const body = `${pageHero(base, { label: `Service ${s.no}`, title: esc(s.name), lead: esc(s.description), trail: [[`${base}#services`, "サービス"], [null, s.name]], extra, aside })}
 <section class="sec">
@@ -806,7 +801,7 @@ ${contact(site, { title: `${s.name}のご相談`, text: "目的と現状を伺�
       ],
     },
   ];
-  return layout(site, { route, title: s.name, description: s.description, body, ld, image: s.art });
+  return layout(site, { route, title: s.name, description: s.description, body, ld, image: s.cover });
 }
 
 export function renderWorks(site) {

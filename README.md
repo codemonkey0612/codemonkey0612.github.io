@@ -93,15 +93,15 @@ where to upload images. After publishing on note, paste the post's link into
   Simple and quiet: white pages, navy text and the emblem's gold as the only
   accent; Geist and Noto Sans JP; thin lines instead of shadows. The home page
   is a hero with the emblem, works (the live sites and your Lancers covers),
-  services (your illustrations), the showreel, three client reviews and a
+  services (your package images), the showreel, three client reviews and a
   contact section. The only motion is a gentle fade-in as sections appear
   (off for `prefers-reduced-motion`); service videos open in a popup. Every
   image carries its real width and height (read from the file at build time),
   and every page works without JavaScript.
 - **Brand art** (`site/media.yml`): the gold 匠 emblem (header, footer, hero,
   profile; the favicons are made from it) and the showreel (home page). Each
-  service's illustration is `site/assets/art/services/<service id>.webp` (also
-  its share image); add or replace one and the build picks it up. The
+  service shows its first Lancers package image (from `site/packages.yml`)
+  on its card and page, and uses it as its share image. The
   originals are in `~/dev/note/portfolio`. The person in the Lancers images and
   promo videos is an AI-generated character: every page says so in the footer,
   and the showreel, the video popup and the service price sections say so next

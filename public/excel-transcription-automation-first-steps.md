@@ -1,12 +1,12 @@
 ---
 title: Excelの転記・集計作業を約75%減らしたとき、最初にやったこと
 tags:
-  - excel
-  - python
+  - Excel
+  - Python
   - automation
-  - dx
+  - DX
 private: false
-updated_at: '2026-11-09T14:22:46+09:00'
+updated_at: '2026-11-09T15:00:26+09:00'
 id: 8dbe9c7b6c37fd66d858
 organization_url_name: null
 slide: false

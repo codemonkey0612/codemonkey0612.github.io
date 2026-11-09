@@ -15,13 +15,19 @@
   /* ---------- header: solid once scrolled, out of the way while reading down ---------- */
   const hd = $("[data-hd]");
   const progress = $(".progress");
-  const darkZone = $(".cta") ?? $(".ft"); // the dark band runs from here to the end of the page
+  const darkZones = $$(".movie, .cta, .ft"); // navy sections: the header turns dark over them
   let lastY = scrollY;
   let ticking = false;
   const onScroll = () => {
     const y = scrollY;
     hd?.classList.toggle("scrolled", y > 8);
-    if (darkZone && hd) hd.classList.toggle("dark", darkZone.getBoundingClientRect().top < hd.offsetHeight / 2);
+    if (hd) {
+      const mid = hd.offsetHeight / 2;
+      hd.classList.toggle("dark", darkZones.some((z) => {
+        const r = z.getBoundingClientRect();
+        return r.top < mid && r.bottom > mid;
+      }));
+    }
     if (!doc.classList.contains("nav-open")) hd?.classList.toggle("hide", y > lastY + 2 && y > 320);
     if (y < lastY - 2) hd?.classList.remove("hide");
     lastY = y;
@@ -189,55 +195,92 @@
     });
   }
 
-  /* ---------- works index: the cover follows the cursor ---------- */
-  const rows = $("[data-preview-list]");
-  if (rows && fine) {
-    const box = document.createElement("div");
-    box.className = "preview";
-    box.setAttribute("aria-hidden", "true");
-    const pic = document.createElement("img");
-    pic.alt = "";
-    pic.decoding = "async";
-    box.append(pic);
-    document.body.append(box);
-    let x = 0;
-    let y = 0;
-    let tx = 0;
-    let ty = 0;
-    let raf = 0;
-    let on = false;
-    const aim = (e) => {
-      tx = Math.min(e.clientX + 28, innerWidth - box.offsetWidth - 16);
-      ty = Math.max(16, Math.min(e.clientY - box.offsetHeight / 2, innerHeight - box.offsetHeight - 16));
+  /* ---------- service cards: the promo video plays over the illustration on hover ---------- */
+  if (fine && motion) {
+    $$("[data-hover-video]").forEach((card) => {
+      const media = $(".svc-media", card);
+      if (!media) return;
+      let clip = null;
+      card.addEventListener("pointerenter", () => {
+        if (!clip) {
+          clip = Object.assign(document.createElement("video"), { muted: true, loop: true, playsInline: true, preload: "none" });
+          clip.setAttribute("aria-hidden", "true");
+          clip.src = card.dataset.hoverVideo;
+          clip.addEventListener("playing", () => clip.classList.add("on"));
+          media.append(clip);
+        }
+        clip.play().catch(() => {});
+      });
+      card.addEventListener("pointerleave", () => {
+        if (!clip) return;
+        clip.classList.remove("on");
+        clip.pause();
+      });
+    });
+  }
+
+  /* ---------- video popup (service pages) ---------- */
+  const modal = $(".vmodal");
+  if (modal && typeof modal.showModal === "function") {
+    const player = $("video", modal);
+    const caption = $(".vmodal-t", modal);
+    const close = () => modal.open && modal.close();
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest("[data-video]");
+      if (!link) return;
+      e.preventDefault();
+      player.src = link.dataset.video;
+      caption.textContent = link.dataset.videoTitle ?? "";
+      modal.showModal();
+      player.play().catch(() => {});
+    });
+    $(".vmodal-x", modal).addEventListener("click", close);
+    modal.addEventListener("click", (e) => e.target === modal && close());
+    modal.addEventListener("close", () => {
+      player.pause();
+      player.removeAttribute("src");
+      player.load();
+    });
+  }
+
+  /* ---------- movie section: the showreel loops muted; a pick plays with sound ---------- */
+  const theater = $("[data-theater]");
+  if (theater) {
+    const screen = $(".th-video", theater);
+    const now = $("[data-now]", theater);
+    const items = $$(".th-item", theater);
+    const sound = $(".th-sound", theater);
+    let looping = items.some((b) => "reel" in b.dataset);
+    const load = (src, poster, label, withSound) => {
+      screen.poster = poster || "";
+      screen.src = src;
+      screen.muted = !withSound;
+      screen.loop = !withSound;
+      screen.controls = withSound;
+      theater.classList.toggle("playing", withSound);
+      now.textContent = label;
+      screen.play().catch(() => {});
     };
-    const loop = () => {
-      const k = motion ? 0.14 : 1;
-      x += (tx - x) * k;
-      y += (ty - y) * k;
-      box.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-      raf = on || Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(loop) : 0;
+    const pick = (b) => {
+      items.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      looping = "reel" in b.dataset;
+      load(b.dataset.src, b.dataset.poster, b.dataset.title, !looping);
     };
-    rows.addEventListener("pointerover", (e) => {
-      const a = e.target.closest("[data-preview]");
-      if (!a) return;
-      if (pic.getAttribute("src") !== a.dataset.preview) pic.src = a.dataset.preview;
-      aim(e);
-      if (!on) {
-        x = tx;
-        y = ty;
-      }
-      on = true;
-      box.classList.add("on");
-      raf ||= requestAnimationFrame(loop);
+    items.forEach((b) => b.addEventListener("click", () => pick(b)));
+    sound?.addEventListener("click", (e) => {
+      e.preventDefault();
+      looping = false;
+      load(sound.dataset.src, screen.poster, sound.dataset.title, true);
     });
-    rows.addEventListener("pointermove", (e) => {
-      aim(e);
-      raf ||= requestAnimationFrame(loop);
-    });
-    rows.addEventListener("pointerleave", () => {
-      on = false;
-      box.classList.remove("on");
-    });
+    if (looping && motion) {
+      // The muted showreel plays only while it's on screen.
+      screen.controls = false;
+      new IntersectionObserver(([e]) => {
+        if (!looping) return;
+        if (e.isIntersecting) screen.play().catch(() => {});
+        else screen.pause();
+      }, { threshold: 0.35 }).observe(screen);
+    }
   }
 
   /* ---------- a "View" cursor over work images ---------- */

@@ -1,0 +1,14 @@
+# Brand art and video (yours; the person in the promo videos is an AI-generated
+# character, and the site says so wherever she appears).
+# Paths are relative to site/assets/. The build fails if a file is missing.
+# Service illustrations are picked up from site/assets/art/services/<service id>.webp.
+emblem: brand/emblem.webp            # gold 匠 emblem (cut out from your emblem image)
+emblem_small: brand/emblem-160.webp  # the same at 160 px, for the header and footer
+# showreel: 6 clips (3.1–3.8 s) from packages 1351569, 1319797, 1351631, 1319683,
+# 1351735 and 1319797 (end card), joined with 0.5 s crossfades, 960×540, no audio,
+# H.264 crf 27 (ffmpeg xfade); poster = a frame at 1.2 s.
+showreel:
+  video: media/showreel.mp4          # 18 s muted montage, loops in the movie section
+  poster: media/showreel.webp
+  full: media/packages/1319797.mp4   # played with sound from the "音声付きで見る" button
+  title: WordPressサイト 構築・移行・運用（紹介動画）

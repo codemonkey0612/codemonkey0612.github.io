@@ -90,25 +90,29 @@ where to upload images. After publishing on note, paste the post's link into
   image `site/assets/og.jpg`, or the work's own cover or screenshot) and
   schema.org data (Person, Service, CreativeWork, FAQ, breadcrumbs).
 - **Design and motion** (`site/assets/style.css`, `site/assets/app.js`, no
-  libraries). A clean studio look: white and warm-grey paper, near-black ink,
-  one vermilion accent (the 匠 seal); Geist and Noto Sans JP for text, Geist
-  Mono for labels and numbers; hairline rules instead of boxes. The hero is a
-  live demo built in code: an editor types `rag.ts`, `Sales.tsx` or `ci.yml`
-  (highlighted at build time) while the screen beside it builds the chatbot,
-  dashboard or CI run it describes. The live sites sit in browser and phone
-  frames and scroll on hover; the Lancers works index shows each cover next to
-  the cursor; service tiles fill dark on hover; titles rise out of their line;
-  the header goes dark over the closing band; pages cross-fade (View
-  Transitions). Every image carries its real width and height (read from the
-  file at build time). Every page works without JavaScript, and
-  `prefers-reduced-motion` turns all motion off.
-- **Brand** (`site/assets/brand/`): the 匠 seal is Noto Sans JP Bold's 匠 as a
-  vector path on vermilion (inlined in the header; `favicon.svg` and the PNG
-  icons are the same mark). `site/assets/og.jpg` is the default share image.
-  The person in the Lancers images and package videos is an AI-generated
-  character: every page says so in the footer, and service pages say so next to
-  the videos. The earlier gold emblem, showreel, banner gallery and 3D icons
-  are in git history (and the originals in `~/dev/note/portfolio`).
+  libraries). A clean studio layout in your brand's navy and gold (taken from
+  the 匠 emblem): white and cool-grey paper, navy ink, gold accents; Geist and
+  Noto Sans JP for text, Geist Mono for labels and numbers; hairline rules
+  instead of boxes. The hero pairs the emblem with a live demo built in code:
+  an editor types `rag.ts`, `Sales.tsx` or `ci.yml` (highlighted at build
+  time) while the screen beside it builds the chatbot, dashboard or CI run it
+  describes. Service cards show your illustrations and play the promo video on
+  hover; the live sites sit in browser and phone frames and scroll on hover;
+  the Lancers works use your portfolio images; a navy movie section loops the
+  showreel and plays any service's video with sound; service pages open their
+  video in a popup; the header goes dark over navy sections; pages cross-fade
+  (View Transitions). Every image carries its real width and height (read from
+  the file at build time). Every page works without JavaScript, and
+  `prefers-reduced-motion` turns all motion off (no autoplay).
+- **Brand art** (`site/media.yml`): the gold 匠 emblem (header, footer, hero,
+  closing band, profile; the favicons are made from it) and the showreel. Each
+  service's illustration is `site/assets/art/services/<service id>.webp` (also
+  its share image); add or replace one and the build picks it up. The
+  originals are in `~/dev/note/portfolio`. The person in the Lancers images and
+  promo videos is an AI-generated character: every page says so in the footer,
+  and the movie section, the video popup and the service price sections say so
+  next to the videos. To rebuild the showreel, see the comment in
+  `site/media.yml`.
 - **Works** (`site/works.yml`): `sites:` are live sites you took part in
   building (screenshots in `site/assets/media/works/`, taken 2026-11-08);
   the Lancers items use your own images in `site/assets/media/portfolio/`;

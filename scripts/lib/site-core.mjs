@@ -175,8 +175,29 @@ export function loadSite({ root, profile, today = new Date() }) {
     seen.add(w.id);
   }
   works.forEach((w, i) => (w.no = String(i + 1).padStart(2, "0")));
-  // Each service's promo video: the first of its packages that has one.
-  for (const s of services) s.video = s.packages.find((p) => p.video) ?? null;
+  // Each service's promo video (the first of its packages that has one) and its
+  // illustration (site/assets/art/services/<id>.webp, when you've added one).
+  for (const s of services) {
+    s.video = s.packages.find((p) => p.video) ?? null;
+    const rel = `art/services/${s.id}.webp`;
+    s.art = fs.existsSync(path.join(root, "site", "assets", rel)) ? `assets/${rel}` : null;
+  }
+
+  // Brand art (site/media.yml): the emblem and the showreel.
+  const mediaFile = path.join(root, "site", "media.yml");
+  const m = fs.existsSync(mediaFile) ? readYaml(mediaFile) : {};
+  const art = {
+    emblem: asset(m.emblem, "site/media.yml emblem"),
+    emblemSmall: asset(m.emblem_small ?? m.emblem, "site/media.yml emblem_small"),
+    showreel: m.showreel
+      ? {
+          video: asset(m.showreel.video, "site/media.yml showreel.video"),
+          poster: asset(m.showreel.poster, "site/media.yml showreel.poster"),
+          full: asset(m.showreel.full, "site/media.yml showreel.full"),
+          title: m.showreel.title ?? "紹介動画",
+        }
+      : null,
+  };
 
   const years = careerYears(profile.facts?.career_start, today);
   const aboutFile = path.join(root, "site", "about.md");
@@ -233,6 +254,7 @@ export function loadSite({ root, profile, today = new Date() }) {
     services,
     packages: allPackages,
     works: { sites, lancers, all: works },
+    art,
     years,
     aboutHtml,
     articles: listArticles(root, profile),
@@ -289,11 +311,12 @@ const SERVICE_ICON = { "ai-apps": "sparkles", "ai-chatbot": "chat", "ai-consulti
 const serviceIcon = (s) => icon(SERVICE_ICON[s.id] ?? "grid");
 const stars = (n = 5) => `<span class="stars" role="img" aria-label="5段階中${n}">${icon("star", "st").repeat(n)}</span>`;
 
-// The 匠 seal: Noto Sans JP Bold's 匠 outline (extracted with fontTools), white on vermilion.
-const TAKUMI_GLYPH =
-  "M370 451H906V347H370ZM595 423H709V98H595ZM309 634 448 606Q446 592 422 589V462Q422 424 418.0 376.0Q414 328 403.0 277.5Q392 227 371.5 178.5Q351 130 317 90Q309 103 294.0 118.5Q279 134 262.0 148.0Q245 162 232 169Q266 214 282.5 265.5Q299 317 304.0 368.5Q309 420 309 465ZM754 670 845 588Q779 568 699.0 553.5Q619 539 535.5 529.5Q452 520 374 514Q371 532 362.0 558.5Q353 585 344 602Q399 607 456.0 614.0Q513 621 567.5 629.5Q622 638 670.0 648.5Q718 659 754 670ZM82 803H938V690H201V-92H82ZM157 66H963V-47H157Z";
-const seal = (cls = "seal") =>
-  `<svg class="${cls}" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="currentColor"/><path fill="#fff" transform="matrix(.038 0 0 -.038 12.15 45.5)" d="${TAKUMI_GLYPH}"/></svg>`;
+/** The brand mark: your gold 匠 emblem (a text 匠 if site/media.yml has none). */
+const mark = (site, base, size = 40) =>
+  site.art.emblemSmall
+    ? `<img class="mark" src="${base}${esc(site.art.emblemSmall)}" alt="" width="${size}" height="${size}">`
+    : '<span class="mark mark-text" aria-hidden="true">匠</span>';
+const AI_VIDEO_NOTE = "紹介動画の案内役は、AIで生成したキャラクターです。";
 
 const img = (site, src, base, { alt = "", cls = "", eager = false, sizes = "" } = {}) => {
   const wh = site.size(src);
@@ -345,7 +368,7 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
   ];
   const current = (href) => (route !== "" && !href.startsWith("#") && route.startsWith(href) ? ' aria-current="page"' : "");
   const logo = (cls = "") =>
-    `<a class="logo${cls}" href="${base}">${seal()}<span class="logo-text"><span class="logo-word">TAKUMI</span><span class="logo-sub">AI &amp; Web Engineering</span></span><span class="sr-only">匠（たくみ）トップページ</span></a>`;
+    `<a class="logo${cls}" href="${base}">${mark(site, base, cls ? 48 : 40)}<span class="logo-text"><span class="logo-word">TAKUMI</span><span class="logo-sub">AI &amp; Web Engineering</span></span><span class="sr-only">匠（たくみ）トップページ</span></a>`;
   return `<!doctype html>
 <html lang="ja" class="no-js">
 <head>
@@ -364,7 +387,6 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#ffffff">
 <meta name="color-scheme" content="light">
-<link rel="icon" href="${base}assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="${base}assets/brand/favicon-64.png" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="${base}assets/brand/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -441,6 +463,13 @@ ${body}
     </div>
   </div>
 </footer>
+<dialog class="vmodal" aria-label="紹介動画">
+  <div class="vmodal-in">
+    <button class="vmodal-x" type="button"><span class="sr-only">閉じる</span>${icon("plus")}</button>
+    <video controls playsinline preload="none"></video>
+    <p class="vmodal-meta"><span class="vmodal-t"></span><span class="vmodal-note">${AI_VIDEO_NOTE}</span></p>
+  </div>
+</dialog>
 </body>
 </html>
 `;
@@ -479,10 +508,11 @@ function pageHero(base, { idx, title, lead = "", trail = [], meta = "", aside = 
 </section>`;
 }
 
-function cta(site, { title = "まずは、目的をお聞かせください。", text = "「こんなことは実現できる？」という段階からで大丈夫です。目的と現状を伺い、進め方とお見積もりをご提案します。" } = {}) {
+function cta(site, base, { title = "まずは、目的をお聞かせください。", text = "「こんなことは実現できる？」という段階からで大丈夫です。目的と現状を伺い、進め方とお見積もりをご提案します。" } = {}) {
   const { profile } = site;
   const l = profile.lancers ?? {};
   return `<section class="cta" aria-labelledby="cta-title">
+  ${site.art.emblem ? `<div class="cta-mark" aria-hidden="true"><img src="${base}${esc(site.art.emblem)}" alt="" width="640" height="640" loading="lazy" decoding="async"></div>` : ""}
   <div class="wrap cta-in">
     <p class="cta-idx" data-reveal><i aria-hidden="true"></i>Available for new projects</p>
     <h2 class="cta-title" id="cta-title" data-reveal><span>${esc(title)}</span></h2>
@@ -595,11 +625,12 @@ const ldFaq = (items) => ({
   mainEntity: items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
 });
 
-/** A service tile: number, icon, field, name, summary and the starting price. */
-function serviceTile(s, base, { compact = false } = {}) {
-  return `<a class="svc" href="${base}services/${esc(s.id)}/" data-reveal>
-        <span class="svc-top"><span class="svc-no">${s.no}</span><span class="svc-ic">${serviceIcon(s)}</span></span>
-        <span class="svc-pillar">${esc(s.pillar ?? "")}</span>
+/** A service tile: your illustration (its promo video plays over it on hover), field, name, summary, price. */
+function serviceTile(site, s, base, { compact = false } = {}) {
+  const v = !compact && s.video;
+  return `<a class="svc${compact ? " svc-compact" : ""}" href="${base}services/${esc(s.id)}/" data-reveal${v ? ` data-hover-video="${base}${esc(v.video)}"` : ""}>
+        ${s.art ? `<span class="svc-media">${img(site, s.art, base)}${v ? `<span class="svc-play">${icon("play")}Movie</span>` : ""}</span>` : `<span class="svc-ic">${serviceIcon(s)}</span>`}
+        <span class="svc-top"><span class="svc-no">${s.no}</span><span class="svc-pillar">${esc(s.pillar ?? "")}</span></span>
         <span class="svc-name">${esc(s.name)}</span>
         ${compact ? "" : `<span class="svc-sum">${esc(s.summary)}</span>`}
         <span class="svc-foot"><span class="svc-price">${s.priceFrom ? `${yen(s.priceFrom)}〜` : "お見積もり"}</span><span class="svc-go">${icon("arrow")}</span></span>
@@ -633,19 +664,6 @@ function siteFeature(site, w, base) {
         <p class="feature-links"><a class="link" href="${base}works/${esc(w.id)}/">詳しく見る${icon("arrow")}</a>${ext(w.url, `${esc(w.host)}${icon("ext", "ic ic-xs")}`, "link link-muted")}</p>
       </div>
     </article>`;
-}
-
-/** One row of the Lancers works index; the cover follows the cursor on hover (desktop). */
-function workRow(site, w, base) {
-  return `<li data-reveal><a class="wrow" href="${base}works/${esc(w.id)}/" data-preview="${base}${esc(w.cover)}">
-        <span class="wrow-no mono">${w.no}</span>
-        <span class="wrow-thumb">${img(site, w.cover, base)}</span>
-        <span class="wrow-title">${esc(w.headline)}</span>
-        <span class="wrow-ind">${esc(w.industry ?? "")}</span>
-        <span class="wrow-cat">${esc(pillarOf(w))}</span>
-        <span class="wrow-rv">${icon("star", "st")}評価${w.reviews.length}件</span>
-        <span class="wrow-go">${icon("arrow")}</span>
-      </a></li>`;
 }
 
 function workCard(site, w, base) {
@@ -922,8 +940,41 @@ function expertise(site) {
     </div>`;
 }
 
+/** The movie section: the showreel loops muted; pick a service to watch its promo video with sound. */
+function theater(site, base, no) {
+  const reel = site.art.showreel;
+  const list = site.services.filter((s) => s.video);
+  if (!reel && !list.length) return "";
+  const first = reel ?? { video: list[0].video.video, poster: list[0].cover, title: list[0].video.title };
+  const item = (o, i) => `<li><button class="th-item" type="button" aria-pressed="${i === 0}" data-src="${base}${esc(o.src)}" data-poster="${base}${esc(o.poster ?? "")}" data-title="${esc(o.title)}"${o.reel ? " data-reel" : ""}>
+          <span class="th-thumb">${o.poster ? img(site, o.poster, base) : ""}<span class="th-ic">${icon("play")}</span></span>
+          <span class="th-text"><span class="th-k">${esc(o.k)}</span><span class="th-name">${esc(o.name)}</span></span>
+        </button></li>`;
+  const items = [
+    ...(reel ? [{ src: reel.video, poster: reel.poster, title: "Showreel", name: "ダイジェスト", k: "Showreel", reel: true }] : []),
+    ...list.map((s) => ({ src: s.video.video, poster: s.cover, title: s.video.title, name: s.name, k: s.pillar ?? "" })),
+  ];
+  return `<section class="sec movie" id="movie">
+  <div class="wrap">
+    ${secHead({ no, en: "Movie", title: "紹介動画", lead: `サービスごとの紹介動画です。一覧から選ぶと、音声付きで再生します。${AI_VIDEO_NOTE}` })}
+    <div class="theater" data-theater>
+      <div class="th-main" data-reveal>
+        <div class="th-screen">
+          <video class="th-video" controls muted loop playsinline preload="metadata" poster="${base}${esc(first.poster ?? "")}" aria-label="紹介動画"><source src="${base}${esc(first.video)}" type="video/mp4"></video>
+          ${reel ? `<a class="th-sound" href="${base}${esc(reel.full)}" data-src="${base}${esc(reel.full)}" data-title="${esc(reel.title)}">${icon("play")}音声付きで見る</a>` : ""}
+        </div>
+        <p class="th-now"><span class="mono">Now playing</span><span data-now>${esc(items[0].title)}</span></p>
+      </div>
+      <ol class="th-list">
+        ${items.map(item).join("\n        ")}
+      </ol>
+    </div>
+  </div>
+</section>`;
+}
+
 export function renderIndex(site) {
-  const { profile, services, years, works } = site;
+  const { profile, services, years, works, art } = site;
   const base = "./";
   const l = profile.lancers ?? {};
   const description = `${profile.title}の${profile.name}です。開発歴${years}年。ChatGPT・RAGを使った業務アプリやAIチャットボット、WordPress・Shopify、業務システムの開発を、要件の整理から保守まで担当します。`;
@@ -940,6 +991,7 @@ export function renderIndex(site) {
   <div class="wrap">
     <div class="hero-top">
       <p class="eyebrow" data-hero-in><i aria-hidden="true"></i>${esc(profile.title)}${since ? `<span class="sep">/</span><span class="mono">Since ${since}</span>` : ""}</p>
+      ${art.emblem ? `<div class="hero-mark" data-hero-in aria-hidden="true"><img src="${base}${esc(art.emblem)}" alt="" width="640" height="640" fetchpriority="high" decoding="async"></div>` : ""}
       <h1 class="hero-title"><span class="ln"><span>目的から設計する、</span></span><span class="ln"><span><span class="nw">AI・Webシステム</span><span class="nw">開発。</span></span></span></h1>
       <div class="hero-side">
         <p class="hero-lead" data-hero-in>ChatGPT・RAGを使った業務アプリから、WordPress・Shopifyのサイト、業務システムまで。要件の整理から納品後の保守まで、ひとりで通して担当します。</p>
@@ -966,9 +1018,9 @@ export function renderIndex(site) {
         <h3>ランサーズでの受注案件</h3>
         <p>${stars()}<span>すべてお客さまの評価つき</span></p>
       </div>
-      <ol class="wrows" data-preview-list>
-        ${featured.map((w) => workRow(site, w, base)).join("\n        ")}
-      </ol>
+      <ul class="wgrid">
+        ${featured.map((w) => workCard(site, w, base)).join("\n        ")}
+      </ul>
       <p class="windex-more" data-reveal><a class="btn btn-line" href="works/">すべての実績を見る（${works.all.length}件）${icon("arrow")}</a></p>
     </div>
   </div>
@@ -977,10 +1029,11 @@ export function renderIndex(site) {
   <div class="wrap">
     ${secHead({ no: no(), en: "Services", title: "サービス", lead: `AIの導入から、サイト・業務システムの開発、引き継いだシステムの不具合調査まで。ランサーズで${site.packages.length}のパッケージを出品しています。`, link: `<a class="link" href="prices/">料金一覧${icon("arrow")}</a>` })}
     <div class="svc-grid">
-      ${services.map((s) => serviceTile(s, base)).join("\n      ")}
+      ${services.map((s) => serviceTile(site, s, base)).join("\n      ")}
     </div>
   </div>
 </section>
+${theater(site, base, no())}
 <section class="sec" id="approach">
   <div class="wrap">
     <div class="split">
@@ -1046,7 +1099,7 @@ ${
     : ""
 }
 ${faqSection(no(), COMMON_FAQ, { alt: !site.articles.length })}
-${cta(site)}`;
+${cta(site, base)}`;
   const ld = [
     personLd(site),
     { "@type": "WebSite", "@id": `${profile.site_url}#website`, url: profile.site_url, name: profile.brand, inLanguage: "ja" },
@@ -1105,7 +1158,9 @@ export function renderService(site, s) {
     lead: esc(s.description),
     trail: [[`${base}#services`, "サービス"], [null, s.name]],
     meta: facts,
-    aside: `<div class="ph-mark">${serviceIcon(s)}</div>`,
+    aside: s.art
+      ? `<figure class="ph-art">${img(site, s.art, base, { eager: true })}${s.video ? `<a class="ph-play" href="${base}${esc(s.video.video)}" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}">${icon("play")}紹介動画を見る</a>` : ""}</figure>`
+      : `<div class="ph-mark">${serviceIcon(s)}</div>`,
   })}
 <section class="sec sec-tight">
   <div class="wrap prose prose-split">
@@ -1168,11 +1223,11 @@ ${faqSection(no(), faq, { alt: true })}
   <div class="wrap">
     ${secHead({ no: no(), en: "Other services", title: "ほかのサービス" })}
     <div class="svc-grid svc-grid-compact">
-      ${services.filter((o) => o.id !== s.id).map((o) => serviceTile(o, base, { compact: true })).join("\n      ")}
+      ${services.filter((o) => o.id !== s.id).map((o) => serviceTile(site, o, base, { compact: true })).join("\n      ")}
     </div>
   </div>
 </section>
-${cta(site, { title: `${s.name}のご相談`, text: "目的と現状を伺い、進め方とお見積もりをご提案します。仕様が決まっていない段階でも大丈夫です。" })}`;
+${cta(site, base, { title: `${s.name}のご相談`, text: "目的と現状を伺い、進め方とお見積もりをご提案します。仕様が決まっていない段階でも大丈夫です。" })}`;
   const ld = [
     personLd(site),
     {
@@ -1196,7 +1251,7 @@ ${cta(site, { title: `${s.name}のご相談`, text: "目的と現状を伺い、
       ],
     },
   ];
-  return layout(site, { route, title: s.name, description: s.description, body, ld });
+  return layout(site, { route, title: s.name, description: s.description, body, ld, image: s.art });
 }
 
 export function renderWorks(site) {
@@ -1236,7 +1291,7 @@ ${
 </section>`
     : ""
 }
-${cta(site)}`;
+${cta(site, base)}`;
   return layout(site, { route: "works/", title: "実績", description, body, ld: [personLd(site)] });
 }
 
@@ -1330,7 +1385,7 @@ export function renderWork(site, w) {
   </div>
 </section>`;
   }
-  body += `\n${pager}\n${cta(site)}`;
+  body += `\n${pager}\n${cta(site, base)}`;
   const ld = [
     personLd(site),
     {
@@ -1360,7 +1415,7 @@ export function renderAbout(site) {
   const l = profile.lancers ?? {};
   const f = profile.facts ?? {};
   const description = `${profile.title}、${profile.name}のプロフィール。開発歴${site.years}年、保有資格、大切にしていること。`;
-  const aside = `<dl class="facts facts-card">
+  const facts = `<dl class="facts facts-card" data-reveal>
         <div><dt>開発歴</dt><dd>${site.years}年</dd></div>
         ${f.work_style ? `<div><dt>働き方</dt><dd>${esc(f.work_style)}</dd></div>` : ""}
         ${f.nda ? `<div><dt>NDA</dt><dd>${esc(f.nda)}</dd></div>` : ""}
@@ -1368,6 +1423,7 @@ export function renderAbout(site) {
         ${(l.verified ?? []).length ? `<div><dt>確認済み</dt><dd>${esc(l.verified.join("・"))}</dd></div>` : ""}
         <div><dt>ご契約</dt><dd>ランサーズを通してお受けしています</dd></div>
       </dl>`;
+  const aside = site.art.emblem ? `<div class="about-mark"><img src="${base}${esc(site.art.emblem)}" alt="匠のエンブレム" width="640" height="640" fetchpriority="high" decoding="async"></div>` : facts;
   const body = `${pageHero(base, {
     idx: `<span class="mono">About</span><span>${esc(profile.title)}</span>`,
     title: esc(profile.name),
@@ -1377,7 +1433,7 @@ export function renderAbout(site) {
   })}
 <section class="sec sec-tight">
   <div class="wrap split">
-    <p class="about-k" data-reveal>Profile</p>
+    ${site.art.emblem ? facts : '<p class="about-k" data-reveal>Profile</p>'}
     <div class="prose about-prose" data-reveal>
       ${site.aboutHtml}
     </div>
@@ -1398,7 +1454,7 @@ export function renderAbout(site) {
     ${expertise(site)}
   </div>
 </section>
-${cta(site)}`;
+${cta(site, base)}`;
   return layout(site, { route: "about/", title: "プロフィール", description, body, ld: [personLd(site)] });
 }
 
@@ -1432,7 +1488,7 @@ export function renderPrices(site) {
     <p class="fine">パッケージ名をクリックすると、ランサーズで各プランの内容を確認できます。</p>
   </div>
 </section>
-${cta(site)}`;
+${cta(site, base)}`;
   return layout(site, { route: "prices/", title: "料金一覧", description, body, ld: [personLd(site)] });
 }
 
@@ -1468,7 +1524,7 @@ export function renderReviews(site) {
     <p class="fine">評価はランサーズでも確認できます。${ext(l.reviews_url ?? l.profile_url, "ランサーズの評価ページ")}</p>
   </div>
 </section>
-${cta(site)}`;
+${cta(site, base)}`;
   return layout(site, { route: "reviews/", title: "お客さまの声", description, body, ld: [personLd(site)] });
 }
 

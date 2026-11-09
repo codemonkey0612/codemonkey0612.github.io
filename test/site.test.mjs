@@ -188,6 +188,38 @@ test("every page discloses the AI character, and the hero demo is real, highligh
   assert.doesNotMatch(home, /data-len="NaN"/);
 });
 
+test("your emblem, service illustrations, showreel and promo videos are on the site", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  const home = files["index.html"];
+  const { art } = site;
+  assert.ok(art.emblem && art.emblemSmall && art.showreel);
+  for (const page of Object.keys(files).filter((f) => f.endsWith(".html") && f !== "404.html")) {
+    assert.match(files[page], /class="mark" src="[./]*assets\/brand\/emblem-160\.webp"/, `${page} shows the emblem in the header`);
+  }
+  assert.ok(home.includes(`<source src="./${art.showreel.video}" type="video/mp4">`), "showreel video");
+  assert.ok(home.includes(`poster="./${art.showreel.poster}"`), "showreel poster");
+  for (const s of site.services) {
+    assert.ok(s.art, `${s.id} has an illustration in site/assets/art/services/`);
+    assert.ok(home.includes(`src="./${s.art}"`), `home card of ${s.id} shows its illustration`);
+    const html = files[`services/${s.id}/index.html`];
+    assert.ok(html.includes(`src="../../${s.art}"`), `${s.id} page shows its illustration`);
+    assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.art, site.profile.site_url).href}">`), `${s.id} share image`);
+    if (s.video) {
+      assert.ok(home.includes(`data-hover-video="./${s.video.video}"`), `${s.id} card plays its video on hover`);
+      assert.ok(home.includes(`data-src="./${s.video.video}"`), `${s.id} is in the movie section`);
+      assert.ok(html.includes(`data-video="../../${s.video.video}"`), `${s.id} page opens its video`);
+    }
+  }
+  for (const w of site.works.lancers.filter((x) => x.featured)) assert.ok(home.includes(`src="./${w.cover}"`), `home shows the cover of ${w.id}`);
+});
+
+test("media.yml typos fail the build", () => {
+  const profile = { site_url: "https://x.example/", services: [], cases: [], testimonials: [] };
+  const bad = tmpRepo({ "site/packages.yml": "{}\n", "site/media.yml": "emblem: brand/missing.webp\n" });
+  assert.throws(() => loadSite({ root: bad, profile, today }), /site\/assets\/brand\/missing\.webp does not exist/);
+});
+
 test("images carry their real size, so nothing jumps while they load", () => {
   const site = loadSite({ root: ROOT, profile: loadProfile(), today });
   const files = renderSite(site);

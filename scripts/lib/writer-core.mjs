@@ -125,7 +125,7 @@ const RULES = (author, config) => `Write in Japanese, です・ます調, in the
 Experience: describe only the author's real experience listed under "cases" or "lancers". Keep clients anonymous (industry and size only) and keep their numbers exactly as given. Never invent projects, clients, results, numbers, quotes or conversations. A made-up example must start with 「たとえば」 and be plainly hypothetical.
 Facts: every statistic, price, date, version, release or legal point must come from a page you checked with web search in this session, or one given as a source, and be linked inline as [出典名](URL) where it's used. Prefer primary sources (official docs and announcements, the survey itself). Never write a URL you didn't see. If you can't confirm something, leave it out.
 Code (engineering readers): short, complete and correct for current versions, in fenced blocks with the language (and a file name like \`\`\`python:main.py where useful), with what each part does explained; no secrets or real endpoints.
-Markdown: Zenn flavour. ## headings, ### for sub-sections, never #. At most one :::message block. No HTML, no images, no tables wider than four columns.
+Markdown: Zenn flavour. ## headings, ### for sub-sections, never #. At most one :::message block. No HTML, no images, no tables wider than four columns, no task-list checkboxes (- [ ]); use plain bullets.
 Style (checked by textlint): sentences under 100 characters, at most three 読点 per sentence, no doubled particles, no 「！」.
 Never: ${config.avoid.join("、")}.`;
 

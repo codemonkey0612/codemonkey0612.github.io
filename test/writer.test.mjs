@@ -69,7 +69,7 @@ test("topics are checked: Zenn slug, one emoji, ASCII topics, a known service", 
 
 const BODY = (extra = "") =>
   `${"中小企業の問い合わせ対応について、現場で使える進め方を説明します。".repeat(30)}${extra}\n\n---\n\n私は「AIチャットボット・社内文書検索（RAG）」をお仕事としてお受けしています。\n→ [AIチャットボット・社内文書検索（RAG）について](https://codemonkey0612.github.io/services/ai-chatbot/) ／ [ランサーズで相談する](https://www.lancers.jp/profile/navi_work/contact_light)\n`;
-const usage = { input_tokens: 1000, output_tokens: 500, cache_read_input_tokens: 0, web_search_requests: 2 };
+const usage = { input_tokens: 1000, output_tokens: 500, cache_read_input_tokens: 0, cache_creation_input_tokens: 0, web_search_requests: 2 };
 const report = (findings = []) => ({ report: { summary: "ok", findings }, usage });
 const wrong = { quote: "検索時間を約90%削減", claim_type: "statistic", verdict: "contradicted", source_in_article: false, evidence_url: "", explanation: "プロフィールでは約60%", suggested_fix: "約60%に直す" };
 

@@ -63,6 +63,7 @@ test("sends Opus 5.5 with web search, a strict report tool and refusal fallbacks
   assert.equal(req.tools[1].strict, true);
   assert.equal(req.tools[1].eager_input_streaming, true);
   assert.equal(req.tool_choice.type, "auto");
+  assert.deepEqual(req.cache_control, { type: "ephemeral" }, "resent conversations are cached");
   const text = req.messages[0].content;
   assert.match(text, /Today is 2026-11-08/);
   assert.match(text, /career_start/);

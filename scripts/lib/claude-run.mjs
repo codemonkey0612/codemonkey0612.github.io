@@ -1,14 +1,16 @@
 // One Claude task that ends with a "submit" tool call carrying a structured result: the
 // fact-check report, the day's topic, the article itself. Claude may search the web first.
 //
-// Claude Opus 5.5 with adaptive thinking, streamed (long outputs). Opted into server-side
+// Claude Opus 5.5 with adaptive thinking, streamed (long outputs), with automatic prompt
+// caching: each resumed request re-sends the whole conversation (search results included),
+// and the cached part is billed at a tenth of the input price. Opted into server-side
 // refusal fallbacks ("default" routing), so a request declined by a safety classifier is
 // retried on a suitable model inside the same call. Paused server-side searches are resumed;
 // a broken or invalid submission is re-asked for without echoing it back.
 
 export const MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
-// USD per million tokens for Claude Opus 5.5 (input, output, cache read); used for the cost line.
-export const PRICE = { input: 4, output: 20, cache_read: 0.2 };
+// USD per million tokens for Claude Opus 5.5 (input, output, cache read, cache write = 1.25× input).
+export const PRICE = { input: 4, output: 20, cache_read: 0.2, cache_write: 5 };
 
 /**
  * After a mid-output fallback, only text blocks and paired server-tool blocks
@@ -28,14 +30,18 @@ export function echoableContent(content) {
   return [...kept, ...content.slice(lastFallback)];
 }
 
-export const emptyUsage = () => ({ input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, web_search_requests: 0 });
+export const emptyUsage = () => ({ input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0, web_search_requests: 0 });
 export function addUsage(total, u) {
   for (const k of Object.keys(emptyUsage())) total[k] += u?.[k] ?? 0;
   return total;
 }
 /** Token cost in USD (web search fees are billed separately per search). */
 export const costUsd = (u) =>
-  (u.input_tokens * PRICE.input + u.output_tokens * PRICE.output + u.cache_read_input_tokens * PRICE.cache_read) / 1e6;
+  (u.input_tokens * PRICE.input +
+    u.output_tokens * PRICE.output +
+    u.cache_read_input_tokens * PRICE.cache_read +
+    (u.cache_creation_input_tokens ?? 0) * PRICE.cache_write) /
+  1e6;
 
 /**
  * Runs the task until Claude calls `submitTool`, then validates its input with `schema` (zod).
@@ -77,6 +83,7 @@ export async function runSubmitTask({
         system,
         tools,
         tool_choice: { type: "auto" },
+        cache_control: { type: "ephemeral" },
         betas: ["server-side-fallback-2026-07-01"],
         fallbacks: "default",
         messages,

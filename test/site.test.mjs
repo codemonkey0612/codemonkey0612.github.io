@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { loadProfile, ROOT } from "../scripts/lib/common.mjs";
-import { careerYears, esc, listArticles, loadSite, renderGithubReadme, renderSite } from "../scripts/lib/site-core.mjs";
+import { careerYears, esc, imageSize, listArticles, loadSite, renderGithubReadme, renderSite } from "../scripts/lib/site-core.mjs";
 
 const today = new Date("2026-11-08T00:00:00+09:00");
 
@@ -114,10 +114,7 @@ test("service pages show each package's cover and promo video", () => {
       assert.ok(html.includes(`poster="../../${p.cover}"`), `${s.id}: poster of ${p.id}`);
     }
     if (s.packages.some((x) => x.video)) assert.match(html, /案内役は、AIで生成したキャラクターです/, `${s.id} says the presenter is AI`);
-    if (s.cover) {
-      assert.ok(files["index.html"].includes(`src="./${s.cover}"`), `home card of ${s.id} has its cover`);
-      assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.cover, site.profile.site_url).href}">`), `${s.id} share image`);
-    }
+    assert.ok(files["index.html"].includes(`href="./services/${s.id}/"`), `home links to ${s.id}`);
   }
 });
 
@@ -175,32 +172,30 @@ test("works.yml typos fail the build", () => {
   assert.throws(() => loadSite({ root: dup, profile, today }), /duplicate id "a"/);
 });
 
-test("brand art and videos from site/media.yml are on the home page, with the AI disclosure", () => {
+test("every page discloses the AI character, and the hero demo is real, highlighted code", () => {
   const site = loadSite({ root: ROOT, profile: loadProfile(), today });
   const files = renderSite(site);
-  const home = files["index.html"];
-  const { art } = site;
-  assert.ok(art.emblem && art.showreel && art.gallery.length > 0);
-  assert.ok(home.includes(`<source src="./${art.showreel.video}" type="video/mp4">`), "showreel video");
-  assert.ok(home.includes(`poster="./${art.showreel.poster}"`), "showreel poster");
-  for (const g of art.gallery) assert.ok(home.includes(`src="./${g.image}"`), `gallery image ${g.image}`);
-  for (const s of site.services.filter((x) => x.video)) {
-    assert.ok(home.includes(`data-hover-video="./${s.video.video}"`), `${s.id} card plays its video on hover`);
-    assert.ok(home.includes(`data-src="./${s.video.video}"`), `${s.id} is in the movie theater`);
-  }
-  // The character in the images and videos is AI-generated; every page says so (footer).
+  // The character in the Lancers images and videos is AI-generated; every page says so (footer).
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) {
     assert.match(files[page], /AIで生成したイメージキャラクター/, `${page} discloses the AI character`);
   }
   assert.match(files["works/index.html"], /カバー画像はイメージです/, "works index says the covers are illustrations");
+  const home = files["index.html"];
+  for (const file of ["rag.ts", "Sales.tsx", "ci.yml"]) assert.ok(home.includes(`>${file}</button>`), `demo tab ${file}`);
+  assert.match(home, /<span class="tk-kw">export<\/span> <span class="tk-kw">async<\/span> <span class="tk-kw">function<\/span> <span class="tk-fn">answer<\/span>/);
+  assert.match(home, /<span class="tk-tg">&lt;Kpi<\/span> <span class="tk-pr">label<\/span>=<span class="tk-st">&quot;売上&quot;<\/span>/);
+  assert.match(home, /<span class="tk-pr">runs-on<\/span><span class="tk-p">:<\/span> <span class="tk-st">ubuntu-latest<\/span>/);
+  assert.doesNotMatch(home, /data-len="NaN"/);
 });
 
-test("media.yml typos fail the build", () => {
-  const profile = { site_url: "https://x.example/", services: [], cases: [], testimonials: [] };
-  const bad = tmpRepo({ "site/packages.yml": "{}\n", "site/media.yml": "emblem: brand/missing.webp\n" });
-  assert.throws(() => loadSite({ root: bad, profile, today }), /site\/assets\/brand\/missing\.webp does not exist/);
-  const badSvc = tmpRepo({ "site/packages.yml": "{}\n", "site/assets/g.webp": "x", "site/media.yml": "gallery:\n  - { image: g.webp, service: nope }\n" });
-  assert.throws(() => loadSite({ root: badSvc, profile, today }), /unknown service "nope"/);
+test("images carry their real size, so nothing jumps while they load", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  assert.deepEqual(imageSize(path.join(ROOT, "site", "assets", "media", "works", "go-to-market-page.webp")), [1200, 4333]);
+  assert.deepEqual(imageSize(path.join(ROOT, "site", "assets", "brand", "apple-touch-icon.png")), [180, 180]);
+  for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) {
+    for (const [tag] of files[page].matchAll(/<img\b[^>]*>/g)) assert.match(tag, /width="\d+" height="\d+"/, `${page}: ${tag}`);
+  }
 });
 
 test("Lancers works use your own portfolio images, and assets carry a version", () => {

@@ -87,26 +87,28 @@ where to upload images. After publishing on note, paste the post's link into
   filter and one case page per work, one page per service, a price list of all
   20 Lancers packages, all 26 client reviews in full, profile, 404, plus
   `sitemap.xml`, `robots.txt` and `llms.txt`. Pages carry Open Graph tags (share
-  image `site/assets/og.png`, or the work's or service's own cover) and
+  image `site/assets/og.jpg`, or the work's own cover or screenshot) and
   schema.org data (Person, Service, CreativeWork, FAQ, breadcrumbs).
 - **Design and motion** (`site/assets/style.css`, `site/assets/app.js`, no
-  libraries). Bright white and sky surfaces, navy text and gold taken from the
-  匠 emblem; Shippori Mincho for headings, Cormorant Garamond for English and
-  numbers. A short emblem intro on the first visit of a session; the hero plays
-  a muted showreel of your promo videos (with a button to watch one with sound),
-  gold sparkles, rotating words and floating cards; service cards play their
-  promo video on hover; a tilted banner gallery and the reviews scroll on their
-  own; a movie theater switches between the service videos; works tilt toward
-  the cursor and their cover glides into the case page (View Transitions).
-  Every page works without JavaScript, and `prefers-reduced-motion` turns all
-  motion off (no autoplay, no intro).
-- **Brand art** (`site/media.yml`): the emblem, the AI character cut-out, the
-  showreel and the banner gallery. The originals are in `~/dev/note/portfolio`.
-  The person in the images and videos is an AI-generated character: every page
-  says so in the footer, and the closing section says so next to her. To
-  rebuild the showreel from the package videos, see the comment in
-  `site/media.yml`; the emblem is cut out of `Golden Kanji Artisan Emblem.png`
-  (the checkerboard in that file is painted in, not transparent).
+  libraries). A clean studio look: white and warm-grey paper, near-black ink,
+  one vermilion accent (the 匠 seal); Geist and Noto Sans JP for text, Geist
+  Mono for labels and numbers; hairline rules instead of boxes. The hero is a
+  live demo built in code: an editor types `rag.ts`, `Sales.tsx` or `ci.yml`
+  (highlighted at build time) while the screen beside it builds the chatbot,
+  dashboard or CI run it describes. The live sites sit in browser and phone
+  frames and scroll on hover; the Lancers works index shows each cover next to
+  the cursor; service tiles fill dark on hover; titles rise out of their line;
+  the header goes dark over the closing band; pages cross-fade (View
+  Transitions). Every image carries its real width and height (read from the
+  file at build time). Every page works without JavaScript, and
+  `prefers-reduced-motion` turns all motion off.
+- **Brand** (`site/assets/brand/`): the 匠 seal is Noto Sans JP Bold's 匠 as a
+  vector path on vermilion (inlined in the header; `favicon.svg` and the PNG
+  icons are the same mark). `site/assets/og.jpg` is the default share image.
+  The person in the Lancers images and package videos is an AI-generated
+  character: every page says so in the footer, and service pages say so next to
+  the videos. The earlier gold emblem, showreel, banner gallery and 3D icons
+  are in git history (and the originals in `~/dev/note/portfolio`).
 - **Works** (`site/works.yml`): `sites:` are live sites you took part in
   building (screenshots in `site/assets/media/works/`, taken 2026-11-08);
   the Lancers items use your own images in `site/assets/media/portfolio/`;

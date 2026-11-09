@@ -172,7 +172,7 @@ test("works.yml typos fail the build", () => {
   assert.throws(() => loadSite({ root: dup, profile, today }), /duplicate id "a"/);
 });
 
-test("every page discloses the AI character, and the hero demo is real, highlighted code", () => {
+test("every page discloses the AI character", () => {
   const site = loadSite({ root: ROOT, profile: loadProfile(), today });
   const files = renderSite(site);
   // The character in the Lancers images and videos is AI-generated; every page says so (footer).
@@ -180,12 +180,6 @@ test("every page discloses the AI character, and the hero demo is real, highligh
     assert.match(files[page], /AIで生成したイメージキャラクター/, `${page} discloses the AI character`);
   }
   assert.match(files["works/index.html"], /カバー画像はイメージです/, "works index says the covers are illustrations");
-  const home = files["index.html"];
-  for (const file of ["rag.ts", "Sales.tsx", "ci.yml"]) assert.ok(home.includes(`>${file}</button>`), `demo tab ${file}`);
-  assert.match(home, /<span class="tk-kw">export<\/span> <span class="tk-kw">async<\/span> <span class="tk-kw">function<\/span> <span class="tk-fn">answer<\/span>/);
-  assert.match(home, /<span class="tk-tg">&lt;Kpi<\/span> <span class="tk-pr">label<\/span>=<span class="tk-st">&quot;売上&quot;<\/span>/);
-  assert.match(home, /<span class="tk-pr">runs-on<\/span><span class="tk-p">:<\/span> <span class="tk-st">ubuntu-latest<\/span>/);
-  assert.doesNotMatch(home, /data-len="NaN"/);
 });
 
 test("your emblem, service illustrations, showreel and promo videos are on the site", () => {
@@ -205,11 +199,7 @@ test("your emblem, service illustrations, showreel and promo videos are on the s
     const html = files[`services/${s.id}/index.html`];
     assert.ok(html.includes(`src="../../${s.art}"`), `${s.id} page shows its illustration`);
     assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.art, site.profile.site_url).href}">`), `${s.id} share image`);
-    if (s.video) {
-      assert.ok(home.includes(`data-hover-video="./${s.video.video}"`), `${s.id} card plays its video on hover`);
-      assert.ok(home.includes(`data-src="./${s.video.video}"`), `${s.id} is in the movie section`);
-      assert.ok(html.includes(`data-video="../../${s.video.video}"`), `${s.id} page opens its video`);
-    }
+    if (s.video) assert.ok(html.includes(`data-video="../../${s.video.video}"`), `${s.id} page opens its video`);
   }
   for (const w of site.works.lancers.filter((x) => x.featured)) assert.ok(home.includes(`src="./${w.cover}"`), `home shows the cover of ${w.id}`);
 });

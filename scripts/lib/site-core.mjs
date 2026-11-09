@@ -9,6 +9,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { marked } from "marked";
 import YAML from "yaml";
+import { isLive } from "./schedule.mjs";
 
 const LANCERS_PACKAGE = (id) => `https://www.lancers.jp/menu/detail/${id}`;
 const LANCERS_JOB = (id) => `https://www.lancers.jp/work/detail/${id}`;
@@ -62,11 +63,17 @@ export function listArticles(root, profile) {
       if (url && data.title) out.push({ platform: dir, title: String(data.title), url, date: articleDate(root, file, data) });
     }
   };
-  each("articles", (d, slug) => d.published === true && isSet(p.zenn) && `https://zenn.dev/${p.zenn}/articles/${slug}`);
+  each("articles", (d, slug) => isLive(d) && isSet(p.zenn) && `https://zenn.dev/${p.zenn}/articles/${slug}`);
   each("public", (d) => d.ignorePublish === false && d.private !== true && d.id && isSet(p.qiita) && `https://qiita.com/${p.qiita}/items/${d.id}`);
   each("notes", (d) => d.status === "ready" && typeof d.url === "string" && d.url.startsWith("https://note.com/") && d.url);
   for (const a of out) a.platform = { articles: "zenn", public: "qiita", notes: "note" }[a.platform];
-  return out.sort((a, b) => b.date.localeCompare(a.date));
+  // A post you publish on Zenn, Qiita and note is listed once (Zenn first).
+  const order = { zenn: 0, qiita: 1, note: 2 };
+  const seen = new Set();
+  return out
+    .sort((a, b) => order[a.platform] - order[b.platform])
+    .filter((a) => !seen.has(a.title) && seen.add(a.title))
+    .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 /** Pixel size of a WebP, PNG or JPEG file, read from its header (null if unknown). */

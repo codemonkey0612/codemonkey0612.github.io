@@ -1,13 +1,12 @@
 // Claude-powered fact-check: finds checkable claims, verifies them with web
 // search, and returns a structured report. The request loop lives here so it can
 // be tested with a fake client.
-import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import { echoableContent, MODEL, runSubmitTask } from "./claude-run.mjs";
 
-export const MODEL = process.env.FACTCHECK_MODEL || "claude-opus-5-5";
+export { echoableContent, MODEL };
 export const EFFORT = process.env.FACTCHECK_EFFORT || "high";
 export const MAX_SEARCHES = Number(process.env.FACTCHECK_MAX_SEARCHES || 15);
-const MAX_REQUESTS = 8;
 
 const CLAIM_TYPES = ["statistic", "study_or_survey", "date_or_event", "attribution", "technical", "self_claim", "title_overclaim"];
 const VERDICTS = ["supported", "contradicted", "unsupported", "unverifiable"];
@@ -91,110 +90,27 @@ export function buildUserMessage({ article, profile, today }) {
   ].join("\n\n");
 }
 
-/**
- * After a mid-output fallback, only text blocks and paired server-tool blocks
- * from before the last `fallback` block may be echoed back (see Claude API docs).
- */
-export function echoableContent(content) {
-  const lastFallback = content.findLastIndex((b) => b.type === "fallback");
-  if (lastFallback < 0) return content;
-  const before = content.slice(0, lastFallback);
-  const resultIds = new Set(before.filter((b) => b.tool_use_id && b.type.endsWith("_tool_result")).map((b) => b.tool_use_id));
-  const kept = before.filter(
-    (b) =>
-      b.type === "text" ||
-      (b.type === "server_tool_use" && resultIds.has(b.id)) ||
-      (b.type.endsWith("_tool_result") && b.type !== "tool_result" && resultIds.has(b.tool_use_id)),
-  );
-  return [...kept, ...content.slice(lastFallback)];
-}
-
 export class FactcheckError extends Error {}
-
-function readReport(block) {
-  let input;
-  try {
-    input = block.input; // lazily parsed from streamed JSON; may throw
-  } catch (err) {
-    if (!(err instanceof SyntaxError)) throw err;
-    return { ok: false, why: `unparseable JSON (${err.message})` };
-  }
-  const parsed = ReportSchema.safeParse(input);
-  return parsed.success ? { ok: true, report: parsed.data } : { ok: false, why: parsed.error.message };
-}
 
 /**
  * Run the fact-check loop for one article.
  * Returns { report, usage, model, fallback }.
  */
 export async function factcheck({ client, article, profile, today = new Date().toISOString().slice(0, 10), log = () => {} }) {
-  const messages = [{ role: "user", content: buildUserMessage({ article, profile, today }) }];
-  const usage = { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, web_search_requests: 0 };
-  let badReports = 0;
-  let nudged = false;
-  let servedBy = MODEL;
-  let fallback = false;
-
-  for (let request = 1; request <= MAX_REQUESTS; request++) {
-    let msg;
-    try {
-      const stream = client.beta.messages.stream({
-        model: MODEL,
-        max_tokens: 64000,
-        thinking: { type: "adaptive" },
-        output_config: { effort: EFFORT },
-        system: SYSTEM,
-        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: MAX_SEARCHES }, REPORT_TOOL],
-        tool_choice: { type: "auto" },
-        betas: ["server-side-fallback-2026-07-01"],
-        fallbacks: "default",
-        messages,
-      });
-      msg = await stream.finalMessage();
-    } catch (err) {
-      // The SDK parses streamed tool input with JSON.parse, so unparseable input
-      // is a SyntaxError. Anything else (auth, rate limit, network) propagates.
-      if (!(err instanceof SyntaxError)) throw err;
-      if (++badReports > 2) throw new FactcheckError(`report could not be parsed: ${err.message}`);
-      log(`  report JSON broke mid-stream (${err.message}); retrying`);
-      continue;
-    }
-
-    usage.input_tokens += msg.usage?.input_tokens ?? 0;
-    usage.output_tokens += msg.usage?.output_tokens ?? 0;
-    usage.cache_read_input_tokens += msg.usage?.cache_read_input_tokens ?? 0;
-    usage.web_search_requests += msg.usage?.server_tool_use?.web_search_requests ?? 0;
-    servedBy = msg.model ?? servedBy;
-    if ((msg.usage?.iterations ?? []).some((it) => it.type === "fallback_message")) fallback = true;
-
-    if (msg.stop_reason === "refusal") {
-      const category = msg.stop_details?.category ?? "unspecified";
-      throw new FactcheckError(`Claude declined to check this article (category: ${category})`);
-    }
-    if (msg.stop_reason === "max_tokens") throw new FactcheckError("response hit max_tokens before the report was complete");
-
-    const call = msg.content.find((b) => b.type === "tool_use" && b.name === "submit_report");
-    if (call) {
-      const result = readReport(call);
-      if (result.ok) return { report: result.report, usage, model: servedBy, fallback };
-      // Don't echo a broken tool call back (that would edit the model's turn); ask again.
-      if (++badReports > 2) throw new FactcheckError(`invalid report: ${result.why}`);
-      log(`  invalid report (${result.why}); retrying`);
-      continue;
-    }
-
-    if (msg.stop_reason === "pause_turn") {
-      // Server-side search loop paused; resend so it resumes where it stopped.
-      messages.push({ role: "assistant", content: echoableContent(msg.content) });
-      continue;
-    }
-
-    if (nudged) throw new FactcheckError("Claude finished without submitting a report");
-    nudged = true;
-    messages.push({ role: "assistant", content: echoableContent(msg.content) });
-    messages.push({ role: "user", content: "Call submit_report now with everything you found." });
-  }
-  throw new FactcheckError(`no report after ${MAX_REQUESTS} requests`);
+  const { value, usage, model, fallback } = await runSubmitTask({
+    client,
+    system: SYSTEM,
+    user: buildUserMessage({ article, profile, today }),
+    submitTool: REPORT_TOOL,
+    schema: ReportSchema,
+    effort: EFFORT,
+    maxSearches: MAX_SEARCHES,
+    task: "check this article",
+    what: "report",
+    ErrorClass: FactcheckError,
+    log,
+  });
+  return { report: value, usage, model, fallback };
 }
 
 // ---- Severity and rendering -------------------------------------------------

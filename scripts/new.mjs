@@ -8,6 +8,7 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import YAML from "yaml";
 import { loadProfile, PLATFORM_DIRS, rel, ROOT, todosFor } from "./lib/common.mjs";
+import { nextFreeSlot } from "./lib/schedule.mjs";
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -41,7 +42,8 @@ const service = values.service ? services.find((s) => s.id === values.service) :
 if (values.service && !service) fail(`no service "${values.service}" in profile.yml (have: ${services.map((s) => s.id).join(", ")})`);
 
 const frontMatter = {
-  zenn: { title: values.title, emoji: values.emoji, type: values.type, topics: list(values.topics), published: false },
+  // published_at: the next morning with no post. Zenn publishes then; the daily job copies it to Qiita.
+  zenn: { title: values.title, emoji: values.emoji, type: values.type, topics: list(values.topics), published: false, published_at: nextFreeSlot(ROOT) },
   qiita: {
     title: values.title,
     tags: list(values.tags),
@@ -69,7 +71,7 @@ const body = fs
 
 fs.writeFileSync(file, `---\n${YAML.stringify(frontMatter)}---\n\n${body}`);
 console.log(`created ${rel(file)} (draft)`);
-const goLive = { zenn: "set published: true", qiita: "set ignorePublish: false", note: "set status: ready" }[platform];
+const goLive = { zenn: `set published: true (it goes live on Zenn and Qiita at ${frontMatter.published_at ?? ""})`, qiita: "set ignorePublish: false", note: "set status: ready" }[platform];
 console.log(`when it's ready: ${goLive}, then npm run check -- ${rel(file)}`);
 const todos = todosFor(profile, platform);
 if (todos.length) console.log(`note: fill these in profile.yml before publishing: ${todos.join(", ")}`);

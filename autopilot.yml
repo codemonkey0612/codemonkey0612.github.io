@@ -1,0 +1,57 @@
+# The automatic writer (scripts/autowrite.mjs, run every morning by .github/workflows/write.yml).
+# It picks a topic, researches it, writes the article, checks it (validate, textlint and the
+# Claude fact-check, with up to two rounds of fixes) and schedules it for the next free 09:00
+# (Japan time). Zenn publishes it then, and the Publish workflow copies it to Qiita.
+#
+# Zenn's terms count posting machine-generated text as spam and Zenn can freeze accounts;
+# Qiita asks you to check AI-written content before posting. `mode: auto` publishes without
+# your review (your choice, 2026-11-09). `mode: review` opens a pull request instead: merge it
+# to publish. To stop, set enabled: false.
+enabled: true
+mode: auto            # auto | review
+days_ahead: 2         # keep this many mornings filled (today's 09:00 counts until 08:00)
+max_per_run: 2        # at most this many articles per run
+
+# What to write about. The writer rotates through these by weight, so over two weeks roughly
+# 3 in 8 posts are about small-business problems, 3 in 8 about AI and software work and 2 in 8
+# about recent technology news.
+pillars:
+  - id: sme
+    weight: 3
+    label: 中小企業が抱える技術課題と、その解決策
+    audience: buyer
+    brief: >-
+      Owners and staff of small and medium-sized Japanese companies (5–300 people) with a
+      concrete problem software or AI can solve: manual data entry and Excel, inquiries,
+      old websites, systems nobody maintains, security worries, choosing a vendor, judging an
+      estimate. Explain the problem in their words, what the options are and what they cost
+      in time and money (only figures you can source), how to start small, and what to ask a
+      developer. No jargon without a one-line explanation.
+  - id: ai-software
+    weight: 3
+    label: AI・ソフトウェア開発の実践
+    audience: engineer
+    brief: >-
+      Engineers and technical staff: hands-on, accurate pieces about building with
+      generative AI (RAG, agents, LLM APIs, evaluation), web systems, WordPress/Shopify,
+      cloud, security and maintenance. Show real code or configuration, explain trade-offs and
+      failure modes, and say what you would do in production. Use current versions and APIs,
+      checked against official documentation.
+  - id: news
+    weight: 2
+    label: 最新技術ニュースの解説
+    audience: buyer
+    brief: >-
+      One significant development from the last 14 days in AI or software (a release, an
+      official announcement, a regulation, a major security incident), found with web search
+      and taken from the primary source. Say what happened, what it means for small and
+      medium-sized companies or their developers, and what to do (or not do) now. No rumours
+      or leaks; dates and names exactly as the primary source gives them.
+
+# Never write about these.
+avoid:
+  - 特定の企業・製品・個人を名指しで批判すること
+  - 医療・法律・税務・投資について個別の判断を示すこと
+  - 未発表の情報、噂、リーク
+  - ランサーズ以外の外部との契約や連絡を促すこと（ご相談はすべてランサーズ経由）
+  - 実在しない事例・顧客・数字・引用を作ること

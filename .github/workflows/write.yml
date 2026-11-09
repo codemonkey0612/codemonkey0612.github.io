@@ -1,0 +1,74 @@
+# Writes the next articles on its own (scripts/autowrite.mjs; settings in autopilot.yml).
+# Every morning at 06:00 JST, and whenever autopilot.yml changes, it fills the open mornings:
+# picks a topic, researches it, writes and checks the article and schedules it for 09:00.
+# mode: auto commits it to main; Zenn publishes it at 09:00 and the Publish workflow copies
+# it to Qiita. mode: review opens a pull request instead (merge to publish).
+# Needs the ANTHROPIC_API_KEY secret. A morning that couldn't be filled fails the run, so
+# GitHub emails you; the failed draft is kept unpublished in articles/ to look at.
+name: Write articles
+
+on:
+  schedule:
+    - cron: "0 21 * * *" # 06:00 JST
+  push:
+    branches: [main]
+    paths: ["autopilot.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: write-articles
+  cancel-in-progress: false
+
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Write the next articles
+        id: write
+        run: node scripts/autowrite.mjs
+
+      # Runs even when a morning failed, so the run history and the failed draft are kept.
+      - name: Publish (mode auto) or open a pull request (mode review)
+        if: always() && steps.write.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MODE: ${{ steps.write.outputs.mode }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          names="$(git status --porcelain -- articles | awk '{print $2}' | xargs -rn1 basename | tr '\n' ' ')"
+          if [ "$MODE" = "review" ]; then
+            branch="autopilot/$(date -u +%Y%m%d-%H%M)"
+            git switch -c "$branch"
+            git add articles
+            git commit -m "Autopilot: ${names}"
+            git push origin "$branch"
+            gh pr create --base main --head "$branch" --title "Autopilot: ${names}" \
+              --body "Written and checked by the autopilot; see the Write articles run for the checks. Merge to publish at the scheduled morning, or close to drop it."
+            git switch main
+            git add autopilot
+            git commit -m "Autopilot: record run (in review)"
+          else
+            git add articles autopilot
+            git commit -m "Autopilot: ${names}"
+          fi
+          git pull --rebase origin main
+          git push origin HEAD:main

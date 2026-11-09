@@ -1,12 +1,13 @@
 #!/usr/bin/env node
-// note has no posting API. This renders a draft as a page you open in a browser,
-// copy with one click, and paste into note's editor (formatting is kept).
-// Usage: npm run note -- notes/<slug>.md   → dist/note/<slug>.html
+// Renders a post as a page you open in a browser, copy with one click, and paste into note's
+// editor (formatting is kept). Works for note posts and for your daily Zenn article.
+// Usage: npm run note -- articles/<slug>.md   (or notes/<slug>.md)   → dist/note/<slug>.html
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
-import { readArticle, rel, ROOT } from "./lib/common.mjs";
+import { loadProfile, readArticle, rel, ROOT } from "./lib/common.mjs";
+import { imageBase, zennToNote } from "./lib/schedule.mjs";
 
 export function toNoteHtml(markdown) {
   const warnings = [];
@@ -91,21 +92,22 @@ ${html}
 if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
   const files = process.argv.slice(2);
   if (!files.length) {
-    console.error("usage: npm run note -- notes/<slug>.md");
+    console.error("usage: npm run note -- articles/<slug>.md (or notes/<slug>.md)");
     process.exit(1);
   }
   for (const file of files) {
     const article = readArticle(path.resolve(file));
-    if (article.platform !== "note") {
-      console.error(`skip ${file}: note drafts live in notes/`);
+    if (!["note", "zenn"].includes(article.platform)) {
+      console.error(`skip ${file}: note copies come from articles/ (Zenn) or notes/`);
       continue;
     }
-    const { html, warnings } = toNoteHtml(article.content);
+    const markdown = article.platform === "zenn" ? zennToNote(article.content, { base: imageBase(loadProfile()) }) : article.content;
+    const { html, warnings } = toNoteHtml(markdown);
     const out = path.join(ROOT, "dist", "note", `${path.basename(file, ".md")}.html`);
     fs.mkdirSync(path.dirname(out), { recursive: true });
     fs.writeFileSync(
       out,
-      page({ title: article.data.title ?? "", hashtags: article.data.hashtags ?? [], html, warnings, source: rel(article.file) }),
+      page({ title: article.data.title ?? "", hashtags: article.data.hashtags ?? article.data.topics ?? [], html, warnings, source: rel(article.file) }),
     );
     console.log(`wrote ${rel(out)} — open it in a browser, click "Copy body", paste into note`);
     for (const w of warnings) console.log(`  warn: ${w}`);

@@ -1,6 +1,7 @@
 // Deterministic checks: platform front matter, call-to-action, sources, persona.
 // Errors block publishing; warnings are advice.
 import path from "node:path";
+import { publishedAt } from "./schedule.mjs";
 import { isPublishReady, todosFor } from "./common.mjs";
 
 const PERSONAS = ["私", "僕", "俺", "オレ", "ボク", "わたし", "筆者", "自分"];
@@ -43,6 +44,8 @@ function checkZenn({ file, data }, out) {
     }
   }
   if (typeof data.published !== "boolean") out.error("published must be true or false");
+  if (data.published_at != null && !publishedAt(data.published_at))
+    out.error('published_at must look like "2026-11-10 09:00" (Japan time)');
 }
 
 function checkQiita({ data }, out) {

@@ -328,7 +328,7 @@ services:
     summary: 引き継いだシステムの不具合を原因から調べて直し、コードとセキュリティの問題点を報告します。
 
 platforms:
-  zenn: navi_work        # https://zenn.dev/navi_work (display name is still 「なび」)
-  qiita: TODO            # Qiita username — create the account, then fill in
-  note: TODO             # note urlname — create the account, then fill in
+  zenn: takumiengineer   # https://zenn.dev/takumiengineer
+  qiita: takumi_engineer # https://qiita.com/takumi_engineer
+  note: shanaiai         # https://note.com/shanaiai
   github: codemonkey0612

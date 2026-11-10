@@ -34,5 +34,27 @@
       "web_search_requests": 49
     },
     "cost_usd": 10.03
+  },
+  {
+    "date": "2026-11-12 09:00",
+    "pillar": "news",
+    "written_at": "2026-11-10T09:54:33.509Z",
+    "slug": "ai-vulnerability-discovery-patch-response",
+    "title": "OpenAI「GPT-6 Cyber」発表で何が変わる？中小企業が今見直す脆弱性対応",
+    "service": "quality",
+    "status": "failed",
+    "problems": [
+      "fact-check (statistic, unsupported): 「今回は、その規模と精度が大きく上がりました（Linuxでは166件から948件）。」 — 166件は直前のCyberモデル（GPT-5.6 Cyber）ではなく、汎用モデルGPT-5.6 Solの値です。また、件数は規模の比較であり「精度」を示すものではありません。前モデルとの比較を示す公式の数字はExploitGymのスコア（32.1%→48.5%）です。 Fix: 「規模が大きく上がりました（Linuxでは同条件のGPT-5.6 Solの166件に対し948件。前モデルGPT-5.6 Cyberとの比較ではExploitGymが32.1%→48.5%）」とする。",
+      "fact-check (study_or_survey, contradicted): 「5〜6年前は63日でしたが、2023年には5日になりました。」 — Mandiantの分析では、平均TTEは2018〜2019年が63日、2020〜2021年が44日、2021〜2022年が32日、2023年が5日です。63日は2018〜2019年の値なので、2026年の今から見ると7〜8年前にあたります。また、TTEはパッチ公開の前後を問わない悪用までの平均で、2023年はゼロデイが多数を占めています。そのため「公表から悪用まで」と完全に同じ意味ではありません。 Fix: 「2018〜2019年は平均63日でしたが、2023年には5日になりました（Mandiant調べ。パッチ公開前のゼロデイ悪用も含む平均）」とする。"
+    ],
+    "file": "articles/ai-vulnerability-discovery-patch-response.md",
+    "usage": {
+      "input_tokens": 148,
+      "output_tokens": 87617,
+      "cache_read_input_tokens": 1678930,
+      "cache_creation_input_tokens": 266718,
+      "web_search_requests": 68
+    },
+    "cost_usd": 3.42
   }
 ]

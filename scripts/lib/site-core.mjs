@@ -228,12 +228,22 @@ export function loadSite({ root, profile, today = new Date() }) {
   const artDir = path.join(root, "site", "assets", "art");
   const manifestFile = path.join(artDir, "scenes.json");
   const manifest = fs.existsSync(manifestFile) ? JSON.parse(fs.readFileSync(manifestFile, "utf8")) : {};
+  // Plates (site/assets/plates/, made by `npm run site:plates` from your generated images)
+  // take the place of a scene's 3D still; plates.json holds their size and tone.
+  const plateDir = path.join(root, "site", "assets", "plates");
+  const plateFile = path.join(plateDir, "plates.json");
+  const plates = fs.existsSync(plateFile) ? JSON.parse(fs.readFileSync(plateFile, "utf8")) : {};
   const stage = (name) => {
+    const p = plates[name];
+    if (p && fs.existsSync(path.join(plateDir, `${name}.webp`)) && fs.existsSync(path.join(plateDir, `${name}-m.webp`))) {
+      return { plate: true, tone: p.tone, wide: `assets/plates/${name}.webp`, narrow: `assets/plates/${name}-m.webp`, w: p.w, h: p.h, mw: p.mw, mh: p.mh };
+    }
+    const dims = { w: 1920, h: 1080, mw: 1000, mh: 860 };
     const wide = path.join(artDir, `${name}.webp`);
     const narrow = path.join(artDir, `${name}-m.webp`);
     const tone = manifest[name]?.mood === "pearl" ? "light" : "dark";
-    if (!fs.existsSync(wide)) return { tone, wide: null, narrow: null };
-    return { tone, wide: `assets/art/${name}.webp`, narrow: fs.existsSync(narrow) ? `assets/art/${name}-m.webp` : `assets/art/${name}.webp` };
+    if (!fs.existsSync(wide)) return { tone, wide: null, narrow: null, ...dims };
+    return { tone, ...dims, wide: `assets/art/${name}.webp`, narrow: fs.existsSync(narrow) ? `assets/art/${name}-m.webp` : `assets/art/${name}.webp` };
   };
   const art = {
     stage,

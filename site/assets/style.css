@@ -442,6 +442,22 @@ p.center > .more {
 .hero-light .hd {
   color: var(--ink);
 }
+/* A soft wash behind the header until it turns solid, so links read over any artwork. */
+.hd::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -28px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(8, 21, 33, 0.72) 0%, rgba(8, 21, 33, 0.6) 55%, rgba(8, 21, 33, 0) 100%);
+  transition: opacity 0.3s;
+}
+.hero-light .hd::before {
+  background: linear-gradient(180deg, rgba(246, 247, 251, 0.9) 0%, rgba(246, 247, 251, 0.8) 55%, rgba(246, 247, 251, 0) 100%);
+}
+.hd.is-scrolled::before {
+  opacity: 0;
+}
 .hd.is-scrolled {
   color: var(--night-text);
   background: rgba(8, 21, 33, 0.78);

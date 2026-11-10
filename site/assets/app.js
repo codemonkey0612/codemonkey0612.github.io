@@ -295,7 +295,8 @@
   };
   var startLive = function () {
     var stage = d.querySelector(".stage[data-scene]");
-    if (!stage || live || !capable()) return;
+    // A generated plate is the artwork itself: keep it, no live scene on top.
+    if (!stage || stage.hasAttribute("data-plate") || live || !capable()) return;
     live = "loading";
     import(base + "assets/celestial.js?v=" + ver)
       .then(function (m) {

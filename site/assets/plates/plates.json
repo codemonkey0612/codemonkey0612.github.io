@@ -1,0 +1,245 @@
+{
+  "about": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "about.png"
+  },
+  "contact": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.74,
+    "source": "contact.png"
+  },
+  "expertise": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.5,
+    "source": "expertise.png"
+  },
+  "home": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "home.png"
+  },
+  "portal": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "portal.png"
+  },
+  "pricing": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "pricing.png"
+  },
+  "reviews": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "reviews.png"
+  },
+  "services": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "services.png"
+  },
+  "svc-ai-apps": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "svc-ai-apps.png"
+  },
+  "svc-ai-chatbot": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "svc-ai-chatbot.png"
+  },
+  "svc-ai-consulting": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "svc-ai-consulting.png"
+  },
+  "svc-ai-infra": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "svc-ai-infra.png"
+  },
+  "svc-quality": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.76,
+    "source": "svc-quality.png"
+  },
+  "svc-shopify": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "svc-shopify.png"
+  },
+  "svc-system": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "svc-system.png"
+  },
+  "svc-wordpress": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "svc-wordpress.png"
+  },
+  "work-a-worker": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "work-a-worker.png"
+  },
+  "work-elementor-corporate": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.78,
+    "source": "work-elementor-corporate.png"
+  },
+  "work-firebase-medical": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "work-firebase-medical.png"
+  },
+  "work-futoko-wordpress": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "work-futoko-wordpress.png"
+  },
+  "work-go-to-market": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.64,
+    "source": "work-go-to-market.png"
+  },
+  "work-inkscape-svg": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.66,
+    "source": "work-inkscape-svg.png"
+  },
+  "work-insurance-lp": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.78,
+    "source": "work-insurance-lp.png"
+  },
+  "work-stress-ai": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.76,
+    "source": "work-stress-ai.png"
+  },
+  "work-stress-features": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "work-stress-features.png"
+  },
+  "work-stress-multitenant": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "work-stress-multitenant.png"
+  },
+  "works": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "works.png"
+  }
+}

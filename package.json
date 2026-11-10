@@ -18,7 +18,8 @@
     "test": "node --test 'test/*.test.mjs'",
     "site": "node scripts/site.mjs",
     "site:preview": "node scripts/site.mjs --serve",
-    "site:scenes": "node scripts/site-scenes.mjs"
+    "site:scenes": "node scripts/site-scenes.mjs",
+    "site:plates": "node scripts/site-plates.mjs"
   },
   "type": "module",
   "private": true,

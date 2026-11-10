@@ -224,8 +224,15 @@ npm run note -- notes/<slug>.md      # copy-and-paste page: dist/note/<slug>.htm
   ```
 
   It needs Google Chrome and ffmpeg locally; commit `celestial.js` and
-  `site/assets/art/` (the Pages build doesn't render). `art/scenes.json` records
-  each scene's mood so the headline is light on dark scenes and dark on pearl ones.
+  `site/assets/art/` (the Pages build doesn't render).
+  **Plates** (generated artwork) take precedence over the 3D still: put an image
+  named after the scene (e.g. `home.png`, `svc-ai-chatbot.png`) in
+  `~/dev/note/mockup/plates/` and run `npm run site:plates`. It writes
+  `site/assets/plates/<scene>.webp`, a 1000×860 phone crop and `plates.json`
+  (size, and light/dark measured where the headline sits). The live 3D scene is
+  not loaded over a plate. What to generate: `~/dev/note/mockup/PLATES.md`.
+  `art/scenes.json` records each scene's mood so the headline is light on dark
+  scenes and dark on pearl ones.
 - **Contact form** (`contact/`, `scripts/lib/contact-form.mjs`,
   `site/assets/contact.js`): every 相談する button goes to `/contact/` (with
   `?service=` or `?work=` so the form knows the context). The form posts to a

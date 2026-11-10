@@ -233,13 +233,15 @@ function crumbs(base, list) {
 
 /** A hero stage: the scene's still (wide behind the text, narrow below it on phones),
  * which app.js may replace with the live 3D canvas. */
+/** A scene's artwork as <picture>: the wide image, and the phone crop below `mq`. */
+const artPicture = (a, base, { cls, eager = false, mq = "(max-width: 760px)" }) =>
+  `<picture class="${cls}"><source media="${mq}" srcset="${base}${a.narrow}" width="${a.mw}" height="${a.mh}"><img src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></picture>`;
+
 function stage(site, base, { scene, inner, cls = "", tone }) {
   const a = site.art.stage(scene);
   const t = tone ?? a.tone;
-  const art = a.wide
-    ? `<picture class="stage-art"><source media="(max-width: 760px)" srcset="${base}${a.narrow}" width="1000" height="860"><img src="${base}${a.wide}" alt="" width="1920" height="1080" fetchpriority="high" decoding="async"></picture>`
-    : `<div class="stage-art stage-art-empty" aria-hidden="true"></div>`;
-  return `<section class="stage stage-${t}${cls ? ` ${cls}` : ""}" data-scene="${esc(scene)}">
+  const art = a.wide ? artPicture(a, base, { cls: "stage-art", eager: true }) : `<div class="stage-art stage-art-empty" aria-hidden="true"></div>`;
+  return `<section class="stage stage-${t}${cls ? ` ${cls}` : ""}" data-scene="${esc(scene)}"${a.plate ? " data-plate" : ""}>
   ${art}
   <div class="stage-in wrap">
 ${inner}
@@ -261,7 +263,7 @@ const more = (href, text) => `<a class="more" href="${href}">${text}${icon("arro
 function inquiry(site, base, { title = "次の景色を、一緒に。", text = "アイデアの段階でも、まだ整理できていない構想でも大丈夫です。目的と現状を伺い、進め方とお見積もりをご提案します。", query = "", label = "相談する" } = {}) {
   const a = site.art.stage("portal");
   return `<section class="band" aria-labelledby="band-title">
-  ${a.wide ? `<picture class="band-art"><source media="(max-width: 760px)" srcset="${base}${a.narrow}" width="1000" height="860"><img src="${base}${a.wide}" alt="" width="1920" height="1080" loading="lazy" decoding="async"></picture>` : ""}
+  ${a.wide ? artPicture(a, base, { cls: "band-art" }) : ""}
   <div class="wrap band-in" data-reveal>
     <p class="eyebrow" lang="en">Inquiry</p>
     <h2 class="h2 band-title" id="band-title">${brk(title)}</h2>
@@ -433,7 +435,7 @@ export function renderIndex(site) {
     </div>
     ${
       film1?.video
-        ? `<button class="stage-film" type="button" data-video="${base}${esc(film1.video)}" data-video-title="${esc(film1.title)}"><span class="stage-film-img">${img(site, film1.cover, base, { alt: `${film1.title}（パッケージ画像）` })}</span><span class="stage-film-cap">${icon("play", "ic play-ic")}<span>紹介動画<small>${esc(services[0].name)}</small></span></span></button>`
+        ? `<button class="stage-film" type="button" data-video="${base}${esc(film1.video)}" data-video-title="${esc(film1.title)}"><span class="stage-film-img">${img(site, film1.cover, base, { alt: `${film1.title}（パッケージ画像）`, eager: true })}</span><span class="stage-film-cap">${icon("play", "ic play-ic")}<span>紹介動画<small>${esc(services[0].name)}</small></span></span></button>`
         : ""
     }
     <div class="stage-proof">${proof(site)}</div>`,
@@ -462,7 +464,7 @@ export function renderIndex(site) {
   </div>
 </section>
 <section class="ch ch-night expertise" aria-labelledby="expertise-title">
-  ${site.art.stage("expertise").wide ? `<picture class="expertise-art"><source media="(max-width: 860px)" srcset="${base}${site.art.stage("expertise").narrow}" width="1000" height="860"><img src="${base}${site.art.stage("expertise").wide}" alt="" width="1920" height="1080" loading="lazy" decoding="async"></picture>` : ""}
+  ${site.art.stage("expertise").wide ? artPicture(site.art.stage("expertise"), base, { cls: "expertise-art", mq: "(max-width: 860px)" }) : ""}
   <div class="wrap">
     ${heading("Expertise", "構想から、<wbr>実装・運用まで。", { id: "expertise-title", lead: "AIとWebの技術で、8つのサービスを提供しています。", cls: "sh-center" })}
     <div class="constellation">

@@ -23,6 +23,25 @@ const { values, positionals } = parseArgs({
 const SRC = path.resolve(values.from);
 const OUT = path.join(ROOT, "site", "assets", "plates");
 const SCENES = JSON.parse(fs.readFileSync(path.join(ROOT, "site", "assets", "art", "scenes.json"), "utf8"));
+// Section images (second list in PLATES.md): backgrounds and ornaments inside pages.
+export const SECTIONS = [
+  "sec-silk",
+  "sec-home-selected",
+  "sec-home-showreel",
+  "sec-manifesto",
+  "sec-about-steps",
+  "sec-about-constellation",
+  "sec-about-cta",
+  "sec-tier-1",
+  "sec-tier-2",
+  "sec-tier-3",
+  "sec-pricing-band",
+  "sec-bubble",
+  "sec-contact-side",
+  "sec-services-discovery",
+  "sec-services-inquiry",
+  "sec-service-cta",
+];
 const MW = 1000;
 const MH = 860;
 
@@ -47,8 +66,9 @@ const focus = Object.fromEntries((values.focus ?? "").split(",").filter(Boolean)
 let n = 0;
 for (const file of wanted) {
   const name = path.parse(file).name;
-  if (!SCENES[name]) {
-    console.warn(`plates: skipped ${file} — no scene called "${name}" (have: ${Object.keys(SCENES).join(", ")})`);
+  const isSection = SECTIONS.includes(name);
+  if (!SCENES[name] && !isSection) {
+    console.warn(`plates: skipped ${file} — no scene or section image called "${name}"`);
     continue;
   }
   const src = path.join(SRC, file);
@@ -56,6 +76,15 @@ for (const file of wanted) {
   const tmp = path.join(OUT, `.${name}.png`);
   ff(["-i", src, "-frames:v", "1", tmp]);
   const [w, h] = imageSize(tmp);
+  if (isSection) {
+    // As generated, transparency kept (the ornaments and the speech bubble).
+    ff(["-i", tmp, "-c:v", "libwebp", "-quality", "84", "-compression_level", "6", path.join(OUT, `${name}.webp`)]);
+    fs.rmSync(tmp);
+    manifest[name] = { kind: "section", w, h, source: file };
+    console.log(`plates: ${name} ${w}×${h} → plates/${name}.webp (section image)`);
+    n++;
+    continue;
+  }
   // Desktop: the image as generated (no upscaling).
   ff(["-i", tmp, "-c:v", "libwebp", "-quality", "84", "-compression_level", "6", path.join(OUT, `${name}.webp`)]);
   // Phone: a 1000×860 crop around the subject (the right side unless told otherwise).

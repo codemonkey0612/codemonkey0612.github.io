@@ -245,8 +245,14 @@ export function loadSite({ root, profile, today = new Date() }) {
     if (!fs.existsSync(wide)) return { tone, wide: null, narrow: null, ...dims };
     return { tone, ...dims, wide: `assets/art/${name}.webp`, narrow: fs.existsSync(narrow) ? `assets/art/${name}-m.webp` : `assets/art/${name}.webp` };
   };
+  /** A section image (sec-*) from plates.json, or null until you add it. */
+  const section = (name) => {
+    const p = plates[name];
+    return p?.kind === "section" && fs.existsSync(path.join(plateDir, `${name}.webp`)) ? { src: `assets/plates/${name}.webp`, w: p.w, h: p.h } : null;
+  };
   const art = {
     stage,
+    section,
     emblem: asset(m.emblem, "site/media.yml emblem"),
     emblemSmall: asset(m.emblem_small ?? m.emblem, "site/media.yml emblem_small"),
     showreel: m.showreel

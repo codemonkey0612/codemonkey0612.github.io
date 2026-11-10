@@ -157,7 +157,11 @@ test("every work page is backed by something a visitor can check", () => {
     assert.doesNotMatch(html, /【クライアント様のご評価より】|【掲載画像】/, `${w.id}: Lancers-only blocks are dropped`);
   }
   const featured = site.works.lancers.filter((w) => w.featured);
-  for (const w of featured) assert.ok(files["index.html"].includes(`works/${w.id}/`), `home shows featured ${w.id}`);
+  // The home page follows the mockup (one live site and one case study in device frames);
+  // every featured work is on the works index.
+  assert.ok(files["index.html"].includes(`works/${featured[0].id}/`), "home shows the first featured work");
+  assert.ok(files["index.html"].includes('href="./works/"'), "home links to the works index");
+  for (const w of featured) assert.ok(files["works/index.html"].includes(`works/${w.id}/`), `works index shows featured ${w.id}`);
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) {
     assert.match(files[page], /<meta property="og:image" content="https:\/\/[^"]+\.(png|jpg|webp)">/, `${page} has a share image`);
   }
@@ -205,7 +209,9 @@ test("your emblem, package images, showreel and promo videos are on the site", (
     assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.cover, site.profile.site_url).href}">`), `${s.id} share image`);
     if (s.video) assert.ok(html.includes(`data-video="../../${s.video.video}"`), `${s.id} page opens its video`);
   }
-  for (const w of site.works.lancers.filter((x) => x.featured)) assert.ok(home.includes(`src="./${w.cover}"`), `home shows the cover of ${w.id}`);
+  const first = site.works.lancers.find((x) => x.featured);
+  assert.ok(home.includes(`src="./${first.cover}"`), `home shows the cover of ${first.id}`);
+  for (const w of site.works.lancers) assert.ok(files["works/index.html"].includes(`src="../${w.cover}"`), `works index shows the cover of ${w.id}`);
   for (const w of site.works.sites) assert.ok(home.includes(`works/${w.id}/`), `home links to the live site ${w.id}`);
 });
 

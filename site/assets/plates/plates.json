@@ -62,6 +62,102 @@
     "focus": 0.7,
     "source": "reviews.png"
   },
+  "sec-about-constellation": {
+    "kind": "section",
+    "w": 1619,
+    "h": 971,
+    "source": "sec-about-constellation.png"
+  },
+  "sec-about-cta": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-about-cta.png"
+  },
+  "sec-about-steps": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-about-steps.png"
+  },
+  "sec-bubble": {
+    "kind": "section",
+    "w": 1254,
+    "h": 1254,
+    "source": "sec-bubble.png"
+  },
+  "sec-contact-side": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-contact-side.png"
+  },
+  "sec-home-selected": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-home-selected.png"
+  },
+  "sec-home-showreel": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-home-showreel.png"
+  },
+  "sec-manifesto": {
+    "kind": "section",
+    "w": 2172,
+    "h": 724,
+    "source": "sec-manifesto.png"
+  },
+  "sec-pricing-band": {
+    "kind": "section",
+    "w": 2172,
+    "h": 724,
+    "source": "sec-pricing-band.png"
+  },
+  "sec-service-cta": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-service-cta.png"
+  },
+  "sec-services-discovery": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-services-discovery.png"
+  },
+  "sec-services-inquiry": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-services-inquiry.png"
+  },
+  "sec-silk": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-silk.png"
+  },
+  "sec-tier-1": {
+    "kind": "section",
+    "w": 1254,
+    "h": 1254,
+    "source": "sec-tier-1.png"
+  },
+  "sec-tier-2": {
+    "kind": "section",
+    "w": 1254,
+    "h": 1254,
+    "source": "sec-tier-2.png"
+  },
+  "sec-tier-3": {
+    "kind": "section",
+    "w": 1254,
+    "h": 1254,
+    "source": "sec-tier-3.png"
+  },
   "services": {
     "tone": "light",
     "w": 1536,
@@ -259,6 +355,15 @@
     "mh": 860,
     "focus": 0.7,
     "source": "work-stress-multitenant.png"
+  },
+  "work-vulnerability-assessment": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "work-vulnerability-assessment.png"
   },
   "work-web-system": {
     "tone": "dark",

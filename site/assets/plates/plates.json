@@ -206,6 +206,33 @@
     "focus": 0.78,
     "source": "work-insurance-lp.png"
   },
+  "work-order-system": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "work-order-system.png"
+  },
+  "work-portal-form": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.74,
+    "source": "work-portal-form.png"
+  },
+  "work-repeat-client": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "work-repeat-client.png"
+  },
   "work-stress-ai": {
     "tone": "dark",
     "w": 1536,
@@ -232,6 +259,24 @@
     "mh": 860,
     "focus": 0.7,
     "source": "work-stress-multitenant.png"
+  },
+  "work-web-system": {
+    "tone": "dark",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.74,
+    "source": "work-web-system.png"
+  },
+  "work-wordpress-ui-design": {
+    "tone": "light",
+    "w": 1536,
+    "h": 1024,
+    "mw": 1000,
+    "mh": 860,
+    "focus": 0.7,
+    "source": "work-wordpress-ui-design.png"
   },
   "works": {
     "tone": "dark",

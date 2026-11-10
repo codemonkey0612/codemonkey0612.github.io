@@ -53,7 +53,8 @@ jobs:
 
       - run: npm ci
 
-      # autopilot.yml `qiita: off` stops everything Qiita (no copies, no qiita-cli).
+      # autopilot.yml `qiita: off` stops everything Qiita (no copies, no qiita-cli); `manual` makes
+      # no copies but still publishes the Qiita articles you prepared in public/.
       - name: Read settings
         id: settings
         run: echo "qiita=$(node -e 'const y=require("yaml");const fs=require("fs");console.log(y.parse(fs.readFileSync("autopilot.yml","utf8"))?.qiita ?? "auto")')" >> "$GITHUB_OUTPUT"

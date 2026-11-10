@@ -99,11 +99,13 @@ export function validateArticle(article, profile) {
     return o && !ownOrigins.has(o) && !platformHosts.test(new URL(u).hostname);
   });
 
-  // Every published post should lead readers to a service page or contact form.
+  // Every published post should lead readers to a service page or contact form, except on
+  // Qiita: it doesn't want promotional posts (its spam monitoring hid one that ended with
+  // these links), so Qiita articles leave them out and the link lives in your Qiita profile.
   if (ready) {
     const todos = todosFor(profile, article.platform);
     if (todos.length) out.error(`profile.yml still has TODO values: ${todos.join(", ")}`);
-    else if (!allLinks.some((u) => ownOrigins.has(origin(u))))
+    else if (article.platform !== "qiita" && !allLinks.some((u) => ownOrigins.has(origin(u))))
       out.error(`no link to your site (${profile.site_url}): add a call to action that points to a service page or ${profile.contact_url}`);
   }
 

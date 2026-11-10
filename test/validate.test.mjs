@@ -58,6 +58,8 @@ test("publish-ready posts must link back to your site", () => {
   assert.match(r.errors.join(), /no link to your site/);
   const draft = validateArticle(note({ status: "draft" }, "本文だけ"), profile);
   assert.deepEqual(draft.errors, [], "drafts may skip the call to action");
+  const onQiita = validateArticle(qiita({}, "本文だけ"), profile);
+  assert.doesNotMatch(onQiita.errors.join(), /no link to your site/, "Qiita articles leave the promotional links out");
 });
 
 test("statistics need an outside source", () => {

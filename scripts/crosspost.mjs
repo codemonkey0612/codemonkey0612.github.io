@@ -8,7 +8,7 @@
 //   node scripts/crosspost.mjs --at 09:00   if it's 03:30–09:00 JST, wait until 09:00 first
 //
 // Each copy carries a hidden marker line; a Qiita or note post you wrote yourself (no marker) is
-// never overwritten. autopilot.yml `qiita: off` / `note: off` skip those copies. note copies get
+// never overwritten. autopilot.yml `qiita: off` or `manual` / `note: off` skip those copies. note copies get
 // the Lancers package image that fits the article best as their header image (see
 // notes/covers/covers.yml). Qiita copies leave out the closing paragraph with your service and
 // Lancers links: Qiita doesn't want posts that promote.
@@ -142,7 +142,7 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
   const used = coverUsage();
   const results = crosspost({
     profile,
-    qiita: (settings.qiita ?? "auto") !== "off",
+    qiita: (settings.qiita ?? "auto") === "auto", // `manual` publishes only what you prepared in public/
     note: noteMode !== "off",
     cover: ({ title, topics }) => {
       const pick = chooseCover(covers, { title, topics, used });

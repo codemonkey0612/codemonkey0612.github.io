@@ -245,12 +245,13 @@ const hasSec = (site, name) => (site.art.section(name) ? " has-sec" : "");
 const artPicture = (a, base, { cls, eager = false, mq = "(max-width: 760px)" }) =>
   `<picture class="${cls}"><source media="${mq}" srcset="${base}${a.narrow}" width="${a.mw}" height="${a.mh}"><img src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></picture>`;
 
-function stage(site, base, { scene, inner, cls = "", tone }) {
+function stage(site, base, { scene, inner, cls = "", tone, over = "" }) {
   const a = site.art.stage(scene);
   const t = tone ?? a.tone;
   const art = a.wide ? artPicture(a, base, { cls: "stage-art", eager: true }) : `<div class="stage-art stage-art-empty" aria-hidden="true"></div>`;
   return `<section class="stage stage-${t}${cls ? ` ${cls}` : ""}" data-scene="${esc(scene)}"${a.plate ? " data-plate" : ""}>
   ${art}
+  ${over}
   <div class="stage-in wrap">
 ${inner}
   </div>
@@ -352,7 +353,7 @@ function steps(list, { cls = "" } = {}) {
   const rise = cls.includes("steps-rise");
   return `<ol class="steps${cls ? ` ${cls}` : ""}" data-draw>
       <li class="steps-line" aria-hidden="true"><svg viewBox="0 0 1000 ${rise ? 140 : 20}" preserveAspectRatio="none"><path d="${rise ? "M0 132 C 260 128, 420 96, 560 78 S 860 22, 1000 6" : "M0 10 C 250 -6, 500 26, 1000 10"}"/></svg></li>
-      ${list.map((s, i) => `<li class="step" data-reveal><span class="step-no" lang="en">${pad2(i + 1)}</span>${rise ? `<span class="step-dot" aria-hidden="true"></span>` : `<span class="step-ic" aria-hidden="true">${icon(["search", "layers", "code", "rocket", "check"][i % 5])}</span>`}<h3 class="step-title">${esc(s.t)}</h3><p>${esc(s.d)}</p></li>`).join("\n      ")}
+      ${list.map((s, i) => `<li class="step" data-reveal><span class="step-no" lang="en">${pad2(i + 1)}</span>${rise ? "" : `<span class="step-ic" aria-hidden="true">${icon(["search", "layers", "code", "rocket", "check"][i % 5])}</span>`}<h3 class="step-title">${esc(s.t)}</h3><p>${esc(s.d)}</p>${rise ? `<span class="step-dot" aria-hidden="true"></span><span class="step-glass" aria-hidden="true" style="--lvl:${i + 1}"><i></i><i></i><i></i></span>` : ""}</li>`).join("\n      ")}
     </ol>`;
 }
 
@@ -404,7 +405,7 @@ function galleryCard(site, w, base, i) {
             <span class="gcard-line">${esc(w.kindOf === "site" ? w.summary : w.subtitle)}</span>
             <span class="gcard-go">${icon("arrow")}</span>
           </span>
-          <span class="gcard-media">${img(site, workImage(w), base, { eager: i < 2 })}</span>
+          <span class="gcard-media"><span class="gdev" style="--ar:${(site.size(workImage(w)) ?? [16, 10]).join("/")}"><span class="gdev-screen">${img(site, workImage(w), base, { eager: i < 2 })}</span><span class="gdev-base" aria-hidden="true"></span></span></span>
         </a>
       </li>`;
 }
@@ -560,7 +561,7 @@ export function renderWorks(site) {
       <p class="kicker" lang="en">Work Index</p>
       <p class="kicker-ja">実績ギャラリー</p>
       <h1 class="display">作品の、<br><em>その先</em>へ。</h1>
-      <p class="lead">開発に参加した公開中のサイトと、ランサーズで評価をいただいた案件。<br>担当した範囲と、お客さまの評価を掲載しています。</p>
+      <p class="lead">開発に参加した公開中のサイトと、<br>ランサーズで評価をいただいた案件です。</p>
     </div>`,
   })}
 <section class="ch ch-pearl gallery${hasSec(site, "sec-silk")}" aria-labelledby="gallery-title">
@@ -709,11 +710,28 @@ export function renderServices(site) {
   const description = `${profile.name}が提供する8つのサービス。生成AIアプリ、AIチャットボット、AI導入コンサルティング、クラウド基盤、WordPress、Shopify、業務システム、品質・セキュリティ。`;
   const body = `${stage(site, base, {
     scene: "services",
+    over: site.art.stage("services").plate
+      ? `<div class="svc-labels" aria-hidden="true">${[
+          ["ai-apps", 0.69, 0.215],
+          ["ai-chatbot", 0.865, 0.235],
+          ["ai-consulting", 0.79, 0.385],
+          ["ai-infra", 0.61, 0.425],
+          ["wordpress", 0.755, 0.555],
+          ["shopify", 0.585, 0.655],
+          ["system", 0.765, 0.735],
+          ["quality", 0.555, 0.885],
+        ]
+          .map(([id, x, y]) => {
+            const sv = site.services.find((o) => o.id === id);
+            return sv ? `<a class="svc-label" href="${base}services/${id}/" tabindex="-1" style="--x:${x};--y:${y}">${esc(sv.en.replace(/^AI /, "").replace(/ & .*/, "").replace("BUSINESS ", ""))}</a>` : "";
+          })
+          .join("")}</div>`
+      : "",
     inner: `    <div class="stage-copy">
       ${crumbs(base, [[null, "サービス"]])}
       <p class="kicker" lang="en">Services Index</p>
       <h1 class="display display-line">可能性を、<em>かたち</em>に。</h1>
-      <p class="lead">AI、クラウド、Webサイト、業務システム、そして品質とセキュリティまで。構想から実装・運用まで、8つのサービスでお手伝いします。</p>
+      <p class="lead">AI、クラウド、Webサイト、業務システム、そして品質まで。<br>構想から実装・運用・改善へ――<br>8つのサービスで、想いを確かな価値に変えていきます。</p>
     </div>`,
   })}
 <section class="ch ch-pearl" aria-labelledby="svc-title">
@@ -722,22 +740,20 @@ export function renderServices(site) {
     <ul class="svc-grid">
       ${services
         .map(
-          (s, i) => `<li class="svc-card svc-card-${i % 4 === 0 || i % 4 === 3 ? "light" : "dark"}" style="--accent:${esc(s.accent)}" data-reveal>
-        <div class="svc-media">${(() => {
-          // The service's own artwork (made for the site, no text) shows the subject; the
-          // Lancers package image and film are on the service page.
-          const a = site.art.stage(`svc-${s.id}`);
-          if (a.plate) return `<img class="svc-art" src="${base}${a.narrow}" alt="" width="${a.mw}" height="${a.mh}" loading="lazy" decoding="async">`;
-          return s.cover ? `${img(site, s.cover, base, { cls: "svc-fill" })}${img(site, s.cover, base, { alt: `${s.packages[0]?.title ?? s.name}（パッケージ画像）`, cls: "svc-pic" })}` : "";
-        })()}${s.video ? `<button class="play-ring" type="button" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}">${icon("play")}<span class="sr-only">${esc(s.name)}の紹介動画を再生</span></button>` : ""}</div>
+          (s, i) => {
+            const a = site.art.stage(`svc-${s.id}`);
+            const tone = i % 4 === 0 || i % 4 === 3 ? "light" : "dark";
+            return `<li class="svc-card svc-card-${tone}" style="--accent:${esc(s.accent)}" data-reveal>
+        ${a.wide ? `<img class="svc-bg" src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async">` : s.cover ? img(site, s.cover, base, { cls: "svc-bg" }) : ""}
+        <p class="svc-no" lang="en" aria-hidden="true">${s.no}</p>
         <div class="svc-body">
-          <p class="svc-no" lang="en">${s.no}</p>
-          <h3 class="svc-card-en" lang="en">${esc(s.en)}</h3>
-          <p class="svc-card-name">${esc(s.name)}</p>
-          <p class="svc-card-price">${s.priceFrom ? `パッケージ ${yen(s.priceFrom)}〜` : "お見積もり"}</p>
-          <p class="svc-card-foot"><a class="btn ${i % 4 === 0 || i % 4 === 3 ? "btn-gold" : "btn-ghost"} btn-sm" href="${base}services/${esc(s.id)}/">詳細を見る${icon("arrow")}<span class="sr-only">（${esc(s.name)}）</span></a></p>
+          <h3 class="svc-card-en" lang="en"><a class="svc-link" href="${base}services/${esc(s.id)}/">${esc(s.en.replace(/ & .*/, ""))}<span class="sr-only">：${esc(s.name)}</span></a></h3>
+          <p class="svc-card-desc">${s.card.map(esc).join("<br>")}</p>
+          <p class="svc-card-foot"><a class="btn ${tone === "light" ? "btn-gold" : "btn-ghost"} btn-sm" href="${contactHref(base, `?service=${encodeURIComponent(s.id)}`)}">お問い合わせ${icon("arrow")}<span class="sr-only">（${esc(s.name)}）</span></a></p>
         </div>
-      </li>`,
+        ${s.video ? `<button class="play-ring" type="button" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}">${icon("play")}<span class="sr-only">${esc(s.name)}の紹介動画を再生</span></button>` : ""}
+      </li>`;
+          },
         )
         .join("\n      ")}
     </ul>
@@ -917,10 +933,13 @@ export function renderAbout(site) {
       ${crumbs(base, [[null, "私について"]])}
       <p class="kicker" lang="en">About</p>
       <h1 class="display display-line">技術に、<em>美意識</em>を。</h1>
-      <p class="lead">${esc(profile.tagline)}<br>「匠（たくみ）」の名前で活動する、フリーランスのAI・Webエンジニアです。</p>
+      <p class="lead">${esc(profile.tagline)}<br>一つひとつの仕事にこだわり、<br>技術と誠実さで、期待を超えるものを。<br>それが「匠」という名前に込めた想いです。</p>
+      <p class="hero-caption" lang="en">TAKUMI / Independent Engineer</p>
     </div>`,
   })}
 <section class="ch ch-pearl bio" aria-labelledby="bio-title">
+  <svg class="bio-art bio-art-r" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="118"/><circle cx="150" cy="150" r="82"/><circle cx="196" cy="118" r="58"/><circle cx="104" cy="182" r="40"/><path d="M20 150h260M150 20v260M58 58l184 184M242 58 58 242"/><circle cx="150" cy="150" r="3" class="dot"/><circle cx="268" cy="150" r="3" class="dot"/><circle cx="150" cy="32" r="3" class="dot"/></svg>
+  <svg class="bio-art bio-art-l" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="118"/><circle cx="150" cy="150" r="70"/><path d="M32 150h236M150 32v236"/><circle cx="150" cy="80" r="3" class="dot"/></svg>
   <div class="wrap bio-in">
     <div data-reveal>
       <p class="eyebrow" lang="en">Biography</p>
@@ -942,8 +961,22 @@ export function renderAbout(site) {
   ${secImg(site, base, "sec-manifesto")}
   <div class="wrap">
     <header class="man-head"><p class="eyebrow" lang="en">Craft Manifesto</p><h2 id="values-title">大切に<br>していること</h2></header>
-    <ol class="values">
-      ${(profile.values ?? []).map((v, i) => `<li data-reveal><span class="values-no" lang="en">${pad2(i + 1)}</span><span>${esc(v)}</span></li>`).join("\n      ")}
+    <ol class="values values-3">
+      ${(() => {
+        const v = profile.values ?? [];
+        const groups = [
+          ["、", "深く考える", [0, 2]],
+          ["○", "丁寧につくる", [3, 1]],
+          ["！", "そして、磨き続ける", [4]],
+        ];
+        // Your values, grouped under the mockup's three headings; any extra values go last.
+        const used = new Set(groups.flatMap((g) => g[2]));
+        const rest = v.map((_, i) => i).filter((i) => !used.has(i));
+        if (rest.length) groups[2][2].push(...rest);
+        return groups
+          .map(([mark, t, ix]) => `<li data-reveal><span class="values-mark" aria-hidden="true">${mark}</span><h3 class="values-title">${t}</h3><p>${ix.filter((i) => v[i]).map((i) => esc(v[i])).join("。<br>")}。</p></li>`)
+          .join("\n      ");
+      })()}
     </ol>
   </div>
 </section>
@@ -977,7 +1010,7 @@ ${
       ${secImg(site, base, "sec-about-constellation", "constel-art")}
       <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet"><ellipse cx="300" cy="180" rx="250" ry="92"/><ellipse cx="300" cy="180" rx="190" ry="140" transform="rotate(-18 300 180)"/><ellipse cx="300" cy="180" rx="150" ry="60" transform="rotate(24 300 180)"/></svg>
       <span class="constel-core"></span>
-      ${[["React", 14, 20], ["Python", 6, 58], ["WordPress", 80, 16], ["OpenAI", 84, 60], ["AWS", 52, 90], ["Next.js", 34, 4], ["Docker", 26, 84], ["Shopify", 70, 86]].map(([t, x, y]) => `<span class="constel-star" style="left:${x}%;top:${y}%">${t}</span>`).join("")}
+      ${[["React", 14, 20], ["Python", 6, 58], ["WordPress", 80, 16], ["OpenAI", 84, 60], ["AWS", 52, 90], ["Next.js", 34, 4], ["Docker", 26, 84], ["Shopify", 70, 86]].map(([t, x, y]) => `<span class="constel-star constel-${x < 50 ? "l" : "r"}" style="left:${x}%;top:${y}%">${t}</span>`).join("")}
     </div>
   </div>
   <div class="wrap">
@@ -1077,7 +1110,8 @@ export function renderPrices(site) {
     </div>
   </div>
 </section>
-<section class="ch ch-mist" aria-labelledby="plan-title">
+<section class="ch ch-mist plan${hasSec(site, "sec-silk")}" aria-labelledby="plan-title">
+  ${secImg(site, base, "sec-silk")}
   <div class="wrap">
     ${heading("Scope Planning", "プロジェクトの進め方", { id: "plan-title", lead: "課題や目的に合わせて範囲と体制を決め、段階的に積み上げていきます。" })}
     ${steps([
@@ -1093,7 +1127,7 @@ export function renderPrices(site) {
   <div class="wrap center" data-reveal>
     <h2 class="h2">必要なものを、<wbr>必要なだけ。</h2>
     <p>目的や状況に合わせて、支援の内容と体制をご提案します。まずは現在の課題や構想をお聞かせください。</p>
-    <p><a class="btn btn-gold btn-lg" href="${contactHref(base, "?topic=estimate")}">提案・お見積もりを相談する${icon("arrow")}</a></p>
+    <p><a class="btn btn-frame" href="${contactHref(base, "?topic=estimate")}">${icon("doc")}提案のご相談・お見積もりのご依頼${icon("arrow")}</a></p>
   </div>
 </section>
 <section class="ch ch-white" id="packages" aria-labelledby="pk-title">
@@ -1149,16 +1183,27 @@ export function renderReviews(site) {
           const w = workOf.get(t.id);
           if (featured && t.id === featured.id)
             return `<figure class="quote quote-hero" id="${esc(t.id)}">
-        ${icon("quote", "quote-mark")}
-        <blockquote><p>${esc(t.comment)}</p></blockquote>
-        <figcaption>${stars()}<span class="quote-job">${esc(t.job)}</span><span class="quote-meta">${jaDate(t.date)}${t.repeat ? `・${esc(t.repeat)}` : ""}</span></figcaption>
-        ${w ? `<p class="quote-link"><a href="${base}works/${esc(w.id)}/">この案件の実績：${esc(workName(w))}${icon("arrow", "ic ic-xs")}</a></p>` : ""}
+        <div class="qh-head">${icon("quote", "quote-mark")}<p class="qh-title">${esc(jobName(t))}</p></div>
+        <div class="qh-body">
+          <blockquote><p>${esc(t.comment)}</p></blockquote>
+          <figcaption>${stars()}<span class="quote-meta">${jaDate(t.date)}${t.repeat ? `・${esc(t.repeat)}` : ""}</span></figcaption>
+          ${w ? `<p class="quote-link"><a href="${base}works/${esc(w.id)}/">この案件の実績：${esc(workName(w))}${icon("arrow", "ic ic-xs")}</a></p>` : ""}
+        </div>
       </figure>`;
-          return `<figure class="quote quote-full${t.comment ? "" : " quote-quiet"}${w ? " quote-has-thumb" : ""}" id="${esc(t.id)}">
-        ${w ? `<a class="quote-thumb" href="${base}works/${esc(w.id)}/" tabindex="-1" aria-hidden="true">${img(site, workImage(w), base)}</a>` : ""}
-        ${icon("quote", "quote-mark")}
+          // A picture for every card: the project's own, else the artwork of the matching service.
+          const thumb = w ? workImage(w) : (() => {
+            const id = /脆弱性|バグ|不具合|修正|セキュリティ/.test(t.job) ? "quality" : /AI|機械学習|エージェント|ChatGPT/.test(t.job) ? "ai-apps" : /WordPress|CMS|サイト|HTML|LP|コーディング|Elementor|Firebase/.test(t.job) ? "wordpress" : "system";
+            const pa = site.art.stage(`svc-${id}`);
+            return pa.plate ? pa.narrow : null;
+          })();
+          const thumbAr = thumb ? (site.size(thumb) ?? [1000, 860]).join("/") : "";
+          return `<figure class="quote quote-full quote-card${t.comment ? "" : " quote-quiet"}" id="${esc(t.id)}">
+        <div class="qc-head">
+          <div class="qc-title">${icon("quote", "quote-mark")}<p>${esc(jobName(t))}</p></div>
+          ${thumb ? `<span class="qc-thumb" aria-hidden="true"><span class="gdev" style="--ar:${thumbAr}"><span class="gdev-screen"><img src="${base}${esc(thumb)}" alt="" loading="lazy" decoding="async"${(() => { const wh = site.size(thumb); return wh ? ` width="${wh[0]}" height="${wh[1]}"` : ""; })()}></span><span class="gdev-base"></span></span></span>` : ""}
+        </div>
         ${t.comment ? `<blockquote><p>${esc(t.comment)}</p></blockquote>` : `<p class="quote-none">（コメントは公開されていません。評価は「満足」です）</p>`}
-        <figcaption>${stars()}<span class="quote-job">${esc(t.job)}</span><span class="quote-meta">${jaDate(t.date)}${t.repeat ? `・${esc(t.repeat)}` : ""}</span></figcaption>
+        <figcaption>${stars()}<span class="quote-meta">${jaDate(t.date)}${t.repeat ? `・${esc(t.repeat)}` : ""}</span></figcaption>
         ${w ? `<p class="quote-link"><a href="${base}works/${esc(w.id)}/">この案件の実績：${esc(workName(w))}${icon("arrow", "ic ic-xs")}</a></p>` : ""}
       </figure>`;
         };
@@ -1174,7 +1219,7 @@ export function renderReviews(site) {
   <div class="wrap">
     ${heading("Our Communication", "対話から、<wbr>品質が生まれる。", { id: "dlg-title", lead: "ご依頼の前後を通じた、ていねいな対話を大切にしています。" })}
     <ul class="bubbles${hasSec(site, "sec-bubble")}">
-      ${values.slice(0, 3).map((v, i) => `<li data-reveal style="--i:${i}">${secImg(site, base, "sec-bubble", "bubble-bg")}${icon(["speech", "gears", "shield"][i], "ic bubble-ic")}<span>${esc(v)}</span></li>`).join("\n      ")}
+      ${values.slice(0, 3).map((v, i) => `<li data-reveal style="--i:${i}">${secImg(site, base, "sec-bubble", "bubble-bg")}${icon(["speech", "gears", "shield"][i], "ic bubble-ic")}<b class="bubble-title">${["丁寧なヒアリング", "こまめな共有・確認", "原因からの改善"][i]}</b><span>${esc(v)}</span></li>`).join("\n      ")}
     </ul>
     <div class="feedback" data-reveal>
       <h3 class="h3">ご意見を、次の改善へ。</h3>
@@ -1183,7 +1228,7 @@ export function renderReviews(site) {
     </div>
   </div>
 </section>
-${inquiry(site, base, { title: "ご相談からでも、お気軽にお問い合わせください。", text: "ご要望の整理や、どのような進め方がよいかのご相談だけでも歓迎です。", label: "Webサイトからお問い合わせ" })}`;
+${inquiry(site, base, { title: "ご相談からでも、お気軽にお問い合わせください。", titleHtml: "ご相談からでも、<br>お気軽にお問い合わせください。", text: "ご要望の整理や、どのような進め方がよいかのご相談だけでも歓迎です。", label: "Webサイトからお問い合わせ", compact: false, eyebrow: "Contact" })}`;
   return layout(site, { route: "reviews/", title: "お客さまの声", description, body, ld: [personLd(site), crumbLd(site, [["お客さまの声", "reviews/"]])], tone: site.art.stage("reviews").tone });
 }
 

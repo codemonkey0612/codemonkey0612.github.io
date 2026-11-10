@@ -1,5 +1,6 @@
 ---
 short: "Shopify・EC構築"   # the one-line label on the home page
+card: "開店から運営まで見据えた|Shopifyストアの構築"   # two lines on the services index card ("|" = line break)
 en: "SHOPIFY"
 headline: "買いたくなる、その体験まで。"
 lead: "Shopifyでのネットショップ構築・移行と、決済・配送の設定、購入までの導線の改善、在庫や商品データの連携まで支援します。"

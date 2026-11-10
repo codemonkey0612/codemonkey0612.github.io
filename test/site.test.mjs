@@ -208,7 +208,7 @@ test("your emblem, package images, showreel and promo videos are on the site", (
     // The services index shows the service's artwork when it exists, else its package image;
     // the package image itself is always on the service page (checked below).
     const plate = site.art.stage(`svc-${s.id}`);
-    assert.ok(files["services/index.html"].includes(`src="../${plate.plate ? plate.narrow : s.cover}"`), `services index shows the picture of ${s.id}`);
+    assert.ok(files["services/index.html"].includes(`src="../${plate.plate ? plate.wide : s.cover}"`), `services index shows the picture of ${s.id}`);
     const html = files[`services/${s.id}/index.html`];
     assert.ok(html.includes(`src="../../${s.cover}"`), `${s.id} page shows its package image`);
     assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.cover, site.profile.site_url).href}">`), `${s.id} share image`);
@@ -271,4 +271,23 @@ test("every service and work page has its own hero scene, and each page's chapte
   const scenes = new Set();
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) for (const [, n] of files[page].matchAll(/data-scene="([^"]+)"/g)) scenes.add(n);
   assert.equal(scenes.size, 7 + site.services.length + site.works.all.length, "one scene per page (404 has none)");
+});
+
+test("the pages carry the mockups' elements", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  const works = files["works/index.html"];
+  assert.equal((works.match(/class="gdev"/g) ?? []).length, site.works.all.length, "every works card shows its picture in a device frame");
+  const svc = files["services/index.html"];
+  if (site.art.stage("services").plate) assert.equal((svc.match(/class="svc-label"/g) ?? []).length, 8, "the eight symbols are labelled");
+  for (const s of site.services) assert.ok(svc.includes(s.card[0]), `${s.id} card has its two-line description`);
+  assert.equal((svc.match(/お問い合わせ<svg/g) ?? []).length, 8, "each service card has an inquiry button");
+  const about = files["about/index.html"];
+  for (const t of ["深く考える", "丁寧につくる", "そして、磨き続ける"]) assert.ok(about.includes(t), `manifesto: ${t}`);
+  for (const v of loadProfile().values) assert.ok(about.includes(esc(v)), `manifesto keeps the value: ${v}`);
+  assert.match(about, /class="hero-caption"/);
+  assert.equal((files["prices/index.html"].match(/class="step-glass"/g) ?? []).length, 4, "pricing steps stand on glass blocks");
+  const rv = files["reviews/index.html"];
+  assert.ok((rv.match(/class="qc-head"/g) ?? []).length >= 20, "review cards have a title row");
+  assert.match(rv, /class="bubble-title"/);
 });

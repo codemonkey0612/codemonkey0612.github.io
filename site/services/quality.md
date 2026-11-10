@@ -1,5 +1,6 @@
 ---
 short: "品質・セキュリティ"   # the one-line label on the home page
+card: "不具合の原因調査と、|コード・セキュリティ診断"   # two lines on the services index card ("|" = line break)
 en: "QUALITY & SECURITY"
 headline: "安心を、設計する。"
 lead: "引き継いだシステムの不具合を原因から調べて直し、コードとセキュリティの問題点を報告します。修正と再テストまで対応します。"

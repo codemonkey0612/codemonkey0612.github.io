@@ -74,8 +74,8 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
         <button type="button" class="inq-context-x"><span aria-hidden="true">×</span><span class="sr-only">ご相談の対象を外す</span></button>
       </div>
       <input type="hidden" name="context" value="">
-      ${field("name", "お名前", `<input class="field-input" id="f-name" name="name" type="text" autocomplete="name" maxlength="${LIMITS.name}" required ${describedBy("name")}>`)}
-      ${field("company", "会社名・団体名", `<input class="field-input" id="f-company" name="company" type="text" autocomplete="organization" maxlength="${LIMITS.company}" ${describedBy("company")}>`, { optional: true })}
+      ${field("name", "お名前", `<input class="field-input" id="f-name" name="name" type="text" placeholder="例）山田 太郎" autocomplete="name" maxlength="${LIMITS.name}" required ${describedBy("name")}>`)}
+      ${field("company", "会社名・団体名", `<input class="field-input" id="f-company" name="company" type="text" placeholder="例）株式会社〇〇" autocomplete="organization" maxlength="${LIMITS.company}" ${describedBy("company")}>`, { optional: true })}
       ${field("email", "返信先メールアドレス", `<input class="field-input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" maxlength="${LIMITS.email}" required ${describedBy("email", true)}>`, { hint: "お返事はこのアドレスにお送りします。" })}
       <fieldset class="field field-choice" data-field="category" aria-describedby="f-category-err">
         <legend class="field-label">相談したいこと<span class="req">必須</span></legend>
@@ -93,7 +93,7 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
       <div class="field" data-field="message">
         <label class="field-label" for="f-message">ご相談内容<span class="req">必須</span></label>
         <p class="field-hint" id="f-message-hint">ご相談の背景、実現したいこと、いまの課題などを、分かる範囲でご記入ください（${LIMITS.messageMin}〜${LIMITS.message}文字）。</p>
-        <textarea class="field-input" id="f-message" name="message" rows="8" maxlength="${LIMITS.message}" required ${describedBy("message", true)}></textarea>
+        <textarea class="field-input" id="f-message" name="message" rows="8" placeholder="ご相談の背景、実現したいこと、いまの課題などをご自由にご記入ください。" maxlength="${LIMITS.message}" required ${describedBy("message", true)}></textarea>
         <p class="field-count" aria-hidden="true"><span class="field-count-n">0</span> / ${LIMITS.message}</p>
         <p class="field-err" id="f-message-err" hidden></p>
       </div>

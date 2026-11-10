@@ -1,5 +1,6 @@
 ---
 short: "AI導入・活用支援"   # the one-line label on the home page
+card: "AIの導入計画から検証・|定着まで伴走する技術相談"   # two lines on the services index card ("|" = line break)
 en: "AI CONSULTING"
 headline: "AIの、その一歩から。"
 lead: "どの業務にAIを使うべきかの整理から、ツール選定、検証（PoC）の計画、導入ロードマップまで。開発者の立場から、できることとやめておいた方がいいことをはっきりお伝えします。"

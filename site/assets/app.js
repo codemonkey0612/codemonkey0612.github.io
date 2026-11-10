@@ -147,7 +147,7 @@
     var v = fig.querySelector("video");
     if (!frame || !v) return;
     var label = v.getAttribute("aria-label") || "動画";
-    v.controls = false;
+    if (!fig.classList.contains("film-controls")) v.controls = false;
     var ring = d.createElement("button");
     ring.type = "button";
     ring.className = "film-ring";
@@ -178,6 +178,7 @@
         });
     });
     v.addEventListener("play", function () {
+      fig.classList.add("is-playing");
       ring.hidden = true;
       close.hidden = false;
       msg.hidden = true;
@@ -189,9 +190,10 @@
     }, true);
     close.addEventListener("click", function () {
       v.pause();
-      v.controls = false;
+      if (!fig.classList.contains("film-controls")) v.controls = false;
       v.currentTime = 0;
       v.load(); // back to the poster
+      fig.classList.remove("is-playing");
       close.hidden = true;
       ring.hidden = false;
       ring.focus();
@@ -241,6 +243,30 @@
       });
     });
   }
+
+  // ---------- reviews: short cards, full text on request ----------
+  d.querySelectorAll(".reviews .quote blockquote").forEach(function (bq, i) {
+    var p = bq.querySelector("p");
+    if (!p) return;
+    bq.classList.add("is-clamped");
+    if (p.scrollHeight <= p.clientHeight + 2) {
+      bq.classList.remove("is-clamped");
+      return;
+    }
+    p.id = p.id || "rv-text-" + i;
+    var b = d.createElement("button");
+    b.type = "button";
+    b.className = "rv-more";
+    b.setAttribute("aria-controls", p.id);
+    b.setAttribute("aria-expanded", "false");
+    b.textContent = "全文を読む";
+    bq.after(b);
+    b.addEventListener("click", function () {
+      var open = bq.classList.toggle("is-clamped") === false;
+      b.setAttribute("aria-expanded", String(open));
+      b.textContent = open ? "閉じる" : "全文を読む";
+    });
+  });
 
   // ---------- reviews: load more ----------
   var reviews = d.querySelector(".reviews[data-more]");

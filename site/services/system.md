@@ -1,4 +1,5 @@
 ---
+short: "Webシステム開発"   # the one-line label on the home page
 en: "BUSINESS SYSTEMS"
 headline: "複雑な仕事を、なめらかに。"
 lead: "予約・マッチング・管理画面などのWebシステム、スマホアプリ、業務ツール、データ収集ツールを、要件の整理から運用まで開発します。"

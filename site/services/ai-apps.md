@@ -1,4 +1,5 @@
 ---
+short: "AIアプリ開発"   # the one-line label on the home page
 en: "AI APPS"
 headline: "生成AIを、事業の力に。"
 lead: "ChatGPTなどの生成AIを業務の流れに組み込み、文書作成・要約・仕分け・転記の手作業を減らすアプリを作ります。"

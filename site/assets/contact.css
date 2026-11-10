@@ -679,3 +679,132 @@ html.no-js .privacy-actions {
     transition: none;
   }
 }
+
+/* Mockup layout (2026-11-10): labels to the left of their fields on wide screens. */
+@media (min-width: 1000px) {
+  .inq-panel[data-step="input"] > .field:not(.field-consent),
+  .inq-panel[data-step="input"] .field-row > .field {
+    display: grid;
+    grid-template-columns: 9.5em minmax(0, 1fr);
+    column-gap: 18px;
+    align-items: start;
+  }
+  .inq-panel[data-step="input"] .field > .field-label {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    padding-top: 12px;
+    margin: 0;
+  }
+  .inq-panel[data-step="input"] .field > :not(.field-label) {
+    grid-column: 2;
+  }
+  .inq-panel[data-step="input"] .field-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0 18px;
+  }
+  .inq-panel[data-step="input"] .field-row > .field {
+    grid-template-columns: 5.5em minmax(0, 1fr);
+  }
+  .inq-panel[data-step="input"] .field-row > .field:first-child {
+    grid-template-columns: 9.5em minmax(0, 1fr);
+  }
+  .inq-panel[data-step="input"] .field-choice > legend {
+    float: left;
+    width: 9.5em;
+    padding: 12px 0 0;
+    margin: 0 18px 0 0;
+  }
+  .inq-panel[data-step="input"] .field-choice > .choices {
+    margin-left: calc(9.5em + 18px);
+  }
+  .inq-panel[data-step="input"] .field-choice > .field-err {
+    margin-left: calc(9.5em + 18px);
+  }
+  .inq-panel[data-step="input"] .choices {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .inq-panel[data-step="input"] textarea.field-input {
+    min-height: 150px;
+  }
+  .inq-panel[data-step="input"] .field {
+    margin-bottom: 14px;
+  }
+}
+@media (min-width: 1000px) {
+  .inq-panel[data-step="input"] > .field:not(.field-consent),
+  .inq-panel[data-step="input"] .field-row > .field:first-child {
+    grid-template-columns: 7.5em minmax(0, 1fr);
+  }
+  .inq-panel[data-step="input"] .field-choice > legend {
+    width: 7.5em;
+  }
+  .inq-panel[data-step="input"] .field-choice > .choices,
+  .inq-panel[data-step="input"] .field-choice > .field-err {
+    margin-left: calc(7.5em + 18px);
+  }
+  .inq-panel[data-step="input"] .choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .inq-panel[data-step="input"] .field-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .inq-panel[data-step="input"] .field-row > .field {
+    grid-template-columns: 7.5em minmax(0, 1fr);
+  }
+}
+@media (min-width: 1000px) {
+  .inq-panel[data-step="input"] > .field:not(.field-consent),
+  .inq-panel[data-step="input"] .field-row > .field,
+  .inq-panel[data-step="input"] .field-row > .field:first-child {
+    grid-template-columns: 10.5em minmax(0, 1fr);
+  }
+  .inq-panel[data-step="input"] .field > .field-label,
+  .inq-panel[data-step="input"] .field-choice > legend {
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  .inq-panel[data-step="input"] .field-choice {
+    padding: 0;
+    border: 0;
+    margin-inline: 0;
+  }
+  .inq-panel[data-step="input"] .field-choice > legend {
+    width: 10.5em;
+    margin-right: 0;
+  }
+  .inq-panel[data-step="input"] .field-choice > .choices,
+  .inq-panel[data-step="input"] .field-choice > .field-err {
+    margin-left: calc(10.5em + 18px);
+  }
+  .inq-panel[data-step="input"] .field-label .req,
+  .inq-panel[data-step="input"] .field-label .opt {
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+}
+@media (min-width: 1000px) {
+  .inq-panel[data-step="input"] > .field:not(.field-consent),
+  .inq-panel[data-step="input"] .field-row > .field,
+  .inq-panel[data-step="input"] .field-row > .field:first-child {
+    grid-template-columns: 196px minmax(0, 1fr);
+  }
+  .inq-panel[data-step="input"] .field-choice > legend {
+    width: 196px;
+  }
+  .inq-panel[data-step="input"] .field-choice > .choices,
+  .inq-panel[data-step="input"] .field-choice > .field-err {
+    margin-left: 214px;
+  }
+}
+@media (min-width: 1000px) {
+  /* the options box sits beside the floated label, so only the gap is needed */
+  .inq-panel[data-step="input"] .field-choice > .choices {
+    margin-left: 18px;
+  }
+}
+@media (min-width: 1000px) {
+  .inq-panel[data-step="input"] .field-choice > .choices {
+    margin-left: 2px;
+  }
+}

@@ -200,10 +200,15 @@ test("your emblem, package images, showreel and promo videos are on the site", (
     assert.match(files[page], /class="mark" src="[./]*assets\/brand\/emblem-160\.webp"/, `${page} shows the emblem in the header`);
   }
   assert.ok(home.includes(`<source src="./${art.showreel.video}" type="video/mp4">`), "showreel video");
-  assert.ok(home.includes(`poster="./${art.showreel.poster}"`), "showreel poster");
+  // The showreel's poster is the home artwork when it exists (as in the mockup), else its own frame.
+  const poster = site.art.stage("home").plate ? site.art.stage("home").wide : art.showreel.poster;
+  assert.ok(home.includes(`poster="./${poster}"`), "showreel poster");
   for (const s of site.services) {
     assert.ok(s.cover, `${s.id} has a package image`);
-    assert.ok(files["services/index.html"].includes(`src="../${s.cover}"`), `services index shows the package image of ${s.id}`);
+    // The services index shows the service's artwork when it exists, else its package image;
+    // the package image itself is always on the service page (checked below).
+    const plate = site.art.stage(`svc-${s.id}`);
+    assert.ok(files["services/index.html"].includes(`src="../${plate.plate ? plate.narrow : s.cover}"`), `services index shows the picture of ${s.id}`);
     const html = files[`services/${s.id}/index.html`];
     assert.ok(html.includes(`src="../../${s.cover}"`), `${s.id} page shows its package image`);
     assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.cover, site.profile.site_url).href}">`), `${s.id} share image`);
@@ -261,7 +266,7 @@ test("every service and work page has its own hero scene, and each page's chapte
   for (const s of site.services) assert.match(files[`services/${s.id}/index.html`], new RegExp(`data-scene="svc-${s.id}"`));
   for (const w of site.works.all) assert.match(files[`works/${w.id}/index.html`], new RegExp(`data-scene="work-${w.id}"`));
   const svc = files["services/ai-chatbot/index.html"];
-  const order = ["intro-title", "film-title", "scope-title", "process-title", "price-title", "faq-title"].map((id) => svc.indexOf(`id="${id}"`));
+  const order = ["intro-title", "film-title", "scope-title", "process-title", "faq-title", "price-title"].map((id) => svc.indexOf(`id="${id}"`));
   assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `service chapters in order: ${order}`);
   const scenes = new Set();
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) for (const [, n] of files[page].matchAll(/data-scene="([^"]+)"/g)) scenes.add(n);

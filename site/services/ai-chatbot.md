@@ -1,4 +1,5 @@
 ---
+short: "AIチャットボット"   # the one-line label on the home page
 en: "AI CHATBOT"
 headline: "知識が、対話になる。"
 lead: "社内マニュアルやFAQをもとに、参照元を示して答えるチャットボット（RAG）を作ります。Webサイト・社内ポータル・LINEに組み込めます。"

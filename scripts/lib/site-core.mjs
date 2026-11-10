@@ -158,6 +158,7 @@ export function loadSite({ root, profile, today = new Date() }) {
       ...s,
       no: String(i + 1).padStart(2, "0"),
       en: data.en ?? s.name,
+      short: data.short ?? s.name,
       headline: data.headline ?? s.name,
       lead: data.lead ?? s.summary,
       accent: data.accent ?? "#c9a24a",

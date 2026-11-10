@@ -1,4 +1,5 @@
 ---
+short: "Webサイト制作"   # the one-line label on the home page
 en: "WORDPRESS"
 headline: "更新するたび、価値が育つ。"
 lead: "WordPressでの企業サイト制作・リニューアル・移行・保守から、HTML/CSSコーディングまで。担当者が自分で更新できるサイトを作ります。"

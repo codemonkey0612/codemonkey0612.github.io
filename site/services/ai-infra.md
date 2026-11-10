@@ -1,4 +1,5 @@
 ---
+short: "クラウド設計・運用"   # the one-line label on the home page
 en: "AI CLOUD"
 headline: "未来を支える、見えない基盤。"
 lead: "AWS・Azureで、認証・ログ管理・監視を備えた業務用の生成AI基盤や、サーバー・クラウド環境を構築・移行します。"

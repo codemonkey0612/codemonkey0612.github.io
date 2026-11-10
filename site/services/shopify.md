@@ -1,4 +1,5 @@
 ---
+short: "Shopify・EC構築"   # the one-line label on the home page
 en: "SHOPIFY"
 headline: "買いたくなる、その体験まで。"
 lead: "Shopifyでのネットショップ構築・移行と、決済・配送の設定、購入までの導線の改善、在庫や商品データの連携まで支援します。"

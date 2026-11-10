@@ -6,10 +6,14 @@
 # `service` links a work to a service page; `featured` ones appear on the home page;
 # images live in site/assets/: media/works/ holds the live-site screenshots,
 # media/portfolio/ your own Lancers portfolio images (from ~/dev/note/portfolio).
+# short/en/color: the case-study page title, English accent line and accent colour (2026-11-10 redesign).
 # Generated from ~/dev/note/lancers-portfolio/items.mjs on 2026-11-08; keep the two in sync.
 
 sites:
   - id: go-to-market
+    short: "Go-to-Market Strategy"   # page title (from the mockup set, checked against the record)
+    en: "GO-TO-MARKET"
+    color: "#d9a55a"
     name: Go-to-Market Strategy
     url: https://go-to-market.jp/
     service: wordpress
@@ -20,6 +24,9 @@ sites:
     top: media/works/go-to-market-top.webp
     phone: media/works/go-to-market-phone.webp
   - id: a-worker
+    short: "A-worker"   # page title (from the mockup set, checked against the record)
+    en: "A-WORKER"
+    color: "#cfc2a8"
     name: A-worker
     url: https://a-worker.com/
     service: system
@@ -31,6 +38,9 @@ sites:
     phone: media/works/a-worker-phone.webp
 lancers:
   - id: stress-ai
+    short: "業種別AIアドバイス"   # page title (from the mockup set, checked against the record)
+    en: "AI STRESS CHECK"
+    color: "#8fd6b8"
     featured: true
     service: ai-apps
     headline: 業種別AIアドバイス機能の追加開発
@@ -83,6 +93,9 @@ lancers:
       使用技術：WordPress／PHP／MySQL／OpenAI API
       制作期間：10日
   - id: stress-features
+    short: "AI連携・グラフ・CSV"   # page title (from the mockup set, checked against the record)
+    en: "INTELLIGENCE IN FLOW"
+    color: "#9ec3ff"
     service: ai-apps
     headline: AI連携・グラフ生成・CSV拡張
     title: ストレスチェックシステムの追加開発（AI連携・グラフ生成・CSV拡張）を担当しました
@@ -124,6 +137,9 @@ lancers:
 
       使用技術：WordPress／PHP／MySQL／OpenAI API
   - id: stress-multitenant
+    short: "マルチテナント基盤"   # page title (from the mockup set, checked against the record)
+    en: "ONE CORE, MANY WORLDS"
+    color: "#6f8fe6"
     featured: true
     service: ai-infra
     headline: マルチテナント化・権限管理・サーバー移行
@@ -168,6 +184,9 @@ lancers:
 
       使用技術：WordPress／PHP／MySQL／OpenAI API
   - id: futoko-wordpress
+    short: "不登校支援サイト"   # page title (from the mockup set, checked against the record)
+    en: "A GENTLER FIRST STEP"
+    color: "#a9c7a0"
     featured: true
     service: wordpress
     headline: 不登校支援サイトのリニューアル
@@ -212,6 +231,9 @@ lancers:
       使用技術：WordPress／PHP／HTML／CSS／JavaScript
       制作期間：22日
   - id: elementor-corporate
+    short: "コーポレートサイト"   # page title (from the mockup set, checked against the record)
+    en: "ENERGY IN STRUCTURE"
+    color: "#f0a64a"
     service: wordpress
     headline: コーポレートサイト構築（全14ページ）
     title: 電気・エネルギー会社のコーポレートサイトを、FigmaからElementorで構築しました
@@ -253,6 +275,9 @@ lancers:
       使用技術：WordPress／Elementor Pro／Figma／HTML／CSS
       制作期間：約2ヶ月（65日）
   - id: firebase-medical
+    short: "Firebase再構築"   # page title (from the mockup set, checked against the record)
+    en: "A FOUNDATION TO GROW"
+    color: "#8fd0d6"
     service: wordpress
     headline: 既存サイトをFirebaseに再構築
     title: 医療機関サイトのリニューアルに向けて、既存サイトをFirebaseに再構築しました
@@ -293,6 +318,9 @@ lancers:
       使用技術：Firebase／HTML／CSS／JavaScript
       制作期間：5日
   - id: insurance-lp
+    short: "保険会社LP・フォーム"   # page title (from the mockup set, checked against the record)
+    en: "CONFIDENCE, STEP BY STEP"
+    color: "#9eb5e6"
     featured: true
     service: wordpress
     headline: 保険会社LP＋PHP申込フォーム
@@ -341,6 +369,9 @@ lancers:
       使用技術：HTML／CSS／JavaScript（jQuery）／PHP
       制作期間：4日
   - id: inkscape-svg
+    short: "SVG暗号化・復号"   # page title (from the mockup set, checked against the record)
+    en: "PROTECTED BY DESIGN"
+    color: "#a99cff"
     service: system
     headline: SVGファイルの暗号化・復号の仕組み
     title: Inkscape拡張機能用SVGファイルの暗号化・復号の仕組みを構築しました
@@ -389,6 +420,9 @@ lancers:
       使用技術：Python／Inkscapeエクステンション
       制作期間：2日
   - id: vulnerability-assessment
+    short: "Web脆弱性診断"   # page title (from the mockup set, checked against the record)
+    en: "CLARITY BEFORE CONFIDENCE"
+    color: "#9ec3ff"
     featured: true
     service: quality
     headline: Webシステムの脆弱性診断
@@ -429,6 +463,9 @@ lancers:
       使用技術：PHP／MySQL／Webアプリケーションの脆弱性診断
       制作期間：8日
   - id: order-system
+    short: "受発注システム連携"   # page title (from the mockup set, checked against the record)
+    en: "CONNECTED EXPERIENCES"
+    color: "#7fd1a8"
     service: system
     headline: 受発注システムの構築と連携
     title: 受発注システムのメニュー構築と、システム側との連携（インテグレーション）を担当しました
@@ -464,6 +501,9 @@ lancers:
       【クライアント様のご評価より】
       「フルスタックの経験のある方で、要件定義からしっかり確認しながらコミュニケーションが取れたので安心感がありました。依頼側がしっかり要件を整理しておけば、かなり効率的に作業をしていただけます。今回はメニュー構築だけではなく、特にシステム側とのインタグレーションも相談することが出来たので、お願いして正解でした。」
   - id: wordpress-ui-design
+    short: "WordPress UIデザイン"   # page title (from the mockup set, checked against the record)
+    en: "DESIGNED AS A SYSTEM"
+    color: "#e9b8c8"
     service: wordpress
     headline: WordPressサイトのUIデザイン
     title: WordPressで構築するサイトの、多数のUIデザインを制作・納品しました
@@ -498,6 +538,9 @@ lancers:
       【クライアント様のご評価より】
       「大量のUIデザインを高品質かつ柔軟な体制でご納品頂きました。非常におすすめのランサー様です。機会がありましたらまたお願い致します。」
   - id: portal-form
+    short: "情報登録フォーム"   # page title (from the mockup set, checked against the record)
+    en: "LESS FRICTION, MORE CLARITY"
+    color: "#7cc6a4"
     service: wordpress
     headline: 情報登録フォームの改修と追加
     title: ポータルサイトの情報登録フォームを改修し、情報収集用のフォームを追加しました
@@ -531,6 +574,9 @@ lancers:
 
       制作期間：6日
   - id: web-system
+    short: "Webシステム開発"   # page title (from the mockup set, checked against the record)
+    en: "FROM COMPLEXITY TO COMPLETION"
+    color: "#e3c48a"
     featured: true
     service: system
     headline: Webシステムの開発を修正対応から完成まで
@@ -570,6 +616,9 @@ lancers:
 
       ※非公開のご依頼のため、システムの詳細は掲載を控えています。
   - id: repeat-client
+    short: "継続開発・改修"   # page title (from the mockup set, checked against the record)
+    en: "TRUST, BUILT OVER TIME"
+    color: "#7f9cff"
     service: system
     headline: Webシステムの開発・改修を4回続けて担当
     title: IT企業さまから4回続けてご依頼いただき、Webシステム開発・コーディング・不具合修正を担当しました

@@ -1,0 +1,101 @@
+{
+  "home": {
+    "mood": "midnight"
+  },
+  "expertise": {
+    "mood": "midnight"
+  },
+  "portal": {
+    "mood": "midnight"
+  },
+  "works": {
+    "mood": "midnight"
+  },
+  "services": {
+    "mood": "pearl"
+  },
+  "pricing": {
+    "mood": "midnight"
+  },
+  "about": {
+    "mood": "pearl"
+  },
+  "reviews": {
+    "mood": "midnight"
+  },
+  "contact": {
+    "mood": "pearl"
+  },
+  "svc-ai-apps": {
+    "mood": "midnight"
+  },
+  "svc-ai-chatbot": {
+    "mood": "midnight"
+  },
+  "svc-ai-consulting": {
+    "mood": "midnight"
+  },
+  "svc-ai-infra": {
+    "mood": "midnight"
+  },
+  "svc-wordpress": {
+    "mood": "midnight"
+  },
+  "svc-shopify": {
+    "mood": "midnight"
+  },
+  "svc-system": {
+    "mood": "midnight"
+  },
+  "svc-quality": {
+    "mood": "midnight"
+  },
+  "work-go-to-market": {
+    "mood": "midnight"
+  },
+  "work-a-worker": {
+    "mood": "midnight"
+  },
+  "work-stress-ai": {
+    "mood": "midnight"
+  },
+  "work-stress-features": {
+    "mood": "midnight"
+  },
+  "work-stress-multitenant": {
+    "mood": "midnight"
+  },
+  "work-futoko-wordpress": {
+    "mood": "pearl"
+  },
+  "work-elementor-corporate": {
+    "mood": "midnight"
+  },
+  "work-firebase-medical": {
+    "mood": "pearl"
+  },
+  "work-insurance-lp": {
+    "mood": "midnight"
+  },
+  "work-inkscape-svg": {
+    "mood": "midnight"
+  },
+  "work-vulnerability-assessment": {
+    "mood": "midnight"
+  },
+  "work-order-system": {
+    "mood": "midnight"
+  },
+  "work-wordpress-ui-design": {
+    "mood": "pearl"
+  },
+  "work-portal-form": {
+    "mood": "midnight"
+  },
+  "work-web-system": {
+    "mood": "midnight"
+  },
+  "work-repeat-client": {
+    "mood": "midnight"
+  }
+}

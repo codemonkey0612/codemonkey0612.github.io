@@ -8,7 +8,13 @@ brand: 匠｜AI・Webシステム開発
 title: フリーランスのAI・Webエンジニア
 tagline: 技術には妥協しない。仕事には誠実に。
 site_url: https://codemonkey0612.github.io/   # the hub site (GitHub Pages; change if you use another repo name or a domain)
-contact_url: https://www.lancers.jp/profile/navi_work/contact_light   # every "相談する" button goes through Lancers
+contact_url: https://www.lancers.jp/profile/navi_work/contact_light   # the secondary route: "Lancersで相談"
+# The on-site inquiry form (/contact/). Every "相談する" button goes there. It posts to a
+# serverless endpoint you deploy from contact/ (see contact/README.md); the recipient address
+# lives only in that endpoint's secrets, never here or on the site. Leave endpoint empty until
+# it is deployed: the form then says plainly that it cannot send, and points to Lancers.
+contact_form:
+  endpoint: ""
 persona: 私           # the one first-person word used in every post
 
 # Facts posts may mention. The fact-checker treats everything below (facts,

@@ -188,31 +188,57 @@ npm run note -- notes/<slug>.md      # copy-and-paste page: dist/note/<slug>.htm
 
 `npm run site:preview` builds it and serves it at <http://localhost:4321/>.
 
-- **Pages:** home (hero, works, services, client reviews, approach, the
-  consultation flow, certifications, latest articles), the works index with a
-  filter and one case page per work, one page per service, a price list of all
-  20 Lancers packages, all 26 client reviews in full, profile, 404, plus
-  `sitemap.xml`, `robots.txt` and `llms.txt`. Pages carry Open Graph tags (share
-  image `site/assets/og.jpg`, or the work's own cover or screenshot) and
-  schema.org data (Person, Service, CreativeWork, FAQ, breadcrumbs).
-- **Design** (`site/assets/style.css`, `site/assets/app.js`, no libraries).
-  Simple and quiet: white pages, navy text and the emblem's gold as the only
-  accent; Geist and Noto Sans JP; thin lines instead of shadows. The home page
-  is a hero with the emblem, works (the live sites and your Lancers covers),
-  services (your package images), the showreel, three client reviews and a
-  contact section. The only motion is a gentle fade-in as sections appear
-  (off for `prefers-reduced-motion`); service videos open in a popup. Every
-  image carries its real width and height (read from the file at build time),
-  and every page works without JavaScript.
-- **Brand art** (`site/media.yml`): the gold 匠 emblem (header, footer, hero,
-  profile; the favicons are made from it) and the showreel (home page). Each
-  service shows its first Lancers package image (from `site/packages.yml`)
-  on its card and page, and uses it as its share image. The
-  originals are in `~/dev/note/portfolio`. The person in the Lancers images and
-  promo videos is an AI-generated character: every page says so in the footer,
-  and the showreel, the video popup and the service price sections say so next
-  to the videos. To rebuild the showreel, see the comment in
-  `site/media.yml`.
+- **Pages (31 routes):** home, `works/` (16 case studies, filter All/AI/Web/System),
+  `services/` (8 service pages), `prices/`, `about/`, `reviews/` (all 26 Lancers
+  reviews in full), `contact/` (the inquiry form), 404, plus `sitemap.xml`,
+  `robots.txt` and `llms.txt`. Open Graph tags and schema.org data (Person,
+  Service, CreativeWork, FAQ, breadcrumbs) on every page. Rendering lives in
+  `scripts/lib/site-pages.mjs`; data loading in `scripts/lib/site-core.mjs`.
+- **Design: "Celestial Atelier"** (2026-11-10, from the mockups and
+  `TAKUMI-Celestial-31-Page-Prompts.md` in `~/dev/note/mockup`). Midnight
+  `#081521`, pearl `#F6F7FB`, gold `#C9A24A`, ice blue `#9EC3FF`; Shippori
+  Mincho headings, Noto Sans JP text, Cormorant Garamond Latin labels (Google
+  Fonts, OFL). Same header (Works / Expertise / About / Contact) and footer on
+  every page. Motion: section reveals, a gold line drawing through process
+  steps, case-study media easing to full size, a measured layout animation on
+  the works filter, one gold sweep on button hover. No scroll hijacking, no
+  loader, no autoplaying video. Off for `prefers-reduced-motion` and with the
+  footer's 「動きを減らす」 switch (remembered in the browser). Every page works
+  without JavaScript; images carry their real width and height.
+- **Hero sculptures** (`site/scene/`, three.js): each page has its own glass-and-
+  gold scene — `kit.js` (materials, ribbon, frames, floor), `symbols.js`
+  (shield, compass, gears, the 3D 匠 …), `scenes-main.js` (the 7 main pages,
+  the Expertise orb and the inquiry portal), `scenes-services.js` and
+  `scenes-works.js`. Visitors first see a **still**: `site/assets/art/<scene>.webp`
+  (1920×1080, sculpture on the right) and `<scene>-m.webp` (1000×860, centred,
+  shown below the headline on phones). On desktops with a fine pointer, enough
+  memory and motion allowed, `app.js` loads `site/assets/celestial.js` and fades
+  the live scene in over the still (gentle float, ±3° pointer tilt, the
+  ribbon's glint follows scrolling; paused off-screen and in hidden tabs; pixel
+  ratio capped at 1.5). After changing a scene:
+
+  ```bash
+  npm run site:scenes                       # re-bundle celestial.js only
+  npm run site:scenes -- --stills home svc-shopify   # re-render these stills
+  npm run site:scenes -- --stills           # all of them (~10 min, software WebGL)
+  ```
+
+  It needs Google Chrome and ffmpeg locally; commit `celestial.js` and
+  `site/assets/art/` (the Pages build doesn't render). `art/scenes.json` records
+  each scene's mood so the headline is light on dark scenes and dark on pearl ones.
+- **Contact form** (`contact/`, `scripts/lib/contact-form.mjs`,
+  `site/assets/contact.js`): every 相談する button goes to `/contact/` (with
+  `?service=` or `?work=` so the form knows the context). The form posts to a
+  Cloudflare Worker that emails you through Resend; your address lives only in
+  the Worker's secrets. Until you deploy it and put its URL in `profile.yml`
+  → `contact_form.endpoint`, the form says plainly that it can't send yet and
+  points to Lancers. Setup: `contact/README.md`. Lancers stays as the second
+  route (footer and contact page).
+- **Brand art** (`site/media.yml`): the gold 匠 emblem (header, footer; the
+  favicons are made from it) and the showreel (home). Each service shows its
+  Lancers package images and promo videos (from `site/packages.yml`). The
+  originals are in `~/dev/note/portfolio`. To rebuild the showreel, see the
+  comment in `site/media.yml`.
 - **Works** (`site/works.yml`): `sites:` are live sites you took part in
   building (screenshots in `site/assets/media/works/`, taken 2026-11-08);
   the Lancers items use your own images in `site/assets/media/portfolio/`;
@@ -253,8 +279,7 @@ npm run note -- notes/<slug>.md      # copy-and-paste page: dist/note/<slug>.htm
   python3 -c "from PIL import Image; Image.open('new.png').convert('RGB').save('site/assets/media/packages/<id>.webp', quality=82)"
   ```
 
-  Covers should be 16:9. The videos' presenter is an AI-generated character, so
-  each service page with videos says so under 料金の目安.
+  Covers should be 16:9.
 
 `npm run site` also writes `dist/github-profile/README.md`: copy it into your
 `codemonkey0612/codemonkey0612` repository so your GitHub profile shows the same

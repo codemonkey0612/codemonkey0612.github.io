@@ -23,14 +23,20 @@ test("the real site builds: every page, link and structured-data block is valid"
   const site = loadSite({ root: ROOT, profile, today });
   const files = renderSite(site);
   const pages = Object.keys(files).filter((f) => f.endsWith(".html"));
-  assert.equal(pages.length, profile.services.length + site.works.all.length + 6);
+  assert.equal(pages.length, profile.services.length + site.works.all.length + 8);
+  for (const f of ["services/index.html", "contact/index.html", "prices/index.html", "reviews/index.html", "about/index.html", "works/index.html"]) assert.ok(files[f], f);
   for (const s of profile.services) assert.ok(files[`services/${s.id}/index.html`], s.id);
   for (const w of site.works.all) assert.ok(files[`works/${w.id}/index.html`], w.id);
 
   for (const page of pages) {
     const html = files[page];
     assert.doesNotMatch(html, /undefined|\[object Object\]|\bTODO\b|NaN/, page);
-    assert.match(html, new RegExp(profile.contact_url.replace(/[.?]/g, "\\$&")), `${page} links to the contact page`);
+    assert.match(html, new RegExp(profile.contact_url.replace(/[.?]/g, "\\$&")), `${page} keeps Lancers as the second route`);
+    if (page !== "404.html") assert.match(html, /href="(?:\.\.\/)*(?:\.\/)?contact\/(?:\?[^"]*)?"/, `${page} links to the on-site contact form`);
+    // The owner's email address never appears on the site, and there is no mailto link.
+    assert.doesNotMatch(html, /mailto:/i, `${page} has a mailto link`);
+    assert.doesNotMatch(html, /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z.]{2,}/, `${page} shows an email address`);
+    for (const [en] of [["Works"], ["Expertise"], ["About"], ["Contact"]]) assert.match(html, new RegExp(`<span lang="en">${en}</span>`), `${page}: header has ${en}`);
     for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)) JSON.parse(m[1]);
     if (page === "404.html") continue; // uses absolute links
     // Media is served from this site, never hotlinked from Lancers (its video URLs expire).
@@ -193,13 +199,14 @@ test("your emblem, package images, showreel and promo videos are on the site", (
   assert.ok(home.includes(`poster="./${art.showreel.poster}"`), "showreel poster");
   for (const s of site.services) {
     assert.ok(s.cover, `${s.id} has a package image`);
-    assert.ok(home.includes(`src="./${s.cover}"`), `home card of ${s.id} shows its package image`);
+    assert.ok(files["services/index.html"].includes(`src="../${s.cover}"`), `services index shows the package image of ${s.id}`);
     const html = files[`services/${s.id}/index.html`];
     assert.ok(html.includes(`src="../../${s.cover}"`), `${s.id} page shows its package image`);
     assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.cover, site.profile.site_url).href}">`), `${s.id} share image`);
     if (s.video) assert.ok(html.includes(`data-video="../../${s.video.video}"`), `${s.id} page opens its video`);
   }
   for (const w of site.works.lancers.filter((x) => x.featured)) assert.ok(home.includes(`src="./${w.cover}"`), `home shows the cover of ${w.id}`);
+  for (const w of site.works.sites) assert.ok(home.includes(`works/${w.id}/`), `home links to the live site ${w.id}`);
 });
 
 test("media.yml typos fail the build", () => {
@@ -225,4 +232,32 @@ test("Lancers works use your own portfolio images, and assets carry a version", 
   assert.match(site.assetVersion, /^[0-9a-f]{8}$/);
   assert.ok(files["index.html"].includes(`assets/style.css?v=${site.assetVersion}`));
   assert.ok(files["works/index.html"].includes(`assets/app.js?v=${site.assetVersion}`));
+});
+
+test("the contact page has the inquiry form and no address; no shipped script contains one", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  const html = files["contact/index.html"];
+  assert.match(html, /<form[^>]+id="inquiry"/);
+  assert.match(html, /assets\/contact\.js/);
+  for (const f of ["app.js", "contact.js", "celestial.js"]) {
+    const file = path.join(ROOT, "site", "assets", f);
+    if (!fs.existsSync(file)) continue;
+    const js = fs.readFileSync(file, "utf8");
+    assert.doesNotMatch(js, /mailto:/i, `${f} has a mailto link`);
+    assert.doesNotMatch(js, /[A-Za-z0-9._%+-]+@(?:gmail|yahoo|outlook|icloud|hotmail)\.[a-z.]+/i, `${f} contains a mailbox address`);
+  }
+});
+
+test("every service and work page has its own hero scene, and each page's chapters are in reading order", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  for (const s of site.services) assert.match(files[`services/${s.id}/index.html`], new RegExp(`data-scene="svc-${s.id}"`));
+  for (const w of site.works.all) assert.match(files[`works/${w.id}/index.html`], new RegExp(`data-scene="work-${w.id}"`));
+  const svc = files["services/ai-chatbot/index.html"];
+  const order = ["intro-title", "film-title", "scope-title", "process-title", "price-title", "faq-title"].map((id) => svc.indexOf(`id="${id}"`));
+  assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `service chapters in order: ${order}`);
+  const scenes = new Set();
+  for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) for (const [, n] of files[page].matchAll(/data-scene="([^"]+)"/g)) scenes.add(n);
+  assert.equal(scenes.size, 7 + site.services.length + site.works.all.length, "one scene per page (404 has none)");
 });

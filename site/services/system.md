@@ -1,4 +1,17 @@
 ---
+en: "BUSINESS SYSTEMS"
+headline: "複雑な仕事を、なめらかに。"
+lead: "予約・マッチング・管理画面などのWebシステム、スマホアプリ、業務ツール、データ収集ツールを、要件の整理から運用まで開発します。"
+accent: "#6fd3e0"
+process:
+  - { t: "現状の分析", d: "何をどこで管理しているかを整理します。" }
+  - { t: "要件と設計", d: "画面・データ・権限の設計を決めます。" }
+  - { t: "開発・連携", d: "外部サービスやAPIとつなぎます。" }
+  - { t: "導入・運用", d: "現場の担当者が迷わず使えるよう導入を支援します。" }
+deliverables:
+  - "システム本体（ソースコード）"
+  - "管理画面"
+  - "操作マニュアル"
 description: 予約・マッチング・管理画面などのWebシステム、iOS/Androidアプリ、Windows/Mac向けの業務ツール、データ収集ツールを開発します。要件定義から運用まで対応します。
 packages: [1319670, 1351705, 1319794]
 cases: [production-management, delivery-management, live-streaming, desktop-automation]

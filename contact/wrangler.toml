@@ -1,0 +1,21 @@
+# Inquiry form endpoint for the site's /contact/ page. Setup: contact/README.md.
+# No secrets here: RESEND_API_KEY, CONTACT_TO and CONTACT_FROM are set with
+# `npx wrangler secret put <NAME>` and never committed.
+name = "takumi-contact"
+main = "src/worker.mjs"
+compatibility_date = "2025-10-01"
+workers_dev = true
+
+[vars]
+# Sites allowed to post (comma-separated, no trailing slash). For local testing add
+# http://localhost:4321 in contact/.dev.vars instead of here.
+ALLOWED_ORIGINS = "https://codemonkey0612.github.io"
+
+# Rate-limit counters (hashed IP, 10 minutes) and idempotency keys (24 hours).
+# Replace the id with the one printed by `npx wrangler kv namespace create CONTACT_KV`.
+[[kv_namespaces]]
+binding = "CONTACT_KV"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+[observability]
+enabled = true

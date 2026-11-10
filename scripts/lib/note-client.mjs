@@ -6,8 +6,9 @@
 // The draft endpoints and headers match two independent open-source clients (goodnasubi/note-mcp
 // in TypeScript, tuuu428/Note-CLI in Go). Publishing is PUT /api/v1/text_notes/{id} with
 // status "published", as in Note-CLI (with its full payload) and shimayuz/note-com-mcp; it's
-// less well documented, so callers check the public page afterwards. Only the calls in ALLOWED
-// can be made: nothing here can delete, price or unpublish a post.
+// less well documented, so callers check the public page afterwards. The same PUT (with the
+// header image set first) updates a post this tool published. Only the calls in ALLOWED can be
+// made: nothing here can delete, price or unpublish a post.
 
 export const NOTE_ORIGIN = "https://note.com";
 export const EDITOR_ORIGIN = "https://editor.note.com";
@@ -126,8 +127,9 @@ export class NoteClient {
   /**
    * Publishes a draft as a free post: comments on, followers notified, no magazine. note takes
    * the whole post with this call (it has no partial update), so title and body are sent again.
+   * The same call updates a post that's already public; pass notify: false for that.
    */
-  async publish(id, { title, html, textLength, hashtags = [] }) {
+  async publish(id, { title, html, textLength, hashtags = [], notify = true }) {
     if (!/^\d+$/.test(String(id))) throw new Error(`note post id must be a number: ${id}`);
     await this.request("PUT", `/api/v1/text_notes/${id}`, {
       json: {
@@ -146,7 +148,7 @@ export class NoteClient {
         circle_permissions: [],
         limited: false,
         disable_comment: false,
-        send_notifications_flag: true,
+        send_notifications_flag: notify,
         author_ids: [],
         image_keys: [],
         index: false,

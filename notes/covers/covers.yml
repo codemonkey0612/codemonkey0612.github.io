@@ -1,0 +1,122 @@
+# note header images (見出し画像, 1280×670): one per Lancers package image.
+#
+# scripts/note-covers.mjs renders notes/covers/<id>.jpg from `original` in the portfolio folder
+# (../portfolio); run it again after you change a package image. scripts/crosspost.mjs gives
+# each new note post the image whose keywords best match the article: a keyword equal to one of
+# the Zenn topics counts 3, one in the title counts 2. Ties go to the image used least so far;
+# with no match at all, the `default: true` image is used. Your own notes/<slug>.png or .jpg
+# always wins.
+#
+# fit: crop    fills the frame; `y` is which part of the height to keep (0 top, 0.5 middle, 1 bottom)
+# fit: contain the whole image, with its edge colours filling the sides (for the 4:3 images)
+#
+# Not here on purpose: face swap, AI business matching, scraping and game development.
+
+- id: "1351569"
+  service: ChatGPT・生成AIを活用した業務効率化AIアプリ開発
+  original: aa8eecde-8efb-4354-a8b4-adf9cceb2465.png
+  fit: crop
+  y: 0.5
+  keywords: [excel, automation, chatgpt, openai, gpt, claude, gemini, copilot, python, gas, vba, rpa, spreadsheet, 業務効率化, 効率化, 自動化, 転記, 集計, スプレッドシート, 手作業, 生成AI, 議事録]
+
+- id: "1351631"
+  service: AWS・Azureで生成AI基盤とクラウド環境を構築
+  original: cd71254b-5220-424a-9350-1a69b24e9e20.png
+  fit: contain
+  keywords: [rag, llm, pgvector, vector, embedding, embeddings, agent, agents, bedrock, vertexai, langchain, llamaindex, mcp, aws, azure, ベクトル, 埋め込み, エージェント, 生成AI基盤, マルチテナント]
+
+- id: "1351686"
+  service: ChatGPT・LINE対応のAIチャットボット開発
+  original: d5ef732b-b6fa-40f3-9f4f-0bd33e804cd2.png
+  fit: contain
+  keywords: [chatbot, line, faq, slack, teams, チャットボット, 問い合わせ, 社内FAQ, 自動応答, 一次対応]
+
+- id: "1351667"
+  service: ChatGPT・生成AIの導入コンサルティングと業務改善
+  original: ee18424e-0360-411f-b84b-687f8838db90.png
+  fit: contain
+  keywords: [dx, consulting, poc, governance, guideline, roi, AI導入, 生成AI導入, 導入, 活用, 社内ルール, ガイドライン, 研修, 戦略, 費用対効果, 社内展開]
+
+- id: "1319674"
+  service: IT・AI・システムの技術相談から導入まで支援
+  original: a1400287-399d-422a-9a4e-b90594198fc6.png
+  fit: crop
+  y: 0.5
+  default: true
+  keywords: [it, vendor, estimate, outsourcing, 相談, 見積, 発注, 外注, ベンダー, 依頼, 選び方, 補助金, 助成金, 情シス, IT担当, 中小企業, 社内SE]
+
+- id: "1319677"
+  service: Web・システムのセキュリティ診断と対策
+  original: 591c2185-20ae-485d-9aae-e09ba478d392.png
+  fit: crop
+  y: 0.5
+  keywords: [security, vulnerability, cve, authentication, auth, password, ransomware, phishing, zerotrust, waf, セキュリティ, 脆弱性, 情報漏えい, 情報漏洩, 不正アクセス, ランサムウェア, パスワード, 認証, サイバー攻撃, 注意喚起, 改ざん]
+
+- id: "1319683"
+  service: サーバー・クラウド環境の構築・移行・運用
+  original: 16c0f8ba-42e2-4114-a078-b6aa1cc30cf6.png
+  fit: crop
+  y: 0.5
+  keywords: [server, infra, infrastructure, linux, docker, kubernetes, k8s, terraform, cloud, gcp, vps, nginx, ssl, dns, backup, postgresql, mysql, database, aws, azure, サーバー, インフラ, クラウド, 移行, バックアップ, データベース, ドメイン, レンタルサーバー]
+
+- id: "1319797"
+  service: WordPressサイトの構築・移行・保守運用
+  original: 1c0fdcdd-3edc-4380-8460-e18570f43e47.png
+  fit: crop
+  y: 0.5
+  keywords: [wordpress, wp, plugin, woocommerce, プラグイン, 保守, 運用, 更新]
+
+- id: "1351723"
+  service: WordPress・CMSで高品質なWebサイトを構築
+  original: 55b12558-a624-4784-b977-f799b159c734.png
+  fit: crop
+  y: 0.5
+  keywords: [wordpress, cms, headless, microcms, contentful, strapi, ブロックエディタ, テーマ, サイト構築]
+
+- id: "1351735"
+  service: Webサイト・ホームページ制作
+  original: efbe83b7-253f-402a-b865-dd05d5ea9333.png
+  fit: crop
+  y: 0.1
+  keywords: [website, homepage, seo, lp, ga4, analytics, ホームページ, Webサイト, リニューアル, 集客, アクセス解析, 問い合わせフォーム]
+
+- id: "1351762"
+  service: HTML/CSSコーディング代行
+  original: 451e7f2d-8a78-4c9b-aeb3-1b587f10f21e.png
+  fit: crop
+  y: 0.1
+  keywords: [html, css, frontend, javascript, typescript, react, nextjs, vue, tailwind, accessibility, a11y, performance, corewebvitals, フロントエンド, コーディング, レスポンシブ, 表示速度, アクセシビリティ]
+
+- id: "1351689"
+  service: Shopify・ECサイト構築
+  original: 037d3188-7d5a-45ca-92cb-acc8531cda21.png
+  fit: crop
+  y: 0.1
+  keywords: [shopify, ec, ecommerce, stripe, payment, ネットショップ, ECサイト, 通販, 決済, カート]
+
+- id: "1351705"
+  service: iOS・Android対応のスマホアプリ開発
+  original: 13d7561d-82e3-45b0-85da-36c273866819.png
+  fit: crop
+  y: 0.5
+  keywords: [ios, android, flutter, reactnative, swift, kotlin, mobile, expo, スマホアプリ, スマホ, アプリ開発, iPhone]
+
+- id: "1319794"
+  service: Windows・Mac対応のデスクトップアプリ開発
+  original: a1be306a-a131-4b41-9026-2eab807d9c38.png
+  fit: crop
+  y: 0.5
+  keywords: [desktop, electron, tauri, windows, mac, macos, wpf, デスクトップ, 社内ツール, 業務ツール]
+
+- id: "1351769"
+  service: システムの不具合調査・デバッグ・コードレビュー
+  original: 4e8800b6-31a5-4fa2-a803-e1cdf597950c.png
+  fit: crop
+  y: 0.1
+  keywords: [test, testing, debug, debugging, codereview, review, ci, cicd, githubactions, playwright, jest, vitest, eval, evaluation, qa, refactoring, テスト, デバッグ, バグ, 不具合, コードレビュー, 品質, リファクタリング, 障害]
+
+- id: "1319670"
+  service: 民泊・求人向けマッチングシステム開発
+  original: e355624d-0497-4993-a3cc-cd5764e01fae.png
+  fit: contain
+  keywords: [matching, marketplace, booking, reservation, saas, マッチング, 民泊, 求人, 予約, 予約システム, プラットフォーム]

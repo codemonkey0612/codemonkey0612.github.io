@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import matter from "gray-matter";
-import { authorContext, autowrite, openSlots, pickPillar, readHistory, Topic, topicTool, writePrompt } from "../scripts/lib/writer-core.mjs";
+import { Article, authorContext, autowrite, openSlots, pickPillar, readHistory, Topic, topicTool, writePrompt } from "../scripts/lib/writer-core.mjs";
 
 const jst = (s) => new Date(`${s}+09:00`);
 const config = {
@@ -89,6 +89,14 @@ function fakeSteps({ checks }) {
     },
   };
 }
+
+test("a # heading is refused, but # comments inside code blocks are fine", () => {
+  const filler = "本文".repeat(800);
+  const ok = (body) => Article.safeParse({ body: `${filler}\n${body}`, summary: "s" }).success;
+  assert.ok(ok("## 確認手順\n\n```bash\n# PHPのバージョンを確認\nphp -v\n```\n\n~~~python\n# comment\n~~~\n"));
+  assert.ok(!ok("# 見出し\n本文"));
+  assert.ok(!ok("```bash\nphp -v\n```\n# 見出し\n"), "a heading after a closed block is still caught");
+});
 
 test("the writer plans, writes, fixes what the fact-check finds and schedules the article", async () => {
   const dir = repo();

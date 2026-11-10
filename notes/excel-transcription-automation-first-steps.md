@@ -7,7 +7,7 @@ hashtags:
   - automation
   - dx
 url: https://note.com/shanaiai/n/nb5cc536817d6
-cover: excel-transcription-automation-first-steps.png
+cover: covers/1351569.jpg
 note_id: "190328771"
 note_key: nb5cc536817d6
 note_hash: 42312d73e201

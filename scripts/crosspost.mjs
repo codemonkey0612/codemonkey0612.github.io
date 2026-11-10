@@ -5,19 +5,20 @@
 // morning: Zenn publishes the day's article at 09:00 by itself, and this makes the copies then.
 // Editing a Zenn article updates its copies too (a note post that's already public is left alone).
 //   node scripts/crosspost.mjs              copy everything that's due now
-//   node scripts/crosspost.mjs --at 09:00   if it's earlier than 09:00 JST, wait until then first
+//   node scripts/crosspost.mjs --at 09:00   if it's 03:30–09:00 JST, wait until 09:00 first
 //
 // Each copy carries a hidden marker line; a Qiita or note post you wrote yourself (no marker) is
 // never overwritten. autopilot.yml `qiita: off` / `note: off` skip those copies. note copies get
-// a header image (notes/<slug>.png) made from the title. Qiita copies leave out the closing
-// paragraph with your service and Lancers links: Qiita doesn't want posts that promote.
+// the Lancers package image that fits the article best as their header image (see
+// notes/covers/covers.yml). Qiita copies leave out the closing paragraph with your service and
+// Lancers links: Qiita doesn't want posts that promote.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import YAML from "yaml";
 import { loadProfile, rel, ROOT } from "./lib/common.mjs";
-import { makeCover } from "./lib/note-cover.mjs";
+import { chooseCover, coverPath, coverUsage, loadCovers } from "./lib/note-covers.mjs";
 import { imageBase, isLive, jstDay, publishedAt, zennArticles, zennToNote, zennToQiita } from "./lib/schedule.mjs";
 
 const MARK = (slug) => `<!-- crossposted from articles/${slug}.md: edit the Zenn article, not this copy -->`;
@@ -71,26 +72,29 @@ function noteCopy(a, { root, base, topics, cover }) {
   const out = path.join(root, "notes", `${a.slug}.md`);
   const old = existing(out, a.slug);
   if (old === "theirs") return ["skipped", "a note post you wrote with the same name already exists"];
-  if (old?.data.url) return ["unchanged"]; // already public on note
-  const body = `${MARK(a.slug)}\n${zennToNote(a.content.replace(/^\n+/, ""), { base })}`;
+  if (old?.data.url) return ["unchanged"]; // already public on note: edit notes/<slug>.md itself
   // Keep what note-draft.mjs wrote back (note_id, note_key, note_hash).
   const fm = { title: a.data.title, status: "ready", hashtags: topics.slice(0, 5) };
   for (const k of ["cover", "note_id", "note_key", "note_hash"]) if (old?.data[k] != null) fm[k] = old.data[k];
   fm.url = null;
-  // Your own header image (notes/<slug>.png or .jpg, 1280×670) wins; otherwise one is made.
+  // Your own header image (notes/<slug>.png or .jpg, 1280×670) wins; otherwise the package
+  // image that fits the article best (notes/covers/covers.yml).
   const own = ["png", "jpg", "jpeg"].map((ext) => path.join(root, "notes", `${a.slug}.${ext}`)).find((f) => fs.existsSync(f));
-  if (!fm.cover && own) fm.cover = path.basename(own);
-  const coverFile = path.join(root, "notes", `${a.slug}.png`);
-  const needsCover = !fm.cover && cover;
-  if (old && old.data.title === fm.title && old.content.trim() === body.trim() && !needsCover) return ["unchanged"];
-  if (needsCover && cover({ title: a.data.title, out: coverFile })) fm.cover = path.basename(coverFile);
+  if (own) fm.cover = path.basename(own);
+  else if (!fm.cover && cover) {
+    const chosen = cover({ title: a.data.title, topics });
+    if (chosen) fm.cover = chosen;
+  }
+  const body = `${MARK(a.slug)}\n${zennToNote(a.content.replace(/^\n+/, ""), { base })}`;
+  if (old && old.data.title === fm.title && old.data.cover === fm.cover && old.content.trim() === body.trim()) return ["unchanged"];
   write(out, fm, body);
   return [old ? "updated" : "created"];
 }
 
 /**
  * Writes or refreshes the Qiita copy (and, with `note`, the note copy) of every due Zenn
- * article. `cover({ title, out })` makes a note header image; returns true when it did.
+ * article. `cover({ title, topics })` returns the note header image for a new note copy, as a
+ * path relative to notes/ (or null for none).
  */
 export function crosspost({ root = ROOT, profile, now = new Date(), qiita = true, note = false, cover = null }) {
   const base = imageBase(profile);
@@ -109,11 +113,14 @@ export function crosspost({ root = ROOT, profile, now = new Date(), qiita = true
   return results;
 }
 
-/** Milliseconds to wait until hh:mm Japan time today (0 if that's passed or more than 3 h away). */
+/** Longest wait for --at: the Publish workflow's earliest daily run is 5 h 13 min before 09:00. */
+export const MAX_WAIT_MS = 5.5 * 60 * 60 * 1000;
+
+/** Milliseconds to wait until hh:mm Japan time today (0 if that's passed or more than 5½ h away). */
 export function msUntil(hhmm, now = new Date()) {
   const target = publishedAt(`${jstDay(now)} ${hhmm}`);
   const ms = target - now;
-  return ms > 0 && ms <= 3 * 60 * 60 * 1000 ? ms : 0;
+  return ms > 0 && ms <= MAX_WAIT_MS ? ms : 0;
 }
 
 if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
@@ -129,12 +136,18 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
   const autopilot = path.join(ROOT, "autopilot.yml");
   const settings = fs.existsSync(autopilot) ? (YAML.parse(fs.readFileSync(autopilot, "utf8")) ?? {}) : {};
   const noteMode = settings.note ?? "draft";
-  const emblem = path.join(ROOT, "site", "assets", "brand", "emblem.webp");
+  const covers = loadCovers();
+  const used = coverUsage();
   const results = crosspost({
     profile,
     qiita: (settings.qiita ?? "auto") !== "off",
     note: noteMode !== "off",
-    cover: ({ title, out }) => makeCover({ title, out, emblem, site: new URL(profile.site_url).host }),
+    cover: ({ title, topics }) => {
+      const pick = chooseCover(covers, { title, topics, used });
+      if (!pick) return null;
+      used[coverPath(pick)] = (used[coverPath(pick)] ?? 0) + 1;
+      return coverPath(pick);
+    },
   });
   for (const r of results) if (r.action !== "unchanged") console.log(`crosspost: ${r.action} ${r.file}${r.reason ? ` — ${r.reason}` : ""}`);
   if (!results.some((r) => r.action !== "unchanged")) console.log("crosspost: nothing new is due");

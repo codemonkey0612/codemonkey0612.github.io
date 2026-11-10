@@ -9,6 +9,7 @@
     "factcheck": "node scripts/factcheck.mjs",
     "note": "node scripts/note-export.mjs",
     "note:draft": "node scripts/note-draft.mjs",
+    "note:covers": "node scripts/note-covers.mjs",
     "schedule": "node scripts/schedule.mjs",
     "crosspost": "node scripts/crosspost.mjs",
     "autowrite": "node scripts/autowrite.mjs",

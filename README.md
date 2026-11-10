@@ -116,19 +116,28 @@ checks and comments the fact-check report. Merge any time before its morning:
 2. **Qiita** (off since 2026-11-09: Qiita's spam monitoring hid the first
    automatic post; `qiita: auto` in `autopilot.yml` turns it back on, and the
    copies leave out the promotional closing paragraph): every morning the
-   Publish workflow starts at 08:40, waits until
+   Publish workflow waits until
    09:00, copies each article that's due to `public/<slug>.md` (Zenn-only
    syntax converted: `:::message` → `:::note`, `:::details` → `<details>`,
-   embeds → links, `/images/…` → their GitHub URLs) and publishes it. GitHub's
-   timer can run late on busy days; then it goes out as soon as the job runs.
+   embeds → links, `/images/…` → their GitHub URLs) and publishes it. GitHub
+   starts scheduled runs late when it's busy (5 hours late on 2026-11-10), so
+   the workflow is scheduled six times between 03:47 and 08:37; the first run
+   to start waits for 09:00 and posts, and the rest find nothing to do. If all
+   of them start after 09:00, the article goes out as soon as the first one runs.
    Edit the Zenn article later and its Qiita copy follows. A Qiita article you
    write yourself in `public/` is never touched.
 3. **note:** the same run makes `notes/<slug>.md` (Zenn syntax converted,
-   tables as bullet lists, the topics as hashtags) and a 見出し画像
-   `notes/<slug>.png` (1280 × 670: the title, your emblem and the brand line),
-   then posts it to note (see below). To use your own 見出し画像, save it as
-   `notes/<slug>.png` or `.jpg` (1280 × 670; the slug is in `npm run schedule`)
-   before 09:00 on the article's morning, and it's used instead. With `note: draft` in `autopilot.yml` it
+   tables as bullet lists, the topics as hashtags), gives it as 見出し画像 the
+   Lancers package image that fits the article best, and posts it to note (see
+   below). The images are `notes/covers/<id>.jpg` (1280 × 670), listed with
+   their keywords in `notes/covers/covers.yml`: a keyword that is one of the
+   article's topics counts 3, one in its title 2, ties go to the image used
+   least, and with no match the IT consulting image is used. After you
+   change a package image, update `original:` in `covers.yml` and run
+   `npm run note:covers` (needs ffmpeg; reads `../portfolio`). To use your own
+   見出し画像 for one post, save it as `notes/<slug>.png` or `.jpg` (1280 × 670;
+   the slug is in `npm run schedule`) before 09:00 on the article's morning,
+   and it's used instead. With `note: draft` in `autopilot.yml` it
    saves a draft for you instead; with `note: off` it does nothing, and
    `npm run note -- articles/<slug>.md` still gives a copy-and-paste page.
 
@@ -150,6 +159,12 @@ the same internal endpoints note's own editor uses, signed in with your
    write the link into `url:`; otherwise the run fails and names the draft's
    edit page so you can press 公開 yourself. With `note: draft` it stops at the
    draft and the summary links it.
+3. Edit a post it has published (the text in `notes/<slug>.md`, or its
+   `cover:`) and, with `note: auto`, the next run updates the public post too:
+   new 見出し画像 first, then the text, without notifying your followers again.
+   It then checks that note shows the new 見出し画像; if not, the run fails and
+   names the edit page. (Editing the Zenn article doesn't change a note post
+   that's already public.)
 
 It records `note_id`, `note_key` and `note_hash` in the post's front matter, so
 the next run updates the same post rather than making a new one, and it never

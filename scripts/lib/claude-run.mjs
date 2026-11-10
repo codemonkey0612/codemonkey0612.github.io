@@ -119,9 +119,17 @@ export async function runSubmitTask({
       }
       const parsed = input === undefined ? { success: false, error: { message: "unparseable JSON" } } : schema.safeParse(input);
       if (parsed.success) return { value: parsed.data, usage, model: servedBy, fallback };
-      // Don't echo a broken tool call back (that would edit the model's turn); ask again.
-      if (++bad > 2) throw new ErrorClass(`invalid ${what}: ${parsed.error.message}`);
-      log(`  invalid ${what} (${parsed.error.message}); retrying`);
+      const issues = input === undefined ? "the tool input was not valid JSON" : parsed.error.issues.map((i) => `${i.path.join(".") || "input"}: ${i.message}`).join("; ");
+      if (++bad > 2) throw new ErrorClass(`invalid ${what}: ${issues}`);
+      log(`  invalid ${what} (${issues}); retrying`);
+      // A call whose JSON didn't parse can't be sent back unedited, so ask again from scratch.
+      if (input === undefined) continue;
+      // Otherwise send the call back with what was wrong, so the next attempt fixes it instead of repeating it.
+      messages.push({ role: "assistant", content: echoableContent(msg.content) });
+      messages.push({
+        role: "user",
+        content: [{ type: "tool_result", tool_use_id: call.id, is_error: true, content: `Not accepted: ${issues}. Fix that and call ${submitTool.name} again with the complete ${what}.` }],
+      });
       continue;
     }
 

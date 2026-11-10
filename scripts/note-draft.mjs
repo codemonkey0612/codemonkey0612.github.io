@@ -9,7 +9,9 @@
 //
 // Each post gets note_id, note_key and note_hash in its front matter, so the next push updates
 // the same draft (only when the text or images changed) instead of making a new one. After you
-// publish a post on note, the next run fills in its url: and the hub site lists it.
+// publish a post on note, the next run fills in its url: and the hub site lists it. Edit a post
+// that's already public (its text or `cover:`) and, with --publish, the public post is updated
+// too, without notifying your followers again.
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -22,7 +24,10 @@ import { validateArticle } from "./lib/validate-core.mjs";
 
 const isSet = (v) => typeof v === "string" && v.trim() !== "" && !/^\s*TODO\b/.test(v);
 
-/** Posts that should be on note as drafts: status ready, not published yet. */
+/**
+ * Posts to bring up to date on note: status ready and not published yet, or published by this
+ * tool (note_id recorded), so a change to the post (its text or header image) reaches note.
+ */
 export function readyNotes(root = ROOT) {
   const dir = path.join(root, PLATFORM_DIRS.note);
   if (!fs.existsSync(dir)) return [];
@@ -33,8 +38,16 @@ export function readyNotes(root = ROOT) {
     .map((f) => path.join(dir, f))
     .filter((f) => {
       const { data } = readArticle(f);
-      return data.status === "ready" && !data.url;
+      return data.status === "ready" && (!data.url || Boolean(data.note_id && data.note_key));
     });
+}
+
+/** What note.com shows publicly for a post: is it live, and which header image does it have. */
+async function publicNote(fetchPage, key) {
+  const res = await fetchPage(`${NOTE_ORIGIN}/api/v3/notes/${encodeURIComponent(key)}`, { method: "GET", redirect: "manual" });
+  if (res.status !== 200) return { live: false, eyecatch: null };
+  const data = (await res.json().catch(() => ({})))?.data ?? {};
+  return { live: data.status == null || data.status === "published", eyecatch: data.eyecatch ?? null };
 }
 
 /** Sets keys in a Markdown file's front matter, keeping its comments and order. */
@@ -89,8 +102,9 @@ export async function syncNotes({
     }
     const article = { ...readArticle(file), platform: "note" };
     const { data } = article;
-    if (data.status !== "ready" || data.url) {
-      done("skipped", { reason: data.url ? "already published" : "status is not ready" });
+    const isPublic = Boolean(data.url);
+    if (data.status !== "ready" || (isPublic && !(data.note_id && data.note_key))) {
+      done("skipped", { reason: isPublic ? "already published (not by this tool)" : "status is not ready" });
       continue;
     }
     const check = validateArticle(article, profile);
@@ -101,7 +115,7 @@ export async function syncNotes({
 
     try {
       // Published on note since the last run? Then record its link for the hub site.
-      if (user && data.note_key) {
+      if (!isPublic && user && data.note_key) {
         const page = `${NOTE_ORIGIN}/${user.urlname}/n/${encodeURIComponent(data.note_key)}`;
         const res = await fetchPage(page, { method: "GET", redirect: "manual" });
         if (res.status === 200) {
@@ -120,6 +134,44 @@ export async function syncNotes({
         .update(Buffer.concat([...images.values(), ...(cover ? [cover] : [])].map((i) => i.data)))
         .digest("hex")
         .slice(0, 12);
+
+      // A public post whose text or header image changed here: update it on note.
+      if (isPublic) {
+        if (data.note_hash === hash) {
+          done("unchanged", { public: true });
+          continue;
+        }
+        if (dryRun) {
+          done("dry-run", { reason: `changed since it went public: would update ${data.url}` });
+          continue;
+        }
+        if (!publish) {
+          done("skipped", { reason: `changed since it went public; note: auto (or --publish) updates ${data.url}` });
+          continue;
+        }
+        const before = await publicNote(fetchPage, data.note_key);
+        const imageUrls = new Map();
+        for (const [href, img] of images) imageUrls.set(href, await client.uploadImage(img));
+        const body = markdownToNote(article.content, { imageUrls });
+        if (cover) await client.setEyecatch(data.note_id, cover);
+        await client.publish(data.note_id, { title: data.title, html: body.html, textLength: body.textLength, hashtags: data.hashtags ?? [], notify: false });
+        // Recorded now, so a slow check below doesn't make every later run send it again.
+        setFrontMatter(file, { note_hash: hash });
+        let now = before;
+        for (let i = 0; i < 6; i++) {
+          if (i) await wait(5000);
+          now = await publicNote(fetchPage, data.note_key);
+          if (now.live && (!cover || (now.eyecatch && now.eyecatch !== before.eyecatch))) break;
+        }
+        if (now.live && (!cover || (now.eyecatch && now.eyecatch !== before.eyecatch))) done("republished", { url: data.url, warnings: body.warnings });
+        else
+          done("failed", {
+            reason: now.live
+              ? `note took the update, but ${data.url} still shows the old header image: set it in ${NoteClient.editUrl(data.note_key)}`
+              : `after the update ${data.url} isn't public: open ${NoteClient.editUrl(data.note_key)} and publish it there`,
+          });
+        continue;
+      }
 
       if (data.note_id && data.note_hash === hash && !publish) {
         done("unchanged", { edit: NoteClient.editUrl(data.note_key) });
@@ -198,9 +250,10 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
   try {
     const client = dryRun ? null : new NoteClient(process.env.NOTE_SESSION);
     const results = await syncNotes({ files, client, profile: loadProfile(), dryRun, publish });
-    const text = results.length ? report(results) : "note: no posts with status: ready waiting for note";
+    const shown = results.filter((r) => !(r.public && r.action === "unchanged")); // public posts with no change
+    const text = shown.length ? report(shown) : "note: nothing new for note";
     console.log(text);
-    if (process.env.GITHUB_STEP_SUMMARY && results.length) {
+    if (process.env.GITHUB_STEP_SUMMARY && shown.length) {
       fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### note\n\n\`\`\`\n${text}\n\`\`\`\n`);
     }
     if (results.some((r) => r.action === "failed")) process.exit(1);

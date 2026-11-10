@@ -218,11 +218,13 @@ export const ARTICLE_TOOL = {
     },
   },
 };
+/** Markdown with fenced code blocks taken out: `# comment` lines in a shell or Python block aren't headings. */
+export const outsideCode = (md) => md.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[ \t]*$/gm, "");
 export const Article = z.object({
   body: z
     .string()
     .min(1500, "the article is too short")
-    .refine((b) => !/^#\s/m.test(b), "use ## and ### headings only (no #)"),
+    .refine((b) => !/^#\s/m.test(outsideCode(b)), "use ## and ### headings only (no # heading outside code blocks)"),
   summary: z.string(),
 });
 

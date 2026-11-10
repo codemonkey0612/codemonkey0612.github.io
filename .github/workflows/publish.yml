@@ -10,8 +10,17 @@ on:
     branches:
       - main
       - master
+  # GitHub starts scheduled runs late when it's busy (on 2026-11-10 the 08:40 run started at
+  # 13:45), so the job is scheduled several times from 03:47 JST. The first run to start before
+  # 09:00 waits until 09:00 and posts; the others queue behind it (see concurrency) and then find
+  # nothing left to do. If every run is late, the first one posts as soon as it starts.
   schedule:
-    - cron: "40 23 * * *" # 08:40 JST; the cross-post step waits until 09:00 (cron often runs late)
+    - cron: "47 18 * * *" # 03:47 JST
+    - cron: "47 19 * * *" # 04:47 JST
+    - cron: "47 20 * * *" # 05:47 JST
+    - cron: "47 21 * * *" # 06:47 JST
+    - cron: "47 22 * * *" # 07:47 JST
+    - cron: "37 23 * * *" # 08:37 JST
   workflow_dispatch:
 
 permissions:
@@ -24,13 +33,17 @@ concurrency:
 jobs:
   publish_articles:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Long enough for the wait until 09:00 (up to 5½ h, scripts/crosspost.mjs) plus posting.
+    timeout-minutes: 345
     env:
       QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
       NOTE_SESSION: ${{ secrets.NOTE_SESSION }}
     steps:
+      # The branch's latest commit, not the one from when the run was queued: a run that waited
+      # behind this morning's post must see the note ids it recorded, or it would post again.
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
       - uses: actions/setup-node@v7

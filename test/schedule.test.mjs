@@ -116,7 +116,8 @@ test("the daily job copies only the articles that are due to Qiita, keeps Qiita'
 test("the morning run waits for 09:00 Japan time, but never for long", () => {
   assert.equal(msUntil("09:00", jst("2026-11-10T08:45")), 15 * 60 * 1000);
   assert.equal(msUntil("09:00", jst("2026-11-10T09:05")), 0, "late cron: publish right away");
-  assert.equal(msUntil("09:00", jst("2026-11-10T05:00")), 0, "more than 3 h early: don't wait");
+  assert.equal(msUntil("09:00", jst("2026-11-10T03:47")), (5 * 60 + 13) * 60 * 1000, "the earliest daily run waits");
+  assert.equal(msUntil("09:00", jst("2026-11-10T03:00")), 0, "more than 5½ h early: don't wait");
 });
 
 test("the site lists a post once it's live, once even when it's on Zenn and Qiita", () => {
@@ -143,16 +144,16 @@ test("with note on, due articles also get a note copy with a header image; your 
     "notes/own-note-post-1.md": "---\ntitle: 手書き\nstatus: ready\n---\n手書きのnote\n",
   });
   const covers = [];
-  const cover = ({ title, out }) => (covers.push(title), fs.writeFileSync(out, "png"), true);
+  const cover = ({ title, topics }) => (covers.push([title, topics]), "covers/1351631.jpg");
   const now = jst("2026-11-10T09:00");
   const results = crosspost({ root: dir, profile, now, note: true, cover });
   const note = Object.fromEntries(results.filter((r) => r.platform === "note").map((r) => [r.slug, r.action]));
   assert.deepEqual(note, { "own-note-post-1": "skipped", "live-article-01": "created" });
   const copy = path.join(dir, "notes/live-article-01.md");
   const { data, content } = matter(fs.readFileSync(copy, "utf8"));
-  assert.deepEqual([data.title, data.status, data.hashtags, data.cover, data.url], ["今日の記事", "ready", ["ai", "rag"], "live-article-01.png", null]);
+  assert.deepEqual([data.title, data.status, data.hashtags, data.cover, data.url], ["今日の記事", "ready", ["ai", "rag"], "covers/1351631.jpg", null]);
   assert.match(content, /^<!-- crossposted from articles\/live-article-01\.md/);
-  assert.deepEqual(covers, ["今日の記事"], "one cover, for the new copy");
+  assert.deepEqual(covers, [["今日の記事", ["ai", "rag"]]], "one cover, for the new copy");
 
   // Drafted on note (ids written back), then the Zenn article is edited: the copy follows, ids kept.
   fs.writeFileSync(copy, fs.readFileSync(copy, "utf8").replace("url: null", 'note_id: "55"\nnote_key: nabc\nurl: null'));
@@ -162,7 +163,8 @@ test("with note on, due articles also get a note copy with a header image; your 
   const updated = matter(fs.readFileSync(copy, "utf8"));
   assert.equal(updated.data.note_id, "55");
   assert.match(updated.content, /本文を直しました/);
-  assert.equal(covers.length, 1, "the cover isn't made again");
+  assert.equal(updated.data.cover, "covers/1351631.jpg");
+  assert.equal(covers.length, 1, "the cover isn't chosen again");
 
   // Once it's public on note, the copy is left alone.
   fs.writeFileSync(copy, fs.readFileSync(copy, "utf8").replace("url: null", "url: https://note.com/shanaiai/n/nabc"));
@@ -171,10 +173,10 @@ test("with note on, due articles also get a note copy with a header image; your 
   assert.doesNotMatch(fs.readFileSync(copy, "utf8"), /もう一度/);
 });
 
-test("a header image you put at notes/<slug>.jpg (or .png) is used instead of making one", () => {
+test("a header image you put at notes/<slug>.jpg (or .png) is used instead of a package image", () => {
   const dir = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }), "notes/live-article-01.jpg": "jpeg" });
   let made = 0;
-  crosspost({ root: dir, profile, now: jst("2026-11-10T09:00"), note: true, cover: () => (made++, true) });
+  crosspost({ root: dir, profile, now: jst("2026-11-10T09:00"), note: true, cover: () => (made++, "covers/1351631.jpg") });
   assert.equal(matter(fs.readFileSync(path.join(dir, "notes/live-article-01.md"), "utf8")).data.cover, "live-article-01.jpg");
   assert.equal(made, 0);
 });

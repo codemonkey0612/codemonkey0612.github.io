@@ -87,11 +87,17 @@ test("resumes a paused server-side search and sums usage", async () => {
   assert.equal(result.report.findings.length, 1);
 });
 
-test("re-asks without echoing an invalid report", async () => {
+test("sends an invalid report back with what was wrong", async () => {
   const client = fakeClient([reportMsg({ summary: "x", findings: [{ quote: "q" }] }), reportMsg()]);
   const result = await factcheck({ client, article, profile });
   assert.equal(client.requests.length, 2);
-  assert.equal(client.requests[1].messages.length, 1, "broken tool call is not sent back");
+  const [, echoed, reply] = client.requests[1].messages;
+  assert.equal(echoed.role, "assistant", "the rejected call is sent back unchanged");
+  const toolResult = reply.content[0];
+  assert.equal(toolResult.type, "tool_result");
+  assert.equal(toolResult.tool_use_id, echoed.content.find((b) => b.type === "tool_use").id);
+  assert.equal(toolResult.is_error, true);
+  assert.match(toolResult.content, /^Not accepted: findings/);
   assert.equal(result.report.summary, report.summary);
 });
 

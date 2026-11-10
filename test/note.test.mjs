@@ -51,10 +51,12 @@ test("Markdown becomes note editor HTML: block ids, two heading levels, figures,
 });
 
 // A fake note: records calls, answers like the real endpoints.
-function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published = [], publishWorks = true } = {}) {
+function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published = [], publishWorks = true, eyecatchWorks = true, keys = {} } = {}) {
   const calls = [];
-  const keyOf = new Map();
+  const keyOf = new Map(Object.entries(keys));
   let nextId = 1000;
+  let eyecatch = "https://assets.st-note.com/eye-0.png";
+  let uploads = 0;
   const json = (body, init = {}) => new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json", ...init.headers } });
   const fetch = async (url, init = {}) => {
     const u = new URL(url);
@@ -74,8 +76,13 @@ function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published =
     if (u.pathname === "/api/v1/text_notes/draft_save") return json({ data: {} });
     if (u.pathname === "/api/v2/note_list/contents") return json({ data: { notes: drafts.map((id) => ({ id, status: "draft" })), isLastPage: true } });
     if (u.pathname === "/api/v3/images/upload/presigned_post") return json({ data: { url: "https://assets.st-note.com/up.png", action: "https://s3.example/", post: { key: "k", policy: "p" } } });
-    if (u.pathname === "/api/v1/image_upload/note_eyecatch") return json({ data: { url: "https://assets.st-note.com/eye.png" } });
+    if (u.pathname === "/api/v1/image_upload/note_eyecatch") {
+      if (eyecatchWorks) eyecatch = `https://assets.st-note.com/eye-${++uploads}.png`;
+      return json({ data: { url: eyecatch } });
+    }
     if (u.pathname.startsWith(`/${urlname}/n/`)) return new Response("", { status: published.includes(u.pathname.split("/").pop()) ? 200 : 404 });
+    const pub = /^\/api\/v3\/notes\/(\w+)$/.exec(u.pathname);
+    if (pub) return published.includes(pub[1]) ? json({ data: { status: "published", eyecatch } }) : new Response("", { status: 404 });
     return new Response("not found", { status: 404 });
   };
   return { calls, fetch };
@@ -153,7 +160,53 @@ test("ready note posts become drafts once, are updated only when changed, and ge
   results = await syncNotes({ files: [file], client: new NoteClient("s", { fetch: live.fetch }), profile, fetchPage: live.fetch, log });
   assert.equal(results[0].action, "published");
   assert.match(fs.readFileSync(file, "utf8"), /url: https:\/\/note\.com\/shanaiai\/n\/nkey1001/);
-  assert.deepEqual(readyNotes(dir), [], "a published post is done");
+  assert.deepEqual(readyNotes(dir), [file], "a published post is still watched for changes");
+  const quiet = fakeNote({ published: ["nkey1001"] });
+  results = await syncNotes({ files: [file], client: new NoteClient("s", { fetch: quiet.fetch }), profile, fetchPage: quiet.fetch, publish: true, log });
+  assert.deepEqual([results[0].action, results[0].public], ["unchanged", true]);
+  assert.ok(!quiet.calls.some((c) => c.method === "POST" || c.method === "PUT"), "an unchanged public post is left alone");
+});
+
+test("a public post whose header image or text changed is updated on note, without notifying followers", async () => {
+  const quiet = { wait: async () => {}, log: () => {} };
+  const dir = tmpNotes({ "notes/ai.md": post(), "notes/fig.png": PNG, "notes/covers/1351569.jpg": PNG, "notes/old.png": PNG });
+  const file = path.join(dir, "notes/ai.md");
+  fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace("---\n\n本文", "cover: old.png\n---\n\n本文"));
+  const first = fakeNote();
+  await syncNotes({ files: [file], client: new NoteClient("s", { fetch: first.fetch }), profile, fetchPage: first.fetch, publish: true, ...quiet });
+  const hashBefore = /note_hash: (\w+)/.exec(fs.readFileSync(file, "utf8"))[1];
+
+  // Swap in a package image, as for the 2026-11-10 post.
+  fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace("cover: old.png", "cover: covers/1351569.jpg"));
+  const live = fakeNote({ published: ["nkey1001"], keys: { 1001: "nkey1001" } });
+  const [r] = await syncNotes({ files: [file], client: new NoteClient("s", { fetch: live.fetch }), profile, fetchPage: live.fetch, publish: true, ...quiet });
+  assert.equal(r.action, "republished", r.reason);
+  assert.equal(r.url, "https://note.com/shanaiai/n/nkey1001");
+  const eyecatch = live.calls.findIndex((c) => c.path === "/api/v1/image_upload/note_eyecatch");
+  const put = live.calls.findIndex((c) => c.method === "PUT");
+  assert.ok(eyecatch >= 0 && put > eyecatch, "header image first, then the post");
+  const payload = JSON.parse(live.calls[put].body);
+  assert.equal(payload.send_notifications_flag, false);
+  assert.match(payload.body, /本文です。/);
+  assert.ok(!live.calls.some((c) => c.path === "/api/v1/text_notes"), "no new post");
+  assert.notEqual(/note_hash: (\w+)/.exec(fs.readFileSync(file, "utf8"))[1], hashBefore);
+
+  // If note keeps showing the old header image, say so (and don't resend it on every run).
+  fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace("本文です。", "本文です！"));
+  const stuck = fakeNote({ published: ["nkey1001"], keys: { 1001: "nkey1001" }, eyecatchWorks: false });
+  const [bad] = await syncNotes({ files: [file], client: new NoteClient("s", { fetch: stuck.fetch }), profile, fetchPage: stuck.fetch, publish: true, ...quiet });
+  assert.equal(bad.action, "failed");
+  assert.match(bad.reason, /still shows the old header image: set it in https:\/\/editor\.note\.com\/notes\/nkey1001\/edit\//);
+  const again = fakeNote({ published: ["nkey1001"] });
+  const [after] = await syncNotes({ files: [file], client: new NoteClient("s", { fetch: again.fetch }), profile, fetchPage: again.fetch, publish: true, ...quiet });
+  assert.equal(after.action, "unchanged");
+
+  // Without --publish (note: draft), a changed public post is only reported.
+  fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace("本文です！", "本文です。"));
+  const draftMode = fakeNote({ published: ["nkey1001"] });
+  const [skip] = await syncNotes({ files: [file], client: new NoteClient("s", { fetch: draftMode.fetch }), profile, fetchPage: draftMode.fetch, ...quiet });
+  assert.equal(skip.action, "skipped");
+  assert.ok(!draftMode.calls.some((c) => c.method === "PUT"));
 });
 
 test("note drafts refuse the wrong account and never overwrite a published post", async () => {

@@ -337,5 +337,5 @@ platforms:
   zenn: takumiengineer   # https://zenn.dev/takumiengineer
   qiita: takumi_engineer # https://qiita.com/takumi_engineer
   note: shanaiai         # https://note.com/shanaiai
-  bluesky: ""            # your Bluesky handle, e.g. example.bsky.social (posts are made with an App Password, never your password)
+  bluesky: naviwork.bsky.social # your Bluesky handle, e.g. example.bsky.social (posts are made with an App Password, never your password)
   github: codemonkey0612

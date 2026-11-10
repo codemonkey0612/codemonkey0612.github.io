@@ -46,6 +46,8 @@ function qiitaCopy(a, { root, base, topics, profile }) {
   const out = path.join(root, "public", `${a.slug}.md`);
   const old = existing(out, a.slug);
   if (old === "theirs") return ["skipped", "a Qiita article you wrote with the same name already exists"];
+  // Held back on purpose (e.g. Qiita hid it as possible spam): never send it again from here.
+  if (old?.data.ignorePublish === true) return ["unchanged"];
   // Keep what qiita-cli wrote back (id, updated_at, …); take title and tags from Zenn.
   const fm = {
     title: a.data.title,

@@ -181,6 +181,14 @@ test("a header image you put at notes/<slug>.jpg (or .png) is used instead of a 
   assert.equal(made, 0);
 });
 
+test("a Qiita copy marked ignorePublish (e.g. hidden by Qiita) is never rewritten or re-sent", () => {
+  const held = "---\ntitle: 今日の記事\ntags: [ai]\nprivate: false\nid: 8dbe9c7b6c37fd66d858\nignorePublish: true\n---\n<!-- crossposted from articles/live-article-01.md: edit the Zenn article, not this copy -->\n古い本文\n";
+  const dir = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }), "public/live-article-01.md": held });
+  const [r] = crosspost({ root: dir, profile, now: jst("2026-11-10T09:00") });
+  assert.equal(r.action, "unchanged");
+  assert.equal(fs.readFileSync(path.join(dir, "public/live-article-01.md"), "utf8"), held);
+});
+
 test("qiita: off makes no Qiita copies; Qiita copies never carry the promotional closing paragraph", () => {
   const dir = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }) });
   const now = jst("2026-11-10T09:00");

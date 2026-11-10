@@ -10,7 +10,7 @@ url: https://note.com/shanaiai/n/nb5cc536817d6
 cover: covers/1351569.jpg
 note_id: "190328771"
 note_key: nb5cc536817d6
-note_hash: 42312d73e201
+note_hash: 5063fcba9d52
 ---
 <!-- crossposted from articles/excel-transcription-automation-first-steps.md: edit the Zenn article, not this copy -->
 毎月届く複数のExcelから、必要な数字を集計用のファイルへ手で写していませんか。作業自体は単純でも時間がかかり、写し間違いや同じデータの二重計上も起きがちです。自動化したくても、何から手を付ければよいか迷う場面は多いはずです。

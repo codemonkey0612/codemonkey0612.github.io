@@ -56,5 +56,24 @@
       "web_search_requests": 68
     },
     "cost_usd": 3.42
+  },
+  {
+    "date": "2026-11-12 09:00",
+    "pillar": "news",
+    "written_at": "2026-11-10T12:13:33.211Z",
+    "slug": "gemini-gems-to-skills-business-checklist",
+    "title": "GeminiのGemsが「スキル」へ移行：業務で使うGemを失わないための確認手順",
+    "service": "ai-consulting",
+    "status": "scheduled",
+    "fact_check_warnings": 3,
+    "file": "articles/gemini-gems-to-skills-business-checklist.md",
+    "usage": {
+      "input_tokens": 110,
+      "output_tokens": 64317,
+      "cache_read_input_tokens": 1144687,
+      "cache_creation_input_tokens": 220571,
+      "web_search_requests": 52
+    },
+    "cost_usd": 2.62
   }
 ]

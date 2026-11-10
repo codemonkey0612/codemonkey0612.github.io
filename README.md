@@ -71,7 +71,7 @@ open mornings on its own (`scripts/autowrite.mjs`, settings in `autopilot.yml`):
    technology news (found with web search, from primary sources, last 14 days). It
    picks one concrete topic that ties to one of your services and your real
    projects, and isn't a repeat of a recent title.
-2. **Writing:** Claude (Opus 5.5) writes it in your voice (「私」, です・ます) with
+2. **Writing:** Claude (Sonnet 5.5; see Cost below) writes it in your voice (「私」, です・ます) with
    these rules: only the experience in `profile.yml` (clients anonymous, numbers
    exactly as given), every figure or date linked to a source it checked, working
    code for engineers, the service link only in the closing paragraph, and the
@@ -89,6 +89,16 @@ and in the run summary. Steering it: edit the pillars' `brief` and `weight`, or
 the `avoid` list, in `autopilot.yml`. A change to that file also starts a run.
 `enabled: false` stops it. It also writes ahead (`days_ahead: 2`), so an article
 for tomorrow is in `articles/` a day early if you want to read or edit it.
+
+**Cost** (`claude:` in `autopilot.yml`). Until 2026-11-10 it ran Claude Opus 5.5 at
+high effort with up to ~70 web searches per article: $2.60–10 an article. It now
+runs Claude Sonnet 5.5 (half Opus's price per token) at medium effort with few
+searches per step (topic 4, news topic 8, writing 4, each fix 3, each fact-check 8,
+Qiita article 3; $0.01 each), aiming at about $1 a day for the Zenn article and its
+Qiita article together. `budget_usd_per_day` (default $1) is a ceiling on starting
+work: once a day's runs have spent it, no new article is started and the rest waits
+for the next run. Logged costs include the searches. To trade cost for quality,
+set `model: claude-opus-5-5` or `effort: high`.
 
 **Platform rules.** Zenn's terms count posting machine-generated text as spam and
 its 2026 AI policy asks that a person check the content before publishing, with
@@ -138,7 +148,7 @@ checks and comments the fact-check report. Merge any time before its morning:
      (made it private) or it's gone, it writes `qiita/PAUSED` and posts nothing
      more until you've looked at it and deleted that file; a post Qiita refuses
      pauses it the same way. Then, if nothing went up on your Qiita today, it
-     moves the oldest due article into `public/` (reusing the id if that title is
+     moves the day's article into `public/` once it's due (reusing the id if that title is
      already on Qiita) and qiita-cli posts it. At most one new Qiita article a
      day. A Qiita problem fails the run (GitHub emails you) but never stops note
      or Bluesky.

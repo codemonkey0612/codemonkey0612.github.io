@@ -1,7 +1,8 @@
 // One Claude task that ends with a "submit" tool call carrying a structured result: the
 // fact-check report, the day's topic, the article itself. Claude may search the web first.
 //
-// Claude Opus 5.5 with adaptive thinking, streamed (long outputs), with automatic prompt
+// Claude (the model and effort come from autopilot.yml `claude:`; Claude Opus 5.5 by default
+// here) with adaptive thinking, streamed (long outputs), with automatic prompt
 // caching: each resumed request re-sends the whole conversation (search results included),
 // and the cached part is billed at a tenth of the input price. Opted into server-side
 // refusal fallbacks ("default" routing), so a request declined by a safety classifier is
@@ -9,8 +10,13 @@
 // a broken or invalid submission is re-asked for without echoing it back.
 
 export const MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
-// USD per million tokens for Claude Opus 5.5 (input, output, cache read, cache write = 1.25× input).
-export const PRICE = { input: 4, output: 20, cache_read: 0.2, cache_write: 5 };
+// USD per million tokens (input, output, cache read, cache write = 1.25× input), from the
+// Claude API price list (2026-10), and per web search ($10 per 1,000).
+export const PRICES = {
+  "claude-opus-5-5": { input: 4, output: 20, cache_read: 0.2, cache_write: 5 },
+  "claude-sonnet-5-5": { input: 2, output: 10, cache_read: 0.2, cache_write: 2.5 },
+};
+export const SEARCH_USD = 0.01;
 
 /**
  * After a mid-output fallback, only text blocks and paired server-tool blocks
@@ -35,13 +41,14 @@ export function addUsage(total, u) {
   for (const k of Object.keys(emptyUsage())) total[k] += u?.[k] ?? 0;
   return total;
 }
-/** Token cost in USD (web search fees are billed separately per search). */
-export const costUsd = (u) =>
-  (u.input_tokens * PRICE.input +
-    u.output_tokens * PRICE.output +
-    u.cache_read_input_tokens * PRICE.cache_read +
-    (u.cache_creation_input_tokens ?? 0) * PRICE.cache_write) /
-  1e6;
+/** What a task cost in USD: tokens at the model's prices plus the web searches. */
+export function costUsd(u, model = MODEL) {
+  const p = PRICES[model] ?? PRICES[MODEL];
+  return (
+    (u.input_tokens * p.input + u.output_tokens * p.output + u.cache_read_input_tokens * p.cache_read + (u.cache_creation_input_tokens ?? 0) * p.cache_write) / 1e6 +
+    (u.web_search_requests ?? 0) * SEARCH_USD
+  );
+}
 
 /**
  * Runs the task until Claude calls `submitTool`, then validates its input with `schema` (zod).
@@ -56,6 +63,7 @@ export async function runSubmitTask({
   user,
   submitTool,
   schema,
+  model = MODEL,
   effort = "high",
   maxSearches = 0,
   maxRequests = 8,
@@ -69,14 +77,14 @@ export async function runSubmitTask({
   const tools = [...(maxSearches > 0 ? [{ type: "web_search_20260209", name: "web_search", max_uses: maxSearches }] : []), submitTool];
   let bad = 0;
   let nudged = false;
-  let servedBy = MODEL;
+  let servedBy = model;
   let fallback = false;
 
   for (let request = 1; request <= maxRequests; request++) {
     let msg;
     try {
       const stream = client.beta.messages.stream({
-        model: MODEL,
+        model,
         max_tokens: 64000,
         thinking: { type: "adaptive" },
         output_config: { effort },

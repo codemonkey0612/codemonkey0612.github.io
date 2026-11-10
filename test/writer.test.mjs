@@ -112,7 +112,9 @@ test("the writer plans, writes, fixes what the fact-check finds and schedules th
   const [h] = readHistory(dir);
   assert.equal(h.pillar, "sme");
   assert.equal(h.usage.input_tokens, 5000, "usage from every step is added up");
-  assert.equal(h.cost_usd, Number(((5000 * 4 + 2500 * 20) / 1e6).toFixed(2)));
+  // Claude Sonnet 5.5 by default ($2 / $10 per million tokens) plus $0.01 per web search.
+  assert.equal(h.model, "claude-sonnet-5-5");
+  assert.equal(h.cost_usd, Number(((5000 * 2 + 2500 * 10) / 1e6 + 10 * 0.01).toFixed(2)));
   assert.deepEqual(openSlots(dir, jst("2026-11-10T06:00"), 1), [], "the morning is now taken");
 });
 

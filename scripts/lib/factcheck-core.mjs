@@ -96,15 +96,16 @@ export class FactcheckError extends Error {}
  * Run the fact-check loop for one article.
  * Returns { report, usage, model, fallback }.
  */
-export async function factcheck({ client, article, profile, today = new Date().toISOString().slice(0, 10), log = () => {} }) {
+export async function factcheck({ client, article, profile, today = new Date().toISOString().slice(0, 10), log = () => {}, claudeModel = MODEL, effort = EFFORT, maxSearches = MAX_SEARCHES }) {
   const { value, usage, model, fallback } = await runSubmitTask({
     client,
     system: SYSTEM,
     user: buildUserMessage({ article, profile, today }),
     submitTool: REPORT_TOOL,
     schema: ReportSchema,
-    effort: EFFORT,
-    maxSearches: MAX_SEARCHES,
+    model: claudeModel,
+    effort,
+    maxSearches,
     task: "check this article",
     what: "report",
     ErrorClass: FactcheckError,

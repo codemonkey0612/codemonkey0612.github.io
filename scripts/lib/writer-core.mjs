@@ -8,7 +8,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import YAML from "yaml";
 import { z } from "zod";
-import { addUsage, costUsd, emptyUsage, runSubmitTask } from "./claude-run.mjs";
+import { addUsage, costUsd, emptyUsage, PRICES, runSubmitTask } from "./claude-run.mjs";
 import { factcheck, severity } from "./factcheck-core.mjs";
 import { careerYears } from "./site-core.mjs";
 import { jstDay, PUBLISH_TIME, publishedAt, zennArticles } from "./schedule.mjs";
@@ -33,7 +33,39 @@ const Config = z.object({
   pillars: z.array(Pillar).min(1),
   avoid: z.array(z.string()).default([]),
   qiita: z.enum(["auto", "manual", "daily", "off"]).default("auto"),
+  claude: z
+    .object({
+      model: z.enum(Object.keys(PRICES)).optional(),
+      effort: z.enum(["low", "medium", "high", "xhigh", "max"]).optional(),
+      fix_rounds: z.number().int().min(0).max(2).optional(),
+      budget_usd_per_day: z.number().positive().optional(),
+    })
+    .default({}),
 });
+
+/**
+ * How Claude is used (autopilot.yml `claude:`). Defaults keep a day's writing near $1: Claude
+ * Sonnet 5.5 at medium effort, and few web searches per step (each search is $0.01 and its
+ * results are re-sent, and cached, on every later request of that step).
+ */
+export function claudeSettings(config) {
+  const c = config.claude ?? {};
+  return {
+    model: c.model ?? "claude-sonnet-5-5",
+    effort: c.effort ?? "medium",
+    fixRounds: c.fix_rounds ?? 2,
+    budget: c.budget_usd_per_day ?? 1,
+    searches: { topic: 4, news: 8, write: 4, revise: 3, factcheck: 8, qiita: 3 },
+  };
+}
+
+/** What the autopilot has spent so far today (Japan time), from both logs. */
+export function spentToday(root, now = new Date()) {
+  const today = jstDay(now);
+  return [...readHistory(root), ...readQiitaHistory(root)]
+    .filter((h) => h.written_at && jstDay(new Date(h.written_at)) === today)
+    .reduce((n, h) => n + (h.cost_usd ?? 0), 0);
+}
 
 export function loadConfig(root) {
   const file = path.join(root, "autopilot.yml");
@@ -288,15 +320,16 @@ export const Article = z.object({
 
 // ---------- the pieces that call Claude (the CLI passes these in) ----------
 
-export function claudeSteps(client, log) {
+export function claudeSteps(client, log, settings = claudeSettings({})) {
+  const { model, effort, searches } = settings;
   const run = (prompt, tool, schema, what, maxSearches) =>
-    runSubmitTask({ client, ...prompt, submitTool: tool, schema, maxSearches, task: `write this ${what}`, what, ErrorClass: WriterError, log });
+    runSubmitTask({ client, ...prompt, submitTool: tool, schema, model, effort, maxSearches, task: `write this ${what}`, what, ErrorClass: WriterError, log });
   return {
-    chooseTopic: (ctx) => run(topicPrompt(ctx), topicTool(ctx.author), Topic, "topic", ctx.pillar.id === "news" ? 12 : 6),
-    writeArticle: (ctx) => run(writePrompt(ctx), ARTICLE_TOOL, Article, "article", 10),
-    reviseArticle: (ctx) => run(revisePrompt(ctx), ARTICLE_TOOL, Article, "article", 6),
-    writeQiita: (ctx) => run(qiitaPrompt(ctx), QIITA_TOOL, QiitaArticle, "Qiita article", 10),
-    factcheck: (article, profile) => factcheck({ client, article, profile, log }),
+    chooseTopic: (ctx) => run(topicPrompt(ctx), topicTool(ctx.author), Topic, "topic", ctx.pillar.id === "news" ? searches.news : searches.topic),
+    writeArticle: (ctx) => run(writePrompt(ctx), ARTICLE_TOOL, Article, "article", searches.write),
+    reviseArticle: (ctx) => run(revisePrompt(ctx), ARTICLE_TOOL, Article, "article", searches.revise),
+    writeQiita: (ctx) => run(qiitaPrompt(ctx), QIITA_TOOL, QiitaArticle, "Qiita article", searches.qiita),
+    factcheck: (article, profile) => factcheck({ client, article, profile, log, claudeModel: model, effort, maxSearches: searches.factcheck }),
   };
 }
 
@@ -350,8 +383,13 @@ async function check({ root, file, profile, steps, textlint }) {
 export async function autowrite({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, ideas = "", log = () => {} }) {
   const author = authorContext(profile);
   const today = jstDay(now);
+  const { model, fixRounds, budget } = claudeSettings(config);
   const results = [];
   for (const slot of openSlots(root, now, config.days_ahead).slice(0, config.max_per_run)) {
+    if (spentToday(root, now) >= budget) {
+      log(`autowrite: today's budget ($${budget}) is used up; ${slot} is written on the next run`);
+      break;
+    }
     const usage = emptyUsage();
     const pillar = pickPillar(config, readHistory(root));
     const recentTitles = [...new Set([...zennArticles(root).map((a) => a.data.title), ...readHistory(root).map((h) => h.title)].filter(Boolean))].slice(-60);
@@ -385,7 +423,7 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
         log(`autowrite: checking (round ${round + 1})`);
         result = await check({ root, file, profile, steps, textlint });
         addUsage(usage, result.usage);
-        if (!result.problems.length || round === 2) break;
+        if (!result.problems.length || round >= fixRounds) break;
         log(`autowrite: fixing ${result.problems.length} problem(s)`);
         const r = await steps.reviseArticle({ author, config, title: topic.title, body, problems: result.problems, today });
         addUsage(usage, r.usage);
@@ -405,7 +443,7 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
     } catch (err) {
       Object.assign(entry, { status: "failed", problems: [err.message] });
     }
-    Object.assign(entry, { usage, cost_usd: Number(costUsd(usage).toFixed(2)) });
+    Object.assign(entry, { model, usage, cost_usd: Number(costUsd(usage, model).toFixed(2)) });
     appendHistory(root, entry);
     results.push(entry);
     log(`autowrite: ${entry.status} — ${entry.title ?? "(no topic)"} ($${entry.cost_usd})`);
@@ -461,11 +499,16 @@ async function checkQiita({ root, file, zenn, profile, steps, textlint }) {
 export async function qiitaCompanions({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, log = () => {} }) {
   const author = authorContext(profile);
   const today = jstDay(now);
+  const { model, fixRounds, budget } = claudeSettings(config);
   const results = [];
   const todo = zennArticles(root).filter(
     (a) => a.data.published === true && a.at && jstDay(a.at) >= today && ![path.join(root, "public", `${a.slug}.md`), path.join(root, QIITA_DIR, `${a.slug}.md`)].some((f) => fs.existsSync(f)),
   );
   for (const a of todo.slice(0, config.days_ahead + 1)) {
+    if (spentToday(root, now) >= budget) {
+      log(`autowrite: today's budget ($${budget}) is used up; the Qiita article for ${a.slug} is written on the next run`);
+      break;
+    }
     const usage = emptyUsage();
     const slot = String(a.data.published_at);
     const entry = { date: slot, zenn: `articles/${a.slug}.md`, written_at: now.toISOString() };
@@ -485,7 +528,7 @@ export async function qiitaCompanions({ root, profile, config, now = new Date(),
         log(`autowrite: checking the Qiita article (round ${round + 1})`);
         result = await checkQiita({ root, file, zenn, profile, steps, textlint });
         addUsage(usage, result.usage);
-        if (!result.problems.length || round === 2) break;
+        if (!result.problems.length || round >= fixRounds) break;
         log(`autowrite: fixing ${result.problems.length} problem(s)`);
         const r = await steps.reviseArticle({ author, config, title, body, problems: result.problems, today, platform: "qiita" });
         addUsage(usage, r.usage);
@@ -503,7 +546,7 @@ export async function qiitaCompanions({ root, profile, config, now = new Date(),
     } catch (err) {
       Object.assign(entry, { status: "failed", problems: [err.message] });
     }
-    Object.assign(entry, { usage, cost_usd: Number(costUsd(usage).toFixed(2)) });
+    Object.assign(entry, { model, usage, cost_usd: Number(costUsd(usage, model).toFixed(2)) });
     const history = readQiitaHistory(root);
     history.push(entry);
     fs.mkdirSync(path.dirname(QIITA_HISTORY(root)), { recursive: true });

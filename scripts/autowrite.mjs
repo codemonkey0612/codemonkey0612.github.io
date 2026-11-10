@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import { loadProfile, ROOT } from "./lib/common.mjs";
-import { autowrite, claudeSteps, loadConfig, openSlots, qiitaCompanions } from "./lib/writer-core.mjs";
+import { autowrite, claudeSettings, claudeSteps, loadConfig, openSlots, qiitaCompanions } from "./lib/writer-core.mjs";
 
 const out = (k, v) => process.env.GITHUB_OUTPUT && fs.appendFileSync(process.env.GITHUB_OUTPUT, `${k}=${v}\n`);
 const summary = (text) => process.env.GITHUB_STEP_SUMMARY && fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${text}\n`);
@@ -31,7 +31,7 @@ if (!process.env.ANTHROPIC_API_KEY) {
 }
 
 const profile = loadProfile();
-const steps = claudeSteps(new Anthropic(), (m) => console.error(m));
+const steps = claudeSteps(new Anthropic(), (m) => console.error(m), claudeSettings(config));
 const ideasFile = path.join(ROOT, "ideas.md");
 const results = slots.length
   ? await autowrite({ root: ROOT, profile, config, steps, ideas: fs.existsSync(ideasFile) ? fs.readFileSync(ideasFile, "utf8") : "", log: (m) => console.log(m) })

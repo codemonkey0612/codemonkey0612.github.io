@@ -126,9 +126,10 @@ const draft = (at, { title = "pandasで重複を検出する", status = null, bo
   `---\ntitle: ${title}\ntags:\n  - Python\nprivate: false\nignorePublish: true\nzenn: articles/x.md\n${status ? `status: ${status}\n` : ""}${at ? `published_at: ${at}\n` : ""}---\n\n${body}`;
 const live = "---\ntitle: 公開済み\ntags:\n  - Python\nprivate: false\nupdated_at: '2026-11-10T21:13:38+09:00'\nid: e82696ebcc5f745696a3\nignorePublish: false\n---\n本文\n";
 
-test("at 09:00 the oldest due Qiita article goes into public/, one a day", async () => {
+test("at 09:00 the day's Qiita article (the newest due) goes into public/, one a day", async () => {
   const dir = repo({
     "public/live.md": live,
+    "qiita/missed-article.md": draft("2026-11-10 09:00", { title: "前日に出せなかった記事" }),
     "qiita/day-one-article.md": draft("2026-11-11 09:00"),
     "qiita/day-two-article.md": draft("2026-11-12 09:00", { title: "二日目" }),
     "qiita/broken-article.md": draft("2026-11-10 09:00", { status: "failed" }),
@@ -147,6 +148,29 @@ test("at 09:00 the oldest due Qiita article goes into public/, one a day", async
   const postedToday = api({ items: { e82696ebcc5f745696a3: { id: "e82696ebcc5f745696a3", private: false } }, mine: [{ id: "new1", title: "pandasで重複を検出する", created_at: "2026-11-11T09:01:00+09:00" }] });
   assert.equal((await prepareQiita({ root: dir, profile, api: postedToday, now: jst("2026-11-11T15:00") })).action, "posted-today");
   assert.ok(!fs.existsSync(path.join(dir, "public/day-two-article.md")));
+  assert.ok(!fs.existsSync(path.join(dir, "public/missed-article.md")), "the missed one waits for a day without its own");
+
+  // A day with no article of its own: the missed one goes out, but not before 09:00.
+  const quiet = repo({ "qiita/missed-article.md": draft("2026-11-10 09:00", { title: "前日に出せなかった記事" }) });
+  assert.equal((await prepareQiita({ root: quiet, profile, api: api(), now: jst("2026-11-12T08:00") })).action, "nothing");
+  const late = await prepareQiita({ root: quiet, profile, api: api(), now: jst("2026-11-12T09:05") });
+  assert.deepEqual([late.action, path.basename(late.file)], ["prepared", "missed-article.md"]);
+});
+
+test("no new article is started once the day's budget is spent; tomorrow's run goes on", async () => {
+  const history = JSON.stringify([{ date: "2026-11-12 09:00", status: "scheduled", written_at: "2026-11-10T22:00:00Z", cost_usd: 0.9 }]);
+  const files = { "articles/excel-first-step-001.md": zenn("2026-11-12 09:00"), "autopilot/history.json": history, "autopilot/qiita.json": JSON.stringify([{ written_at: "2026-11-10T22:30:00Z", cost_usd: 0.2 }]) };
+  const dir = repo(files);
+  const { steps, calls } = fakeSteps();
+  const logs = [];
+  // 07:30 JST on the 11th = 22:30 UTC on the 10th: $1.10 spent today already.
+  assert.deepEqual(await qiitaCompanions({ root: dir, profile, config, now: new Date("2026-11-10T22:30:00Z"), steps, textlint: () => [], log: (m) => logs.push(m) }), []);
+  assert.equal(calls.length, 0);
+  assert.match(logs.join("\n"), /today's budget \(\$1\) is used up/);
+  const next = await qiitaCompanions({ root: dir, profile, config, now: new Date("2026-11-11T21:00:00Z"), steps, textlint: () => [] });
+  assert.deepEqual(next.map((r) => r.status), ["scheduled"], "the next day starts with a fresh budget");
+  const higher = repo(files);
+  assert.equal((await qiitaCompanions({ root: higher, profile, config: { ...config, claude: { budget_usd_per_day: 2 } }, now: new Date("2026-11-10T22:30:00Z"), steps, textlint: () => [] })).length, 1);
 });
 
 test("a title already on Qiita is adopted, not posted again; a promotional link stops the article", async () => {

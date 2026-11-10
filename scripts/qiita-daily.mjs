@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // autopilot.yml `qiita: daily`. Run by the Publish workflow just before qiita-cli: it puts the
 // morning's Qiita article (qiita/<slug>.md, written and checked by the autopilot) into public/,
-// where qiita-cli posts it. At most one new Qiita article per day (Japan time), the oldest due
-// one first, and never a title that's already on your Qiita (its id is reused instead).
+// where qiita-cli posts it. At most one new Qiita article per day (Japan time), the newest due
+// one first (one that missed its morning goes out on a day without its own), and never a title
+// that's already on your Qiita (its id is reused instead).
 //
 // First it looks at the Qiita articles this repository posted. If Qiita has hidden one (its spam
 // monitoring makes it private) or it's gone, it writes qiita/PAUSED and posts nothing more until
@@ -91,13 +92,16 @@ export async function prepareQiita({ root = ROOT, profile, api, now = new Date()
   const mine = await api.myItems();
   if (mine.some((i) => i.created_at && jstDay(new Date(i.created_at)) === today)) return { action: "posted-today" };
 
-  // 3. The oldest due article that isn't on Qiita yet.
-  const due = read(path.join(root, "qiita"))
-    .filter((d) => d.data.status !== "failed" && publishedAt(d.data.published_at) && publishedAt(d.data.published_at) <= now)
-    .filter((d) => !fs.existsSync(path.join(root, "public", `${d.slug}.md`)))
-    .sort((a, b) => publishedAt(a.data.published_at) - publishedAt(b.data.published_at));
-  if (!due.length) return { action: "nothing" };
-  const d = due[0];
+  // 3. Today's article once it's due. One that missed its morning goes out after 09:00 on a
+  // later day that has none of its own, the newest first.
+  const waiting = read(path.join(root, "qiita"))
+    .filter((d) => d.data.status !== "failed" && publishedAt(d.data.published_at))
+    .filter((d) => !fs.existsSync(path.join(root, "public", `${d.slug}.md`)));
+  const at = (d) => publishedAt(d.data.published_at);
+  const todays = waiting.find((d) => jstDay(at(d)) === today);
+  const missed = waiting.filter((d) => jstDay(at(d)) < today).sort((a, b) => at(b) - at(a));
+  const d = todays ? (at(todays) <= now ? todays : null) : now >= publishedAt(`${today} 09:00`) ? missed[0] : null;
+  if (!d) return { action: "nothing" };
   const target = path.join(root, "public", `${d.slug}.md`);
   const remote = mine.find((i) => i.title === d.data.title) ?? null;
   const fm = frontMatter(String(d.data.title), d.data.tags, remote);

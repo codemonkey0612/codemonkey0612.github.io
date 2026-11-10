@@ -11,6 +11,16 @@ enabled: true
 mode: auto            # auto | review
 days_ahead: 2         # keep this many mornings filled (today's 09:00 counts until 08:00)
 max_per_run: 2        # at most this many articles per run
+
+# Cost (2026-11-10: on Claude Opus 5.5 at high effort an article cost $2.60–10, plus its web
+# searches). Prices per million tokens in/out: Opus 5.5 $4/$20, Sonnet 5.5 $2/$10; each web
+# search $0.01. Every run's cost (searches included) is in autopilot/history.json and qiita.json.
+claude:
+  model: claude-sonnet-5-5  # claude-opus-5-5 writes a little better at about twice the price
+  effort: medium            # low | medium | high (more thinking, more output tokens, more cost)
+  fix_rounds: 2             # rounds of fixes after the checks (each one is a full fact-check)
+  budget_usd_per_day: 1     # no new article (Zenn or Qiita) is started once today's runs have
+                            # spent this much; the rest is written on the next run
 note: auto            # auto: publish each article on note at 09:00 too (needs the NOTE_SESSION
                       # secret) | draft: save it as a note draft for you | off: no note copies
 qiita: daily          # daily: the writer also writes a separate Qiita article for each morning

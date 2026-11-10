@@ -32,6 +32,7 @@ const Config = z.object({
   max_per_run: z.number().int().min(1).max(3),
   pillars: z.array(Pillar).min(1),
   avoid: z.array(z.string()).default([]),
+  qiita: z.enum(["auto", "manual", "daily", "off"]).default("auto"),
 });
 
 export function loadConfig(root) {
@@ -121,11 +122,15 @@ Then call submit_topic once. title: Japanese, 25–50 characters, concrete, no c
   return { system, user };
 }
 
-const RULES = (author, config) => `Write in Japanese, です・ます調, in the first person 「${author.persona}」.
+const MARKDOWN = {
+  zenn: "Markdown: Zenn flavour. ## headings, ### for sub-sections, never #. At most one :::message block.",
+  qiita: "Markdown: Qiita flavour. ## headings, ### for sub-sections, never #. At most one :::note info block.",
+};
+const RULES = (author, config, platform = "zenn") => `Write in Japanese, です・ます調, in the first person 「${author.persona}」.
 Experience: describe only the author's real experience listed under "cases" or "lancers". Keep clients anonymous (industry and size only) and keep their numbers exactly as given. Never invent projects, clients, results, numbers, quotes or conversations. A made-up example must start with 「たとえば」 and be plainly hypothetical.
 Facts: every statistic, price, date, version, release or legal point must come from a page you checked with web search in this session, or one given as a source, and be linked inline as [出典名](URL) where it's used. Prefer primary sources (official docs and announcements, the survey itself). Never write a URL you didn't see. If you can't confirm something, leave it out.
 Code (engineering readers): short, complete and correct for current versions, in fenced blocks with the language (and a file name like \`\`\`python:main.py where useful), with what each part does explained; no secrets or real endpoints.
-Markdown: Zenn flavour. ## headings, ### for sub-sections, never #. At most one :::message block. No HTML, no images, no tables wider than four columns, no task-list checkboxes (- [ ]); use plain bullets.
+${MARKDOWN[platform]} No HTML, no images, no tables wider than four columns, no task-list checkboxes (- [ ]); use plain bullets.
 Style (checked by textlint): sentences under 100 characters, at most three 読点 per sentence, no doubled particles, no 「！」.
 Never: ${config.avoid.join("、")}.`;
 
@@ -150,15 +155,68 @@ When it's finished, call submit_article once with the whole article body.`;
   return { system, user };
 }
 
-export function revisePrompt({ author, config, title, body, problems, today }) {
-  const system = `You fix a Japanese article that automated checks flagged before publication. Fix every problem listed and keep everything else as it is: structure, voice, length and the closing paragraph with its links. For a fact that is wrong or unsourced: search the web, correct it and link the source inline, or remove the claim. Never add new unsourced facts or invented experience.
+export function revisePrompt({ author, config, title, body, problems, today, platform = "zenn" }) {
+  const keep = platform === "qiita" ? "structure, voice and length. It must stay free of promotion: no links to the author's site, Lancers, Zenn or note" : "structure, voice, length and the closing paragraph with its links";
+  const system = `You fix a Japanese article that automated checks flagged before publication. Fix every problem listed and keep everything else as it is: ${keep}. For a fact that is wrong or unsourced: search the web, correct it and link the source inline, or remove the claim. Never add new unsourced facts or invented experience.
 
-${RULES(author, config)}
+${RULES(author, config, platform)}
 
 Call submit_article once with the complete corrected article body.`;
   const user = [`Today is ${today} (Japan time).`, `Title: ${title}`, `Problems to fix:\n${list(problems)}`, `<article>\n${body}\n</article>`].join("\n\n");
   return { system, user };
 }
+
+/**
+ * The day's Qiita article: its own engineer-facing piece on a technical part of the Zenn
+ * article's topic. Qiita is 「エンジニアに関する知識を記録・共有するためのサービス」, forbids posts
+ * whose main purpose is promotion and asks that AI-written content be checked before posting;
+ * its spam monitoring hid an automatic copy of a Zenn article that ended with service links.
+ */
+export function qiitaPrompt({ author, config, zenn, today }) {
+  const system = `You write one article for Qiita in the name of ${author.name}, a freelance AI and web engineer in Japan. Qiita is 「エンジニアに関する知識を記録・共有するためのサービス」: its readers are engineers, its rules forbid posts whose main purpose is promotion, and AI-written content must be accurate.
+
+The author's Zenn article for the same morning is given below. Write a DIFFERENT, self-contained Qiita article: pick one concrete technical problem inside that topic (or the implementation behind it) and solve it for engineers with working code or configuration. Don't reuse the Zenn article's title, sentences or structure: someone who read both must learn something new here. If the Zenn article is for non-engineers, write about how to build or check what it describes.
+
+${RULES(author, config, "qiita")}
+
+No promotion at all: no links to the author's website, Lancers, Zenn or note, no closing paragraph about the author's services, no 「ご相談ください」. Link only sources and official documentation.
+Shape: state the problem in 1–3 sentences, then the environment or prerequisites (versions) where it matters, the solution step by step with code, how to confirm it works, pitfalls, and a short まとめ. 2,000–5,000 characters with at least one complete fenced code block. Don't repeat the title as a heading.
+title: Japanese, 20–60 characters, specific and technical (name the tool and the problem), different from the Zenn title. tags: 1–5 Qiita tags as Qiita writes them (e.g. Python, pandas, PostgreSQL, ChatGPT, 生成AI, RAG), no spaces.
+
+When it's finished, call submit_qiita once.`;
+  const user = [
+    `Today is ${today} (Japan time).`,
+    `The author's experience you may use:\n${JSON.stringify({ cases: author.cases, lancers: author.lancers, years_of_experience: author.years_of_experience, certifications: author.certifications }, null, 2)}`,
+    `The Zenn article (for the topic only; write something new):\nTitle: ${zenn.title}\n<zenn>\n${zenn.body}\n</zenn>`,
+  ].join("\n\n");
+  return { system, user };
+}
+
+export const QIITA_TOOL = {
+  name: "submit_qiita",
+  description: "Submit the finished Qiita article. Call exactly once.",
+  strict: true,
+  eager_input_streaming: true,
+  input_schema: {
+    type: "object",
+    additionalProperties: false,
+    required: ["title", "tags", "body"],
+    properties: {
+      title: { type: "string", description: "Japanese title, 20–60 characters." },
+      tags: { type: "array", items: { type: "string", description: "Qiita tag, no spaces" }, description: "1–5 tags." },
+      body: { type: "string", description: "The whole article in Qiita Markdown, without the title heading or front matter." },
+    },
+  },
+};
+export const QiitaArticle = z.object({
+  title: z.string().refine((t) => [...t].length >= 10 && [...t].length <= 70, "title must be 10–70 characters"),
+  tags: z.array(z.string().regex(/^[^\s]{1,32}$/, "tags: one word each, no spaces")).min(1).max(5),
+  body: z
+    .string()
+    .min(1500, "the article is too short")
+    .refine((b) => !/^#\s/m.test(outsideCode(b)), "use ## and ### headings only (no # heading outside code blocks)")
+    .refine((b) => /^(`{3,}|~{3,})/m.test(b), "include at least one fenced code block"),
+});
 
 // ---------- tools and schemas ----------
 
@@ -237,6 +295,7 @@ export function claudeSteps(client, log) {
     chooseTopic: (ctx) => run(topicPrompt(ctx), topicTool(ctx.author), Topic, "topic", ctx.pillar.id === "news" ? 12 : 6),
     writeArticle: (ctx) => run(writePrompt(ctx), ARTICLE_TOOL, Article, "article", 10),
     reviseArticle: (ctx) => run(revisePrompt(ctx), ARTICLE_TOOL, Article, "article", 6),
+    writeQiita: (ctx) => run(qiitaPrompt(ctx), QIITA_TOOL, QiitaArticle, "Qiita article", 10),
     factcheck: (article, profile) => factcheck({ client, article, profile, log }),
   };
 }
@@ -350,6 +409,107 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
     appendHistory(root, entry);
     results.push(entry);
     log(`autowrite: ${entry.status} — ${entry.title ?? "(no topic)"} ($${entry.cost_usd})`);
+  }
+  return results;
+}
+
+// ---------- the daily Qiita article (autopilot.yml `qiita: daily`) ----------
+
+export const QIITA_DIR = "qiita";
+const QIITA_HISTORY = (root) => path.join(root, "autopilot", "qiita.json");
+export const readQiitaHistory = (root) => (fs.existsSync(QIITA_HISTORY(root)) ? JSON.parse(fs.readFileSync(QIITA_HISTORY(root), "utf8")) : []);
+
+/** Share (0–1) of the Qiita article's prose that also appears word for word in the Zenn article. */
+export function overlap(qiitaBody, zennBody) {
+  const plain = (md) => outsideCode(md).replace(/<!--[\s\S]*?-->/g, "").replace(/\]\([^)]*\)/g, "]").replace(/[\s#*`>\-[\]|:]/g, "");
+  const shingles = (t) => new Set(Array.from({ length: Math.max(0, t.length - 11) }, (_, i) => t.slice(i, i + 12)));
+  const q = shingles(plain(qiitaBody));
+  if (!q.size) return 0;
+  const z = shingles(plain(zennBody));
+  let shared = 0;
+  for (const s of q) if (z.has(s)) shared++;
+  return shared / q.size;
+}
+export const MAX_OVERLAP = 0.15;
+
+async function checkQiita({ root, file, zenn, profile, steps, textlint }) {
+  const { data, content } = matter(fs.readFileSync(file, "utf8"));
+  // Checked as it will be published (ignorePublish: false), so the publish rules apply.
+  const article = { file, platform: "qiita", data: { ...data, private: false, ignorePublish: false }, content, raw: "" };
+  const problems = [];
+  problems.push(...validateArticle(article, profile).errors.map((e) => `validate: ${e}`));
+  problems.push(...textlint(root, file));
+  if (!/^(`{3,}|~{3,})/m.test(content)) problems.push("include at least one complete fenced code block: Qiita readers are engineers");
+  if (data.title === zenn.title) problems.push("use a different title from the Zenn article");
+  const shared = overlap(content, zenn.body);
+  if (shared > MAX_OVERLAP)
+    problems.push(`${Math.round(shared * 100)}% of the text is copied from the Zenn article: rewrite it as a separate article in your own words and structure (Qiita treats copies as spam)`);
+  const fc = await steps.factcheck(article, profile);
+  const findings = fc.report.findings.map((f) => ({ ...f, level: severity(f) }));
+  for (const f of findings.filter((x) => x.level === "error"))
+    problems.push(`fact-check (${f.claim_type}, ${f.verdict}): 「${f.quote}」 — ${f.explanation}${f.suggested_fix ? ` Fix: ${f.suggested_fix}` : ""}`);
+  return { problems, warnings: findings.filter((x) => x.level === "warning").length, usage: fc.usage };
+}
+
+/**
+ * Writes the Qiita article for every scheduled Zenn article from today on that has none yet
+ * (qiita/<slug>.md, or already on Qiita as public/<slug>.md). Same checks and up to two rounds
+ * of fixes as the Zenn article, plus: no promotional links, a code block, a different title
+ * and little shared text. A passing one gets published_at (the Zenn article's morning) and the
+ * Publish workflow posts it then; a failing one is kept without a date, so it's never posted.
+ */
+export async function qiitaCompanions({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, log = () => {} }) {
+  const author = authorContext(profile);
+  const today = jstDay(now);
+  const results = [];
+  const todo = zennArticles(root).filter(
+    (a) => a.data.published === true && a.at && jstDay(a.at) >= today && ![path.join(root, "public", `${a.slug}.md`), path.join(root, QIITA_DIR, `${a.slug}.md`)].some((f) => fs.existsSync(f)),
+  );
+  for (const a of todo.slice(0, config.days_ahead + 1)) {
+    const usage = emptyUsage();
+    const slot = String(a.data.published_at);
+    const entry = { date: slot, zenn: `articles/${a.slug}.md`, written_at: now.toISOString() };
+    const file = path.join(root, QIITA_DIR, `${a.slug}.md`);
+    const zenn = { title: String(a.data.title), body: a.content.trim() };
+    try {
+      log(`autowrite: Qiita article for 「${zenn.title}」`);
+      const w = await steps.writeQiita({ author, config, zenn, today });
+      addUsage(usage, w.usage);
+      const { title, tags } = w.value;
+      let body = w.value.body;
+      const frontMatter = { title, tags, private: false, ignorePublish: true, zenn: `articles/${a.slug}.md` };
+      Object.assign(entry, { title, file: path.relative(root, file) });
+      writeFile(file, frontMatter, body);
+      let result;
+      for (let round = 0; ; round++) {
+        log(`autowrite: checking the Qiita article (round ${round + 1})`);
+        result = await checkQiita({ root, file, zenn, profile, steps, textlint });
+        addUsage(usage, result.usage);
+        if (!result.problems.length || round === 2) break;
+        log(`autowrite: fixing ${result.problems.length} problem(s)`);
+        const r = await steps.reviseArticle({ author, config, title, body, problems: result.problems, today, platform: "qiita" });
+        addUsage(usage, r.usage);
+        body = r.value.body;
+        writeFile(file, frontMatter, body);
+      }
+      if (result.problems.length) {
+        const note = `<!-- autopilot: not posted to Qiita, these checks still failed:\n${result.problems.map((p) => `- ${p.replace(/--/g, "‐‐")}`).join("\n")}\n-->`;
+        writeFile(file, { ...frontMatter, status: "failed" }, `${note}\n\n${body}`);
+        Object.assign(entry, { status: "failed", problems: result.problems });
+      } else {
+        writeFile(file, { ...frontMatter, published_at: slot }, body);
+        Object.assign(entry, { status: "scheduled", fact_check_warnings: result.warnings });
+      }
+    } catch (err) {
+      Object.assign(entry, { status: "failed", problems: [err.message] });
+    }
+    Object.assign(entry, { usage, cost_usd: Number(costUsd(usage).toFixed(2)) });
+    const history = readQiitaHistory(root);
+    history.push(entry);
+    fs.mkdirSync(path.dirname(QIITA_HISTORY(root)), { recursive: true });
+    fs.writeFileSync(QIITA_HISTORY(root), `${JSON.stringify(history, null, 2)}\n`);
+    results.push(entry);
+    log(`autowrite: Qiita ${entry.status} — ${entry.title ?? "(none)"} ($${entry.cost_usd})`);
   }
   return results;
 }

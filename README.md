@@ -80,7 +80,7 @@ open mornings on its own (`scripts/autowrite.mjs`, settings in `autopilot.yml`):
    fact-check). Anything they flag goes back to Claude to fix, up to two rounds.
 4. **Publishing:** a passing article is committed with `published: true` and its
    morning's `published_at`; Zenn publishes it at 09:00 and the Publish workflow
-   copies it to Qiita (see below). One that still fails is kept as an unpublished
+   posts the day's separate Qiita article (see below). One that still fails is kept as an unpublished
    Zenn draft with the problems listed at its top, the morning stays open for the
    next run, and the run fails so GitHub emails you.
 
@@ -118,10 +118,34 @@ checks and comments the fact-check report. Merge any time before its morning:
 
 1. **Zenn** publishes it at its `published_at` by itself (Zenn's own scheduled
    publishing).
-2. **Qiita** (off since 2026-11-09: Qiita's spam monitoring hid the first
-   automatic post; `qiita: auto` in `autopilot.yml` turns it back on, and the
-   copies leave out the promotional closing paragraph): every morning the
-   Publish workflow waits until
+2. **Qiita** gets its own article each morning (`qiita: daily` in
+   `autopilot.yml`, since 2026-11-10), not a copy: Qiita's spam monitoring hid
+   the first automatic copy on 2026-11-09, and its guideline wants knowledge
+   useful to engineers, no posts mainly for promotion, and AI-written content
+   checked before posting.
+   - **Writing** (the 06:00 autopilot run): for every scheduled Zenn article
+     from today on without one, Claude writes `qiita/<slug>.md`, a separate
+     engineer-facing article on one technical problem in that topic, with
+     working code. It goes through validate, textlint and the fact-check (up
+     to two rounds of fixes) plus: no links to your site, Lancers, Zenn or note
+     (validate refuses them on every Qiita article), at least one code block, a
+     title different from Zenn's, and at most 15% of its prose shared word for
+     word with the Zenn article. A passing one gets the Zenn article's
+     `published_at`; one that still fails gets `status: failed`, is never
+     posted, and the run fails. Logged in `autopilot/qiita.json`.
+   - **Posting** (the 09:00 Publish run, `scripts/qiita-daily.mjs`): first it
+     checks the Qiita articles this repository posted. If Qiita has hidden one
+     (made it private) or it's gone, it writes `qiita/PAUSED` and posts nothing
+     more until you've looked at it and deleted that file; a post Qiita refuses
+     pauses it the same way. Then, if nothing went up on your Qiita today, it
+     moves the oldest due article into `public/` (reusing the id if that title is
+     already on Qiita) and qiita-cli posts it. At most one new Qiita article a
+     day. A Qiita problem fails the run (GitHub emails you) but never stops note
+     or Bluesky.
+
+   `qiita: auto` copies each Zenn article instead (leaving out the promotional
+   closing paragraph), `manual` posts only what you put in `public/`, `off`
+   nothing. With `auto`, every morning the Publish workflow waits until
    09:00, copies each article that's due to `public/<slug>.md` (Zenn-only
    syntax converted: `:::message` → `:::note`, `:::details` → `<details>`,
    embeds → links, `/images/…` → their GitHub URLs) and publishes it. GitHub

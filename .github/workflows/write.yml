@@ -1,8 +1,9 @@
 # Writes the next articles on its own (scripts/autowrite.mjs; settings in autopilot.yml).
 # Every morning at 06:00 JST, and whenever autopilot.yml changes, it fills the open mornings:
 # picks a topic, researches it, writes and checks the article and schedules it for 09:00.
-# mode: auto commits it to main; Zenn publishes it at 09:00 and the Publish workflow copies
-# it to Qiita. mode: review opens a pull request instead (merge to publish).
+# mode: auto commits it to main; Zenn publishes it at 09:00. With `qiita: daily` it also writes
+# a separate Qiita article for each one (qiita/<slug>.md), which the Publish workflow posts at
+# 09:00. mode: review opens a pull request instead (merge to publish).
 # Needs the ANTHROPIC_API_KEY secret. A morning that couldn't be filled fails the run, so
 # GitHub emails you; the failed draft is kept unpublished in articles/ to look at.
 name: Write articles
@@ -59,6 +60,7 @@ jobs:
             branch="autopilot/$(date -u +%Y%m%d-%H%M)"
             git switch -c "$branch"
             git add articles
+            if [ -d qiita ]; then git add qiita; fi
             git commit -m "Autopilot: ${names}"
             git push origin "$branch"
             gh pr create --base main --head "$branch" --title "Autopilot: ${names}" \
@@ -68,7 +70,8 @@ jobs:
             git commit -m "Autopilot: record run (in review)"
           else
             git add articles autopilot
-            git commit -m "Autopilot: ${names}"
+            if [ -d qiita ]; then git add qiita; fi
+            git commit -m "Autopilot: ${names:-Qiita articles}"
           fi
           git pull --rebase origin main
           git push origin HEAD:main

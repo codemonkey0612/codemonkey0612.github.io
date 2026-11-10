@@ -13,15 +13,13 @@ days_ahead: 2         # keep this many mornings filled (today's 09:00 counts unt
 max_per_run: 2        # at most this many articles per run
 note: auto            # auto: publish each article on note at 09:00 too (needs the NOTE_SESSION
                       # secret) | draft: save it as a note draft for you | off: no note copies
-qiita: manual         # auto: copy each article to Qiita at 09:00 | manual: no automatic copies;
-                      # only Qiita articles prepared in public/ with ignorePublish: false are
-                      # published | off: nothing goes to Qiita.
-                      # Copies stopped 2026-11-09: Qiita's spam monitoring hid the first automatic
-                      # post (8dbe9c7b6c37fd66d858). It was rewritten for Qiita (no promotional
-                      # links, pandas example). Qiita refuses API edits to the hidden item (404),
-                      # so on 2026-11-10 the rewrite was posted as a new item; the old one stays
-                      # hidden. If Qiita refuses a new post, the Publish run sets it back to
-                      # ignorePublish: true (scripts/qiita-hold.mjs) instead of retrying.
+qiita: daily          # daily: the writer also writes a separate Qiita article for each morning
+                      # (engineer-facing, working code, no links to your site, Lancers, Zenn or
+                      # note, little text shared with the Zenn article) and the Publish job posts
+                      # it at 09:00: at most one new Qiita article a day, and none while
+                      # qiita/PAUSED exists (written when Qiita hides or refuses a post; delete it
+                      # to resume) | auto: copy each Zenn article to Qiita (Qiita hid the first
+                      # copy on 2026-11-09) | manual: only what you put in public/ | off: nothing.
 bluesky: auto         # auto: announce each new article on Bluesky once it's live on Zenn (title,
                       # opening, your service page, a link card) | off: no Bluesky posts. Needs
                       # platforms.bluesky in profile.yml and the BLUESKY_APP_PASSWORD secret.

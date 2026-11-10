@@ -109,6 +109,27 @@ export function validateArticle(article, profile) {
       out.error(`no link to your site (${profile.site_url}): add a call to action that points to a service page or ${profile.contact_url}`);
   }
 
+  // Qiita articles carry no promotion at all: no links to your site, Lancers, Zenn or note.
+  if (article.platform === "qiita") {
+    const p = profile.platforms ?? {};
+    const own = allLinks.filter((u) => {
+      let host;
+      let pathname;
+      try {
+        ({ host, pathname } = new URL(u));
+      } catch {
+        return false;
+      }
+      return (
+        ownOrigins.has(origin(u)) ||
+        /(^|\.)lancers\.jp$/.test(host) ||
+        (host === "zenn.dev" && typeof p.zenn === "string" && pathname.startsWith(`/${p.zenn}`)) ||
+        (host === "note.com" && typeof p.note === "string" && pathname.startsWith(`/${p.note}`))
+      );
+    });
+    if (own.length) (ready ? out.error : out.warn)(`Qiita articles must not link to your site, Lancers, Zenn or note (Qiita forbids promotion): ${own.slice(0, 3).join(", ")}`);
+  }
+
   // Numbers that read like statistics need at least one outside source, unless
   // they are your own published results (profile.yml cases / Lancers stats).
   const own = ownStatistics(profile);

@@ -67,8 +67,19 @@ jobs:
       - name: Copy due Zenn articles to Qiita and note
         run: node scripts/crosspost.mjs ${{ github.event_name == 'schedule' && '--at 09:00' || '' }}
 
-      # Stop before publishing anything broken (missing call to action, TODOs, bad tags).
+      # autopilot.yml `qiita: daily`: puts the morning's Qiita article (written by the autopilot in
+      # qiita/) into public/ for qiita-cli. At most one new Qiita article a day; none while
+      # qiita/PAUSED exists (written when Qiita hides or refuses one of your posts).
+      - name: Prepare today's Qiita article
+        id: qiita_daily
+        if: env.QIITA_TOKEN != '' && steps.settings.outputs.qiita == 'daily'
+        run: node scripts/qiita-daily.mjs
+
+      # Stop before publishing anything broken (bad tags, TODOs, promotional links on Qiita).
+      # A failure here stops only Qiita; note and Bluesky still post.
       - name: Validate Qiita articles
+        id: qiita_validate
+        continue-on-error: true
         run: |
           shopt -s nullglob
           files=(public/*.md)
@@ -82,7 +93,7 @@ jobs:
       # A Qiita failure doesn't stop the note post below; the last step fails the run afterwards.
       - name: Publish to Qiita
         id: qiita
-        if: env.QIITA_TOKEN != '' && steps.settings.outputs.qiita != 'off'
+        if: env.QIITA_TOKEN != '' && steps.settings.outputs.qiita != 'off' && steps.qiita_validate.outcome == 'success'
         continue-on-error: true
         uses: increments/qiita-cli/actions/publish@v1
         with:
@@ -95,10 +106,11 @@ jobs:
         if: steps.qiita.outcome == 'failure'
         run: |
           node scripts/qiita-hold.mjs
-          if [ -n "$(git status --porcelain -- public)" ]; then
+          if [ -n "$(git status --porcelain -- public qiita)" ]; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add public
+            if [ -d qiita ]; then git add qiita; fi
             git commit -m "Hold back the Qiita articles Qiita refused"
             git pull --rebase origin "$GITHUB_REF_NAME"
             git push origin "HEAD:$GITHUB_REF_NAME"
@@ -129,22 +141,23 @@ jobs:
       # post, so the next run updates the same note post and never posts twice. Runs even if a
       # post failed.
       - name: Commit post records
-        if: always() && (env.NOTE_SESSION != '' || env.BLUESKY_APP_PASSWORD != '')
+        if: always() && (env.NOTE_SESSION != '' || env.BLUESKY_APP_PASSWORD != '' || env.QIITA_TOKEN != '')
         run: |
           paths=()
           if [ -n "$NOTE_SESSION" ]; then paths+=(notes); fi
           if [ -n "$BLUESKY_APP_PASSWORD" ] && [ -d social ]; then paths+=(social); fi
+          if [ -n "$QIITA_TOKEN" ]; then for d in public qiita; do if [ -d "$d" ]; then paths+=("$d"); fi; done; fi
           if [ ${#paths[@]} -gt 0 ] && [ -n "$(git status --porcelain -- "${paths[@]}")" ]; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -- "${paths[@]}"
-            git commit -m "Record note and Bluesky posts"
+            git commit -m "Record posts"
             git pull --rebase origin "$GITHUB_REF_NAME"
             git push origin "HEAD:$GITHUB_REF_NAME"
           fi
 
       - name: Fail the run if Qiita failed
-        if: always() && steps.qiita.outcome == 'failure'
+        if: always() && (steps.qiita.outcome == 'failure' || steps.qiita_validate.outcome == 'failure' || steps.qiita_daily.outputs.paused_now == 'true' || steps.qiita_daily.outputs.failed == 'true')
         run: |
-          echo "::error::Qiita refused the post: see the Publish to Qiita step. New articles it refused were set to ignorePublish: true so they are not sent again."
+          echo "::error::Qiita: see the Prepare / Validate / Publish to Qiita steps. A post Qiita refused is set to ignorePublish: true, and daily Qiita posts pause (qiita/PAUSED) when Qiita refuses or hides one."
           exit 1

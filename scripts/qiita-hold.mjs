@@ -10,6 +10,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { rel, ROOT } from "./lib/common.mjs";
+import { pauseQiita } from "./qiita-daily.mjs";
 
 /** Marks the unsent Qiita articles under root/public ignorePublish: true; returns their paths. */
 export function holdUnsent(root = ROOT) {
@@ -34,4 +35,6 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
   const held = holdUnsent();
   for (const f of held) console.log(`qiita: held back ${rel(f)} (set ignorePublish: false to send it again)`);
   if (!held.length) console.log("qiita: no unsent article to hold back");
+  // A refused post also pauses the daily Qiita article (autopilot.yml `qiita: daily`).
+  else pauseQiita(ROOT, `${new Date().toISOString().slice(0, 10)}: Qiita refused ${held.map((f) => rel(f)).join(", ")} (see the Publish run).`);
 }

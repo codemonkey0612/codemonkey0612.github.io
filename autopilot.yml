@@ -18,7 +18,10 @@ qiita: manual         # auto: copy each article to Qiita at 09:00 | manual: no a
                       # published | off: nothing goes to Qiita.
                       # Copies stopped 2026-11-09: Qiita's spam monitoring hid the first automatic
                       # post (8dbe9c7b6c37fd66d858). It was rewritten for Qiita (no promotional
-                      # links, pandas example) and sent again on 2026-11-10 with `manual`.
+                      # links, pandas example). Qiita refuses API edits to the hidden item (404),
+                      # so on 2026-11-10 the rewrite was posted as a new item; the old one stays
+                      # hidden. If Qiita refuses a new post, the Publish run sets it back to
+                      # ignorePublish: true (scripts/qiita-hold.mjs) instead of retrying.
 
 # What to write about. The writer rotates through these by weight, so over two weeks roughly
 # 3 in 8 posts are about small-business problems, 3 in 8 about AI and software work and 2 in 8

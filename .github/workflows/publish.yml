@@ -77,11 +77,30 @@ jobs:
         if: env.QIITA_TOKEN == ''
         run: echo "::notice::QIITA_TOKEN secret is not set, so Qiita publishing was skipped."
 
-      - if: env.QIITA_TOKEN != '' && steps.settings.outputs.qiita != 'off'
+      # A Qiita failure doesn't stop the note post below; the last step fails the run afterwards.
+      - name: Publish to Qiita
+        id: qiita
+        if: env.QIITA_TOKEN != '' && steps.settings.outputs.qiita != 'off'
+        continue-on-error: true
         uses: increments/qiita-cli/actions/publish@v1
         with:
           qiita-token: ${{ secrets.QIITA_TOKEN }}
           root: "."
+
+      # If Qiita refused a new article, mark it ignorePublish so the next runs don't send it again
+      # (repeated attempts from a new account look like spam). Set it back to false to retry.
+      - name: Hold back the articles Qiita refused
+        if: steps.qiita.outcome == 'failure'
+        run: |
+          node scripts/qiita-hold.mjs
+          if [ -n "$(git status --porcelain -- public)" ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add public
+            git commit -m "Hold back the Qiita articles Qiita refused"
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
 
       # note has no posting API for individual accounts, so this uses the endpoints note's own
       # editor uses, signed in with your cookie. Until NOTE_SESSION is set, skip.
@@ -106,3 +125,9 @@ jobs:
             git pull --rebase origin "$GITHUB_REF_NAME"
             git push origin "HEAD:$GITHUB_REF_NAME"
           fi
+
+      - name: Fail the run if Qiita failed
+        if: always() && steps.qiita.outcome == 'failure'
+        run: |
+          echo "::error::Qiita refused the post: see the Publish to Qiita step. New articles it refused were set to ignorePublish: true so they are not sent again."
+          exit 1

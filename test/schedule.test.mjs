@@ -5,6 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import matter from "gray-matter";
 import { crosspost, msUntil, withoutCta } from "../scripts/crosspost.mjs";
+import { holdUnsent } from "../scripts/qiita-hold.mjs";
 import { listArticles } from "../scripts/lib/site-core.mjs";
 import { isLive, nextFreeSlot, publishedAt, zennToNote, zennToQiita } from "../scripts/lib/schedule.mjs";
 import { validateArticle } from "../scripts/lib/validate-core.mjs";
@@ -187,6 +188,19 @@ test("a Qiita copy marked ignorePublish (e.g. hidden by Qiita) is never rewritte
   const [r] = crosspost({ root: dir, profile, now: jst("2026-11-10T09:00") });
   assert.equal(r.action, "unchanged");
   assert.equal(fs.readFileSync(path.join(dir, "public/live-article-01.md"), "utf8"), held);
+});
+
+test("after Qiita refuses a post, the articles not yet on Qiita are held back, and only those", () => {
+  const unsent = "---\ntitle: 新しい記事\ntags:\n  - Python\nprivate: false\nupdated_at: ''\nid: null\nslide: false\nignorePublish: false\n---\nignorePublish: false は本文では書き換えない\n";
+  const live = "---\ntitle: 公開済み\ntags:\n  - Python\nprivate: false\nid: abc123\nignorePublish: false\n---\n本文\n";
+  const draft = "---\ntitle: 下書き\ntags: [x]\nid: null\nignorePublish: true\n---\n本文\n";
+  const dir = repo({ "public/new.md": unsent, "public/live.md": live, "public/draft.md": draft });
+  assert.deepEqual(holdUnsent(dir).map((f) => path.basename(f)), ["new.md"]);
+  assert.equal(fs.readFileSync(path.join(dir, "public/new.md"), "utf8"), unsent.replace("slide: false\nignorePublish: false", "slide: false\nignorePublish: true"));
+  assert.equal(fs.readFileSync(path.join(dir, "public/live.md"), "utf8"), live);
+  assert.equal(fs.readFileSync(path.join(dir, "public/draft.md"), "utf8"), draft);
+  assert.deepEqual(holdUnsent(dir), []);
+  assert.deepEqual(holdUnsent(repo({})), []);
 });
 
 test("qiita: off makes no Qiita copies; Qiita copies never carry the promotional closing paragraph", () => {

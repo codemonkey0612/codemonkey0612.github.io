@@ -285,8 +285,6 @@ const jsonld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj
 const join = (xs) => xs.filter((x) => x !== false && x != null).join("\n"); // keeps blank lines
 const ext = (url, text, cls = "") =>
   `<a${cls ? ` class="${cls}"` : ""} href="${esc(url)}" target="_blank" rel="noopener">${text}<span class="sr-only">（新しいタブで開きます）</span></a>`;
-const AI_NOTE = "画像・動画に登場する人物は、AIで生成したイメージキャラクターです。";
-const AI_VIDEO_NOTE = "紹介動画の案内役は、AIで生成したキャラクターです。";
 
 // Line icons (24×24, currentColor).
 const ICON = {
@@ -425,14 +423,13 @@ ${body}
     </div>
     <div class="ft-bottom">
       <p>© ${site.today.getFullYear()} ${esc(profile.name)}　ご相談・ご契約は、<a href="${contact}">ランサーズ</a>を通してお受けしています。</p>
-      <p>${AI_NOTE}</p>
     </div>
   </div>
 </footer>
 <dialog class="vmodal" aria-label="紹介動画">
   <button class="vmodal-x" type="button"><span class="sr-only">閉じる</span>${icon("close")}</button>
   <video controls playsinline preload="none"></video>
-  <p class="vmodal-meta"><span class="vmodal-t"></span><span>${AI_VIDEO_NOTE}</span></p>
+  <p class="vmodal-meta"><span class="vmodal-t"></span></p>
 </dialog>
 </body>
 </html>
@@ -666,7 +663,7 @@ ${
   reel
     ? `<section class="sec" id="movie">
   <div class="wrap">
-    ${head("Movie", "紹介動画", { lead: `サービスの紹介動画をまとめたダイジェストです。各サービスの紹介動画は、サービスのページでご覧いただけます。${AI_VIDEO_NOTE}` })}
+    ${head("Movie", "紹介動画", { lead: `サービスの紹介動画をまとめたダイジェストです。各サービスの紹介動画は、サービスのページでご覧いただけます。` })}
     <div class="video" data-reveal><video controls playsinline preload="none" poster="${base}${esc(reel.poster)}" aria-label="紹介動画のダイジェスト"><source src="${base}${esc(reel.video)}" type="video/mp4"></video></div>
   </div>
 </section>`
@@ -718,7 +715,7 @@ ${
   s.packages.length
     ? `<section class="sec sec-gray" id="price">
   <div class="wrap">
-    ${head("Price", "料金の目安", { lead: `ランサーズで出品しているパッケージの料金です（${jaDate(profile.lancers?.as_of)}時点）。内容に合わせた個別のお見積もりもできます。${s.packages.some((p) => p.video) ? AI_VIDEO_NOTE : ""}` })}
+    ${head("Price", "料金の目安", { lead: `ランサーズで出品しているパッケージの料金です（${jaDate(profile.lancers?.as_of)}時点）。内容に合わせた個別のお見積もりもできます。` })}
     ${s.packages
       .map(
         (p) => `<article class="pkg" data-reveal>
@@ -837,7 +834,7 @@ export function renderWorks(site) {
     <ul class="grid grid-3">
       ${works.lancers.map((w) => workCard(site, w, base)).join("\n      ")}
     </ul>
-    <p class="fine">ランサーズの案件のカバー画像はイメージです（実際の画面ではありません）。${AI_NOTE}</p>
+    <p class="fine">ランサーズの案件のカバー画像はイメージです（実際の画面ではありません）。</p>
   </div>
 </section>
 ${

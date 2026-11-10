@@ -113,7 +113,6 @@ test("service pages show each package's cover and promo video", () => {
       assert.ok(html.includes(`data-video="../../${p.video}"`), `${s.id}: video of ${p.id}`);
       assert.ok(html.includes(`src="../../${p.cover}"`), `${s.id}: image of ${p.id}`);
     }
-    if (s.packages.some((x) => x.video)) assert.match(html, /案内役は、AIで生成したキャラクターです/, `${s.id} says the presenter is AI`);
     assert.ok(files["index.html"].includes(`href="./services/${s.id}/"`), `home links to ${s.id}`);
   }
 });
@@ -172,12 +171,11 @@ test("works.yml typos fail the build", () => {
   assert.throws(() => loadSite({ root: dup, profile, today }), /duplicate id "a"/);
 });
 
-test("every page discloses the AI character", () => {
+test("the works index says the covers are illustrations; no page carries an AI-character line (your choice, 2026-11-10)", () => {
   const site = loadSite({ root: ROOT, profile: loadProfile(), today });
   const files = renderSite(site);
-  // The character in the Lancers images and videos is AI-generated; every page says so (footer).
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) {
-    assert.match(files[page], /AIで生成したイメージキャラクター/, `${page} discloses the AI character`);
+    assert.doesNotMatch(files[page], /AIで生成した(イメージ)?キャラクター/, page);
   }
   assert.match(files["works/index.html"], /カバー画像はイメージです/, "works index says the covers are illustrations");
 });

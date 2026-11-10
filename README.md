@@ -48,12 +48,17 @@ ideas.md    post ideas built from your own projects and reviews
    of `_note_session_v5`, and add it as the repository secret `NOTE_SESSION`.
    It's your login, so treat it like a password; it lasts about a month. When
    the Publish job says the cookie has expired, copy a fresh one the same way.
-8. **Claude:** create an API key in the Claude Console and add it as the
+8. **Bluesky:** signed in to your account, open *Settings → Privacy and security
+   → App passwords*, create one (e.g. "writing pipeline") and add it as the
+   repository secret `BLUESKY_APP_PASSWORD`. It is not your account password and
+   you can revoke it there at any time. Put your handle in `profile.yml`
+   (`platforms.bluesky`), and a link to your site or Lancers in your Bluesky bio.
+9. **Claude:** create an API key in the Claude Console and add it as the
    repository secret `ANTHROPIC_API_KEY` (done 2026-11-09). The autopilot and the
    fact-check use it. For local fact-checks,
    `export ANTHROPIC_API_KEY=…`. Without it, CI still lints and validates and
    prints a warning that fact-checking is off.
-9. **Protect `main`:** *Settings → Branches → Add rule*: require a pull request
+10. **Protect `main`:** *Settings → Branches → Add rule*: require a pull request
    and the status check **check**. Then nothing reaches Zenn or Qiita unchecked.
 
 ## Automatic writing (autopilot)
@@ -183,6 +188,17 @@ works:
 npm run note:draft -- --dry-run      # what would be sent, without contacting note
 npm run note -- notes/<slug>.md      # copy-and-paste page: dist/note/<slug>.html
 ```
+
+**Bluesky:** after note, the Publish job announces each article that went live
+on Zenn in the last two days (`scripts/bluesky-post.mjs`, Bluesky's official
+API): 📝 and the title, the article's opening sentences, "💼 AI・Web開発のご相談 →"
+with the service page the article ends with, up to three topics as hashtags,
+and a link card to the Zenn article with the same Lancers package image as the
+note copy, all within Bluesky's 300 characters. It waits until the Zenn page is
+actually up. Each post is recorded in `social/bluesky.yml`, and it also checks
+your recent posts for one that already links the article, so nothing is posted
+twice. `bluesky: off` in `autopilot.yml` stops it;
+`node scripts/bluesky-post.mjs --dry-run` prints what it would post.
 
 ## The hub site
 

@@ -22,6 +22,9 @@ qiita: manual         # auto: copy each article to Qiita at 09:00 | manual: no a
                       # so on 2026-11-10 the rewrite was posted as a new item; the old one stays
                       # hidden. If Qiita refuses a new post, the Publish run sets it back to
                       # ignorePublish: true (scripts/qiita-hold.mjs) instead of retrying.
+bluesky: auto         # auto: announce each new article on Bluesky once it's live on Zenn (title,
+                      # opening, your service page, a link card) | off: no Bluesky posts. Needs
+                      # platforms.bluesky in profile.yml and the BLUESKY_APP_PASSWORD secret.
 
 # What to write about. The writer rotates through these by weight, so over two weeks roughly
 # 3 in 8 posts are about small-business problems, 3 in 8 about AI and software work and 2 in 8

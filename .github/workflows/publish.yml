@@ -1,8 +1,9 @@
 # Every morning at 09:00 JST, and on every push to main: copies the Zenn articles that are due
 # (published_at reached) to Qiita and note, publishes the Qiita articles (needs the QIITA_TOKEN
 # secret) and puts the note copies on note (needs the NOTE_SESSION secret; autopilot.yml
-# `note: auto` publishes them, `note: draft` leaves drafts for you). Zenn publishes itself
-# through its GitHub integration. See README.
+# `note: auto` publishes them, `note: draft` leaves drafts for you), then announces each new
+# article on Bluesky (needs the BLUESKY_APP_PASSWORD secret). Zenn publishes itself through its
+# GitHub integration. See README.
 name: Publish articles
 
 on:
@@ -38,6 +39,7 @@ jobs:
     env:
       QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
       NOTE_SESSION: ${{ secrets.NOTE_SESSION }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
     steps:
       # The branch's latest commit, not the one from when the run was queued: a run that waited
       # behind this morning's post must see the note ids it recorded, or it would post again.
@@ -112,16 +114,31 @@ jobs:
         if: env.NOTE_SESSION != ''
         run: node scripts/note-draft.mjs
 
-      # Record each note post's id and link (and the copies and header images) so the next run
-      # updates the same post rather than making a new one. Runs even if a post failed.
-      - name: Commit note ids
-        if: always() && env.NOTE_SESSION != ''
+      # One Bluesky post per new Zenn article, through Bluesky's official API with an App
+      # Password. Runs even if the note step failed (it posts only articles already live on
+      # Zenn, so never before 09:00). Until BLUESKY_APP_PASSWORD is set, skip.
+      - name: Note that Bluesky is not connected yet
+        if: env.BLUESKY_APP_PASSWORD == ''
+        run: echo "::notice::BLUESKY_APP_PASSWORD secret is not set, so nothing was posted to Bluesky."
+
+      - name: Post to Bluesky
+        if: ${{ !cancelled() && env.BLUESKY_APP_PASSWORD != '' }}
+        run: node scripts/bluesky-post.mjs
+
+      # Record each note post's id and link (and the copies and header images), and each Bluesky
+      # post, so the next run updates the same note post and never posts twice. Runs even if a
+      # post failed.
+      - name: Commit post records
+        if: always() && (env.NOTE_SESSION != '' || env.BLUESKY_APP_PASSWORD != '')
         run: |
-          if [ -n "$(git status --porcelain -- notes)" ]; then
+          paths=()
+          if [ -n "$NOTE_SESSION" ]; then paths+=(notes); fi
+          if [ -n "$BLUESKY_APP_PASSWORD" ] && [ -d social ]; then paths+=(social); fi
+          if [ ${#paths[@]} -gt 0 ] && [ -n "$(git status --porcelain -- "${paths[@]}")" ]; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add notes
-            git commit -m "Record note posts"
+            git add -- "${paths[@]}"
+            git commit -m "Record note and Bluesky posts"
             git pull --rebase origin "$GITHUB_REF_NAME"
             git push origin "HEAD:$GITHUB_REF_NAME"
           fi

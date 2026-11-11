@@ -75,5 +75,25 @@
       "web_search_requests": 52
     },
     "cost_usd": 2.62
+  },
+  {
+    "date": "2026-11-13 09:00",
+    "pillar": "sme",
+    "written_at": "2026-11-11T00:22:45.992Z",
+    "slug": "inherited-system-first-week-checklist",
+    "title": "前任者がいなくなった業務システム、最初の1週間で確認する6つのこと",
+    "service": "quality",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "file": "articles/inherited-system-first-week-checklist.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 28,
+      "output_tokens": 16927,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 86369,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.39
   }
 ]

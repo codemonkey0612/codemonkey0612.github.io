@@ -17,6 +17,36 @@
     "focus": 0.74,
     "source": "contact.png"
   },
+  "deco-glints": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "deco-glints.png"
+  },
+  "deco-pearl": {
+    "kind": "section",
+    "w": 1024,
+    "h": 1024,
+    "source": "deco-pearl.png"
+  },
+  "deco-ribbon": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "deco-ribbon.png"
+  },
+  "deco-sakura-a": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "deco-sakura-a.png"
+  },
+  "deco-sakura-b": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "deco-sakura-b.png"
+  },
   "expertise": {
     "tone": "dark",
     "w": 1536,
@@ -91,6 +121,48 @@
     "w": 1536,
     "h": 1024,
     "source": "sec-contact-side.png"
+  },
+  "sec-home-cta": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-home-cta.png"
+  },
+  "sec-home-exp": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-home-exp.png"
+  },
+  "sec-home-hero": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-home-hero.png"
+  },
+  "sec-home-hero-m": {
+    "kind": "section",
+    "w": 1024,
+    "h": 1536,
+    "source": "sec-home-hero-m.png"
+  },
+  "sec-home-quote": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-home-quote.png"
+  },
+  "sec-home-reel": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-home-reel.png"
+  },
+  "sec-home-sel": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-home-sel.png"
   },
   "sec-home-selected": {
     "kind": "section",

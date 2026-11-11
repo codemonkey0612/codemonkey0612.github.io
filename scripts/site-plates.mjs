@@ -41,6 +41,20 @@ export const SECTIONS = [
   "sec-services-discovery",
   "sec-services-inquiry",
   "sec-service-cta",
+  // home pilot (~/dev/note/mockup/home-pilot): the mockup's sections without their text
+  "sec-home-hero",
+  "sec-home-hero-m",
+  "sec-home-sel",
+  "sec-home-exp",
+  "sec-home-reel",
+  "sec-home-quote",
+  "sec-home-cta",
+  // cut-outs laid across section edges (glints: light on black, blended with screen)
+  "deco-sakura-a",
+  "deco-sakura-b",
+  "deco-ribbon",
+  "deco-pearl",
+  "deco-glints",
 ];
 const MW = 1000;
 const MH = 860;

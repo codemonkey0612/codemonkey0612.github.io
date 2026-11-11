@@ -291,3 +291,21 @@ test("the pages carry the mockups' elements", () => {
   assert.ok((rv.match(/class="qc-head"/g) ?? []).length >= 20, "review cards have a title row");
   assert.match(rv, /class="bubble-title"/);
 });
+
+test("the home page uses the pilot plates when they exist, and its links survive", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const home = renderSite(site)["index.html"];
+  if (site.art.section("sec-home-hero")) {
+    assert.match(home, /class="stage stage-dark stage-home stage-pilot"/);
+    assert.match(home, /<source media="\(max-width: 760px\)" srcset="\.\/assets\/plates\/sec-home-hero-m\.webp"/, "phones get the portrait hero");
+  }
+  if (site.art.section("sec-home-sel")) {
+    assert.match(home, /<source media="\(min-width: 1024px\)" srcset="\.\/assets\/plates\/sec-home-sel\.webp"/, "desktop gets the plate with the screenshots on its laptops");
+    // The laptops in the picture are links to the two works, with real alt text for the screenshots.
+    assert.match(home, /class="dev-laptop" href="\.\/works\/[^"]+\/"><span class="dev-screen"><img[^>]+alt="[^"]+"/);
+    assert.match(home, /class="dev-tablet" href="\.\/works\/[^"]+\/">/);
+  }
+  // Cut-outs are decoration only.
+  for (const m of home.matchAll(/<div class="seam [^"]+"([^>]*)>/g)) assert.match(m[1], /aria-hidden="true"/);
+  for (const m of home.matchAll(/<img class="deco [^"]+"[^>]*>/g)) assert.match(m[0], /alt=""/);
+});

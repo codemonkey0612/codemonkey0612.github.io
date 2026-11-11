@@ -240,13 +240,20 @@ const secImg = (site, base, name, cls = "sec-bg") => {
   return a ? `<img class="${cls}" src="${base}${a.src}" alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async">` : "";
 };
 const hasSec = (site, name) => (site.art.section(name) ? " has-sec" : "");
+/** The first of these section images that exists (the home pilot's art, else the older one). */
+const pickSec = (site, ...names) => names.find((n) => site.art.section(n)) ?? names.at(-1);
+/** A cut-out laid across the edge between two sections (decorative, hidden from assistive tech). */
+const seam = (site, base, cls, ...decos) => {
+  const imgs = decos.map(([name, c]) => secImg(site, base, name, `deco ${c}`)).filter(Boolean);
+  return imgs.length ? `<div class="seam ${cls}" aria-hidden="true">${imgs.join("")}</div>` : "";
+};
 
 /** A scene's artwork as <picture>: the wide image, and the phone crop below `mq`. */
 const artPicture = (a, base, { cls, eager = false, mq = "(max-width: 760px)" }) =>
   `<picture class="${cls}"><source media="${mq}" srcset="${base}${a.narrow}" width="${a.mw}" height="${a.mh}"><img src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></picture>`;
 
-function stage(site, base, { scene, inner, cls = "", tone, over = "" }) {
-  const a = site.art.stage(scene);
+function stage(site, base, { scene, inner, cls = "", tone, over = "", art: own = null }) {
+  const a = own ?? site.art.stage(scene);
   const t = tone ?? a.tone;
   const art = a.wide ? artPicture(a, base, { cls: "stage-art", eager: true }) : `<div class="stage-art stage-art-empty" aria-hidden="true"></div>`;
   return `<section class="stage stage-${t}${cls ? ` ${cls}` : ""}" data-scene="${esc(scene)}"${a.plate ? " data-plate" : ""}>
@@ -471,9 +478,18 @@ export function renderIndex(site) {
   const reelPoster = site.art.stage("home").plate ? site.art.stage("home").wide : reel?.poster;
   // Each section is a short, wide strip filled with artwork, like the mockup; the detail
   // lives on the inner pages.
+  // The home pilot: the mockup's own sections without their text (~/dev/note/mockup/home-pilot).
+  const hero = art.section("sec-home-hero");
+  const heroM = art.section("sec-home-hero-m") ?? hero;
+  const heroArt = hero && { wide: hero.src, narrow: heroM.src, w: hero.w, h: hero.h, mw: heroM.w, mh: heroM.h, plate: true, tone: "dark" };
+  const sel = art.section("sec-home-sel");
+  const selOld = art.section("sec-home-selected");
+  const exNew = art.section("sec-home-exp");
   const body = `${stage(site, base, {
     scene: "home",
-    cls: "stage-home",
+    cls: `stage-home${hero ? " stage-pilot" : ""}`,
+    art: heroArt,
+    over: secImg(site, base, "deco-glints", "deco deco-glints"),
     inner: `    <div class="stage-copy">
       <h1 class="display">想像を、<br><em>実装</em>する。</h1>
       <p class="lead lead-one">AIとWebで、ビジネスの次の景色へ。</p>
@@ -486,8 +502,13 @@ export function renderIndex(site) {
     }
 `,
   })}
-<section class="strip strip-sel${hasSec(site, "sec-home-selected")}" id="selected" aria-labelledby="selected-title">
-  ${secImg(site, base, "sec-home-selected")}
+${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
+<section class="strip strip-sel${selOld || sel ? " has-sec" : ""}${sel ? " sel-baked" : ""}" id="selected" aria-labelledby="selected-title">
+  ${
+    sel
+      ? `<picture class="sec-pic"><source media="(min-width: 1024px)" srcset="${base}${sel.src}" width="${sel.w}" height="${sel.h}">${selOld ? `<img class="sec-bg" src="${base}${selOld.src}" alt="" width="${selOld.w}" height="${selOld.h}" loading="lazy" decoding="async">` : `<img class="sec-bg sec-bg-wide-only" src="${base}${sel.src}" alt="" width="${sel.w}" height="${sel.h}" loading="lazy" decoding="async">`}</picture>`
+      : secImg(site, base, "sec-home-selected")
+  }
   <div class="wrap strip-in sel-in">
     <div class="sel-copy" data-reveal>
       <p class="eyebrow" lang="en">Selected Work</p>
@@ -502,8 +523,14 @@ export function renderIndex(site) {
     </div>
   </div>
 </section>
-<section class="strip strip-exp" aria-labelledby="expertise-title">
-  ${ex.wide ? `<div class="exp-art" aria-hidden="true"><img class="exp-fill" src="${base}${ex.wide}" alt="" width="${ex.w}" height="${ex.h}" loading="lazy" decoding="async"><img class="exp-main" src="${base}${ex.wide}" alt="" width="${ex.w}" height="${ex.h}" loading="lazy" decoding="async"></div>` : ""}
+<section class="strip strip-exp${exNew ? " exp-pilot" : ""}" aria-labelledby="expertise-title">
+  ${
+    exNew
+      ? `<div class="exp-art" aria-hidden="true"><img class="exp-bg" src="${base}${exNew.src}" alt="" width="${exNew.w}" height="${exNew.h}" loading="lazy" decoding="async"></div>`
+      : ex.wide
+        ? `<div class="exp-art" aria-hidden="true"><img class="exp-fill" src="${base}${ex.wide}" alt="" width="${ex.w}" height="${ex.h}" loading="lazy" decoding="async"><img class="exp-main" src="${base}${ex.wide}" alt="" width="${ex.w}" height="${ex.h}" loading="lazy" decoding="async"></div>`
+        : ""
+  }
   <div class="wrap strip-in">
     <header class="exp-head" data-reveal>
       <h2 id="expertise-title"><span class="latin-title" lang="en">Expertise</span><span class="sh-ja">AIとWebの技術で、構想から実装・運用まで一貫して支援します。</span></h2>
@@ -517,8 +544,9 @@ export function renderIndex(site) {
 </section>
 ${
   reel
-    ? `<section class="strip strip-reel${hasSec(site, "sec-home-showreel")}" aria-labelledby="reel-title">
-  ${secImg(site, base, "sec-home-showreel")}
+    ? `${seam(site, base, "seam-reel", ["deco-sakura-a", "deco-sakura-top"])}
+<section class="strip strip-reel${hasSec(site, pickSec(site, "sec-home-reel", "sec-home-showreel"))}${art.section("sec-home-reel") ? " reel-pilot" : ""}" aria-labelledby="reel-title">
+  ${secImg(site, base, pickSec(site, "sec-home-reel", "sec-home-showreel"))}
   <div class="wrap strip-in">
     <p class="eyebrow eyebrow-center" lang="en">Showreel</p>
     <h2 class="strip-title strip-title-sm" id="reel-title">実装の、その先へ。</h2>
@@ -530,8 +558,9 @@ ${
 }
 ${
   quote
-    ? `<section class="strip strip-quote${hasSec(site, "sec-silk")}" aria-label="ひとこと">
-  ${secImg(site, base, "sec-silk")}
+    ? `${seam(site, base, "seam-quote", ["deco-sakura-b", "deco-sakura-low"])}
+<section class="strip strip-quote${hasSec(site, pickSec(site, "sec-home-quote", "sec-silk"))}" aria-label="ひとこと">
+  ${secImg(site, base, pickSec(site, "sec-home-quote", "sec-silk"))}
   <div class="wrap strip-in quote-in" data-reveal>
     <p class="statement">AIとWebの力で、<br>ビジネスの可能性を広げる。</p>
     <figure class="quote-mini">
@@ -542,7 +571,8 @@ ${
 </section>`
     : ""
 }
-${inquiry(site, base, { label: "プロジェクトを相談する", titleHtml: "次の景色を、<br><em>一緒</em>に。" })}`;
+${seam(site, base, "seam-cta", ["deco-pearl", "deco-pearl-float"])}
+${inquiry(site, base, { label: "プロジェクトを相談する", titleHtml: "次の景色を、<br><em>一緒</em>に。", art: art.section("sec-home-cta") ? "sec-home-cta" : null })}`;
   const ld = [personLd(site), { "@type": "WebSite", "@id": `${profile.site_url}#website`, url: profile.site_url, name: profile.brand, inLanguage: "ja" }];
   return layout(site, { route: "", title: profile.brand, description, body, ld, page: "home", tone: site.art.stage("home").tone });
 }

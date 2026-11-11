@@ -7975,3 +7975,242 @@ h3,
     font-size: 15px;
   }
 }
+
+/* =====================================================================
+   HOME PILOT (2026-11-11): the mockup's own sections as clean plates
+   (~/dev/note/mockup/home-pilot), with cut-outs across the section edges.
+   ===================================================================== */
+.deco {
+  display: block;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+/* a zero-height layer between two sections; its cut-outs straddle the edge */
+.seam {
+  position: relative;
+  z-index: 3;
+  height: 0;
+  pointer-events: none;
+}
+.seam .deco {
+  position: absolute;
+  height: auto;
+}
+.seam-hero .deco-ribbon-a {
+  left: calc(-40 * var(--u));
+  top: calc(-250 * var(--u));
+  width: calc(700 * var(--u));
+  filter: drop-shadow(0 calc(6 * var(--u)) calc(10 * var(--u)) rgba(8, 21, 33, 0.25));
+}
+.seam-reel .deco-sakura-top {
+  right: calc(-60 * var(--u));
+  top: calc(-150 * var(--u));
+  width: calc(460 * var(--u));
+}
+.seam-quote .deco-sakura-low {
+  left: calc(-20 * var(--u));
+  top: calc(-250 * var(--u));
+  width: calc(430 * var(--u));
+}
+.seam-cta .deco-pearl-float {
+  right: calc(120 * var(--u));
+  top: calc(-58 * var(--u));
+  width: calc(104 * var(--u));
+  filter: drop-shadow(0 calc(10 * var(--u)) calc(16 * var(--u)) rgba(8, 21, 33, 0.35));
+}
+
+/* hero: the clean plate, gold glints breathing over it */
+.stage-pilot .stage-art img {
+  object-position: 50% 50% !important;
+}
+.stage-pilot .deco-glints {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+.motion .stage-pilot .deco-glints {
+  animation: glint-breathe 6s ease-in-out infinite alternate;
+}
+@keyframes glint-breathe {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+
+/* expertise: one picture; on tablets and phones it heads the list */
+.exp-pilot .exp-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 52%;
+}
+@media (max-width: 1023px) {
+  .strip-exp.exp-pilot {
+    padding-top: 0;
+  }
+  .exp-pilot .exp-art {
+    position: relative;
+    inset: auto;
+    z-index: 0;
+    height: 58vw;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent);
+    mask-image: linear-gradient(180deg, #000 72%, transparent);
+  }
+  .exp-pilot .exp-head {
+    position: relative;
+    margin-top: -5vw;
+  }
+}
+
+/* closing band: the arch plate in the middle */
+.page-home .band-compact .band-art img {
+  object-position: 50% 54%;
+}
+
+@media (min-width: 1024px) {
+  /* selected work: the real screenshots are baked onto the plate's laptops; the links sit over them */
+  .page-home .sel-baked .sec-bg {
+    width: 106%;
+    max-width: none;
+    object-position: 50% 50%;
+  }
+  .page-home .sel-baked .sel-in {
+    position: static;
+    padding-left: calc(48 * var(--u));
+  }
+  .page-home .sel-baked .strip-title {
+    font-size: calc(40 * var(--u));
+  }
+  .page-home .sel-baked .sel-copy {
+    width: calc(330 * var(--u));
+  }
+  .page-home .sel-baked .sel-devices {
+    inset: 0;
+    width: auto;
+    height: auto;
+  }
+  .page-home .sel-baked .dev-screen,
+  .page-home .sel-baked .dev-base,
+  .page-home .sel-baked .sel-orb {
+    display: none;
+  }
+  .page-home .sel-baked .dev-laptop,
+  .page-home .sel-baked .dev-tablet {
+    position: absolute;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    border-radius: calc(8 * var(--u));
+    transition: box-shadow 0.3s var(--ease);
+  }
+  .page-home .sel-baked .dev-laptop {
+    left: calc(385 * var(--u));
+    top: calc(129 * var(--u));
+    width: calc(183 * var(--u));
+    height: calc(186 * var(--u));
+  }
+  .page-home .sel-baked .dev-tablet {
+    left: calc(568 * var(--u));
+    top: calc(86 * var(--u));
+    width: calc(360 * var(--u));
+    height: calc(231 * var(--u));
+  }
+  .page-home .sel-baked .dev-laptop:hover,
+  .page-home .sel-baked .dev-tablet:hover {
+    transform: none;
+    box-shadow: 0 0 0 1px rgba(236, 208, 150, 0.7), 0 0 calc(30 * var(--u)) rgba(236, 208, 150, 0.45);
+  }
+  .page-home .sel-baked .dev-laptop:focus-visible,
+  .page-home .sel-baked .dev-tablet:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+  /* showreel: the frame fits the central arch */
+  .page-home .reel-pilot .film-cine {
+    width: calc(560 * var(--u));
+  }
+  .page-home .reel-pilot .sec-bg {
+    object-position: 50% 46%;
+  }
+}
+/* below 1024 the plate with baked screens isn't used; keep the CSS devices */
+@media (max-width: 1023px) {
+  .sec-bg-wide-only {
+    display: none;
+  }
+}
+@media (min-width: 1024px) {
+  /* hero: the plate a little wider than the screen, so the torus sits right of the headline */
+  .stage-pilot .stage-art img {
+    width: 112%;
+    max-width: none;
+  }
+  /* expertise: shade behind the two lists so they read over the bright floor */
+  .exp-pilot .exp-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(8, 21, 33, 0.62) 0%, rgba(8, 21, 33, 0.35) 30%, rgba(8, 21, 33, 0) 40%, rgba(8, 21, 33, 0) 60%, rgba(8, 21, 33, 0.35) 70%, rgba(8, 21, 33, 0.62) 100%),
+      linear-gradient(0deg, rgba(8, 21, 33, 0.35), rgba(8, 21, 33, 0) 35%);
+  }
+  .page-home .sel-baked .sel-lead {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.95), 0 0 2px #fff;
+  }
+}
+.seam-reel .deco-sakura-top {
+  right: calc(-110 * var(--u));
+  top: calc(-96 * var(--u));
+  width: calc(420 * var(--u));
+}
+.seam-cta .deco-pearl-float {
+  width: calc(84 * var(--u));
+  top: calc(-46 * var(--u));
+}
+@media (max-width: 760px) {
+  /* phone hero: the portrait plate behind the whole screen, as in the mobile mockup */
+  .stage-home.stage-pilot {
+    min-height: max(620px, 100svh);
+  }
+  .stage-pilot .stage-art {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    order: 0;
+    height: 100%;
+    aspect-ratio: auto;
+    margin: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .stage-pilot .stage-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 100% !important;
+  }
+  .stage-pilot::before {
+    display: block;
+    background: linear-gradient(180deg, rgba(8, 21, 33, 0.5) 0%, rgba(8, 21, 33, 0.15) 40%, rgba(8, 21, 33, 0) 60%);
+  }
+  /* the service video stays on its own page and in the showreel below */
+  .stage-pilot .stage-film {
+    display: none;
+  }
+}
+/* cut-outs that reach past the screen edge never widen the page */
+.seam {
+  overflow-x: clip;
+}

@@ -2,6 +2,7 @@
 // Build the hub site from profile.yml, site/ and the published articles.
 //   npm run site                 → dist/site/ and dist/github-profile/README.md
 //   npm run site -- --serve      → build, then preview at http://localhost:4321
+import { minifyCss, usedWords } from "./lib/css-min.mjs";
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
@@ -41,6 +42,29 @@ const write = (file, content) => {
 const files = renderSite(site);
 for (const [name, content] of Object.entries(files)) write(path.join(out, name), content);
 fs.cpSync(path.join(ROOT, "site", "assets"), path.join(out, "assets"), { recursive: true });
+
+// Smaller stylesheets: rules for classes the site no longer uses are dropped, comments and
+// spacing removed (SITE_NO_MINIFY=1 keeps them as written, for comparing).
+if (!process.env.SITE_NO_MINIFY) {
+  const texts = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const f = path.join(dir, e.name);
+      if (e.isDirectory()) walk(f);
+      else if (/\.(html|js|mjs)$/.test(e.name)) texts.push(fs.readFileSync(f, "utf8"));
+    }
+  };
+  walk(out);
+  const known = usedWords(texts);
+  for (const name of ["style.css", "contact.css"]) {
+    const file = path.join(out, "assets", name);
+    if (!fs.existsSync(file)) continue;
+    const before = fs.statSync(file).size;
+    const { css, dropped } = minifyCss(fs.readFileSync(file, "utf8"), known);
+    fs.writeFileSync(file, css);
+    console.log(`site: ${name} ${Math.round(before / 1024)} KB → ${Math.round(css.length / 1024)} KB (${dropped} unused rules dropped)`);
+  }
+}
 
 const readme = path.join(ROOT, "dist", "github-profile", "README.md");
 write(readme, renderGithubReadme(site));

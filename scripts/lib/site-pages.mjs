@@ -236,7 +236,8 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
 <link rel="apple-touch-icon" href="${base}assets/brand/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@500;600;700&display=swap">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@500;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="${base}assets/style.css?v=${site.assetVersion}">
 ${head}<script>(function (d) { d.classList.replace("no-js", "js"); var off = false; try { off = localStorage.getItem("takumi-motion") === "off"; } catch (e) {} if (off || matchMedia("(prefers-reduced-motion: reduce)").matches) return; d.classList.add("motion"); try { if (!sessionStorage.getItem("takumi-intro")) { d.classList.add("ov-on"); setTimeout(function () { d.classList.remove("ov-on"); }, 4200); } } catch (e) {} setTimeout(function () { if (!window.TAKUMI) d.classList.remove("motion", "ov-on"); }, 3000); })(document.documentElement); addEventListener("pagereveal", function (e) { if (e.viewTransition && !document.documentElement.classList.contains("motion")) e.viewTransition.skipTransition(); });</script>
 <script src="${base}assets/app.js?v=${site.assetVersion}" defer></script>
@@ -489,7 +490,7 @@ function film(site, base, { video, poster, title, cls = "", ar = null, length = 
   const wh = site.size(poster) ?? [1600, 900];
   return `<figure class="film${cls ? ` ${cls}` : ""}" data-reveal>
       <div class="film-frame" style="--ar:${ar ?? `${wh[0]}/${wh[1]}`}">
-        <video controls playsinline preload="none" poster="${base}${esc(poster)}" width="${wh[0]}" height="${wh[1]}" aria-label="${esc(title)}"><source src="${base}${esc(video)}" type="video/mp4"></video>
+        <video controls playsinline preload="none" data-poster="${base}${esc(poster)}" width="${wh[0]}" height="${wh[1]}" aria-label="${esc(title)}"><source src="${base}${esc(video)}" type="video/mp4"></video>
         ${overlay ? `<span class="film-over" aria-hidden="true">${overlay}</span>` : ""}
         ${length ? `<span class="film-bar" aria-hidden="true"><i class="fb-play"></i><span>0:00 / ${esc(length)}</span><i class="fb-line"></i>${icon("volume", "ic fbar-ic")}${icon("full", "ic fbar-ic")}</span>` : ""}
       </div>
@@ -618,7 +619,7 @@ export function renderIndex(site) {
     </div>
     ${
       film1?.video
-        ? `<button class="stage-film" type="button" data-video="${base}${esc(film1.video)}" data-video-title="${esc(film1.title)}"><span class="stage-film-img">${img(site, film1.cover, base, { alt: `${film1.title}（パッケージ画像）`, eager: true })}</span><span class="stage-film-cap">${icon("play", "ic play-ic")}<span class="sr-only">紹介動画を再生：${esc(services[0].name)}</span></span></button>`
+        ? `<button class="stage-film" type="button" data-video="${base}${esc(film1.video)}" data-video-title="${esc(film1.title)}"><span class="stage-film-img">${img(site, film1.cover, base, { alt: `${film1.title}（パッケージ画像）`, eager: false })}</span><span class="stage-film-cap">${icon("play", "ic play-ic")}<span class="sr-only">紹介動画を再生：${esc(services[0].name)}</span></span></button>`
         : ""
     }
 `,
@@ -813,7 +814,7 @@ export function renderWork(site, w) {
   const body = `${stage(site, base, {
     scene,
     cls: "cs-hero tale-hero",
-    over: `${art.wide ? `<img class="cs-blur" src="${base}${art.wide}" alt="" width="${art.w}" height="${art.h}" aria-hidden="true" decoding="async">` : ""}<a class="tale-scroll" href="#prologue" aria-label="物語を読む"><span lang="en">Scroll</span><i aria-hidden="true"></i></a>`,
+    over: `${art.wide ? `<picture><source media="(max-width: 760px)" srcset="${base}${art.narrow}"><img class="cs-blur" src="${base}${art.wide}" alt="" width="${art.w}" height="${art.h}" aria-hidden="true" decoding="async"></picture>` : ""}<a class="tale-scroll" href="#prologue" aria-label="物語を読む"><span lang="en">Scroll</span><i aria-hidden="true"></i></a>`,
     inner: `    <div class="stage-copy">
       ${crumbs(base, [[`${base}works/`, "実績"], [null, title]])}
       <p class="kicker" lang="en">Case Study ${w.no}</p>

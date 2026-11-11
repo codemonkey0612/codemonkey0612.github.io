@@ -156,6 +156,28 @@
     });
   }
 
+  // ---------- film posters load as the film comes near (they are below the first screen) ----------
+  var posters = d.querySelectorAll("video[data-poster]");
+  var setPoster = function (v) {
+    if (!v.getAttribute("poster")) v.setAttribute("poster", v.getAttribute("data-poster"));
+  };
+  if ("IntersectionObserver" in window) {
+    var posterIo = new IntersectionObserver(
+      function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting) {
+            setPoster(e.target);
+            posterIo.unobserve(e.target);
+          }
+        });
+      },
+      { rootMargin: "900px 0px" },
+    );
+    posters.forEach(function (v) {
+      posterIo.observe(v);
+    });
+  } else posters.forEach(setPoster);
+
   // ---------- films (inline, user-controlled) ----------
   d.querySelectorAll(".film").forEach(function (fig) {
     var frame = fig.querySelector(".film-frame");

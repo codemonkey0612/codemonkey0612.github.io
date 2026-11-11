@@ -462,6 +462,23 @@ function steps(list, { cls = "" } = {}) {
     </ol>`;
 }
 
+/** A service's workflow: glass orbs joined by straight gold links, read as a short story in order. */
+function flow(list) {
+  return `<ol class="flow" style="--n:${list.length}" data-reveal>
+      ${list
+        .map(
+          (s, i) => `<li class="flow-step" style="--i:${i}">
+        <span class="flow-orb" aria-hidden="true">${icon(s.i ?? ["search", "layers", "code", "rocket", "check"][i % 5])}</span>
+        <span class="flow-no" lang="en">Step ${pad2(i + 1)}</span>
+        <h3 class="flow-title">${esc(s.t)}</h3>
+        <p>${esc(s.d)}</p>
+        ${i < list.length - 1 ? `<span class="flow-link" aria-hidden="true"></span>` : ""}
+      </li>`,
+        )
+        .join("\n      ")}
+    </ol>`;
+}
+
 /** A user-controlled film: poster in a frame; plays only when asked. */
 function film(site, base, { video, poster, title, cls = "", ar = null, length = "", overlay = "" }) {
   const wh = site.size(poster) ?? [1600, 900];
@@ -944,7 +961,7 @@ export function renderService(site, s) {
   const [h1a, ...h1b] = s.headline.split("、");
   const h1 = h1b.length ? `${esc(h1a)}、<br>${isAI ? esc(h1b.join("、")) : `<em>${esc(h1b.join("、"))}</em>`}` : brk(s.headline);
   const plate = site.art.stage(scene);
-  const flow = { system: "開発の流れ", quality: "対応の流れ", "ai-apps": "開発の流れ", "ai-chatbot": "構築の流れ", "ai-consulting": "支援の流れ", "ai-infra": "構築の流れ" }[s.id] ?? "制作の流れ";
+  const flowTitle = { system: "開発の流れ", quality: "対応の流れ", "ai-apps": "開発の流れ", "ai-chatbot": "構築の流れ", "ai-consulting": "支援の流れ", "ai-infra": "構築の流れ" }[s.id] ?? "制作の流れ";
   // Real screens for the two services with a live site of their own; the others show their artwork.
   const live = site.works.sites.find((w) => w.service?.id === s.id);
   const body = `${stage(site, base, {
@@ -1001,8 +1018,8 @@ ${
   s.process.length
     ? `<section class="ch ch-pearl svc-process" aria-labelledby="process-title">
   <div class="wrap">
-    ${heading("Workflow", flow, { id: "process-title", cls: "sh-inline" })}
-    ${steps(s.process.map((x) => ({ ...x, i: pickIcon(x.t, null) })))}
+    ${heading("Workflow", flowTitle, { id: "process-title", cls: "sh-inline" })}
+    ${flow(s.process.map((x) => ({ ...x, i: pickIcon(x.t, null) })))}
     ${
       s.deliverables.length
         ? `<div class="deliv" data-reveal>

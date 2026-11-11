@@ -449,6 +449,232 @@
     if (e.viewTransition && !root.classList.contains("motion")) e.viewTransition.skipTransition();
   });
 
+  // ---------- storybook: headings written in light, letter by letter ----------
+  // The words stay whole for screen readers (a hidden copy); the letters are decoration.
+  var inkTargets = d.querySelectorAll("main .sh .h2, main .band-title, main .bio-motto, main .strip-title, main .svc-head h2, main > .stage .display");
+  var inkIo =
+    "IntersectionObserver" in window
+      ? new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) {
+                e.target.classList.add("ink-on");
+                inkIo.unobserve(e.target);
+              }
+            });
+          },
+          { rootMargin: "0px 0px -10% 0px", threshold: 0.2 },
+        )
+      : null;
+  inkTargets.forEach(function (el) {
+    if (el.classList.contains("is-split") || !el.textContent.trim()) return;
+    var n = 0;
+    var walk = function (node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (c) {
+        if (c.nodeType === 3) {
+          var frag = d.createDocumentFragment();
+          Array.from(c.nodeValue).forEach(function (ch) {
+            if (/\s/.test(ch)) return frag.appendChild(d.createTextNode(ch));
+            var sp = d.createElement("span");
+            sp.className = "c";
+            sp.style.setProperty("--ci", n++);
+            sp.textContent = ch;
+            frag.appendChild(sp);
+          });
+          c.parentNode.replaceChild(frag, c);
+        } else if (c.nodeType === 1 && c.tagName !== "BR") {
+          if (c.tagName === "EM") {
+            // Gold words keep their own light; they arrive as one.
+            var w = d.createElement("span");
+            w.className = "c";
+            w.style.setProperty("--ci", n);
+            n += Math.max(1, c.textContent.length);
+            c.parentNode.insertBefore(w, c);
+            w.appendChild(c);
+          } else walk(c);
+        }
+      });
+    };
+    var text = el.textContent.replace(/\s+/g, " ").trim();
+    var shown = d.createElement("span");
+    shown.setAttribute("aria-hidden", "true");
+    while (el.firstChild) shown.appendChild(el.firstChild);
+    walk(shown);
+    var said = d.createElement("span");
+    said.className = "sr-only";
+    said.textContent = text;
+    el.appendChild(said);
+    el.appendChild(shown);
+    el.classList.add("is-split");
+    if (el.closest(".stage") || !inkIo) el.classList.add("ink-on");
+    else inkIo.observe(el);
+  });
+
+  // ---------- hero: drifting sparks ----------
+  var heroStage = d.querySelector("main > .stage");
+  if (heroStage) {
+    var sparks = d.createElement("span");
+    sparks.className = "sparks";
+    sparks.setAttribute("aria-hidden", "true");
+    for (var k = 0; k < 22; k++) {
+      var sp = d.createElement("i");
+      sp.style.setProperty("--x", (Math.random() * 100).toFixed(1) + "%");
+      sp.style.setProperty("--y", (25 + Math.random() * 70).toFixed(1) + "%");
+      sp.style.setProperty("--s", (2 + Math.random() * 3.5).toFixed(1) + "px");
+      sp.style.setProperty("--t", (6 + Math.random() * 8).toFixed(1) + "s");
+      sp.style.setProperty("--d", (-Math.random() * 12).toFixed(1) + "s");
+      sparks.appendChild(sp);
+    }
+    heroStage.appendChild(sparks);
+  }
+
+  // ---------- cursor: only for a mouse, only with motion on ----------
+  var fine = window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var moving = function () {
+    return root.classList.contains("motion");
+  };
+  if (fine) {
+    // A gold ring that trails the pointer and opens over things you can press.
+    var cur = d.createElement("div");
+    cur.className = "cursor";
+    cur.setAttribute("aria-hidden", "true");
+    cur.innerHTML = '<span class="cursor-ring"></span><span class="cursor-dot"></span>';
+    body.appendChild(cur);
+    var ring = cur.firstChild;
+    var dot = cur.lastChild;
+    var px = 0, py = 0, rx = 0, ry = 0, ringRun = false;
+    var ringStep = function () {
+      rx += (px - rx) * 0.2;
+      ry += (py - ry) * 0.2;
+      ring.style.transform = "translate3d(" + rx.toFixed(1) + "px," + ry.toFixed(1) + "px,0)";
+      if (Math.abs(px - rx) > 0.2 || Math.abs(py - ry) > 0.2) requestAnimationFrame(ringStep);
+      else ringRun = false;
+    };
+    var gx = 0, gy = 0;
+    d.addEventListener(
+      "pointermove",
+      function (e) {
+        if (e.pointerType !== "mouse") return;
+        px = e.clientX;
+        py = e.clientY;
+        if (!cur.classList.contains("is-on")) {
+          rx = px;
+          ry = py;
+          cur.classList.add("is-on");
+        }
+        cur.classList.remove("is-out");
+        dot.style.transform = "translate3d(" + px + "px," + py + "px,0)";
+        var t = e.target.closest ? e.target : e.target.parentElement;
+        cur.classList.toggle("is-text", !!(t && t.closest("input, textarea, select")));
+        cur.classList.toggle("is-link", !!(t && t.closest("a, button, summary, label, [role='button']")));
+        cur.classList.toggle("is-dark", !!(t && t.closest(".stage-dark, .ch-night, .band:not(.band-light), .ft, .strip-exp, .gcard-dark, .svc-card-dark, .card-night, .quote-hero, .scope, .next")));
+        if (!ringRun) {
+          ringRun = true;
+          requestAnimationFrame(ringStep);
+        }
+        // the page's decorations float a little with the pointer
+        var nx = (px / window.innerWidth - 0.5) * 2;
+        var ny = (py / window.innerHeight - 0.5) * 2;
+        if (Math.abs(nx - gx) > 0.02 || Math.abs(ny - gy) > 0.02) {
+          gx = nx;
+          gy = ny;
+          root.style.setProperty("--gx", gx.toFixed(2));
+          root.style.setProperty("--gy", gy.toFixed(2));
+        }
+      },
+      { passive: true },
+    );
+    root.addEventListener("mouseleave", function () {
+      cur.classList.add("is-out");
+    });
+    d.addEventListener("pointerdown", function () {
+      cur.classList.add("is-down");
+    });
+    d.addEventListener("pointerup", function () {
+      cur.classList.remove("is-down");
+    });
+
+    // Cards tilt toward the pointer and catch a light where it is.
+    d.querySelectorAll(".route-works .gcard a, .svc-card, .tier, .quote-card, .hl-cards li, .cap-row li, .deliv-cards li, .card-soft, .card-night, .sel-caps a").forEach(function (el) {
+      var sheen = d.createElement("span");
+      sheen.className = "sheen";
+      sheen.setAttribute("aria-hidden", "true");
+      el.appendChild(sheen);
+      if (getComputedStyle(el).position === "static") el.style.position = "relative";
+      el.classList.add("has-tilt");
+      el.addEventListener("pointermove", function (e) {
+        if (e.pointerType !== "mouse" || !moving()) return;
+        var b = el.getBoundingClientRect();
+        var x = (e.clientX - b.left) / b.width;
+        var y = (e.clientY - b.top) / b.height;
+        var dx = x - 0.5, dy = y - 0.5;
+        var m = Math.hypot(dx, dy) || 0.0001;
+        var max = b.width > 560 ? 2.5 : 5;
+        el.style.setProperty("--tilt", (-dy / m).toFixed(3) + " " + (dx / m).toFixed(3) + " 0 " + (max * Math.min(1, m * 2)).toFixed(2) + "deg");
+        el.style.setProperty("--sx", (x * 100).toFixed(1) + "%");
+        el.style.setProperty("--sy", (y * 100).toFixed(1) + "%");
+        el.classList.add("is-tilt");
+      });
+      el.addEventListener("pointerleave", function () {
+        el.style.removeProperty("--tilt");
+        el.classList.remove("is-tilt");
+      });
+    });
+
+    // Buttons lean toward the pointer.
+    d.querySelectorAll(".btn-gold, .hd-cta, .btn-frame, .btn-plate, .play-ring, .next-ic").forEach(function (el) {
+      el.addEventListener("pointermove", function (e) {
+        if (e.pointerType !== "mouse" || !moving()) return;
+        var b = el.getBoundingClientRect();
+        var dx = (e.clientX - b.left - b.width / 2) / (b.width / 2);
+        var dy = (e.clientY - b.top - b.height / 2) / (b.height / 2);
+        el.style.translate = (dx * 6).toFixed(1) + "px " + (dy * 4).toFixed(1) + "px";
+      });
+      el.addEventListener("pointerleave", function () {
+        el.style.translate = "";
+      });
+    });
+
+    // The hero answers the pointer: depth between art, copy and sparks; a soft light where it is.
+    if (heroStage) {
+      var light = d.createElement("span");
+      light.className = "hero-glow";
+      light.setAttribute("aria-hidden", "true");
+      heroStage.appendChild(light);
+      var tx = 0, ty = 0, cx = 0, cy = 0, heroRun = false;
+      var heroStep = function () {
+        cx += (tx - cx) * 0.07;
+        cy += (ty - cy) * 0.07;
+        heroStage.style.setProperty("--mx", cx.toFixed(3));
+        heroStage.style.setProperty("--my", cy.toFixed(3));
+        if (Math.abs(tx - cx) > 0.002 || Math.abs(ty - cy) > 0.002) requestAnimationFrame(heroStep);
+        else heroRun = false;
+      };
+      var heroKick = function () {
+        if (!heroRun) {
+          heroRun = true;
+          requestAnimationFrame(heroStep);
+        }
+      };
+      heroStage.addEventListener("pointermove", function (e) {
+        if (e.pointerType !== "mouse" || !moving()) return;
+        var b = heroStage.getBoundingClientRect();
+        tx = ((e.clientX - b.left) / b.width - 0.5) * 2;
+        ty = ((e.clientY - b.top) / b.height - 0.5) * 2;
+        heroStage.style.setProperty("--lx", (e.clientX - b.left).toFixed(0) + "px");
+        heroStage.style.setProperty("--ly", (e.clientY - b.top).toFixed(0) + "px");
+        heroStage.classList.add("is-lit");
+        heroKick();
+      });
+      heroStage.addEventListener("pointerleave", function () {
+        tx = 0;
+        ty = 0;
+        heroStage.classList.remove("is-lit");
+        heroKick();
+      });
+    }
+  }
+
   // ---------- folded sections reached by a link (#price) open themselves ----------
   var openTarget = function () {
     var id = location.hash ? decodeURIComponent(location.hash.slice(1)) : "";

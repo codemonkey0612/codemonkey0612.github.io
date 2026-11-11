@@ -334,3 +334,13 @@ test("the other pages use their pilot plates where they exist, keeping their tex
   const svc = files["services/index.html"];
   for (const s of site.services) assert.ok(svc.includes(`class="svc-label" href="../services/${s.id}/"`), s.id);
 });
+
+test("classes the body carries (hero-*, route-*, page-*) are never reused to style an element", () => {
+  // 2026-11-11: a spotlight element named .hero-light made every light page invisible.
+  const css = fs.readFileSync(path.join(ROOT, "site", "assets", "style.css"), "utf8");
+  for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const sel of m[1].split(",").map((x) => x.trim())) {
+      if (/^\.(hero-(light|dark)|page-[a-z]+)$/.test(sel)) assert.fail(`"${sel}" styles the <body> itself: ${m[2].trim().slice(0, 60)}`);
+    }
+  }
+});

@@ -5,8 +5,11 @@
     "h": 1024,
     "mw": 1000,
     "mh": 860,
-    "focus": 0.7,
-    "source": "about.png"
+    "focus": 0.62,
+    "source": "about.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "about@2x.png"
   },
   "contact": {
     "tone": "light",
@@ -14,14 +17,23 @@
     "h": 1024,
     "mw": 1000,
     "mh": 860,
-    "focus": 0.74,
-    "source": "contact.png"
+    "focus": 0.7,
+    "source": "contact.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "contact@2x.png"
   },
   "deco-glints": {
     "kind": "section",
     "w": 1536,
     "h": 1024,
     "source": "deco-glints.png"
+  },
+  "deco-gold-leaves": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "deco-gold-leaves.png"
   },
   "deco-pearl": {
     "kind": "section",
@@ -46,6 +58,12 @@
     "w": 1536,
     "h": 1024,
     "source": "deco-sakura-b.png"
+  },
+  "deco-silk-wave": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "deco-silk-wave.png"
   },
   "expertise": {
     "tone": "dark",
@@ -80,8 +98,11 @@
     "h": 1024,
     "mw": 1000,
     "mh": 860,
-    "focus": 0.7,
-    "source": "pricing.png"
+    "focus": 0.6,
+    "source": "pricing.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "pricing@2x.png"
   },
   "reviews": {
     "tone": "dark",
@@ -89,26 +110,44 @@
     "h": 1024,
     "mw": 1000,
     "mh": 860,
-    "focus": 0.7,
-    "source": "reviews.png"
+    "focus": 0.62,
+    "source": "reviews.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "reviews@2x.png"
+  },
+  "sec-about-bio": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-about-bio.png"
   },
   "sec-about-constellation": {
     "kind": "section",
-    "w": 1619,
-    "h": 971,
-    "source": "sec-about-constellation.png"
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-about-constellation.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-about-constellation@2x.png"
   },
   "sec-about-cta": {
     "kind": "section",
     "w": 1536,
     "h": 1024,
-    "source": "sec-about-cta.png"
+    "source": "sec-about-cta.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-about-cta@2x.png"
   },
   "sec-about-steps": {
     "kind": "section",
     "w": 1536,
     "h": 1024,
-    "source": "sec-about-steps.png"
+    "source": "sec-about-steps.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-about-steps@2x.png"
   },
   "sec-bubble": {
     "kind": "section",
@@ -196,15 +235,39 @@
   },
   "sec-manifesto": {
     "kind": "section",
-    "w": 2172,
-    "h": 724,
-    "source": "sec-manifesto.png"
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-manifesto.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-manifesto@2x.png"
+  },
+  "sec-prices-steps": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-prices-steps.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-prices-steps@2x.png"
   },
   "sec-pricing-band": {
     "kind": "section",
-    "w": 2172,
-    "h": 724,
-    "source": "sec-pricing-band.png"
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-pricing-band.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-pricing-band@2x.png"
+  },
+  "sec-reviews-cta": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-reviews-cta.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-reviews-cta@2x.png"
   },
   "sec-service-cta": {
     "kind": "section",
@@ -248,14 +311,26 @@
     "h": 1254,
     "source": "sec-tier-3.png"
   },
+  "sec-works-next": {
+    "kind": "section",
+    "w": 1536,
+    "h": 1024,
+    "source": "sec-works-next.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-works-next@2x.png"
+  },
   "services": {
     "tone": "light",
     "w": 1536,
     "h": 1024,
     "mw": 1000,
     "mh": 860,
-    "focus": 0.7,
-    "source": "services.png"
+    "focus": 0.66,
+    "source": "services.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "services@2x.png"
   },
   "svc-ai-apps": {
     "tone": "dark",
@@ -479,7 +554,10 @@
     "h": 1024,
     "mw": 1000,
     "mh": 860,
-    "focus": 0.7,
-    "source": "works.png"
+    "focus": 0.62,
+    "source": "works.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "works@2x.png"
   }
 }

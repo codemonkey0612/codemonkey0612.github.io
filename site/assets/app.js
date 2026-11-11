@@ -201,6 +201,17 @@
   });
 
   // ---------- works filters ----------
+  // The filter bar sticks under the header; once stuck it gets a frosted background so the
+  // cards don't show through it.
+  var bar = d.querySelector(".gallery .filters-bar");
+  if (bar) {
+    var stuck = function () {
+      var top = parseFloat(getComputedStyle(bar).top) || 0;
+      bar.classList.toggle("is-stuck", bar.getBoundingClientRect().top <= top + 1 && window.scrollY > 0);
+    };
+    window.addEventListener("scroll", stuck, { passive: true });
+    stuck();
+  }
   var grid = d.querySelector(".wgrid-edit");
   var filterBtns = d.querySelectorAll(".filters [data-filter]");
   var count = d.querySelector(".filter-count");

@@ -18,7 +18,7 @@ import { imageSize } from "./lib/site-core.mjs";
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
-  options: { from: { type: "string", default: ["named", ""].map((d) => path.resolve(ROOT, "..", "mockup", "plates", d)).find((d) => fs.existsSync(d)) }, focus: { type: "string" } },
+  options: { from: { type: "string", default: ["named", ""].map((d) => path.resolve(ROOT, "..", "mockup", "plates", d)).find((d) => fs.existsSync(d)) }, focus: { type: "string" }, "1x": { type: "boolean" } },
 });
 const SRC = path.resolve(values.from);
 const OUT = path.join(ROOT, "site", "assets", "plates");
@@ -55,6 +55,13 @@ export const SECTIONS = [
   "deco-ribbon",
   "deco-pearl",
   "deco-glints",
+  // other pages (~/dev/note/mockup/pages-pilot)
+  "sec-about-bio",
+  "sec-works-next",
+  "sec-reviews-cta",
+  "sec-prices-steps",
+  "deco-silk-wave",
+  "deco-gold-leaves",
 ];
 const MW = 1000;
 const MH = 860;
@@ -65,7 +72,7 @@ if (!fs.existsSync(SRC)) {
 }
 const files = fs.readdirSync(SRC).filter((f) => /\.(png|jpe?g|webp)$/i.test(f) && !/@2x\.[a-z]+$/i.test(f));
 // An upscaled copy of a section image: <name>@2x.png beside <name>.png (see mockup/home-pilot/upscale.py).
-const twice = (name) => fs.readdirSync(SRC).find((f) => new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}@2x\\.(png|jpe?g|webp)$`, "i").test(f));
+const twice = (name) => !values["1x"] && fs.readdirSync(SRC).find((f) => new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}@2x\\.(png|jpe?g|webp)$`, "i").test(f));
 const wanted = positionals.length ? files.filter((f) => positionals.includes(path.parse(f).name)) : files;
 if (!wanted.length) {
   console.error(`plates: no images to convert in ${SRC}`);
@@ -112,8 +119,20 @@ for (const file of wanted) {
     n++;
     continue;
   }
-  // Desktop: the image as generated (no upscaling).
+  // Desktop: the image as generated, plus an upscaled copy for large and high-density screens when there is one.
   ff(["-i", tmp, "-c:v", "libwebp", "-quality", "84", "-compression_level", "6", path.join(OUT, `${name}.webp`)]);
+  const big = twice(name);
+  let x2 = {};
+  if (big) {
+    const tmp2 = path.join(OUT, `.${name}-2x.png`);
+    ff(["-i", path.join(SRC, big), "-frames:v", "1", tmp2]);
+    const [w2, h2] = imageSize(tmp2);
+    ff(["-i", tmp2, "-c:v", "libwebp", "-quality", "80", "-compression_level", "6", path.join(OUT, `${name}-2x.webp`)]);
+    fs.rmSync(tmp2);
+    x2 = { w2, h2, source2x: big };
+  } else {
+    fs.rmSync(path.join(OUT, `${name}-2x.webp`), { force: true });
+  }
   // Phone: a 1000×860 crop around the subject (the right side unless told otherwise).
   const cw = Math.min(w, Math.round((h * MW) / MH));
   const ch = Math.round((cw * MH) / MW);
@@ -129,7 +148,7 @@ for (const file of wanted) {
   fs.rmSync(tmp);
   const y2 = Number(/YAVG=([\d.]+)/.exec(out)?.[1]);
   const tone = y2 > 128 ? "light" : "dark";
-  manifest[name] = { tone, w, h, mw: MW, mh: MH, focus: fx, source: file };
+  manifest[name] = { tone, w, h, mw: MW, mh: MH, focus: fx, source: file, ...x2 };
   console.log(`plates: ${name} ${w}×${h} → plates/${name}.webp + ${name}-m.webp (${tone}, left-side brightness ${Math.round(y2)})`);
   n++;
 }

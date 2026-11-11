@@ -8214,3 +8214,221 @@ h3,
 .seam {
   overflow-x: clip;
 }
+
+/* =====================================================================
+   PAGES PILOT (2026-11-11): the other mockups' own sections as clean
+   plates (~/dev/note/mockup/pages-pilot).
+   ===================================================================== */
+.plan-art {
+  display: none;
+}
+.bio.has-sec .bio-art {
+  display: none;
+}
+.bio.has-sec .sec-bg {
+  object-position: 50% 50%;
+}
+.seam-next .deco-silk-a {
+  left: 0;
+  top: calc(-330 * var(--u));
+  width: 100%;
+  filter: drop-shadow(0 calc(8 * var(--u)) calc(14 * var(--u)) rgba(8, 21, 33, 0.25));
+}
+.seam-next .deco-leaves-a {
+  left: calc(-30 * var(--u));
+  top: calc(70 * var(--u));
+  width: calc(380 * var(--u));
+}
+
+@media (min-width: 1024px) {
+  /* services: the plate full width, its symbols labelled where they stand */
+  .route-services .stage-art,
+  .route-services .svc-labels {
+    inset: auto;
+    left: -3%;
+    top: 50%;
+    width: 106%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    translate: 0 -47%;
+  }
+  .route-services .stage-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .route-services .svc-label {
+    left: calc(var(--x) * 100%);
+    top: calc(var(--y) * 100%);
+    font-size: calc(10 * var(--ut));
+  }
+  .route-services .stage::before {
+    background: linear-gradient(90deg, rgba(246, 247, 251, 0.75) 0%, rgba(246, 247, 251, 0.35) 30%, transparent 46%);
+  }
+
+  /* about, tools: the painted sky and sphere behind the whole band, the names around the sphere */
+  .route-about .stackch {
+    overflow: hidden;
+  }
+  .route-about .stack-band {
+    position: static;
+    min-height: calc(330 * var(--u));
+  }
+  .route-about .stack-copy,
+  .route-about .stackch > .wrap:last-child {
+    position: relative;
+    z-index: 1;
+  }
+  .route-about .stackch .constel {
+    position: absolute;
+    left: 6%;
+    top: 0;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    aspect-ratio: 3 / 2;
+    translate: 0 -17%;
+    z-index: 0;
+  }
+  .route-about .constel-art {
+    object-fit: fill;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%), linear-gradient(180deg, #000 72%, transparent 86%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 14%), linear-gradient(180deg, #000 72%, transparent 86%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  .route-about .constel-star {
+    font-size: calc(12.5 * var(--ut));
+  }
+
+  /* pricing: the four painted glass blocks, each step's text standing above its block */
+  .plan-pilot {
+    padding-bottom: 0 !important;
+  }
+  .plan-pilot .plan-stage {
+    position: relative;
+    height: calc(390 * var(--u));
+    margin-top: calc(-40 * var(--u));
+    overflow: hidden;
+  }
+  .plan-pilot .plan-art {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: calc(-205 * var(--u));
+    width: 100%;
+    height: auto;
+    max-width: none;
+    -webkit-mask-image: linear-gradient(180deg, transparent 30%, #000 38%, #000 80%, transparent 87%);
+    mask-image: linear-gradient(180deg, transparent 30%, #000 38%, #000 80%, transparent 87%);
+  }
+  .plan-pilot .steps-rise {
+    position: absolute;
+    inset: 0;
+    display: block;
+    margin: 0;
+    padding: 0;
+  }
+  .plan-pilot .steps-line,
+  .plan-pilot .step-dot,
+  .plan-pilot .step-glass {
+    display: none !important;
+  }
+  .plan-pilot .steps-rise .step {
+    position: absolute;
+    width: calc(215 * var(--u));
+    translate: 0 -100%;
+  }
+  .plan-pilot .steps-rise .step:nth-child(2) { left: calc(56 * var(--u)); top: calc(190 * var(--u)); }
+  .plan-pilot .steps-rise .step:nth-child(3) { left: calc(300 * var(--u)); top: calc(154 * var(--u)); }
+  .plan-pilot .steps-rise .step:nth-child(4) { left: calc(553 * var(--u)); top: calc(126 * var(--u)); }
+  .plan-pilot .steps-rise .step:nth-child(5) { left: calc(781 * var(--u)); top: calc(93 * var(--u)); }
+  .plan-pilot .step-no {
+    font-size: calc(17 * var(--u));
+  }
+  .plan-pilot .step-title {
+    font-size: calc(15 * var(--ut));
+  }
+  .plan-pilot .step p {
+    font-size: calc(10.5 * var(--ut));
+    line-height: 1.7;
+  }
+}
+@media (max-width: 1023px) {
+  /* pricing on tablets and phones: the steps as a list, the painted blocks underneath */
+  .plan-pilot .plan-stage {
+    display: flex;
+    flex-direction: column;
+  }
+  .plan-pilot .plan-stage .steps {
+    padding-inline: var(--gutter);
+  }
+  .plan-pilot .plan-art {
+    display: block;
+    order: 2;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1536 / 520;
+    object-fit: cover;
+    object-position: 50% 62%;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 25%, #000 75%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 25%, #000 75%, transparent);
+  }
+}
+.seam-next .deco-silk-a {
+  top: calc(-370 * var(--u));
+}
+@media (min-width: 1024px) {
+  /* services: the art a little smaller and further right, clear of the text */
+  .route-services .stage-art,
+  .route-services .svc-labels {
+    left: 10%;
+    width: 96%;
+  }
+  .route-services .stage-art img {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 12%);
+  }
+  /* reviews: the button under the text, as in the mockup; the arch stays clear */
+  .route-reviews .band-split .band-in {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    align-content: center;
+    gap: calc(22 * var(--u));
+  }
+  .route-reviews .band-split .actions {
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: center;
+    gap: calc(22 * var(--u));
+  }
+  .route-reviews .band-split .band-copy {
+    max-width: calc(520 * var(--u));
+  }
+}
+@media (min-width: 1024px) {
+  .route-services .stage-art,
+  .route-services .svc-labels {
+    translate: 0 -45%;
+  }
+}
+@media (min-width: 1024px) {
+  .route-services .stage .lead {
+    max-width: calc(440 * var(--u)) !important;
+  }
+}
+@media (min-width: 1024px) {
+  /* services: the text high on the left, the symbols winding below it (as in the mockup) */
+  body.route-services .stage {
+    align-items: flex-start !important;
+  }
+  body.route-services .stage .stage-in {
+    padding-top: calc(52 * var(--u)) !important;
+  }
+  /* about, tools: a narrower lead so the names around the sphere stay clear of it */
+  .route-about .stack-copy .sh-lead {
+    max-width: calc(290 * var(--u));
+  }
+}

@@ -615,7 +615,8 @@ export function renderWorks(site) {
     <p class="fine">ランサーズの案件のカバー画像はイメージです（実際の画面ではありません）。公開中のサイトの画面は撮影時点のものです。</p>
   </div>
 </section>
-${inquiry(site, base, { title: "次の「作品」を、あなたと。", text: "課題の発見から、企画・デザイン・開発・運用まで。目的に合った進め方をご提案します。", shape: "center", eyebrow: "Next Project", label: "プロジェクトを相談する" })}`;
+${seam(site, base, "seam-next", ["deco-silk-wave", "deco-silk-a"], ["deco-gold-leaves", "deco-leaves-a"])}
+${inquiry(site, base, { title: "次の「作品」を、あなたと。", text: "課題の発見から、企画・デザイン・開発・運用まで。目的に合った進め方をご提案します。", shape: "center", eyebrow: "Next Project", label: "プロジェクトを相談する", art: site.art.section("sec-works-next") ? "sec-works-next" : null })}`;
   return layout(site, { route: "works/", title: "実績", description, body, ld: [personLd(site), crumbLd(site, [["実績", "works/"]])], tone: site.art.stage("works").tone });
 }
 
@@ -744,14 +745,14 @@ export function renderServices(site) {
     scene: "services",
     over: site.art.stage("services").plate
       ? `<div class="svc-labels" aria-hidden="true">${[
-          ["ai-apps", 0.69, 0.215],
-          ["ai-chatbot", 0.865, 0.235],
-          ["ai-consulting", 0.79, 0.385],
-          ["ai-infra", 0.61, 0.425],
-          ["wordpress", 0.755, 0.555],
-          ["shopify", 0.585, 0.655],
-          ["system", 0.765, 0.735],
-          ["quality", 0.555, 0.885],
+          ["ai-apps", 0.658, 0.362],
+          ["ai-chatbot", 0.82, 0.385],
+          ["ai-consulting", 0.713, 0.535],
+          ["ai-infra", 0.545, 0.558],
+          ["wordpress", 0.408, 0.655],
+          ["shopify", 0.3, 0.728],
+          ["system", 0.518, 0.755],
+          ["quality", 0.199, 0.8],
         ]
           .map(([id, x, y]) => {
             const sv = site.services.find((o) => o.id === id);
@@ -969,7 +970,8 @@ export function renderAbout(site) {
       <p class="hero-caption" lang="en">TAKUMI / Independent Engineer</p>
     </div>`,
   })}
-<section class="ch ch-pearl bio" aria-labelledby="bio-title">
+<section class="ch ch-pearl bio${hasSec(site, "sec-about-bio")}" aria-labelledby="bio-title">
+  ${secImg(site, base, "sec-about-bio")}
   <svg class="bio-art bio-art-r" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="118"/><circle cx="150" cy="150" r="82"/><circle cx="196" cy="118" r="58"/><circle cx="104" cy="182" r="40"/><path d="M20 150h260M150 20v260M58 58l184 184M242 58 58 242"/><circle cx="150" cy="150" r="3" class="dot"/><circle cx="268" cy="150" r="3" class="dot"/><circle cx="150" cy="32" r="3" class="dot"/></svg>
   <svg class="bio-art bio-art-l" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="118"/><circle cx="150" cy="150" r="70"/><path d="M32 150h236M150 32v236"/><circle cx="150" cy="80" r="3" class="dot"/></svg>
   <div class="wrap bio-in">
@@ -1042,7 +1044,7 @@ ${
       ${secImg(site, base, "sec-about-constellation", "constel-art")}
       <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet"><ellipse cx="300" cy="180" rx="250" ry="92"/><ellipse cx="300" cy="180" rx="190" ry="140" transform="rotate(-18 300 180)"/><ellipse cx="300" cy="180" rx="150" ry="60" transform="rotate(24 300 180)"/></svg>
       <span class="constel-core"></span>
-      ${[["React", 14, 20], ["Python", 6, 58], ["WordPress", 80, 16], ["OpenAI", 84, 60], ["AWS", 52, 90], ["Next.js", 34, 4], ["Docker", 26, 84], ["Shopify", 70, 86]].map(([t, x, y]) => `<span class="constel-star constel-${x < 50 ? "l" : "r"}" style="left:${x}%;top:${y}%">${t}</span>`).join("")}
+      ${[["Next.js", 47, 29], ["React", 35, 38], ["Python", 34, 55], ["Docker", 40, 68], ["AWS", 61, 72], ["Shopify", 80, 67], ["OpenAI", 87, 54], ["WordPress", 84, 34]].map(([t, x, y]) => `<span class="constel-star constel-${x < 58.6 ? "l" : "r"}" style="left:${x}%;top:${y}%">${t}</span>`).join("")}
     </div>
   </div>
   <div class="wrap">
@@ -1142,10 +1144,13 @@ export function renderPrices(site) {
     </div>
   </div>
 </section>
-<section class="ch ch-mist plan${hasSec(site, "sec-silk")}" aria-labelledby="plan-title">
+<section class="ch ch-mist plan${hasSec(site, "sec-silk")}${site.art.section("sec-prices-steps") ? " plan-pilot" : ""}" aria-labelledby="plan-title">
   ${secImg(site, base, "sec-silk")}
   <div class="wrap">
     ${heading("Scope Planning", "プロジェクトの進め方", { id: "plan-title", lead: "課題や目的に合わせて範囲と体制を決め、段階的に積み上げていきます。" })}
+  </div>
+  <div class="plan-stage">
+    ${secImg(site, base, "sec-prices-steps", "plan-art")}
     ${steps([
       { t: "課題の整理", d: "現状と目指す姿を整理し、取り組むテーマを決めます。" },
       { t: "スコープ設計", d: "検証の内容・成果物・進め方を決め、計画にします。" },
@@ -1260,7 +1265,7 @@ export function renderReviews(site) {
     </div>
   </div>
 </section>
-${inquiry(site, base, { title: "ご相談からでも、お気軽にお問い合わせください。", titleHtml: "ご相談からでも、<br>お気軽にお問い合わせください。", text: "ご要望の整理や、どのような進め方がよいかのご相談だけでも歓迎です。", label: "Webサイトからお問い合わせ", compact: false, eyebrow: "Contact" })}`;
+${inquiry(site, base, { title: "ご相談からでも、お気軽にお問い合わせください。", titleHtml: "ご相談からでも、<br>お気軽にお問い合わせください。", text: "ご要望の整理や、どのような進め方がよいかのご相談だけでも歓迎です。", label: "Webサイトからお問い合わせ", compact: false, eyebrow: "Contact", art: site.art.section("sec-reviews-cta") ? "sec-reviews-cta" : null })}`;
   return layout(site, { route: "reviews/", title: "お客さまの声", description, body, ld: [personLd(site), crumbLd(site, [["お客さまの声", "reviews/"]])], tone: site.art.stage("reviews").tone });
 }
 

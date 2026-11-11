@@ -315,3 +315,22 @@ test("the home page uses the pilot plates when they exist, and its links survive
   for (const m of home.matchAll(/<div class="seam [^"]+"([^>]*)>/g)) assert.match(m[1], /aria-hidden="true"/);
   for (const m of home.matchAll(/<img class="deco [^"]+"[^>]*>/g)) assert.match(m[0], /alt=""/);
 });
+
+
+test("the other pages use their pilot plates where they exist, keeping their text", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  const prices = files["prices/index.html"];
+  if (site.art.section("sec-prices-steps")) {
+    assert.match(prices, /class="ch ch-mist plan[^"]* plan-pilot"/);
+    assert.match(prices, /class="plan-art"/);
+    // the four steps stay real text over the picture
+    for (const t of ["課題の整理", "スコープ設計", "実行・検証", "展開・拡張"]) assert.ok(prices.includes(`<h3 class="step-title">${t}</h3>`), t);
+  }
+  if (site.art.section("sec-works-next")) assert.match(files["works/index.html"], /sec-works-next\.webp/);
+  if (site.art.section("sec-reviews-cta")) assert.match(files["reviews/index.html"], /sec-reviews-cta\.webp/);
+  if (site.art.section("sec-about-bio")) assert.match(files["about/index.html"], /class="ch ch-pearl bio has-sec"/);
+  // the service labels still link to all eight services
+  const svc = files["services/index.html"];
+  for (const s of site.services) assert.ok(svc.includes(`class="svc-label" href="../services/${s.id}/"`), s.id);
+});

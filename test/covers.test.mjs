@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { imageSize } from "image-size";
+import YAML from "yaml";
 import { ROOT } from "../scripts/lib/common.mjs";
 import { chooseCover, coverPath, loadCovers } from "../scripts/lib/note-covers.mjs";
 import { coverFilter } from "../scripts/note-covers.mjs";
@@ -39,9 +40,18 @@ test("every package image is rendered at note's size, and the excluded services 
   assert.doesNotMatch(services, /顔交換|フェイス|スクレイピング|ゲーム|ビジネスパートナー/);
 });
 
-test("crop keeps the chosen part of the height; contain fills both sides exactly", () => {
-  assert.match(coverFilter({ fit: "crop", y: 0.1 }, [1672, 941]), /crop=1280:670:\(iw-1280\)\/2:\(ih-670\)\*0\.1/);
-  const f = coverFilter({ fit: "contain" }, [1418, 1109]);
-  assert.match(f, /scale=212:670/);
-  assert.match(f, /scale=856:670\[fg\]/);
+test("a 16:9 image is cropped to fill the frame; a 4:3 or square one is refused", () => {
+  assert.match(coverFilter({ y: 0.1 }, [1672, 941]), /crop=1280:670:\(iw-1280\)\/2:\(ih-670\)\*0\.1/);
+  assert.match(coverFilter({ y: 0 }, [1220, 686]), /crop=1280:670:\(iw-1280\)\/2:\(ih-670\)\*0/);
+  assert.throws(() => coverFilter({}, [1418, 1109]), /isn't 16:9/);
+  assert.throws(() => coverFilter({}, [1254, 1254]), /isn't 16:9/);
+});
+
+test("the site's package images are 16:9 too, so none is shown squeezed or with bars", () => {
+  const packages = YAML.parse(fs.readFileSync(path.join(ROOT, "site/packages.yml"), "utf8"));
+  for (const [id, p] of Object.entries(packages)) {
+    if (!p.cover) continue;
+    const { width, height } = imageSize(fs.readFileSync(path.join(ROOT, "site/assets", p.cover)));
+    assert.ok(Math.abs(width / height - 16 / 9) < 0.02, `${id}: ${p.cover} is ${width}×${height}`);
+  }
 });

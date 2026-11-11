@@ -15,19 +15,15 @@ import { COVER_SIZE, COVERS_DIR, loadCovers } from "./lib/note-covers.mjs";
 
 const [W, H] = COVER_SIZE;
 
+/** Narrower than this and cropping to 1280×670 would cut off too much (16:9 is 1.78). */
+const MIN_RATIO = 1.7;
+
 /**
- * The ffmpeg filter for one entry of size `width`×`height`: crop to fill the frame, or show the
- * whole image with its left and right edges stretched out (softened) to fill the sides.
+ * The ffmpeg filter for one entry of size `width`×`height`: scale and crop to fill the frame,
+ * keeping the part of the height that `y` names. Throws for an image that isn't 16:9.
  */
-export function coverFilter({ fit = "crop", y = 0.5 }, [width, height]) {
-  if (fit === "contain") {
-    const fg = Math.min(W, 2 * Math.round((H * width) / height / 2));
-    const left = Math.floor((W - fg) / 2);
-    const right = W - fg - left;
-    if (!left || !right) return `[0:v]scale=${W}:${H},format=yuvj420p`;
-    const side = (x, w) => `crop=48:ih:${x}:0,scale=1:10:flags=area,scale=${w}:${H}:flags=bicubic,gblur=sigma=16`;
-    return `[0:v]split=3[a][b][c];[a]${side(0, left)}[l];[c]${side("iw-48", right)}[r];[b]scale=${fg}:${H}[fg];[l][fg][r]hstack=inputs=3,format=yuvj420p`;
-  }
+export function coverFilter({ y = 0.5 }, [width, height]) {
+  if (width / height < MIN_RATIO) throw new Error(`${width}×${height} isn't 16:9 (note's header image is ${W}×${H}); use the 16:9 version of this package image`);
   const anchor = Math.min(1, Math.max(0, Number(y)));
   return `[0:v]scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H}:(iw-${W})/2:(ih-${H})*${anchor},format=yuvj420p`;
 }
@@ -49,8 +45,16 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
       continue;
     }
     const { width, height } = imageSize(fs.readFileSync(src));
-    execFileSync("ffmpeg", ["-loglevel", "error", "-y", "-i", src, "-filter_complex", coverFilter(entry, [width, height]), "-frames:v", "1", "-q:v", "2", out]);
-    console.log(`note-covers: ${rel(out)} ← ${entry.original} (${entry.fit ?? "crop"}) ${entry.service ?? ""}`);
+    let filter;
+    try {
+      filter = coverFilter(entry, [width, height]);
+    } catch (err) {
+      console.error(`note-covers: ${entry.id}: ${entry.original}: ${err.message}`);
+      failed++;
+      continue;
+    }
+    execFileSync("ffmpeg", ["-loglevel", "error", "-y", "-i", src, "-filter_complex", filter, "-frames:v", "1", "-q:v", "2", out]);
+    console.log(`note-covers: ${rel(out)} ← ${entry.original} (y ${entry.y ?? 0.5}) ${entry.service ?? ""}`);
   }
   if (failed) process.exit(1);
 }

@@ -480,6 +480,7 @@
   // ---------- the first visit opens with the emblem; later pages wash in ----------
   var intro = d.querySelector(".ov");
   var endIntro = function () {
+    if (root.classList.contains("ov-on")) root.classList.add("ov-seen");
     root.classList.remove("ov-on");
     if (intro) intro.setAttribute("hidden", "");
   };

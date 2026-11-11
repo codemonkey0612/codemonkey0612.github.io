@@ -14381,14 +14381,21 @@ body:not(.route-home):not(.route-404) .stage .display {
   }
 }
 /* the hero waits for the veil */
+/* On the first visit the hero is drawn at once under the veil, and the lifting veil
+   reveals it (its own entrance would otherwise hold the page back by the intro's length). */
 html.ov-on.motion .stage .stage-art,
 html.ov-on.motion .stage .stage-art img,
 html.ov-on.motion .stage .stage-copy > *,
 html.ov-on.motion .stage .stage-copy > .display,
 html.ov-on.motion .stage .kicker::after,
-html.ov-on.motion .stage .sky-canvas,
-html.ov-on.motion .stage-home .stage-film {
-  animation-play-state: paused !important;
+html.ov-on.motion .stage-home .stage-film,
+html.ov-seen.motion .stage .stage-art,
+html.ov-seen.motion .stage .stage-art img,
+html.ov-seen.motion .stage .stage-copy > *,
+html.ov-seen.motion .stage .stage-copy > .display,
+html.ov-seen.motion .stage .kicker::after,
+html.ov-seen.motion .stage-home .stage-film {
+  animation: none !important;
 }
 
 /* ---------- between pages: the new page washes in like light ---------- */

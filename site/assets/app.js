@@ -619,6 +619,30 @@
   d.addEventListener("visibilitychange", skyAll);
   if (toggle) toggle.addEventListener("click", skyAll);
 
+  // ---------- reviews: the gold thread draws when it arrives; its lights follow the motion switch ----------
+  var thread = d.querySelector(".dlg-thread");
+  if (thread) {
+    var stage = thread.parentNode;
+    var syncThread = function () {
+      if (!thread.pauseAnimations) return;
+      if (moving()) thread.unpauseAnimations();
+      else thread.pauseAnimations();
+    };
+    syncThread();
+    if (toggle) toggle.addEventListener("click", syncThread);
+    if ("IntersectionObserver" in window)
+      new IntersectionObserver(
+        function (es, ob) {
+          if (es[0].isIntersecting) {
+            stage.classList.add("is-lit");
+            ob.disconnect();
+          }
+        },
+        { threshold: 0.3 },
+      ).observe(stage);
+    else stage.classList.add("is-lit");
+  }
+
   // ---------- cards: a gold edge light that follows the pointer ----------
   var fine = window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches;
   if (fine) {

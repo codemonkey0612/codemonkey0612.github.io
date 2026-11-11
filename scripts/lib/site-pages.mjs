@@ -1476,18 +1476,57 @@ export function renderReviews(site) {
     </div>
   </div>
 </section>
-<section class="ch ch-mist dialog" aria-labelledby="dlg-title">
-  <div class="wrap">
-    ${heading("Our Communication", "対話から、<br>品質が生まれる。", { id: "dlg-title", lead: "ご依頼の前後を通じた、ていねいな対話を大切にしています。<br>その積み重ねが、安心と、より良い成果につながると考えています。" })}
-    <ul class="bubbles${hasSec(site, "sec-bubble")}">
-      ${values.slice(0, 3).map((v, i) => `<li data-reveal style="--i:${i}">${secImg(site, base, "sec-bubble", "bubble-bg")}${icon(["speech", "gears", "shield"][i], "ic bubble-ic")}<b class="bubble-title">${["丁寧なヒアリング", "こまめな共有・確認", "原因からの改善"][i]}</b><span>${esc(v)}</span></li>`).join("\n      ")}
-    </ul>
-    <div class="feedback" data-reveal>
-      <span class="fb-ic" aria-hidden="true">${icon("bars")}</span>
-      <div class="fb-head"><h3 class="h3">ご意見を、<br>次の改善へ。</h3><p class="fb-label" lang="en">Feedback &amp; Improvement</p></div>
-      <p class="fb-text">納品後のご意見やご要望も、改善の機会として大切にしています。<br>いただいた評価は、ランサーズでも確認できます。</p>
+<section class="dlg" aria-labelledby="dlg-title">
+  ${secImg(site, base, "sec-silk", "dlg-silk")}
+  <div class="dlg-in">
+    <header class="dlg-head" data-reveal>
+      <div class="dlg-title-wrap">
+        <h2 class="dlg-title" id="dlg-title">対話から、<br>品質が生まれる。</h2>
+        <p class="dlg-eyebrow" lang="en">Our Communication</p>
+      </div>
+      <span class="dlg-rule" aria-hidden="true"></span>
+      <p class="dlg-lead">ご依頼の前後を通じた、ていねいな対話を大切にしています。<br>その積み重ねが、安心と、より良い成果につながると考えています。</p>
+    </header>
+    <div class="dlg-stage">
+      <svg class="dlg-thread" viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="dlgGold" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#c9a24a" stop-opacity="0"/><stop offset=".12" stop-color="#d8b45c"/><stop offset=".5" stop-color="#f5e2ad"/><stop offset=".88" stop-color="#d8b45c"/><stop offset="1" stop-color="#c9a24a" stop-opacity="0"/></linearGradient>
+          <radialGradient id="dlgGlint"><stop offset="0" stop-color="#fffaf0"/><stop offset=".35" stop-color="#f5e2ad" stop-opacity=".9"/><stop offset="1" stop-color="#f5e2ad" stop-opacity="0"/></radialGradient>
+        </defs>
+        <path id="dlgPath" class="dlg-path" d="M0 168 C 70 176, 120 118, 200 116 C 290 114, 330 236, 400 232 C 470 228, 520 112, 600 110 C 690 108, 730 234, 800 230 C 870 226, 920 114, 1000 116 C 1080 118, 1130 178, 1200 160"/>
+        <path class="dlg-path dlg-path-2" d="M0 184 C 80 192, 130 132, 200 130 C 280 128, 336 248, 400 246 C 466 244, 530 126, 600 124 C 680 122, 734 248, 800 246 C 866 244, 930 128, 1000 130 C 1070 132, 1124 194, 1200 178"/>
+        <g class="dlg-glints">
+          <circle r="7" fill="url(#dlgGlint)"><animateMotion dur="9s" repeatCount="indefinite" begin="0s"><mpath href="#dlgPath"/></animateMotion></circle>
+          <circle r="5" fill="url(#dlgGlint)"><animateMotion dur="9s" repeatCount="indefinite" begin="-3s"><mpath href="#dlgPath"/></animateMotion></circle>
+          <circle r="6" fill="url(#dlgGlint)"><animateMotion dur="9s" repeatCount="indefinite" begin="-6s"><mpath href="#dlgPath"/></animateMotion></circle>
+        </g>
+      </svg>
+      <ol class="dlg-bubbles">
+        ${values
+          .slice(0, 3)
+          .map(
+            (v, i) => `<li class="dlg-item" style="--i:${i}" data-reveal>
+          <figure class="dlg-bubble">
+            ${secImg(site, base, "sec-bubble", "dlg-glass")}
+            <span class="dlg-b-in">
+              <span class="dlg-ic" aria-hidden="true">${icon(["speech", "refresh", "target"][i])}</span>
+              <span class="dlg-b-title">${["丁寧なヒアリング", "こまめな共有・確認", "原因からの改善"][i]}</span>
+              <span class="dlg-b-text">${esc(v)}</span>
+            </span>
+          </figure>
+          <span class="dlg-no" lang="en" aria-hidden="true">${pad2(i + 1)}</span>
+        </li>`,
+          )
+          .join("\n        ")}
+      </ol>
     </div>
-    <p class="fb-more">${ext(l.reviews_url ?? l.profile_url, `${icon("ext", "ic btn-pre")}Lancersで評価を見る${icon("chevron")}`, "btn btn-plate")}</p>
+    <div class="dlg-fb" data-reveal>
+      <span class="dlg-fb-ic" aria-hidden="true">${icon("bars")}</span>
+      <div class="dlg-fb-head"><h3 class="dlg-fb-title">ご意見を、<br>次の改善へ。</h3><p class="dlg-fb-label" lang="en">Feedback &amp; Improvement</p></div>
+      <p class="dlg-fb-text">納品後のご意見やご要望も、改善の機会として大切にしています。<br>いただいた評価は、ランサーズでも確認できます。</p>
+      <span class="dlg-drop" aria-hidden="true"><i class="dlg-drip"></i><i class="dlg-ring"></i><i class="dlg-ring"></i><i class="dlg-ring"></i><i class="dlg-pool"></i></span>
+    </div>
+    <p class="dlg-more">${ext(l.reviews_url ?? l.profile_url, `${icon("ext", "ic btn-pre")}Lancersで評価を見る${icon("chevron")}`, "btn btn-plate")}</p>
   </div>
 </section>
 ${inquiry(site, base, { title: "ご相談からでも、お気軽にお問い合わせください。", titleHtml: "ご相談からでも、<br>お気軽に<span class=\"nowrap\">お問い合わせください。</span>", text: "ご要望の整理や、どのような進め方がよいかのご相談だけでも歓迎です。", label: "Webサイトからお問い合わせ", compact: false, eyebrow: "Contact", art: site.art.section("sec-reviews-cta") ? "sec-reviews-cta" : null, btnPre: "mail", chev: true })}`;

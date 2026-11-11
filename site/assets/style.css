@@ -14646,3 +14646,493 @@ html.ov-on.motion .stage-home .stage-film {
 .motion :is(.band .btn-gold, .fo-actions .btn-gold, .stage .btn-gold, .inq-next):hover {
   animation-play-state: paused;
 }
+
+/* =====================================================================
+   REVIEWS, 対話から、品質が生まれる。 (2026-11-11): silk and light. Three
+   glass bubbles float on a gold thread that lights travel along; below,
+   feedback falls like a drop and spreads in rings.
+   ===================================================================== */
+.dlg {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-block: clamp(96px, 9vw, 180px) clamp(80px, 8vw, 150px);
+  background: linear-gradient(180deg, #f3f1ec, #f6f4f0 40%, #eef0f6);
+}
+.dlg-silk {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.dlg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60% 50% at 50% 46%, rgba(255, 250, 238, 0.85), rgba(255, 250, 238, 0) 70%),
+    linear-gradient(180deg, rgba(246, 244, 240, 0.65), rgba(246, 244, 240, 0) 30%, rgba(246, 244, 240, 0) 70%, rgba(238, 240, 246, 0.8));
+  pointer-events: none;
+}
+.dlg-in {
+  width: min(calc(100% - 2 * var(--gutter)), 1240px);
+  margin-inline: auto;
+}
+@media (min-width: 1024px) {
+  .dlg-in {
+    width: min(calc(100% - 2 * var(--gutter)), calc(900 * var(--u)));
+  }
+}
+/* heading: title, a gold rule, the lead */
+.dlg-head {
+  display: grid;
+  grid-template-columns: auto 1px minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 3.4vw, 64px);
+  margin-bottom: clamp(48px, 5vw, 96px);
+}
+.dlg-title {
+  margin: 0;
+  font: 500 clamp(32px, 3.4vw, 64px) / 1.4 var(--f-serif);
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+.dlg-eyebrow {
+  margin: 14px 0 0;
+  font: 600 clamp(11px, 0.85vw, 15px) / 1 var(--f-latin);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+.dlg-rule {
+  align-self: stretch;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--gold) 15%, var(--gold) 85%, transparent);
+}
+.dlg-lead {
+  margin: 0;
+  font: 400 clamp(14px, 1.1vw, 19px) / 2.1 var(--f-serif);
+  letter-spacing: 0.05em;
+  color: #3b4656;
+}
+/* the stage: a gold thread behind three bubbles */
+.dlg-stage {
+  position: relative;
+}
+.dlg-thread {
+  position: absolute;
+  left: calc(-1 * var(--gutter));
+  right: calc(-1 * var(--gutter));
+  top: 50%;
+  z-index: 0;
+  width: calc(100% + 2 * var(--gutter));
+  height: 46%;
+  translate: 0 -54%;
+  overflow: visible;
+  pointer-events: none;
+}
+.dlg-path {
+  fill: none;
+  stroke: url(#dlgGold);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 3px rgba(236, 208, 150, 0.8));
+}
+.dlg-path-2 {
+  stroke-width: 0.8;
+  opacity: 0.55;
+}
+.dlg-glints circle {
+  filter: drop-shadow(0 0 6px rgba(255, 236, 190, 0.95));
+}
+.dlg-glints {
+  display: none;
+}
+.motion .dlg-glints {
+  display: inline;
+}
+.dlg-bubbles {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2.4vw, 44px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dlg-item {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.dlg-item:nth-child(2) {
+  margin-top: clamp(24px, 3vw, 56px);
+}
+.dlg-bubble {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  aspect-ratio: 939 / 679;
+}
+/* the glass: the artwork cropped to the bubble itself */
+.dlg-glass {
+  position: absolute;
+  left: -16.6%;
+  top: -43.4%;
+  width: 133.5%;
+  max-width: none;
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 24px 30px rgba(15, 29, 46, 0.18));
+  transition: filter 0.6s ease;
+}
+.dlg-b-in {
+  position: absolute;
+  left: 13%;
+  right: 13%;
+  top: 8%;
+  height: 72%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 0.6vw, 10px);
+  text-align: center;
+}
+.dlg-ic {
+  display: grid;
+  place-items: center;
+  width: clamp(30px, 2.4vw, 44px);
+  height: clamp(30px, 2.4vw, 44px);
+  color: var(--gold-ink);
+}
+.dlg-ic .ic {
+  width: 100%;
+  height: 100%;
+  stroke-width: 1.3;
+}
+.dlg-b-title {
+  font: 600 clamp(15px, 1.35vw, 24px) / 1.4 var(--f-serif);
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+.dlg-b-text {
+  font: 400 clamp(12px, 0.95vw, 16px) / 1.8 var(--f-serif);
+  letter-spacing: 0.03em;
+  color: #3b4656;
+  word-break: auto-phrase;
+  text-wrap: balance;
+}
+.dlg-no {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(-34px, -2.4vw, -20px);
+  translate: -50% 0;
+  font: 500 clamp(12px, 0.9vw, 15px) / 1 var(--f-latin);
+  letter-spacing: 0.3em;
+  color: var(--gold-ink);
+  font-variant-numeric: lining-nums;
+}
+.dlg-no::before {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 14px;
+  margin: 0 auto 8px;
+  background: linear-gradient(180deg, transparent, var(--gold));
+}
+/* the bubbles float, each in its own rhythm; hovering brings one forward */
+@keyframes dlg-float {
+  from {
+    translate: 0 -7px;
+  }
+  to {
+    translate: 0 7px;
+  }
+}
+.motion .dlg-item.is-in .dlg-bubble {
+  animation: dlg-float 6.5s ease-in-out calc(var(--i) * -2.2s) infinite alternate;
+}
+.dlg-bubble {
+  transition: scale 0.6s var(--ease-out, ease);
+}
+@media (hover: hover) {
+  .dlg-item:hover .dlg-bubble {
+    scale: 1.04;
+  }
+  .dlg-item:hover .dlg-glass {
+    filter: drop-shadow(0 30px 34px rgba(15, 29, 46, 0.22)) drop-shadow(0 0 22px rgba(236, 208, 150, 0.55));
+  }
+}
+/* the thread draws itself when the section arrives */
+.motion .dlg-path {
+  stroke-dasharray: 1600;
+  stroke-dashoffset: 1600;
+  transition: stroke-dashoffset 2.6s cubic-bezier(0.65, 0, 0.35, 1) 0.3s;
+}
+.motion .dlg-stage.is-lit .dlg-path {
+  stroke-dashoffset: 0;
+}
+.motion .dlg-path-2 {
+  transition-delay: 0.7s;
+}
+
+/* feedback: a glass panel, and a drop that falls and spreads */
+.dlg-fb {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: auto auto 1px minmax(0, 1fr) clamp(120px, 14vw, 220px);
+  align-items: center;
+  gap: clamp(18px, 2.4vw, 40px);
+  margin-top: clamp(72px, 7vw, 130px);
+  padding: clamp(26px, 2.6vw, 44px) clamp(26px, 3vw, 52px);
+  border: 1px solid rgba(201, 162, 74, 0.38);
+  border-radius: 22px;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.86), rgba(250, 246, 238, 0.7));
+  backdrop-filter: blur(10px);
+  box-shadow: 0 40px 70px -50px rgba(15, 29, 46, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.dlg-fb::before {
+  content: "";
+  grid-column: 3;
+  grid-row: 1;
+  align-self: stretch;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+}
+.dlg-fb-ic {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  width: clamp(54px, 4.4vw, 76px);
+  height: clamp(54px, 4.4vw, 76px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #fff, #f3ecdc 75%);
+  box-shadow: inset 0 0 0 1px rgba(201, 162, 74, 0.45), 0 14px 24px -14px rgba(15, 29, 46, 0.45);
+  color: var(--gold-ink);
+}
+.dlg-fb-ic .ic {
+  width: 44%;
+  height: 44%;
+  stroke-width: 2;
+}
+.dlg-fb-head {
+  grid-column: 2;
+  grid-row: 1;
+}
+.dlg-fb-title {
+  margin: 0;
+  font: 500 clamp(20px, 1.7vw, 30px) / 1.45 var(--f-serif);
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+.dlg-fb-label {
+  margin: 10px 0 0;
+  font: 600 clamp(10px, 0.75vw, 12.5px) / 1 var(--f-latin);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #5b6577;
+}
+.dlg-fb-text {
+  grid-column: 4;
+  grid-row: 1;
+  margin: 0;
+  font: 400 clamp(14px, 1.05vw, 18px) / 2 var(--f-serif);
+  letter-spacing: 0.03em;
+  color: #3b4656;
+}
+.dlg-drop {
+  grid-column: 5;
+  grid-row: 1;
+  position: relative;
+  align-self: stretch;
+  min-height: 110px;
+}
+.dlg-pool {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 80%;
+  height: 22%;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(201, 162, 74, 0.18), rgba(201, 162, 74, 0));
+}
+.dlg-ring {
+  position: absolute;
+  left: 50%;
+  bottom: calc(18% + 11%);
+  width: 70%;
+  aspect-ratio: 4 / 1;
+  translate: -50% 50%;
+  border: 1px solid rgba(201, 162, 74, 0.55);
+  border-radius: 50%;
+  scale: 0.4;
+  opacity: 0.6;
+}
+.dlg-ring:nth-of-type(3) {
+  scale: 0.7;
+  opacity: 0.4;
+}
+.dlg-ring:nth-of-type(4) {
+  scale: 1;
+  opacity: 0.25;
+}
+.dlg-drip {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 9px;
+  height: 13px;
+  translate: -50% 0;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(circle at 40% 35%, #fff 0 20%, #e8cf8f 55%, #b48633);
+  box-shadow: 0 0 10px rgba(236, 208, 150, 0.9);
+  opacity: 0;
+}
+@keyframes dlg-drip {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  38% {
+    top: calc(82% - 30%);
+    opacity: 1;
+    scale: 1 1.1;
+  }
+  42%,
+  100% {
+    top: calc(82% - 28%);
+    opacity: 0;
+    scale: 1.6 0.4;
+  }
+}
+@keyframes dlg-ring {
+  0%,
+  38% {
+    scale: 0.1;
+    opacity: 0;
+  }
+  42% {
+    opacity: 0.9;
+  }
+  100% {
+    scale: 1.25;
+    opacity: 0;
+  }
+}
+.motion .dlg-drip {
+  animation: dlg-drip 4.8s cubic-bezier(0.55, 0, 0.8, 0.4) infinite;
+}
+.motion .dlg-ring {
+  animation: dlg-ring 4.8s cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
+}
+.motion .dlg-ring:nth-of-type(3) {
+  animation-delay: 0.35s;
+}
+.motion .dlg-ring:nth-of-type(4) {
+  animation-delay: 0.7s;
+}
+.dlg-more {
+  margin: clamp(30px, 3vw, 52px) 0 0;
+  text-align: center;
+}
+.dlg-more .btn {
+  min-width: min(100%, 420px);
+}
+
+/* tablets and phones: the bubbles in a column along a vertical thread */
+@media (max-width: 860px) {
+  .dlg-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .dlg-rule {
+    width: 64px;
+    height: 1px;
+    align-self: start;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+  .dlg-thread {
+    display: none;
+  }
+  .dlg-stage::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 4%;
+    bottom: 4%;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, var(--gold) 12%, var(--gold) 88%, transparent);
+    box-shadow: 0 0 8px rgba(236, 208, 150, 0.7);
+  }
+  .dlg-bubbles {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 46px;
+    max-width: 420px;
+    margin-inline: auto;
+  }
+  .dlg-item:nth-child(2) {
+    margin-top: 0;
+  }
+  .dlg-b-title {
+    font-size: clamp(16px, 4.6vw, 20px);
+  }
+  .dlg-b-text {
+    font-size: clamp(12.5px, 3.5vw, 15px);
+  }
+  .dlg-no {
+    display: none;
+  }
+  .dlg-fb {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 16px 18px;
+  }
+  .dlg-fb::before {
+    display: none;
+  }
+  .dlg-fb-text {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding-top: 16px;
+    border-top: 1px solid rgba(201, 162, 74, 0.45);
+  }
+  .dlg-drop {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    min-height: 90px;
+  }
+}
+.dlg-thread {
+  top: 0;
+  height: 100%;
+  translate: none;
+}
+.dlg-path {
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px rgba(236, 208, 150, 0.95)) drop-shadow(0 0 10px rgba(236, 208, 150, 0.5));
+}
+.dlg-path-2 {
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.dlg-ring {
+  border-color: rgba(180, 134, 51, 0.7);
+}
+@media (max-width: 860px) {
+  .dlg-drop {
+    min-height: 72px;
+  }
+}

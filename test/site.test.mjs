@@ -289,7 +289,9 @@ test("the pages carry the mockups' elements", () => {
   assert.equal((files["prices/index.html"].match(/class="step-glass"/g) ?? []).length, 4, "pricing steps stand on glass blocks");
   const rv = files["reviews/index.html"];
   assert.ok((rv.match(/class="qc-head"/g) ?? []).length >= 20, "review cards have a title row");
-  assert.match(rv, /class="bubble-title"/);
+  // The communication section: three glass bubbles with titles, carrying your first three values.
+  assert.equal((rv.match(/class="dlg-b-title"/g) ?? []).length, 3, "three titled bubbles");
+  for (const v of (loadProfile().values ?? []).slice(0, 3)) assert.ok(rv.includes(esc(v)), `bubble keeps the value: ${v}`);
 });
 
 test("the home page uses the pilot plates when they exist, and its links survive", () => {

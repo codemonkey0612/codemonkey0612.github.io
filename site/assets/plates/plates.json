@@ -126,19 +126,28 @@
     "kind": "section",
     "w": 1536,
     "h": 1024,
-    "source": "sec-home-cta.png"
+    "source": "sec-home-cta.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-home-cta@2x.png"
   },
   "sec-home-exp": {
     "kind": "section",
     "w": 1536,
     "h": 1024,
-    "source": "sec-home-exp.png"
+    "source": "sec-home-exp.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-home-exp@2x.png"
   },
   "sec-home-hero": {
     "kind": "section",
     "w": 1536,
     "h": 1024,
-    "source": "sec-home-hero.png"
+    "source": "sec-home-hero.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-home-hero@2x.png"
   },
   "sec-home-hero-m": {
     "kind": "section",
@@ -150,19 +159,28 @@
     "kind": "section",
     "w": 1536,
     "h": 1024,
-    "source": "sec-home-quote.png"
+    "source": "sec-home-quote.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-home-quote@2x.png"
   },
   "sec-home-reel": {
     "kind": "section",
     "w": 1536,
     "h": 1024,
-    "source": "sec-home-reel.png"
+    "source": "sec-home-reel.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-home-reel@2x.png"
   },
   "sec-home-sel": {
     "kind": "section",
     "w": 1536,
     "h": 1024,
-    "source": "sec-home-sel.png"
+    "source": "sec-home-sel.png",
+    "w2": 3072,
+    "h2": 2048,
+    "source2x": "sec-home-sel@2x.png"
   },
   "sec-home-selected": {
     "kind": "section",

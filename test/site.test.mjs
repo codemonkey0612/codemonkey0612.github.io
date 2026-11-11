@@ -300,11 +300,17 @@ test("the home page uses the pilot plates when they exist, and its links survive
     assert.match(home, /<source media="\(max-width: 760px\)" srcset="\.\/assets\/plates\/sec-home-hero-m\.webp"/, "phones get the portrait hero");
   }
   if (site.art.section("sec-home-sel")) {
-    assert.match(home, /<source media="\(min-width: 1024px\)" srcset="\.\/assets\/plates\/sec-home-sel\.webp"/, "desktop gets the plate with the screenshots on its laptops");
+    assert.match(home, /<source media="\(min-width: 1024px\)" srcset="\.\/assets\/plates\/sec-home-sel\.webp[ "]/, "desktop gets the plate with the screenshots on its laptops");
     // The laptops in the picture are links to the two works, with real alt text for the screenshots.
     assert.match(home, /class="dev-laptop" href="\.\/works\/[^"]+\/"><span class="dev-screen"><img[^>]+alt="[^"]+"/);
     assert.match(home, /class="dev-tablet" href="\.\/works\/[^"]+\/">/);
   }
+  // Upscaled copies go to large and high-density screens only, through srcset (phones keep the 1× files).
+  for (const name of ["sec-home-hero", "sec-home-sel", "sec-home-exp", "sec-home-reel", "sec-home-cta"]) {
+    const a = site.art.section(name);
+    if (a?.src2x) assert.ok(home.includes(`${a.src} ${a.w}w, ./${a.src2x} ${a.w2}w`), `${name} offers its 2× copy`);
+  }
+  assert.doesNotMatch(home, /sec-home-hero-m[^"]*-2x/, "the phone hero has no 2× copy");
   // Cut-outs are decoration only.
   for (const m of home.matchAll(/<div class="seam [^"]+"([^>]*)>/g)) assert.match(m[1], /aria-hidden="true"/);
   for (const m of home.matchAll(/<img class="deco [^"]+"[^>]*>/g)) assert.match(m[0], /alt=""/);

@@ -235,9 +235,11 @@ function crumbs(base, list) {
 /** A hero stage: the scene's still (wide behind the text, narrow below it on phones),
  * which app.js may replace with the live 3D canvas. */
 /** A section image (decoration, alt="") when you've added it; "" until then. */
-const secImg = (site, base, name, cls = "sec-bg") => {
+/** srcset + sizes for a section image that has an upscaled copy ("" otherwise). */
+const sizesAttr = (a, base, sizes = "100vw") => (a?.src2x ? ` srcset="${base}${a.src} ${a.w}w, ${base}${a.src2x} ${a.w2}w" sizes="${sizes}"` : "");
+const secImg = (site, base, name, cls = "sec-bg", sizes) => {
   const a = site.art.section(name);
-  return a ? `<img class="${cls}" src="${base}${a.src}" alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async">` : "";
+  return a ? `<img class="${cls}" src="${base}${a.src}"${sizesAttr(a, base, sizes)} alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async">` : "";
 };
 const hasSec = (site, name) => (site.art.section(name) ? " has-sec" : "");
 /** The first of these section images that exists (the home pilot's art, else the older one). */
@@ -250,7 +252,7 @@ const seam = (site, base, cls, ...decos) => {
 
 /** A scene's artwork as <picture>: the wide image, and the phone crop below `mq`. */
 const artPicture = (a, base, { cls, eager = false, mq = "(max-width: 760px)" }) =>
-  `<picture class="${cls}"><source media="${mq}" srcset="${base}${a.narrow}" width="${a.mw}" height="${a.mh}"><img src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></picture>`;
+  `<picture class="${cls}"><source media="${mq}" srcset="${base}${a.narrow}" width="${a.mw}" height="${a.mh}"><img src="${base}${a.wide}"${a.wide2x ? ` srcset="${base}${a.wide} ${a.w}w, ${base}${a.wide2x} ${a.w2}w" sizes="${a.sizes ?? "100vw"}"` : ""} alt="" width="${a.w}" height="${a.h}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></picture>`;
 
 function stage(site, base, { scene, inner, cls = "", tone, over = "", art: own = null }) {
   const a = own ?? site.art.stage(scene);
@@ -481,7 +483,7 @@ export function renderIndex(site) {
   // The home pilot: the mockup's own sections without their text (~/dev/note/mockup/home-pilot).
   const hero = art.section("sec-home-hero");
   const heroM = art.section("sec-home-hero-m") ?? hero;
-  const heroArt = hero && { wide: hero.src, narrow: heroM.src, w: hero.w, h: hero.h, mw: heroM.w, mh: heroM.h, plate: true, tone: "dark" };
+  const heroArt = hero && { wide: hero.src, narrow: heroM.src, w: hero.w, h: hero.h, mw: heroM.w, mh: heroM.h, plate: true, tone: "dark", wide2x: hero.src2x, w2: hero.w2, sizes: "(min-width: 1024px) 112vw, 100vw" };
   const sel = art.section("sec-home-sel");
   const selOld = art.section("sec-home-selected");
   const exNew = art.section("sec-home-exp");
@@ -506,7 +508,7 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
 <section class="strip strip-sel${selOld || sel ? " has-sec" : ""}${sel ? " sel-baked" : ""}" id="selected" aria-labelledby="selected-title">
   ${
     sel
-      ? `<picture class="sec-pic"><source media="(min-width: 1024px)" srcset="${base}${sel.src}" width="${sel.w}" height="${sel.h}">${selOld ? `<img class="sec-bg" src="${base}${selOld.src}" alt="" width="${selOld.w}" height="${selOld.h}" loading="lazy" decoding="async">` : `<img class="sec-bg sec-bg-wide-only" src="${base}${sel.src}" alt="" width="${sel.w}" height="${sel.h}" loading="lazy" decoding="async">`}</picture>`
+      ? `<picture class="sec-pic"><source media="(min-width: 1024px)" srcset="${base}${sel.src}${sel.src2x ? ` ${sel.w}w, ${base}${sel.src2x} ${sel.w2}w" sizes="106vw` : ""}" width="${sel.w}" height="${sel.h}">${selOld ? `<img class="sec-bg" src="${base}${selOld.src}" alt="" width="${selOld.w}" height="${selOld.h}" loading="lazy" decoding="async">` : `<img class="sec-bg sec-bg-wide-only" src="${base}${sel.src}" alt="" width="${sel.w}" height="${sel.h}" loading="lazy" decoding="async">`}</picture>`
       : secImg(site, base, "sec-home-selected")
   }
   <div class="wrap strip-in sel-in">
@@ -526,7 +528,7 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
 <section class="strip strip-exp${exNew ? " exp-pilot" : ""}" aria-labelledby="expertise-title">
   ${
     exNew
-      ? `<div class="exp-art" aria-hidden="true"><img class="exp-bg" src="${base}${exNew.src}" alt="" width="${exNew.w}" height="${exNew.h}" loading="lazy" decoding="async"></div>`
+      ? `<div class="exp-art" aria-hidden="true"><img class="exp-bg" src="${base}${exNew.src}"${sizesAttr(exNew, base)} alt="" width="${exNew.w}" height="${exNew.h}" loading="lazy" decoding="async"></div>`
       : ex.wide
         ? `<div class="exp-art" aria-hidden="true"><img class="exp-fill" src="${base}${ex.wide}" alt="" width="${ex.w}" height="${ex.h}" loading="lazy" decoding="async"><img class="exp-main" src="${base}${ex.wide}" alt="" width="${ex.w}" height="${ex.h}" loading="lazy" decoding="async"></div>`
         : ""

@@ -63,7 +63,9 @@ if (!fs.existsSync(SRC)) {
   console.error(`plates: ${SRC} doesn't exist yet. Put the generated images there (see PLATES.md).`);
   process.exit(1);
 }
-const files = fs.readdirSync(SRC).filter((f) => /\.(png|jpe?g|webp)$/i.test(f));
+const files = fs.readdirSync(SRC).filter((f) => /\.(png|jpe?g|webp)$/i.test(f) && !/@2x\.[a-z]+$/i.test(f));
+// An upscaled copy of a section image: <name>@2x.png beside <name>.png (see mockup/home-pilot/upscale.py).
+const twice = (name) => fs.readdirSync(SRC).find((f) => new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}@2x\\.(png|jpe?g|webp)$`, "i").test(f));
 const wanted = positionals.length ? files.filter((f) => positionals.includes(path.parse(f).name)) : files;
 if (!wanted.length) {
   console.error(`plates: no images to convert in ${SRC}`);
@@ -95,7 +97,18 @@ for (const file of wanted) {
     ff(["-i", tmp, "-c:v", "libwebp", "-quality", "84", "-compression_level", "6", path.join(OUT, `${name}.webp`)]);
     fs.rmSync(tmp);
     manifest[name] = { kind: "section", w, h, source: file };
-    console.log(`plates: ${name} ${w}×${h} → plates/${name}.webp (section image)`);
+    const big = twice(name);
+    if (big) {
+      const tmp2 = path.join(OUT, `.${name}-2x.png`);
+      ff(["-i", path.join(SRC, big), "-frames:v", "1", tmp2]);
+      const [w2, h2] = imageSize(tmp2);
+      ff(["-i", tmp2, "-c:v", "libwebp", "-quality", "80", "-compression_level", "6", path.join(OUT, `${name}-2x.webp`)]);
+      fs.rmSync(tmp2);
+      Object.assign(manifest[name], { w2, h2, source2x: big });
+    } else {
+      fs.rmSync(path.join(OUT, `${name}-2x.webp`), { force: true });
+    }
+    console.log(`plates: ${name} ${w}×${h} → plates/${name}.webp${big ? ` + ${name}-2x.webp (${manifest[name].w2}×${manifest[name].h2})` : ""} (section image)`);
     n++;
     continue;
   }

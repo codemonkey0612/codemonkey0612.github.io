@@ -250,7 +250,10 @@ export function loadSite({ root, profile, today = new Date() }) {
   /** A section image (sec-*) from plates.json, or null until you add it. */
   const section = (name) => {
     const p = plates[name];
-    return p?.kind === "section" && fs.existsSync(path.join(plateDir, `${name}.webp`)) ? { src: `assets/plates/${name}.webp`, w: p.w, h: p.h } : null;
+    if (p?.kind !== "section" || !fs.existsSync(path.join(plateDir, `${name}.webp`))) return null;
+    // An upscaled copy (<name>-2x.webp) is offered to large and high-density screens through srcset.
+    const x2 = p.w2 && fs.existsSync(path.join(plateDir, `${name}-2x.webp`)) ? { src2x: `assets/plates/${name}-2x.webp`, w2: p.w2, h2: p.h2 } : {};
+    return { src: `assets/plates/${name}.webp`, w: p.w, h: p.h, ...x2 };
   };
   const art = {
     stage,

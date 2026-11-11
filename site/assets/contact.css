@@ -779,7 +779,7 @@
 }
 .inq-done-text b {
   font-weight: 500;
-  word-break: break-all;
+  overflow-wrap: anywhere; /* moves to the next line whole; splits only if longer than a line */
   color: #fff;
 }
 .inq-ref {

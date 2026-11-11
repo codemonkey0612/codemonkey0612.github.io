@@ -238,13 +238,22 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="${base}assets/style.css?v=${site.assetVersion}">
-${head}<script>(function (d) { d.classList.replace("no-js", "js"); var off = false; try { off = localStorage.getItem("takumi-motion") === "off"; } catch (e) {} if (off || matchMedia("(prefers-reduced-motion: reduce)").matches) return; d.classList.add("motion"); setTimeout(function () { if (!window.TAKUMI) d.classList.remove("motion"); }, 3000); })(document.documentElement); addEventListener("pagereveal", function (e) { if (e.viewTransition && !document.documentElement.classList.contains("motion")) e.viewTransition.skipTransition(); });</script>
+${head}<script>(function (d) { d.classList.replace("no-js", "js"); var off = false; try { off = localStorage.getItem("takumi-motion") === "off"; } catch (e) {} if (off || matchMedia("(prefers-reduced-motion: reduce)").matches) return; d.classList.add("motion"); try { if (!sessionStorage.getItem("takumi-intro")) { d.classList.add("ov-on"); setTimeout(function () { d.classList.remove("ov-on"); }, 4200); } } catch (e) {} setTimeout(function () { if (!window.TAKUMI) d.classList.remove("motion", "ov-on"); }, 3000); })(document.documentElement); addEventListener("pagereveal", function (e) { if (e.viewTransition && !document.documentElement.classList.contains("motion")) e.viewTransition.skipTransition(); });</script>
 <script src="${base}assets/app.js?v=${site.assetVersion}" defer></script>
 ${ld.length ? jsonld({ "@context": "https://schema.org", "@graph": ld }) : ""}
 </head>
 <body class="page-${page} hero-${tone} route-${routeClass(route)}" data-base="${base}" data-v="${site.assetVersion}"${style ? ` style="${esc(style)}"` : ""}>
+<div class="ov" aria-hidden="true">
+  <div class="ov-in">
+    <svg class="ov-rings" viewBox="0 0 200 200"><circle cx="100" cy="100" r="94"/><circle cx="100" cy="100" r="84"/></svg>
+    <img class="ov-mark" src="${base}${esc(site.art.emblemSmall)}" alt="" width="160" height="160">
+    <p class="ov-word" lang="en">TAKUMI</p>
+    <p class="ov-sub" lang="en">AI &amp; Web Engineering Studio</p>
+  </div>
+</div>
 <a class="skip" href="#main">本文へ移動</a>
 <header class="hd">
+  <span class="scroll-line" aria-hidden="true"></span>
   <div class="hd-in">
     ${brand(site, base)}
     <nav class="nav" aria-label="メインメニュー">

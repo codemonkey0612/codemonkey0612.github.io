@@ -105,6 +105,12 @@
       },
       { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
     );
+    // Headings rise out of a slot of light as they come into view.
+    d.querySelectorAll("main h2:not(.sr-only), main .tale-statement, main .bio-motto, main .tale-next-title, footer .fo-tag").forEach(function (el) {
+      if (el.closest(".stage, .menu, dialog, [hidden]")) return;
+      el.classList.add("rv-head");
+      if (!el.closest("[data-reveal]")) el.setAttribute("data-reveal", "");
+    });
     d.querySelectorAll("[data-reveal], [data-draw], [data-expand]").forEach(function (el) {
       // Siblings that reveal together arrive one after another.
       if (el.hasAttribute("data-reveal") && el.parentNode) {
@@ -449,230 +455,187 @@
     if (e.viewTransition && !root.classList.contains("motion")) e.viewTransition.skipTransition();
   });
 
-  // ---------- storybook: headings written in light, letter by letter ----------
-  // The words stay whole for screen readers (a hidden copy); the letters are decoration.
-  var inkTargets = d.querySelectorAll("main .sh .h2, main .band-title, main .bio-motto, main .strip-title, main .svc-head h2, main > .stage .display, main .tale-statement, main .tale-h2, main .tale-next-title, footer .fo-tag");
-  var inkIo =
-    "IntersectionObserver" in window
-      ? new IntersectionObserver(
-          function (entries) {
-            entries.forEach(function (e) {
-              if (e.isIntersecting) {
-                e.target.classList.add("ink-on");
-                inkIo.unobserve(e.target);
-              }
-            });
-          },
-          { rootMargin: "0px 0px -10% 0px", threshold: 0.2 },
-        )
-      : null;
-  inkTargets.forEach(function (el) {
-    if (el.classList.contains("is-split") || !el.textContent.trim()) return;
-    var n = 0;
-    var walk = function (node) {
-      Array.prototype.slice.call(node.childNodes).forEach(function (c) {
-        if (c.nodeType === 3) {
-          var frag = d.createDocumentFragment();
-          Array.from(c.nodeValue).forEach(function (ch) {
-            if (/\s/.test(ch)) return frag.appendChild(d.createTextNode(ch));
-            var sp = d.createElement("span");
-            sp.className = "c";
-            sp.style.setProperty("--ci", n++);
-            sp.textContent = ch;
-            frag.appendChild(sp);
-          });
-          c.parentNode.replaceChild(frag, c);
-        } else if (c.nodeType === 1 && c.tagName !== "BR") {
-          if (c.tagName === "EM") {
-            // Gold words keep their own light; they arrive as one.
-            var w = d.createElement("span");
-            w.className = "c";
-            w.style.setProperty("--ci", n);
-            n += Math.max(1, c.textContent.length);
-            c.parentNode.insertBefore(w, c);
-            w.appendChild(c);
-          } else walk(c);
-        }
-      });
-    };
-    var text = el.textContent.replace(/\s+/g, " ").trim();
-    var shown = d.createElement("span");
-    shown.setAttribute("aria-hidden", "true");
-    while (el.firstChild) shown.appendChild(el.firstChild);
-    walk(shown);
-    var said = d.createElement("span");
-    said.className = "sr-only";
-    said.textContent = text;
-    el.appendChild(said);
-    el.appendChild(shown);
-    el.classList.add("is-split");
-    if (el.closest(".stage") || !inkIo) el.classList.add("ink-on");
-    else inkIo.observe(el);
-  });
-
-  // ---------- hero: drifting sparks ----------
-  var heroStage = d.querySelector("main > .stage");
-  if (heroStage) {
-    var sparks = d.createElement("span");
-    sparks.className = "sparks";
-    sparks.setAttribute("aria-hidden", "true");
-    for (var k = 0; k < 22; k++) {
-      var sp = d.createElement("i");
-      sp.style.setProperty("--x", (Math.random() * 100).toFixed(1) + "%");
-      sp.style.setProperty("--y", (25 + Math.random() * 70).toFixed(1) + "%");
-      sp.style.setProperty("--s", (2 + Math.random() * 3.5).toFixed(1) + "px");
-      sp.style.setProperty("--t", (6 + Math.random() * 8).toFixed(1) + "s");
-      sp.style.setProperty("--d", (-Math.random() * 12).toFixed(1) + "s");
-      sparks.appendChild(sp);
-    }
-    heroStage.appendChild(sparks);
+  // ---------- the first visit opens with the emblem; later pages wash in ----------
+  var intro = d.querySelector(".ov");
+  var endIntro = function () {
+    root.classList.remove("ov-on");
+    if (intro) intro.setAttribute("hidden", "");
+  };
+  if (intro && root.classList.contains("ov-on")) {
+    try {
+      sessionStorage.setItem("takumi-intro", "1");
+    } catch (e) {}
+    intro.addEventListener("click", endIntro);
+    intro.addEventListener("animationend", function (e) {
+      if (e.target === intro) endIntro();
+    });
+    setTimeout(endIntro, 3200);
+  } else if (intro) {
+    intro.setAttribute("hidden", "");
   }
 
-  // ---------- cursor: only for a mouse, only with motion on ----------
-  var fine = window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches;
-  var moving = function () {
-    return root.classList.contains("motion");
-  };
-  if (fine) {
-    // A gold ring that trails the pointer and opens over things you can press.
-    var cur = d.createElement("div");
-    cur.className = "cursor";
-    cur.setAttribute("aria-hidden", "true");
-    cur.innerHTML = '<span class="cursor-ring"></span><span class="cursor-dot"></span>';
-    body.appendChild(cur);
-    var ring = cur.firstChild;
-    var dot = cur.lastChild;
-    var px = 0, py = 0, rx = 0, ry = 0, ringRun = false;
-    var ringStep = function () {
-      rx += (px - rx) * 0.2;
-      ry += (py - ry) * 0.2;
-      ring.style.transform = "translate3d(" + rx.toFixed(1) + "px," + ry.toFixed(1) + "px,0)";
-      if (Math.abs(px - rx) > 0.2 || Math.abs(py - ry) > 0.2) requestAnimationFrame(ringStep);
-      else ringRun = false;
+  // ---------- a constellation the pointer draws (dark heroes and the footer sky) ----------
+  // Stars drift slowly; near the pointer they join with fine gold threads and brighten.
+  var skies = [];
+  var Sky = function (host, opts) {
+    var cv = d.createElement("canvas");
+    cv.className = "sky-canvas";
+    cv.setAttribute("aria-hidden", "true");
+    host.appendChild(cv);
+    var cx = cv.getContext("2d");
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var stars = [];
+    var w = 0, h = 0, px = -9999, py = -9999, ease = 0, on = false, raf = 0, t0 = 0;
+    var gold = opts.light ? [168, 124, 44] : [245, 226, 173];
+    var size = function () {
+      var b = host.getBoundingClientRect();
+      w = Math.max(1, b.width);
+      h = Math.max(1, b.height);
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(h * dpr);
+      cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var n = Math.round(Math.min(150, (w * h) / (opts.density || 9000)));
+      stars = [];
+      for (var i = 0; i < n; i++)
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: 0.4 + Math.pow(Math.random(), 3) * 1.8,
+          vx: (Math.random() - 0.5) * 0.06,
+          vy: (Math.random() - 0.5) * 0.04 - 0.015,
+          tw: Math.random() * Math.PI * 2,
+          ts: 0.6 + Math.random() * 1.4,
+        });
     };
-    var gx = 0, gy = 0;
-    d.addEventListener(
-      "pointermove",
-      function (e) {
-        if (e.pointerType !== "mouse") return;
-        px = e.clientX;
-        py = e.clientY;
-        if (!cur.classList.contains("is-on")) {
-          rx = px;
-          ry = py;
-          cur.classList.add("is-on");
+    var draw = function (now) {
+      raf = 0;
+      var dt = Math.min(48, now - (t0 || now));
+      t0 = now;
+      ease += ((px > -999 ? 1 : 0) - ease) * 0.06;
+      cx.clearRect(0, 0, w, h);
+      var reach = Math.min(240, Math.max(150, w * 0.14));
+      var near = [];
+      for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        if (s.x < -10) s.x = w + 10;
+        if (s.x > w + 10) s.x = -10;
+        if (s.y < -10) s.y = h + 10;
+        if (s.y > h + 10) s.y = -10;
+        s.tw += s.ts * dt * 0.0012;
+        var dx = s.x - px, dy = s.y - py;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var k = ease * Math.pow(Math.max(0, 1 - dist / reach), 0.7);
+        var a = (0.25 + 0.45 * (0.5 + 0.5 * Math.sin(s.tw))) * (opts.light ? 0.7 : 1) + k * 0.6;
+        cx.beginPath();
+        cx.arc(s.x, s.y, s.r + k * 1.6, 0, 6.2832);
+        cx.fillStyle = "rgba(" + gold[0] + "," + gold[1] + "," + gold[2] + "," + Math.min(1, a).toFixed(3) + ")";
+        cx.fill();
+        if (k > 0.05) near.push([s, k]);
+      }
+      // threads between the stars the pointer gathers
+      cx.lineWidth = 0.9;
+      for (var p = 0; p < near.length; p++) {
+        for (var q = p + 1; q < near.length; q++) {
+          var A = near[p][0], B = near[q][0];
+          var ex = A.x - B.x, ey = A.y - B.y;
+          var dd = Math.sqrt(ex * ex + ey * ey);
+          if (dd > reach * 0.85) continue;
+          var al = Math.min(1, Math.sqrt(near[p][1] * near[q][1]) * 1.6) * (1 - dd / (reach * 0.85)) * (opts.light ? 0.7 : 0.95);
+          cx.strokeStyle = "rgba(" + gold[0] + "," + gold[1] + "," + gold[2] + "," + al.toFixed(3) + ")";
+          cx.beginPath();
+          cx.moveTo(A.x, A.y);
+          cx.lineTo(B.x, B.y);
+          cx.stroke();
         }
-        cur.classList.remove("is-out");
-        dot.style.transform = "translate3d(" + px + "px," + py + "px,0)";
-        var t = e.target.closest ? e.target : e.target.parentElement;
-        cur.classList.toggle("is-text", !!(t && t.closest("input, textarea, select")));
-        cur.classList.toggle("is-link", !!(t && t.closest("a, button, summary, label, [role='button']")));
-        cur.classList.toggle("is-dark", !!(t && t.closest(".stage-dark, .ch-night, .band:not(.band-light), .ft, .strip-exp, .gcard-dark, .svc-card-dark, .card-night, .quote-hero, .scope, .next")));
-        if (!ringRun) {
-          ringRun = true;
-          requestAnimationFrame(ringStep);
-        }
-        // the page's decorations float a little with the pointer
-        var nx = (px / window.innerWidth - 0.5) * 2;
-        var ny = (py / window.innerHeight - 0.5) * 2;
-        if (Math.abs(nx - gx) > 0.02 || Math.abs(ny - gy) > 0.02) {
-          gx = nx;
-          gy = ny;
-          root.style.setProperty("--gx", gx.toFixed(2));
-          root.style.setProperty("--gy", gy.toFixed(2));
-        }
+      }
+      // a soft halo where the pointer is
+      if (ease > 0.02) {
+        var g = cx.createRadialGradient(px, py, 0, px, py, reach * 0.9);
+        g.addColorStop(0, "rgba(" + gold[0] + "," + gold[1] + "," + gold[2] + "," + (0.16 * ease).toFixed(3) + ")");
+        g.addColorStop(1, "rgba(" + gold[0] + "," + gold[1] + "," + gold[2] + ",0)");
+        cx.fillStyle = g;
+        cx.fillRect(0, 0, w, h);
+      }
+      if (on) raf = requestAnimationFrame(draw);
+    };
+    var api = {
+      start: function () {
+        if (on) return;
+        on = true;
+        t0 = 0;
+        if (!raf) raf = requestAnimationFrame(draw);
       },
-      { passive: true },
-    );
-    root.addEventListener("mouseleave", function () {
-      cur.classList.add("is-out");
+      stop: function () {
+        on = false;
+        if (raf) cancelAnimationFrame(raf);
+        raf = 0;
+        cx.clearRect(0, 0, w, h);
+      },
+    };
+    size();
+    window.addEventListener("resize", function () {
+      size();
     });
-    d.addEventListener("pointerdown", function () {
-      cur.classList.add("is-down");
+    var evHost = opts.events || host;
+    evHost.addEventListener("pointermove", function (e) {
+      if (e.pointerType !== "mouse") return;
+      var b = cv.getBoundingClientRect();
+      px = e.clientX - b.left;
+      py = e.clientY - b.top;
     });
-    d.addEventListener("pointerup", function () {
-      cur.classList.remove("is-down");
+    evHost.addEventListener("pointerleave", function () {
+      px = -9999;
+      py = -9999;
     });
+    var seen = false;
+    if ("IntersectionObserver" in window)
+      new IntersectionObserver(function (es) {
+        seen = es[0].isIntersecting;
+        if (seen && moving()) api.start();
+        else api.stop();
+      }).observe(host);
+    api.seen = function () {
+      return seen;
+    };
+    return api;
+  };
+  var moving = function () {
+    return root.classList.contains("motion") && !document.hidden;
+  };
+  var heroStage = d.querySelector("main > .stage");
+  if (window.HTMLCanvasElement) {
+    if (heroStage) skies.push(Sky(heroStage, { light: heroStage.classList.contains("stage-light"), density: 9000 }));
+    var foSky = d.querySelector(".fo-sky");
+    if (foSky) skies.push(Sky(foSky, { light: false, density: 7000, events: foSky.parentNode }));
+  }
+  var skyAll = function () {
+    skies.forEach(function (s) {
+      if (moving() && s.seen()) s.start();
+      else s.stop();
+    });
+  };
+  d.addEventListener("visibilitychange", skyAll);
+  if (toggle) toggle.addEventListener("click", skyAll);
 
-    // Cards tilt toward the pointer and catch a light where it is.
-    d.querySelectorAll(".route-works .gcard a, .svc-card, .tier, .quote-card, .hl-cards li, .cap-row li, .deliv-cards li, .card-soft, .card-night, .sel-caps a, .cs-points li, .cs-next, .tale-hl li").forEach(function (el) {
-      var sheen = d.createElement("span");
-      sheen.className = "sheen";
-      sheen.setAttribute("aria-hidden", "true");
-      el.appendChild(sheen);
+  // ---------- cards: a gold edge light that follows the pointer ----------
+  var fine = window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (fine) {
+    d.querySelectorAll(".route-works .gcard a, .svc-card, .tier, .quote-card, .hl-cards li, .cap-row li, .deliv-cards li, .card-soft, .card-night, .sel-caps a, .tale-hl li, .flow-orb, .pk-block, .fb-more .btn, .tale-next a").forEach(function (el) {
+      el.classList.add("glow-edge");
       if (getComputedStyle(el).position === "static") el.style.position = "relative";
-      el.classList.add("has-tilt");
+      var edge = d.createElement("span");
+      edge.className = "edge";
+      edge.setAttribute("aria-hidden", "true");
+      el.appendChild(edge);
       el.addEventListener("pointermove", function (e) {
-        if (e.pointerType !== "mouse" || !moving()) return;
+        if (e.pointerType !== "mouse") return;
         var b = el.getBoundingClientRect();
-        var x = (e.clientX - b.left) / b.width;
-        var y = (e.clientY - b.top) / b.height;
-        var dx = x - 0.5, dy = y - 0.5;
-        var m = Math.hypot(dx, dy) || 0.0001;
-        var max = b.width > 560 ? 2.5 : 5;
-        el.style.setProperty("--tilt", (-dy / m).toFixed(3) + " " + (dx / m).toFixed(3) + " 0 " + (max * Math.min(1, m * 2)).toFixed(2) + "deg");
-        el.style.setProperty("--sx", (x * 100).toFixed(1) + "%");
-        el.style.setProperty("--sy", (y * 100).toFixed(1) + "%");
-        el.classList.add("is-tilt");
-      });
-      el.addEventListener("pointerleave", function () {
-        el.style.removeProperty("--tilt");
-        el.classList.remove("is-tilt");
+        el.style.setProperty("--ex", (e.clientX - b.left).toFixed(0) + "px");
+        el.style.setProperty("--ey", (e.clientY - b.top).toFixed(0) + "px");
       });
     });
-
-    // Buttons lean toward the pointer.
-    d.querySelectorAll(".btn-gold, .hd-cta, .btn-frame, .btn-plate, .play-ring, .next-ic").forEach(function (el) {
-      el.addEventListener("pointermove", function (e) {
-        if (e.pointerType !== "mouse" || !moving()) return;
-        var b = el.getBoundingClientRect();
-        var dx = (e.clientX - b.left - b.width / 2) / (b.width / 2);
-        var dy = (e.clientY - b.top - b.height / 2) / (b.height / 2);
-        el.style.translate = (dx * 6).toFixed(1) + "px " + (dy * 4).toFixed(1) + "px";
-      });
-      el.addEventListener("pointerleave", function () {
-        el.style.translate = "";
-      });
-    });
-
-    // The hero answers the pointer: depth between art, copy and sparks; a soft light where it is.
-    if (heroStage) {
-      var light = d.createElement("span");
-      light.className = "hero-glow";
-      light.setAttribute("aria-hidden", "true");
-      heroStage.appendChild(light);
-      var tx = 0, ty = 0, cx = 0, cy = 0, heroRun = false;
-      var heroStep = function () {
-        cx += (tx - cx) * 0.07;
-        cy += (ty - cy) * 0.07;
-        heroStage.style.setProperty("--mx", cx.toFixed(3));
-        heroStage.style.setProperty("--my", cy.toFixed(3));
-        if (Math.abs(tx - cx) > 0.002 || Math.abs(ty - cy) > 0.002) requestAnimationFrame(heroStep);
-        else heroRun = false;
-      };
-      var heroKick = function () {
-        if (!heroRun) {
-          heroRun = true;
-          requestAnimationFrame(heroStep);
-        }
-      };
-      heroStage.addEventListener("pointermove", function (e) {
-        if (e.pointerType !== "mouse" || !moving()) return;
-        var b = heroStage.getBoundingClientRect();
-        tx = ((e.clientX - b.left) / b.width - 0.5) * 2;
-        ty = ((e.clientY - b.top) / b.height - 0.5) * 2;
-        heroStage.style.setProperty("--lx", (e.clientX - b.left).toFixed(0) + "px");
-        heroStage.style.setProperty("--ly", (e.clientY - b.top).toFixed(0) + "px");
-        heroStage.classList.add("is-lit");
-        heroKick();
-      });
-      heroStage.addEventListener("pointerleave", function () {
-        tx = 0;
-        ty = 0;
-        heroStage.classList.remove("is-lit");
-        heroKick();
-      });
-    }
   }
 
   // ---------- storybook figures count up when they come into view ----------

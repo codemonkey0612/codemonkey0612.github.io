@@ -17,7 +17,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import YAML from "yaml";
-import { loadProfile, rel, ROOT } from "./lib/common.mjs";
+import { loadProfile, rel, ROOT, siteUrls } from "./lib/common.mjs";
 import { chooseCover, coverPath, coverUsage, loadCovers } from "./lib/note-covers.mjs";
 import { imageBase, isLive, jstDay, publishedAt, zennArticles, zennToNote, zennToQiita } from "./lib/schedule.mjs";
 
@@ -38,7 +38,7 @@ export function withoutCta(markdown, profile) {
   const i = markdown.lastIndexOf("\n---\n");
   if (i < 0) return markdown;
   const tail = markdown.slice(i);
-  const own = [profile.site_url, profile.contact_url].filter(Boolean);
+  const own = [...siteUrls(profile), profile.contact_url].filter(Boolean);
   return own.some((u) => tail.includes(new URL(u).host)) ? `${markdown.slice(0, i).trimEnd()}\n` : markdown;
 }
 

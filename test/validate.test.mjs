@@ -106,3 +106,10 @@ test("a note url must be the published note link", () => {
   assert.deepEqual(validateArticle(note({ url: "https://note.com/me/n/n0123abcd" }), profile).errors, []);
   assert.match(validateArticle(note({ url: "https://example.com/x" }), profile).errors.join(), /url must be/);
 });
+
+test("links to an earlier address of the site (site_aliases) still count as yours", () => {
+  const moved = { ...profile, site_url: "https://new.example/", site_aliases: ["https://old.example.github.io/"] };
+  const oldLink = "\n\n→ [サービス](https://old.example.github.io/services/ai/)";
+  assert.deepEqual(validateArticle(note({}, `本文${oldLink}`), moved).errors, []);
+  assert.match(validateArticle(qiita({}, `本文${oldLink}`), moved).errors.join(), /must not link to your site/);
+});

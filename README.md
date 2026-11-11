@@ -30,11 +30,13 @@ ideas.md    post ideas built from your own projects and reviews
    (2026-11-09): Zenn `takumiengineer`, Qiita `takumi_engineer`, note `shanaiai`.
 3. **Push to GitHub** (done 2026-11-08, along with step 4: this is
    `codemonkey0612/codemonkey0612.github.io`) as a new repository with `main` as
-   the default branch. Name it `codemonkey0612.github.io` and the site lives at
-   <https://codemonkey0612.github.io/>, which is what `site_url` says. With any
-   other name it lives at `https://codemonkey0612.github.io/<repo>/`: update
-   `site_url` to match. A custom domain works too (Settings → Pages). On the
-   free plan, Pages needs a public repository, so drafts in it are public.
+   the default branch. The site is served at the custom domain
+   <https://shanaiai.com/> (`site_url`; set in Settings → Pages, DNS at Cloudflare:
+   four A records for `@` to GitHub Pages and `www` CNAME to
+   `codemonkey0612.github.io`, all *DNS only*). The old address
+   <https://codemonkey0612.github.io/> redirects there and is kept in
+   `site_aliases`; `site_repo` names this repository. On the free plan, Pages
+   needs a public repository, so drafts in it are public.
 4. **GitHub Pages:** Settings → Pages → Source: **GitHub Actions**. The `Site`
    workflow then deploys on every push to `main`.
 5. **Zenn:** signed in as `takumiengineer`, open *Dashboard → Deploys*

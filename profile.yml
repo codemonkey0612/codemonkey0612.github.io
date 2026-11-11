@@ -7,7 +7,11 @@ name: 匠（たくみ）
 brand: 匠｜AI・Webシステム開発
 title: フリーランスのAI・Webエンジニア
 tagline: 技術には妥協しない。仕事には誠実に。
-site_url: https://codemonkey0612.github.io/   # the hub site (GitHub Pages; change if you use another repo name or a domain)
+site_url: https://shanaiai.com/   # the hub site: GitHub Pages with a custom domain (Settings → Pages; DNS at Cloudflare)
+site_repo: codemonkey0612.github.io   # the GitHub repo that builds the site and serves Zenn's /images/ to Qiita and note
+# Earlier addresses of the site. GitHub redirects them here; links to them in older posts still count as yours.
+site_aliases:
+  - https://codemonkey0612.github.io/
 contact_url: https://www.lancers.jp/profile/navi_work/contact_light   # the secondary route: "Lancersで相談"
 # The on-site inquiry form (/contact/). Every "相談する" button goes there. It posts to a
 # serverless endpoint you deploy from contact/ (see contact/README.md); the recipient address

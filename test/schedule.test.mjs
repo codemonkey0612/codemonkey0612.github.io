@@ -7,7 +7,7 @@ import matter from "gray-matter";
 import { crosspost, msUntil, withoutCta } from "../scripts/crosspost.mjs";
 import { holdUnsent } from "../scripts/qiita-hold.mjs";
 import { listArticles } from "../scripts/lib/site-core.mjs";
-import { isLive, nextFreeSlot, publishedAt, zennToNote, zennToQiita } from "../scripts/lib/schedule.mjs";
+import { imageBase, isLive, nextFreeSlot, publishedAt, zennToNote, zennToQiita } from "../scripts/lib/schedule.mjs";
 import { validateArticle } from "../scripts/lib/validate-core.mjs";
 
 const jst = (s) => new Date(`${s}+09:00`);
@@ -213,4 +213,22 @@ test("qiita: off makes no Qiita copies; Qiita copies never carry the promotional
   assert.equal(withoutCta(md, { site_url: "https://codemonkey0612.github.io/", contact_url: "https://www.lancers.jp/x" }), "本文です。\n\n## まとめ\n\n- 要点\n");
   const plain = "前半\n\n---\n\n後半はただの区切り\n";
   assert.equal(withoutCta(plain, { site_url: "https://codemonkey0612.github.io/" }), plain, "a horizontal rule without your links stays");
+});
+
+test("Zenn images come from the repo named in site_repo, whatever the site's domain", () => {
+  const gh = { platforms: { github: "codemonkey0612" } };
+  assert.equal(
+    imageBase({ ...gh, site_url: "https://shanaiai.com/", site_repo: "codemonkey0612.github.io" }),
+    "https://raw.githubusercontent.com/codemonkey0612/codemonkey0612.github.io/main/images/",
+  );
+  assert.equal(
+    imageBase({ ...gh, site_url: "https://codemonkey0612.github.io/" }),
+    "https://raw.githubusercontent.com/codemonkey0612/codemonkey0612.github.io/main/images/",
+    "without site_repo the github.io host is the repo name",
+  );
+});
+
+test("the closing call to action is found by the site's old address too", () => {
+  const md = "本文です。\n\n---\n\n→ [詳しく](https://old.example.github.io/services/ai/)\n";
+  assert.equal(withoutCta(md, { site_url: "https://new.example/", site_aliases: ["https://old.example.github.io/"] }), "本文です。\n");
 });

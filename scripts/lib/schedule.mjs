@@ -59,7 +59,9 @@ export function nextFreeSlot(root, now = new Date()) {
 export function imageBase(profile) {
   const gh = profile.platforms?.github;
   if (!gh || /^\s*TODO/.test(gh)) return null;
-  return `https://raw.githubusercontent.com/${gh}/${new URL(profile.site_url).host}/main/images/`;
+  // The repo is named in site_repo; before the custom domain its name was the site's host.
+  const repo = profile.site_repo ?? new URL(profile.site_url).host;
+  return `https://raw.githubusercontent.com/${gh}/${repo}/main/images/`;
 }
 
 const embed = (kind, arg) =>

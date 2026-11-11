@@ -33,6 +33,11 @@ export function loadProfile(file = path.join(ROOT, "profile.yml")) {
   return { ...profile, services, todos };
 }
 
+/** The site's address plus earlier ones it redirects from (site_aliases). */
+export function siteUrls(profile) {
+  return [profile.site_url, ...(profile.site_aliases ?? [])].filter(Boolean);
+}
+
 function serviceUrl(siteUrl, id) {
   try {
     return new URL(`services/${id}/`, siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`).href;

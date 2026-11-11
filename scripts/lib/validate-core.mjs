@@ -2,7 +2,7 @@
 // Errors block publishing; warnings are advice.
 import path from "node:path";
 import { publishedAt } from "./schedule.mjs";
-import { isPublishReady, todosFor } from "./common.mjs";
+import { isPublishReady, siteUrls, todosFor } from "./common.mjs";
 
 const PERSONAS = ["私", "僕", "俺", "オレ", "ボク", "わたし", "筆者", "自分"];
 const STAT_RE = /\d+(?:\.\d+)?\s?(?:%|％|割|倍|万人|億円|万円|人に1人)/g;
@@ -92,7 +92,7 @@ export function validateArticle(article, profile) {
   if (placeholder) (ready ? out.error : out.warn)(`placeholder left in body: "${placeholder[0]}"`);
 
   const allLinks = links(body);
-  const ownOrigins = new Set([origin(profile.site_url), origin(profile.contact_url)].filter(Boolean));
+  const ownOrigins = new Set([...siteUrls(profile), profile.contact_url].map(origin).filter(Boolean));
   const platformHosts = /(^|\.)(zenn\.dev|qiita\.com|note\.com|github\.com)$/;
   const external = allLinks.filter((u) => {
     const o = origin(u);

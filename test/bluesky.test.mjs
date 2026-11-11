@@ -128,3 +128,12 @@ test("a wrong App Password stops the run with what to check; the client can't de
   assert.deepEqual(Object.getOwnPropertyNames(Object.getPrototypeOf(fake.client)).sort(), ["call", "constructor", "login", "post", "recentPosts", "uploadImage"]);
   assert.equal(YAML.stringify(loadRecord(dir)), "{}\n");
 });
+
+test("a post linking the site's old address is shown at the new one (site_aliases)", async () => {
+  const { serviceLink } = await import("../scripts/bluesky-post.mjs");
+  const moved = { site_url: "https://shanaiai.com/", site_aliases: ["https://codemonkey0612.github.io/"] };
+  const md = "本文。\n\n---\n\n→ [AIについて](https://codemonkey0612.github.io/services/ai-apps/)\n";
+  assert.equal(serviceLink(md, moved), "https://shanaiai.com/services/ai-apps/");
+  assert.equal(serviceLink(md.replace("codemonkey0612.github.io", "shanaiai.com"), moved), "https://shanaiai.com/services/ai-apps/");
+  assert.equal(serviceLink("リンクなし", moved), "https://shanaiai.com/");
+});

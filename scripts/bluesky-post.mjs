@@ -14,7 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import YAML from "yaml";
-import { loadProfile, rel, ROOT } from "./lib/common.mjs";
+import { loadProfile, rel, ROOT, siteUrls } from "./lib/common.mjs";
 import { BlueskyClient, graphemeLength, MAX_GRAPHEMES, postUrl, richText } from "./lib/bluesky-client.mjs";
 import { chooseCover, coverPath, coverUsage, loadCovers } from "./lib/note-covers.mjs";
 import { isLive, zennArticles } from "./lib/schedule.mjs";
@@ -63,8 +63,11 @@ export function clip(text, n) {
 
 /** The last link to your own site in the article (its call to action), else the site itself. */
 export function serviceLink(markdown, profile) {
+  // Links to an earlier address of the site (site_aliases) are shown at the current one.
   const site = new URL(profile.site_url).origin;
-  return [...markdown.matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)].map((m) => m[1]).filter((u) => u.startsWith(site)).at(-1) ?? profile.site_url;
+  const origins = siteUrls(profile).map((u) => new URL(u).origin);
+  const own = [...markdown.matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)].map((m) => m[1]).filter((u) => origins.some((o) => u.startsWith(o))).at(-1);
+  return own ? site + own.slice(new URL(own).origin.length) : profile.site_url;
 }
 
 /** The post for an article: text with links and hashtags, and a link card to the article. */

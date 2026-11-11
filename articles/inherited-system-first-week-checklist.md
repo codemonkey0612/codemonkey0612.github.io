@@ -180,4 +180,4 @@ SSL証明書とは、ブラウザで「鍵マーク」を出すための証明�
 ---
 
 私は「不具合調査・コードレビュー・セキュリティ診断」をお仕事としてお受けしています。引き継ぎ手のいないシステムの現状把握は、まさにこの調査とレビューの出発点にあたります。
-→ [不具合調査・コードレビュー・セキュリティ診断について](https://codemonkey0612.github.io/services/quality/) ／ [ランサーズで相談する](https://www.lancers.jp/profile/navi_work/contact_light)
+→ [不具合調査・コードレビュー・セキュリティ診断について](https://shanaiai.com/services/quality/) ／ [ランサーズで相談する](https://www.lancers.jp/profile/navi_work/contact_light)

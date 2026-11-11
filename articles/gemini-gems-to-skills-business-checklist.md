@@ -144,4 +144,4 @@ Gemは専用の画面に切り替えて使う仕組みでした。スキルは�
 ---
 
 私は「生成AI導入コンサルティング・技術相談」をお仕事としてお受けしています。Gemの棚卸し結果をもとに、会社アカウントのスキルと社内RAGのどちらへ移すかの整理もお手伝いできます。
-→ [生成AI導入コンサルティング・技術相談について](https://codemonkey0612.github.io/services/ai-consulting/) ／ [ランサーズで相談する](https://www.lancers.jp/profile/navi_work/contact_light)
+→ [生成AI導入コンサルティング・技術相談について](https://shanaiai.com/services/ai-consulting/) ／ [ランサーズで相談する](https://www.lancers.jp/profile/navi_work/contact_light)

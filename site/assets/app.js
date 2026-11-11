@@ -95,14 +95,23 @@
       function (entries) {
         entries.forEach(function (e) {
           if (e.isIntersecting) {
-            e.target.classList.add("is-in");
-            io.unobserve(e.target);
+            var el = e.target;
+            el.classList.add("is-in");
+            io.unobserve(el);
+            // The stagger only times the entrance; hover afterwards answers at once.
+            if (el.style.getPropertyValue("--rv-d")) setTimeout(function () { el.style.removeProperty("--rv-d"); }, 1600);
           }
         });
       },
       { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
     );
     d.querySelectorAll("[data-reveal], [data-draw], [data-expand]").forEach(function (el) {
+      // Siblings that reveal together arrive one after another.
+      if (el.hasAttribute("data-reveal") && el.parentNode) {
+        var sibs = Array.prototype.filter.call(el.parentNode.children, function (c) { return c.hasAttribute("data-reveal"); });
+        var i = sibs.indexOf(el);
+        if (sibs.length > 1 && i > 0) el.style.setProperty("--rv-d", Math.min(i % 6, 5) * 80 + "ms");
+      }
       io.observe(el);
     });
   };
@@ -217,6 +226,17 @@
   var count = d.querySelector(".filter-count");
   if (grid && filterBtns.length) {
     var cards = Array.prototype.slice.call(grid.children);
+    // A gold marker under the chosen tab, gliding to the next one.
+    var ink = d.querySelector(".filters-ink");
+    var placeInk = function () {
+      var on = d.querySelector('.filters [aria-pressed="true"]');
+      if (!ink || !on) return;
+      ink.style.width = on.offsetWidth + "px";
+      ink.style.transform = "translateX(" + on.offsetLeft + "px)";
+    };
+    placeInk();
+    window.addEventListener("resize", placeInk);
+    if (d.fonts && d.fonts.ready) d.fonts.ready.then(placeInk);
     filterBtns.forEach(function (btn) {
       btn.addEventListener("click", function () {
         var key = btn.getAttribute("data-filter");
@@ -237,6 +257,8 @@
           }
         });
         grid.classList.toggle("is-filtered", key !== "all");
+        placeInk();
+        btn.scrollIntoView && btn.parentNode.scrollWidth > btn.parentNode.clientWidth && btn.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
         if (count) count.textContent = shown + "件を表示しています";
         if (!root.classList.contains("motion") || !Element.prototype.animate) return;
         cards.forEach(function (c) {
@@ -391,6 +413,40 @@
       stopLive();
     }
     syncToggle();
+  });
+
+  // ---------- the hero drifts and its copy fades as the page scrolls (desktop, motion on) ----------
+  var hero = d.querySelector("main > .stage");
+  if (hero && window.matchMedia) {
+    var wide = matchMedia("(min-width: 1024px)");
+    var ticking = false;
+    var drift = function () {
+      ticking = false;
+      if (!root.classList.contains("motion") || !wide.matches) {
+        hero.style.removeProperty("--hpx");
+        hero.style.removeProperty("--hpr");
+        return;
+      }
+      var h = hero.offsetHeight || 1;
+      var y = Math.min(Math.max(window.scrollY, 0), h);
+      hero.style.setProperty("--hpx", y.toFixed(1) + "px");
+      hero.style.setProperty("--hpr", (y / h).toFixed(3));
+    };
+    window.addEventListener(
+      "scroll",
+      function () {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(drift);
+        }
+      },
+      { passive: true },
+    );
+    drift();
+  }
+  // Page-to-page transitions follow the motion switch too.
+  window.addEventListener("pageswap", function (e) {
+    if (e.viewTransition && !root.classList.contains("motion")) e.viewTransition.skipTransition();
   });
 
   // ---------- folded sections reached by a link (#price) open themselves ----------

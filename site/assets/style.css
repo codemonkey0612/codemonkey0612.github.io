@@ -11131,3 +11131,571 @@ body:not(.route-home):not(.route-404) .stage .display {
     min-width: 0;
   }
 }
+
+/* =====================================================================
+   PASS 7 (2026-11-11): a quieter works filter, cleaner subpages, and
+   motion that belongs to the Celestial Atelier (gold light, glass, slow
+   settling). Every animation sits under .motion, which the page only
+   gets when the visitor hasn't asked for reduced motion.
+   ===================================================================== */
+
+/* ---------- works filter: an index of tabs with a gliding gold marker ---------- */
+.route-works .gallery .filters-bar {
+  position: relative !important;
+  top: auto !important;
+  z-index: 2;
+  margin: 0 0 calc(34 * var(--u, 1px)) !important;
+  padding: 0 !important;
+  background: none !important;
+  backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.route-works .filters-in {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center !important;
+}
+.route-works .filters {
+  position: relative;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(90deg, transparent, rgba(201, 162, 74, 0.55) 18%, rgba(201, 162, 74, 0.55) 82%, transparent) bottom / 100% 1px no-repeat;
+}
+.route-works .filters button {
+  position: relative;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 10px clamp(18px, 2.6vw, 44px) 15px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  color: #5b6577 !important;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.route-works .filters button + button::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 19px;
+  width: 4px;
+  height: 4px;
+  background: var(--gold);
+  opacity: 0.55;
+  transform: rotate(45deg);
+}
+.f-en {
+  font: 500 19px/1 var(--f-latin);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.f-n {
+  margin-left: 0.25em;
+  font: 600 11px/1 var(--f-latin);
+  letter-spacing: 0.04em;
+  color: var(--gold-ink);
+  vertical-align: 0.7em;
+}
+.f-ja {
+  font: 500 11px/1 var(--f-sans);
+  letter-spacing: 0.14em;
+  color: #8a93a3;
+  transition: color 0.3s;
+}
+.route-works .filters button:hover,
+.route-works .filters button[aria-pressed="true"] {
+  color: var(--ink) !important;
+}
+.route-works .filters button[aria-pressed="true"] .f-ja {
+  color: var(--gold-ink);
+}
+.filters-ink {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #c9a24a 18%, #f5e2ad 50%, #c9a24a 82%, transparent);
+  box-shadow: 0 0 12px rgba(236, 208, 150, 0.9);
+  pointer-events: none;
+}
+.motion .filters-ink {
+  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1), width 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.route-works .gallery {
+  margin-top: 0 !important;
+  padding-top: calc(36 * var(--u, 1px)) !important;
+}
+@media (max-width: 760px) {
+  .route-works .gallery {
+    padding-top: 28px !important;
+  }
+  .route-works .filters {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    background-size: 100% 1px;
+  }
+  .route-works .filters button {
+    flex: none;
+    padding: 8px 16px 13px !important;
+  }
+  .route-works .filters button + button::before {
+    top: 17px;
+  }
+  .f-en {
+    font-size: 15px;
+    letter-spacing: 0.18em;
+  }
+  .f-ja {
+    font-size: 10.5px;
+  }
+}
+
+/* ---------- works cards, quieter: no arrow circles, the category as a small label ---------- */
+.route-works .gcard-go {
+  display: none !important;
+}
+.route-works .gcard .pill {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  font: 600 10.5px/1 var(--f-latin) !important;
+  letter-spacing: 0.26em !important;
+  color: var(--gold-ink) !important;
+}
+.route-works .gcard-dark .pill {
+  color: var(--gold-hi) !important;
+}
+.route-works .gcard .pill::before {
+  content: "";
+  width: 16px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+}
+.route-works .gcard-top {
+  align-items: baseline;
+  gap: 12px;
+}
+@media (min-width: 1024px) {
+  .route-works .gcard .pill {
+    font-size: calc(8 * var(--ut)) !important;
+  }
+}
+
+/* ---------- subpages, cleaner ---------- */
+/* one heading scale for every section */
+@media (min-width: 1024px) {
+  body:not(.route-home) main .sh .h2,
+  body:not(.route-home) .case-context .h2 {
+    font-size: calc(26 * var(--u)) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.06em;
+  }
+  body:not(.route-home) main .sh .eyebrow {
+    font-size: calc(10.5 * var(--ut)) !important;
+  }
+}
+/* service pages: price and track record as two quiet cards under the FAQ */
+.route-service .svc-faq .wrap {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 16px;
+}
+.route-service .svc-faq .wrap > :not(.svc-more) {
+  grid-column: 1 / -1;
+}
+.route-service .svc-faq .svc-more {
+  margin-top: 28px !important;
+}
+.route-service .svc-faq .svc-more[open] {
+  grid-column: 1 / -1;
+}
+.route-service .svc-more > summary {
+  min-height: 72px !important;
+  padding: 18px 22px !important;
+  border: 1px solid rgba(201, 162, 74, 0.35) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(150deg, #fff, #f6f3ec) !important;
+  font-family: var(--f-serif);
+  font-weight: 500;
+  line-height: 1.6;
+}
+@media (max-width: 760px) {
+  .route-service .svc-faq .wrap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* review cards: quieter links */
+.route-reviews .rv-more {
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 162, 74, 0.45);
+  font-size: 12.5px;
+}
+.route-reviews .quote-link a {
+  text-decoration: none;
+  color: #5b6577;
+  font-size: 12.5px;
+  transition: color 0.2s;
+}
+.route-reviews .quote-link a:hover {
+  color: var(--gold-ink);
+}
+.route-reviews .quote-link a .ic {
+  color: var(--gold-ink);
+}
+
+/* ---------- motion: page to page ---------- */
+@view-transition {
+  navigation: auto;
+}
+.hd {
+  view-transition-name: site-header;
+}
+::view-transition-old(root) {
+  animation: vt-out 0.3s cubic-bezier(0.4, 0, 1, 1) both;
+}
+::view-transition-new(root) {
+  animation: vt-in 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+::view-transition-old(site-header),
+::view-transition-new(site-header) {
+  animation-duration: 0.25s;
+}
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ---------- motion: heroes ---------- */
+@keyframes art-settle {
+  from {
+    opacity: 0;
+    scale: 1.08;
+  }
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+    filter: blur(8px);
+  }
+}
+@keyframes fade-blur {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+  }
+}
+@keyframes rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+.motion .stage .stage-art img {
+  animation: art-settle 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.motion .stage .stage-copy > * {
+  animation: hero-rise 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.motion .stage .stage-copy > :nth-child(1) { animation-delay: 0.15s; }
+.motion .stage .stage-copy > :nth-child(2) { animation-delay: 0.25s; }
+.motion .stage .stage-copy > :nth-child(3) { animation-delay: 0.35s; }
+.motion .stage .stage-copy > :nth-child(4) { animation-delay: 0.47s; }
+.motion .stage .stage-copy > :nth-child(5) { animation-delay: 0.6s; }
+.motion .stage .stage-copy > :nth-child(6) { animation-delay: 0.72s; }
+.motion .stage .stage-copy > :nth-child(7) { animation-delay: 0.84s; }
+.motion .stage .kicker::after {
+  transform-origin: left center;
+  animation: rule-draw 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.5s both;
+}
+.motion .stage-home .stage-film {
+  animation: fade-blur 1.4s ease 0.7s both;
+}
+.motion .svc-label {
+  animation: fade-blur 1s ease 1.3s both;
+}
+/* the hero drifts as the page scrolls (desktop; app.js sets --hpx) */
+@media (min-width: 1024px) {
+  .motion .stage .stage-art img,
+  .motion .route-services .svc-label {
+    translate: 0 calc(var(--hpx, 0px) * 0.35);
+  }
+  .motion .stage .stage-in {
+    opacity: calc(1 - var(--hpr, 0) * 1.2);
+    translate: 0 calc(var(--hpx, 0px) * -0.18);
+  }
+}
+/* gold words: a slow band of light passing through */
+@keyframes gold-sweep {
+  0% {
+    background-position: 100% 0;
+  }
+  38%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+.motion :is(.stage-dark .display, .band-title, .ft-tag) em {
+  background-image: linear-gradient(110deg, #c9a24a 22%, #f5e2ad 42%, #fff8e6 50%, #f5e2ad 58%, #c9a24a 78%) !important;
+  background-size: 260% 100% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: gold-sweep 7.5s ease-in-out 1.6s infinite;
+}
+.motion :is(.route-service .stage-light .display, .strip-sel .strip-title, .stage-light.stage-home .display) em {
+  background-image: linear-gradient(110deg, #9a7020 22%, #d8b45c 42%, #f2dc9e 50%, #d8b45c 58%, #9a7020 78%) !important;
+  background-size: 260% 100% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  animation: gold-sweep 7.5s ease-in-out 1.6s infinite;
+}
+
+/* ---------- motion: sections as they come into view ---------- */
+.motion [data-reveal] {
+  filter: blur(6px);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.9s ease;
+  transition-delay: var(--rv-d, 0ms);
+}
+.motion [data-reveal].is-in {
+  filter: none;
+}
+.motion .sh[data-reveal] .eyebrow::after,
+.motion .sh[data-reveal] .eyebrow::before {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s;
+}
+.motion .sh[data-reveal] .eyebrow::before {
+  transform-origin: right center;
+}
+.motion .sh[data-reveal].is-in .eyebrow::after,
+.motion .sh[data-reveal].is-in .eyebrow::before {
+  transform: none;
+}
+.motion .step[data-reveal] .step-ic {
+  scale: 0.6;
+  transition: scale 0.8s cubic-bezier(0.3, 1.5, 0.5, 1) calc(var(--rv-d, 0ms) + 0.25s);
+}
+.motion .step[data-reveal].is-in .step-ic {
+  scale: 1;
+}
+.motion .constel-leaders line {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  transition: stroke-dashoffset 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.5s;
+}
+.motion .constel.is-in .constel-leaders line {
+  stroke-dashoffset: 0;
+}
+.motion .constel .constel-leaders circle,
+.motion .constel .constel-star {
+  opacity: 0;
+  transition: opacity 0.9s ease 1.5s;
+}
+.motion .constel.is-in .constel-leaders circle,
+.motion .constel.is-in .constel-star {
+  opacity: 1;
+}
+
+/* ---------- motion: hover — cards lift into a gold edge ---------- */
+:is(.route-works .gcard a, .tier, .quote-card, .hl-cards li, .cap-row li, .deliv-cards li, .svc-card, .sel-caps a, .route-service .svc-more > summary, .card-soft, .card-night) {
+  transition: translate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), border-color 0.3s;
+}
+@media (hover: hover) {
+  .motion :is(.route-works .gcard a, .tier, .quote-card, .hl-cards li, .cap-row li, .deliv-cards li, .svc-card, .sel-caps a, .card-soft, .card-night):hover {
+    translate: 0 -5px;
+    box-shadow: 0 30px 50px -30px rgba(15, 29, 46, 0.6), 0 0 0 1px rgba(201, 162, 74, 0.55), 0 0 26px rgba(236, 208, 150, 0.22) !important;
+  }
+  .motion .svc-card:hover .svc-bg {
+    scale: 1.04;
+  }
+  .svc-card .svc-bg {
+    transition: scale 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
+
+/* ---------- motion: quiet ambient light ---------- */
+@keyframes twinkle {
+  from {
+    opacity: 0.18;
+  }
+  to {
+    opacity: 0.42;
+  }
+}
+@keyframes twinkle-card {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
+@keyframes float {
+  50% {
+    translate: 0 -10px;
+  }
+}
+@keyframes sway {
+  from {
+    rotate: -1.2deg;
+  }
+  to {
+    rotate: 1.2deg;
+  }
+}
+@keyframes mark-glow {
+  from {
+    filter: drop-shadow(0 0 3px rgba(236, 208, 150, 0.4));
+  }
+  to {
+    filter: drop-shadow(0 0 10px rgba(236, 208, 150, 0.95));
+  }
+}
+.motion .ft-sky {
+  animation: twinkle 6s ease-in-out infinite alternate;
+}
+.motion .route-works .gcard-dark a::before {
+  animation: twinkle-card 5s ease-in-out infinite alternate;
+}
+.motion .route-works .gcard-dark:nth-child(2n) a::before {
+  animation-delay: -2.5s;
+}
+.motion .deco-pearl-float {
+  animation: float 8s ease-in-out infinite;
+}
+.motion .deco-sakura-top,
+.motion .deco-sakura-low,
+.motion .deco-leaves-a {
+  transform-origin: 100% 0;
+  animation: sway 9s ease-in-out infinite alternate;
+}
+.motion .deco-sakura-low,
+.motion .deco-leaves-a {
+  transform-origin: 0 100%;
+  animation-duration: 11s;
+}
+.motion .values-mark svg {
+  animation: mark-glow 3.5s ease-in-out infinite alternate;
+}
+.motion .values-3 li:nth-child(2) .values-mark svg {
+  animation-delay: -1.2s;
+}
+.motion .values-3 li:nth-child(3) .values-mark svg {
+  animation-delay: -2.4s;
+}
+.motion .inq-orb {
+  animation: float 6s ease-in-out infinite;
+}
+.route-works .filters button {
+  height: auto !important;
+  min-height: 44px !important;
+  font-size: inherit !important;
+}
+@media (min-width: 1024px) {
+  .route-works .f-en {
+    font-size: calc(14.5 * var(--u));
+  }
+  .route-works .f-n {
+    font-size: calc(8 * var(--u));
+  }
+  .route-works .f-ja {
+    font-size: calc(8.5 * var(--ut));
+  }
+  .route-works .filters button {
+    padding: calc(8 * var(--u)) calc(30 * var(--u)) calc(12 * var(--u)) !important;
+    gap: calc(6 * var(--u)) !important;
+  }
+  .route-works .filters button + button::before {
+    top: calc(14 * var(--u));
+  }
+}
+.route-works .stage-dark::before {
+  background: linear-gradient(90deg, rgba(8, 21, 33, 0.88) 0%, rgba(8, 21, 33, 0.6) 34%, rgba(8, 21, 33, 0) 60%) !important;
+}
+.route-works .gallery {
+  background-color: #eef0f6 !important;
+}
+.route-works .gallery > .sec-bg {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 180px);
+  mask-image: linear-gradient(180deg, transparent 0, #000 180px);
+}
+/* works, filtered: every card takes the compact layout, so the large ones fit a third of the row */
+@media (min-width: 1024px) {
+  .route-works .ggrid.is-filtered .gcard a {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+    grid-template-rows: auto auto minmax(0, 1fr) !important;
+    grid-template-areas: "top top" "title title" "line media" !important;
+  }
+  .route-works .ggrid.is-filtered .gcard-text {
+    display: contents !important;
+  }
+  .route-works .ggrid.is-filtered .gcard-top {
+    grid-area: top;
+    padding: calc(12 * var(--u)) calc(14 * var(--u)) 0;
+  }
+  .route-works .ggrid.is-filtered .gcard-title {
+    grid-area: title;
+    padding: 0 calc(14 * var(--u));
+    margin: calc(3 * var(--u)) 0 calc(4 * var(--u));
+    font-size: calc(13.5 * var(--ut)) !important;
+    line-height: 1.35;
+  }
+  .route-works .ggrid.is-filtered .gcard-line {
+    grid-area: line;
+    align-self: start;
+    padding: 0 calc(8 * var(--u)) 0 calc(14 * var(--u));
+    font-size: calc(8.5 * var(--ut)) !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3 !important;
+    overflow: hidden !important;
+  }
+  .route-works .ggrid.is-filtered .gcard-media {
+    grid-area: media;
+    align-self: end;
+    padding: 0 calc(10 * var(--u)) calc(10 * var(--u)) 0;
+    min-height: 0;
+  }
+  .route-works .ggrid.is-filtered .gcard-no {
+    font-size: calc(22 * var(--u)) !important;
+  }
+  .route-works .ggrid.is-filtered .gdev-screen {
+    height: 86%;
+  }
+}

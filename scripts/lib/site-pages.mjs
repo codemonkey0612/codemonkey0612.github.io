@@ -238,7 +238,7 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="${base}assets/style.css?v=${site.assetVersion}">
-${head}<script>(function (d) { d.classList.replace("no-js", "js"); var off = false; try { off = localStorage.getItem("takumi-motion") === "off"; } catch (e) {} if (off || matchMedia("(prefers-reduced-motion: reduce)").matches) return; d.classList.add("motion"); setTimeout(function () { if (!window.TAKUMI) d.classList.remove("motion"); }, 3000); })(document.documentElement);</script>
+${head}<script>(function (d) { d.classList.replace("no-js", "js"); var off = false; try { off = localStorage.getItem("takumi-motion") === "off"; } catch (e) {} if (off || matchMedia("(prefers-reduced-motion: reduce)").matches) return; d.classList.add("motion"); setTimeout(function () { if (!window.TAKUMI) d.classList.remove("motion"); }, 3000); })(document.documentElement); addEventListener("pagereveal", function (e) { if (e.viewTransition && !document.documentElement.classList.contains("motion")) e.viewTransition.skipTransition(); });</script>
 <script src="${base}assets/app.js?v=${site.assetVersion}" defer></script>
 ${ld.length ? jsonld({ "@context": "https://schema.org", "@graph": ld }) : ""}
 </head>
@@ -372,7 +372,7 @@ function heading(eyebrow, title, { lead = "", tag = "h2", id = "", cls = "" } = 
 const more = (href, text) => `<a class="more" href="${href}">${text}${icon("arrow")}</a>`;
 
 /** The inquiry band: the gold portal behind a headline and the consultation button. */
-function inquiry(site, base, { title = "次の景色を、一緒に。", text = "アイデアの段階でも、まだ整理できていない構想でも大丈夫です。目的と現状を伺い、進め方とお見積もりをご提案します。", textHtml = null, query = "", label = "相談する", shape = "split", eyebrow = "Inquiry", art = null, light = false, compact = shape === "split", titleHtml = null, btnPre = null, btnCls = "btn-gold btn-lg", chev = false, lancers = true, plain = false } = {}) {
+function inquiry(site, base, { title = "次の景色を、一緒に。", text = "アイデアの段階でも、まだ整理できていない構想でも大丈夫です。目的と現状を伺い、進め方とお見積もりをご提案します。", textHtml = null, query = "", label = "相談する", shape = "split", eyebrow = "Inquiry", art = null, light = false, compact = shape === "split", titleHtml = null, btnPre = null, btnCls = "btn-gold btn-lg", chev = false, lancers = false, plain = false } = {}) {
   const a = site.art.stage("portal");
   const own = art && site.art.section(art);
   return `<section class="band band-${shape}${own && light ? " band-light" : ""}${compact ? " band-compact" : ""}${plain ? " band-plain" : ""}" aria-labelledby="band-title">
@@ -700,8 +700,10 @@ export function renderWorks(site) {
     <div class="wrap filters-in">
       <h2 class="sr-only" id="gallery-title">実績の一覧</h2>
       <div class="filters" role="group" aria-label="分野で絞り込む">
-        <button type="button" data-filter="all" aria-pressed="true"><span lang="en">All</span><small>${counts.all}</small></button>
-        ${["ai", "web", "system"].map((k) => `<button type="button" data-filter="${k}" aria-pressed="false"><span lang="en">${CAT_LABEL[k]}</span><small>${counts[k] ?? 0}</small></button>`).join("\n        ")}
+        ${[["all", "All", "すべて"], ["ai", CAT_LABEL.ai, "AI開発"], ["web", CAT_LABEL.web, "Web制作"], ["system", CAT_LABEL.system, "システム開発"]]
+          .map(([k, en, ja]) => `<button type="button" data-filter="${k}" aria-pressed="${k === "all"}"><span class="f-en" lang="en">${en}<sup class="f-n">${k === "all" ? counts.all : counts[k] ?? 0}</sup></span><span class="f-ja">${ja}</span></button>`)
+          .join("\n        ")}
+        <span class="filters-ink" aria-hidden="true"></span>
       </div>
       <p class="filter-count" aria-live="polite">${counts.all}件を表示しています</p>
     </div>
@@ -1170,7 +1172,7 @@ ${
       ${heading("Tools &amp; Technology", "ものづくりを支える、<br>技術の星座", { id: "stack-title", lead: "目的に合わせて最適な技術を選び、<br>組み合わせながら、<br>柔軟で拡張性のあるものづくりを行います。" })}
       <p class="stack-certs">保有資格 ${(profile.certifications ?? []).length}件<br>（AWS・Google Cloud・Azure・情報処理安全確保支援士 ほか）</p>
     </div>
-    <div class="constel${hasSec(site, "sec-about-constellation")}" aria-hidden="true">
+    <div class="constel${hasSec(site, "sec-about-constellation")}" aria-hidden="true" data-reveal>
       ${secImg(site, base, "sec-about-constellation", "constel-art")}
       <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet"><ellipse cx="300" cy="180" rx="250" ry="92"/><ellipse cx="300" cy="180" rx="190" ry="140" transform="rotate(-18 300 180)"/><ellipse cx="300" cy="180" rx="150" ry="60" transform="rotate(24 300 180)"/></svg>
       <span class="constel-core"></span>
@@ -1269,7 +1271,7 @@ export function renderPrices(site) {
         <span class="tier-no" lang="en">${t.no}</span>
         <h3 class="h3">${t.t}</h3>
         <p>${t.d}</p>
-        <p class="tier-actions"><a class="btn btn-ghost btn-sm tier-btn" href="${contactHref(base, "?topic=estimate")}">個別お見積もり</a><a class="more" href="${base}${t.href}">関連するサービス${icon("arrow")}</a></p>
+        <p class="tier-actions"><a class="btn btn-ghost btn-sm tier-btn" href="${contactHref(base, "?topic=estimate")}">個別お見積もり</a></p>
       </li>`,
         )
         .join("\n      ")}

@@ -1540,21 +1540,30 @@ export function renderContact(site) {
   const endpoint = profile.contact_form?.endpoint ?? "";
   const description = `${profile.name}へのお問い合わせ。AI開発・Web制作・システム開発のご相談を、このページのフォームから受け付けています。`;
   const form = renderInquiryForm
-    ? renderInquiryForm({ endpoint, lancersUrl: profile.contact_url, services, works: works.all, base }).replace('<div class="inq-intro">', `<div class="inq-intro">${secImg(site, base, "sec-contact-side", "inq-art")}`)
+    ? renderInquiryForm({ endpoint, lancersUrl: profile.contact_url, services, works: works.all, base })
     : `<p class="fine">フォームを準備しています。<a href="${esc(profile.contact_url)}">Lancersからご相談ください。</a></p>`;
+  // One full-screen scene: the misty mountains behind everything, the page's words on the left,
+  // the form on a night-glass panel on the right (stacked on phones).
+  const bg = site.art.section("sec-contact-side");
+  const bgImg = bg ? `<img class="inq-bg" src="${base}${bg.src}" alt="" width="${bg.w}" height="${bg.h}" decoding="async" fetchpriority="high">` : "";
+  const point = (ic, title, text) => `<li>${icon(ic)}<span><b>${title}</b><small>${text}</small></span></li>`;
   const css = fs.existsSync(new URL("../../site/assets/contact.css", import.meta.url)) ? `<link rel="stylesheet" href="${base}assets/contact.css?v=${site.assetVersion}">\n` : "";
   const js = fs.existsSync(new URL("../../site/assets/contact.js", import.meta.url)) ? `<script src="${base}assets/contact.js?v=${site.assetVersion}" defer></script>\n` : "";
-  const body = `${stage(site, base, {
-    scene: "contact",
-    inner: `    <div class="stage-copy">
+  const body = `<section class="inq-sec inq-scene" aria-labelledby="inq-h1">
+  ${bgImg}
+  <div class="inq-scene-in">
+    <div class="inq-intro">
       ${crumbs(base, [[null, "お問い合わせ"]])}
-      <p class="kicker" lang="en">Contact</p>
-      <h1 class="display display-line">まだ、言葉にならない<em>構想</em>から。</h1>
-      <p class="lead">AI開発・Web制作・システム開発のご相談を受け付けています。まずはお気軽にお聞かせください。</p>
-    </div>`,
-  })}
-<section class="ch ch-pearl inq-sec" aria-label="お問い合わせフォーム">
-  <div class="wrap">
+      <p class="inq-kicker" lang="en">Contact</p>
+      <h1 class="inq-h1" id="inq-h1"><span class="nw">まだ、言葉にならない</span><span class="nw"><em>構想</em>から。</span></h1>
+      <p class="inq-lead">AI開発・Web制作・システム開発のご相談を<span class="nw">受け付けています。</span><span class="nw">アイデアの段階でも、</span><span class="nw">どうぞお気軽に</span><span class="nw">お聞かせください。</span></p>
+      <ul class="inq-points">
+        ${point("pen", "必要なのは3つだけ", "ご相談内容・お名前・メールアドレス")}
+        ${point("sparkle", "ご相談だけでも歓迎", "進め方の整理から、ご一緒します")}
+        ${point("mail", "お返事はメールで", "内容を確認して、ご連絡します")}
+      </ul>
+      <p class="inq-alt">ランサーズからのご相談も受け付けています。<a href="${esc(profile.contact_url)}" target="_blank" rel="noopener">Lancersで相談する${icon("ext", "ic ic-xs")}<span class="sr-only">（新しいタブで開きます）</span></a></p>
+    </div>
 ${form}
   </div>
 </section>`;

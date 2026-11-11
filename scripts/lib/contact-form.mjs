@@ -34,6 +34,7 @@ const ICON = {
   plus: svg('<path d="M12 5v14M5 12h14"/>', "ic more-ic"),
   arrow: svg('<path d="M5 12h14M13 6l6 6-6 6"/>', "ic"),
   alert: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7.5v6M12 16.6v.01"/>', "ic"),
+  clock: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>', "ic"),
 };
 
 /** Processing actually done by the form and contact/ (shown in the privacy panel). */
@@ -49,8 +50,9 @@ export const PRIVACY_HTML = `<h2 id="privacy-title" class="privacy-title">個人
 </dl>`;
 
 /**
- * The form section body. Place it inside <section class="inq-sec">; load contact.css and
- * contact.js (defer) on the page. `base` is the relative path to the site root ("../").
+ * The form panel (and its privacy dialog). The contact page sets it beside its introduction
+ * inside <section class="inq-sec inq-scene">; load contact.css and contact.js (defer) on the
+ * page. `base` is the relative path to the site root ("../").
  */
 export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], works = [], base = "../" } = {}) {
   const ep = String(endpoint ?? "").trim();
@@ -73,11 +75,10 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
         </fieldset>`;
 
   return `<div class="inq-card" data-state="input">
-  <form class="inq" id="inquiry" novalidate data-endpoint="${esc(ep)}" data-lancers="${lancers}"${ep ? ` action="${esc(ep)}" method="post"` : ""} aria-labelledby="inq-title" aria-describedby="inq-sub">
+  <form class="inq" id="inquiry" novalidate data-endpoint="${esc(ep)}" data-lancers="${lancers}"${ep ? ` action="${esc(ep)}" method="post"` : ""} aria-labelledby="inq-title">
     <header class="inq-head">
-      <p class="inq-eyebrow" lang="en">Contact Form</p>
-      <h2 class="inq-title" id="inq-title">ご相談を、<span class="nw">お聞かせください。</span></h2>
-      <p class="inq-sub" id="inq-sub">必要なのは、<span class="nw">ご相談内容・お名前・メールアドレスの</span><span class="nw">3つだけ。</span><span class="nw">1分ほどで送れます。</span></p>
+      <h2 class="inq-title" id="inq-title">ご相談フォーム</h2>
+      <p class="inq-time">${ICON.clock}1分ほどで送れます</p>
     </header>
     <noscript><p class="inq-notice">${ep ? "JavaScriptが無効のため、送信後に結果のページが開きます。" : `このフォームはJavaScriptを使います。お手数ですが、${ext("Lancers")}からご相談ください。`}</p></noscript>
     ${ep ? "" : `<p class="inq-notice">${ICON.alert}<span>このフォームからの送信は、現在準備中です。お手数ですが、ご相談は${ext("Lancers")}からお送りください。</span></p>`}
@@ -155,7 +156,6 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
     <p class="inq-done-actions"><a class="btn btn-ghost" href="${esc(base)}works/">実績を見る</a><a class="inq-link" href="${esc(base)}">トップへ戻る</a></p>
   </div>
 
-  <p class="inq-alt">ランサーズからのご相談も受け付けています。${ext("Lancersで相談する")}</p>
 </div>
 <dialog class="privacy" id="privacy" aria-labelledby="privacy-title">
   <div class="privacy-body">

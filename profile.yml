@@ -19,6 +19,15 @@ contact_url: https://www.lancers.jp/profile/navi_work/contact_light   # the seco
 # never here or on the site. With an empty endpoint the form says plainly that it cannot send.
 contact_form:
   endpoint: "https://form.shanaiai.com/"
+# Search engine ownership checks: paste only the code from the meta tag each one gives you
+# (Google Search Console → URL prefix https://shanaiai.com/ → HTML tag → content="…").
+site_verification:
+  google: ""
+  bing: ""
+# Cloudflare Web Analytics (no cookies): Web Analytics → Add a site → shanaiai.com → copy the
+# token from the snippet's data-cf-beacon='{"token": "…"}'. Left empty, no analytics script is added.
+analytics:
+  cloudflare: ""
 persona: 私           # the one first-person word used in every post
 
 # Facts posts may mention. The fact-checker treats everything below (facts,

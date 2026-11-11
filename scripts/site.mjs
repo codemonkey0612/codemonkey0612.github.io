@@ -25,6 +25,10 @@ const fail = (m) => {
 const profile = loadProfile();
 if (!/^https?:\/\/\S+$/.test(profile.site_url ?? "")) fail("profile.yml site_url must be the site's URL, e.g. https://you.github.io/");
 if (!profile.site_url.endsWith("/")) profile.site_url += "/";
+for (const [k, v] of Object.entries(profile.site_verification ?? {}))
+  if (v && !/^[A-Za-z0-9_-]{8,128}$/.test(String(v))) fail(`profile.yml site_verification.${k} must be only the code inside the meta tag's content="…"`);
+if (profile.analytics?.cloudflare && !/^[0-9a-f]{32}$/i.test(String(profile.analytics.cloudflare)))
+  fail('profile.yml analytics.cloudflare must be the 32-character token from the Web Analytics snippet ({"token": "…"})');
 
 let site;
 try {

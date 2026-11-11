@@ -216,6 +216,18 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
   const fullTitle = route === "" ? `${profile.brand}｜${profile.title}` : `${title}｜${profile.brand}`;
   const current = (href) => (route !== "" && route.startsWith(href) ? ' aria-current="page"' : "");
   const lancers = esc(profile.contact_url);
+  // Search engines' ownership checks (home page only) and the cookieless Cloudflare Web Analytics
+  // beacon, both from profile.yml. The contact page has no beacon: its privacy note says so.
+  const verify = profile.site_verification ?? {};
+  const verifyMeta =
+    route === ""
+      ? [["google", "google-site-verification"], ["bing", "msvalidate.01"]]
+          .filter(([k]) => verify[k])
+          .map(([k, name]) => `<meta name="${name}" content="${esc(verify[k])}">\n`)
+          .join("")
+      : "";
+  const cfToken = profile.analytics?.cloudflare;
+  const beacon = cfToken && !route.startsWith("contact/") ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${esc(cfToken)}"}'></script>\n` : "";
   return `<!doctype html>
 <html lang="ja" class="no-js">
 <head>
@@ -233,7 +245,7 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
 <meta property="og:image" content="${esc(new URL(shareImage, profile.site_url).href)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#081521">
-<link rel="icon" href="${base}assets/brand/favicon-64.png" type="image/png" sizes="64x64">
+${verifyMeta}<link rel="icon" href="${base}assets/brand/favicon-64.png" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="${base}assets/brand/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -319,7 +331,7 @@ ${body}
   <video controls playsinline preload="none"></video>
   <p class="vmodal-meta"><span class="vmodal-t"></span></p>
 </dialog>
-</body>
+${beacon}</body>
 </html>
 `;
 }

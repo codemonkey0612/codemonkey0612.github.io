@@ -294,6 +294,17 @@ twice. `bluesky: off` in `autopilot.yml` stops it;
   → `contact_form.endpoint`, the form says plainly that it can't send yet and
   points to Lancers. Setup: `contact/README.md`. Lancers stays as the second
   route (footer and contact page).
+- **Search Console and analytics** (`profile.yml` → `site_verification`,
+  `analytics`): both empty by default, and nothing is added while they are.
+  Google Search Console: add the URL-prefix property `https://shanaiai.com/`,
+  choose "HTML tag", and paste only the `content="…"` code into
+  `site_verification.google`; deploy, press Verify, then submit
+  `https://shanaiai.com/sitemap.xml` under Sitemaps (Bing's code goes in
+  `site_verification.bing`). Cloudflare Web Analytics (no cookies): add the site
+  `shanaiai.com`, copy the token from the snippet's `{"token": "…"}` into
+  `analytics.cloudflare`. The beacon is left off the contact page, whose privacy
+  note says the form uses no analytics. The build refuses a value in the wrong
+  format.
 - **Brand art** (`site/media.yml`): the gold 匠 emblem (header, footer; the
   favicons are made from it) and the showreel (home). Each service shows its
   Lancers package images and promo videos (from `site/packages.yml`). The

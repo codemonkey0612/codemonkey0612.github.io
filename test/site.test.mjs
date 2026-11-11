@@ -347,3 +347,14 @@ test("classes the body carries (hero-*, route-*, page-*) are never reused to sty
     }
   }
 });
+
+test("search verification and analytics tags come from profile.yml, and the contact page has no beacon", () => {
+  const profile = loadProfile();
+  const off = renderSite(loadSite({ root: ROOT, profile: { ...profile, site_verification: {}, analytics: {} }, today }));
+  for (const [f, html] of Object.entries(off)) if (f.endsWith(".html")) assert.doesNotMatch(html, /cloudflareinsights|google-site-verification/, f);
+  const on = renderSite(loadSite({ root: ROOT, profile: { ...profile, site_verification: { google: "abcDEF_123-xyz" }, analytics: { cloudflare: "0123456789abcdef0123456789abcdef" } }, today }));
+  assert.match(on["index.html"], /<meta name="google-site-verification" content="abcDEF_123-xyz">/);
+  assert.doesNotMatch(on["about/index.html"], /google-site-verification/);
+  assert.match(on["about/index.html"], /data-cf-beacon='\{"token": "0123456789abcdef0123456789abcdef"\}'/);
+  assert.doesNotMatch(on["contact/index.html"], /cloudflareinsights/);
+});

@@ -12229,3 +12229,561 @@ body:not(.route-home):not(.route-404) .stage .display {
 .chapter-no {
   font-variant-numeric: lining-nums;
 }
+
+/* =====================================================================
+   PASS 9 (2026-11-11): case studies rebuilt. One content width for every
+   section; the hero shows the whole illustration beside the title.
+   ===================================================================== */
+.route-work {
+  --cw: min(calc(100% - 2 * var(--gutter)), 1180px);
+}
+@media (min-width: 1024px) {
+  .route-work {
+    --cw: min(calc(100% - 2 * var(--gutter)), calc(860 * var(--u)));
+  }
+}
+.cs-wrap {
+  width: var(--cw);
+  margin-inline: auto;
+}
+.cs-sec {
+  position: relative;
+  padding-block: clamp(56px, 6vw, 110px);
+}
+
+/* ---------- hero: the title left, the whole plate right over a blurred copy of itself ---------- */
+.cs-blur {
+  position: absolute;
+  inset: -40px;
+  z-index: -3;
+  width: calc(100% + 80px);
+  height: calc(100% + 80px);
+  max-width: none;
+  object-fit: cover;
+  filter: blur(42px) saturate(1.15) brightness(0.62);
+  pointer-events: none;
+}
+.stage-light .cs-blur {
+  filter: blur(42px) saturate(1.05) brightness(1.08);
+  opacity: 0.85;
+}
+@media (min-width: 761px) {
+  body.route-work .stage.cs-hero {
+    display: block;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: calc(var(--hd) + clamp(24px, 3vw, 56px)) 0 clamp(40px, 4.5vw, 80px) !important;
+  }
+  body.route-work .stage.cs-hero::before {
+    background: linear-gradient(90deg, rgba(8, 21, 33, 0.55) 0%, rgba(8, 21, 33, 0.25) 48%, rgba(8, 21, 33, 0.05) 100%) !important;
+  }
+  body.route-work .stage-light.cs-hero::before {
+    background: linear-gradient(90deg, rgba(246, 247, 251, 0.7) 0%, rgba(246, 247, 251, 0.3) 48%, rgba(246, 247, 251, 0.05) 100%) !important;
+  }
+  body.route-work .cs-hero .stage-in {
+    display: flex;
+    align-items: center;
+    width: var(--cw) !important;
+    max-width: none !important;
+    min-height: calc(var(--cw) * 0.62 / 1.5);
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+  body.route-work .cs-hero .stage-copy {
+    width: 43% !important;
+    max-width: none !important;
+  }
+  body.route-work .cs-hero .stage-art {
+    inset: auto !important;
+    right: calc((100% - var(--cw)) / 2) !important;
+    top: calc(var(--hd) + clamp(24px, 3vw, 56px)) !important;
+    width: calc(var(--cw) * 0.6) !important;
+    height: auto !important;
+    aspect-ratio: 3 / 2;
+    margin: 0 !important;
+  }
+  body.route-work .cs-hero .stage-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50% !important;
+    border-radius: 28px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 90%, transparent 100%), linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 90%, transparent 100%), linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  body.route-work .cs-hero .display {
+    font-size: clamp(34px, 3.9vw, 72px) !important;
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.04em;
+    word-break: auto-phrase;
+    text-wrap: balance;
+    margin: 0 !important;
+  }
+  body.route-work .cs-hero .accent-line {
+    margin: 0.9em 0 1.1em !important;
+    font-size: clamp(11px, 0.95vw, 17px) !important;
+    letter-spacing: 0.34em;
+  }
+  body.route-work .cs-hero .lead {
+    max-width: 30em !important;
+    margin: 0 !important;
+    font-size: clamp(13px, 1.05vw, 18px) !important;
+    line-height: 1.95 !important;
+  }
+}
+@media (min-width: 761px) and (max-width: 1023px) {
+  body.route-work .cs-hero .stage-copy {
+    width: 46% !important;
+  }
+  body.route-work .cs-hero .stage-art {
+    width: calc(var(--cw) * 0.52) !important;
+  }
+}
+.route-work .stage-dark .accent-line {
+  color: var(--gold-hi) !important;
+}
+.route-work .stage-light .accent-line {
+  color: var(--gold-ink) !important;
+}
+
+/* ---------- overview: words left, the facts in a glass card right, the three points below ---------- */
+.cs-overview {
+  background: linear-gradient(180deg, #f3f2f7, var(--pearl));
+}
+.cs-ov-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: clamp(28px, 4vw, 72px);
+  align-items: start;
+}
+.cs-h2 {
+  margin: 0 0 18px;
+  font: 500 clamp(26px, 2.3vw, 40px) / 1.35 var(--f-serif);
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+.cs-headline {
+  margin: 0 0 14px;
+  font: 600 clamp(17px, 1.35vw, 23px) / 1.6 var(--f-serif);
+  color: var(--ink);
+}
+.cs-body p,
+.cs-body li {
+  font-size: clamp(14px, 1vw, 17px);
+  line-height: 1.95;
+  color: #3b4656;
+}
+.cs-body p {
+  margin: 0 0 0.9em;
+}
+.cs-body ul,
+.cs-body ol {
+  margin: 0.4em 0 1em;
+  padding: 0;
+  list-style: none;
+}
+.cs-body li {
+  position: relative;
+  padding: 0.3em 0 0.3em 1.5em;
+}
+.cs-body ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0.2em;
+  top: 1.05em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.cs-body ol {
+  counter-reset: cs;
+}
+.cs-body ol > li::before {
+  counter-increment: cs;
+  content: counter(cs, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  font: 600 0.85em/1.9 var(--f-latin);
+  color: var(--gold-ink);
+}
+.cs-meta {
+  margin: 0;
+  padding: 10px 26px;
+  border: 1px solid rgba(201, 162, 74, 0.3);
+  border-radius: 18px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(246, 243, 236, 0.8));
+  box-shadow: 0 30px 60px -44px rgba(15, 29, 46, 0.5);
+}
+.cs-meta > div {
+  display: grid;
+  grid-template-columns: 7.5em minmax(0, 1fr);
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(15, 29, 46, 0.08);
+}
+.cs-meta > div:first-child {
+  border-top: 0;
+}
+.cs-meta dt {
+  font: 600 12.5px/1.7 var(--f-sans);
+  letter-spacing: 0.06em;
+  color: var(--gold-ink);
+  white-space: nowrap;
+}
+.cs-meta dd {
+  margin: 0;
+  font-size: clamp(13.5px, 0.95vw, 16px);
+  line-height: 1.7;
+  color: var(--ink);
+}
+.cs-meta dd a {
+  color: var(--gold-ink);
+}
+.cs-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: clamp(36px, 4vw, 64px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.cs-points li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid rgba(201, 162, 74, 0.3);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 40px -32px rgba(15, 29, 46, 0.5);
+}
+.cs-pt-ic {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #e9edf6 70%);
+  box-shadow: inset 0 0 0 1px rgba(201, 162, 74, 0.45);
+  color: var(--gold-ink);
+}
+.cs-pt-ic .ic {
+  width: 22px;
+  height: 22px;
+}
+.cs-pt-no {
+  font: 600 11px/1 var(--f-latin);
+  letter-spacing: 0.24em;
+  color: var(--gold-ink);
+  font-variant-numeric: lining-nums;
+}
+.cs-pt-t {
+  font: 600 clamp(14px, 1vw, 16.5px) / 1.6 var(--f-serif);
+  color: var(--ink);
+}
+
+/* ---------- the story: a picture row, then editorial rows ---------- */
+.cs-story {
+  background: #fff;
+}
+.cs-row {
+  border: 1px solid rgba(201, 162, 74, 0.25);
+  border-radius: 24px;
+  background: linear-gradient(150deg, #fff, #f7f5f0);
+  box-shadow: 0 34px 70px -56px rgba(15, 29, 46, 0.55);
+  padding: clamp(26px, 3.4vw, 56px);
+}
+.cs-row + .cs-row {
+  margin-top: 24px;
+}
+.cs-row-media {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: center;
+}
+.cs-row-plain {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: clamp(20px, 4vw, 64px);
+  align-items: start;
+}
+.cs-no {
+  margin: 0 0 6px;
+  font: 600 clamp(40px, 3.4vw, 60px) / 1 var(--f-serif);
+  font-variant-numeric: lining-nums;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--gold);
+  letter-spacing: 0.04em;
+}
+.cs-h3 {
+  margin: 0 0 16px;
+  font: 600 clamp(20px, 1.7vw, 30px) / 1.45 var(--f-serif);
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+.cs-h3 small {
+  display: block;
+  margin-top: 4px;
+  font: 500 13px/1.6 var(--f-sans);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.cs-row-fig .hero-media,
+.cs-row-fig .showcase {
+  margin: 0;
+}
+.cs-row-fig .hero-media img {
+  border-radius: 16px;
+  box-shadow: 0 30px 60px -40px rgba(15, 29, 46, 0.6);
+}
+.cs-row-fig .hero-media figcaption,
+.cs-row-fig .fine {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+.cs-link {
+  margin-top: 18px;
+}
+
+/* ---------- client voice: cards with one large gold mark ---------- */
+.cs-voice {
+  background: linear-gradient(180deg, #f3f2f7, #eef0f6);
+}
+.cs-voice .eyebrow {
+  margin-bottom: 10px;
+}
+.cs-voice .cs-h2.center {
+  text-align: center;
+  margin-bottom: clamp(26px, 3vw, 44px);
+}
+.cs-quote {
+  position: relative;
+  max-width: 880px;
+  margin: 0 auto 18px;
+  padding: clamp(26px, 3vw, 44px) clamp(26px, 3.4vw, 56px) clamp(22px, 2.4vw, 34px) clamp(64px, 6vw, 104px);
+  border: 1px solid rgba(201, 162, 74, 0.3);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 30px 60px -48px rgba(15, 29, 46, 0.55);
+}
+.cs-qmark {
+  position: absolute;
+  left: clamp(20px, 2vw, 34px);
+  top: clamp(10px, 1.4vw, 22px);
+  font: 700 clamp(56px, 5vw, 84px) / 1 Georgia, serif;
+  color: var(--gold);
+}
+.cs-quote blockquote {
+  margin: 0;
+}
+.cs-quote blockquote p {
+  margin: 0;
+  font: 500 clamp(15px, 1.12vw, 19px) / 2 var(--f-serif);
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.cs-quote figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(15, 29, 46, 0.08);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.cs-q-job {
+  font-weight: 600;
+  color: #3b4656;
+}
+.cs-quote figcaption a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  margin-left: auto;
+  color: var(--gold-ink);
+  text-decoration: none;
+}
+.cs-quote-quiet {
+  padding-left: clamp(26px, 3.4vw, 56px);
+  text-align: center;
+}
+.cs-quote-none {
+  margin: 0;
+  font-family: var(--f-serif);
+  color: #3b4656;
+}
+.cs-fine {
+  margin: 14px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ---------- next project: a contained banner ---------- */
+.cs-next-sec {
+  padding-block: 0 clamp(56px, 6vw, 110px);
+  background: #eef0f6;
+}
+.cs-next {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: clamp(180px, 16vw, 280px);
+  overflow: hidden;
+  border-radius: 24px;
+  background: radial-gradient(120% 140% at 85% 30%, #1d3a62, #0b1a2e 60%, #060f1b);
+  box-shadow: 0 40px 80px -50px rgba(8, 21, 33, 0.8);
+  color: var(--night-text);
+  text-decoration: none;
+}
+.cs-next-art {
+  position: absolute;
+  inset: 0 0 0 auto;
+  z-index: -1;
+  width: 62%;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 45%);
+  mask-image: linear-gradient(90deg, transparent, #000 45%);
+}
+.cs-next-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: scale 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.cs-next:hover .cs-next-art img {
+  scale: 1.05;
+}
+.cs-next-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: clamp(26px, 3vw, 48px) clamp(26px, 4vw, 64px);
+}
+.cs-next-body .eyebrow {
+  margin: 0;
+  color: var(--gold-hi);
+}
+.cs-next-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  font: 500 clamp(24px, 2.4vw, 42px) / 1.3 var(--f-serif);
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+.cs-next-ic {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  padding: 12px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  color: var(--gold-hi);
+  transition: translate 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.cs-next:hover .cs-next-ic {
+  translate: 4px 0;
+}
+.cs-next-line {
+  font-size: 13.5px;
+  color: var(--night-muted);
+}
+
+/* ---------- tablets and phones ---------- */
+@media (max-width: 860px) {
+  .cs-ov-grid,
+  .cs-row-media,
+  .cs-row-plain {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cs-points {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  body.route-work .cs-hero .stage-art img {
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 18%) !important;
+    mask-image: linear-gradient(180deg, transparent 0, #000 18%) !important;
+  }
+  .cs-meta {
+    padding: 4px 18px;
+  }
+  .cs-meta > div {
+    grid-template-columns: 6.5em minmax(0, 1fr);
+    gap: 12px;
+  }
+  .cs-quote {
+    padding: 52px 20px 18px;
+  }
+  .cs-qmark {
+    left: 18px;
+    top: 4px;
+    font-size: 56px;
+  }
+  .cs-quote figcaption a {
+    margin-left: 0;
+  }
+  .cs-next-art {
+    width: 100%;
+    opacity: 0.45;
+  }
+}
+/* motion: the panels, cards and quotes tilt and catch light like the rest */
+.motion .cs-hero .stage-art {
+  --ix: 50%;
+  --iy: 50%;
+}
+:is(.cs-points, .cs-next-sec .cs-wrap) {
+  perspective: 1300px;
+}
+@media (min-width: 761px) {
+  body.route-work .cs-hero .stage-in {
+    min-height: calc(min(100vw - 2 * var(--gutter), 1180px) * 0.4) !important;
+  }
+}
+@media (min-width: 1024px) {
+  body.route-work .cs-hero .stage-in {
+    min-height: calc(min(100vw - 2 * var(--gutter), 860 * var(--u)) * 0.4) !important;
+  }
+}
+@media (min-width: 761px) and (max-width: 1023px) {
+  body.route-work .cs-hero .stage-in {
+    min-height: calc((100vw - 2 * var(--gutter)) * 0.35) !important;
+  }
+}
+@media (min-width: 600px) and (max-width: 860px) {
+  .cs-points {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cs-points li {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 8px;
+  }
+  .cs-pt-ic {
+    grid-row: auto;
+  }
+}
+.cs-pt-no {
+  font: 600 11.5px/1 var(--f-sans) !important;
+  letter-spacing: 0.18em !important;
+}
+.cs-meta dd a {
+  display: inline-block;
+  padding: 12px 0;
+  margin: -12px 0;
+}

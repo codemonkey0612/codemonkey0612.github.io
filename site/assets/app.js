@@ -595,7 +595,7 @@
     });
 
     // Cards tilt toward the pointer and catch a light where it is.
-    d.querySelectorAll(".route-works .gcard a, .svc-card, .tier, .quote-card, .hl-cards li, .cap-row li, .deliv-cards li, .card-soft, .card-night, .sel-caps a").forEach(function (el) {
+    d.querySelectorAll(".route-works .gcard a, .svc-card, .tier, .quote-card, .hl-cards li, .cap-row li, .deliv-cards li, .card-soft, .card-night, .sel-caps a, .cs-points li, .cs-next").forEach(function (el) {
       var sheen = d.createElement("span");
       sheen.className = "sheen";
       sheen.setAttribute("aria-hidden", "true");

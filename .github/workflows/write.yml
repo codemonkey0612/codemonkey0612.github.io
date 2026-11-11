@@ -1,5 +1,7 @@
 # Writes the next articles on its own (scripts/autowrite.mjs; settings in autopilot.yml).
-# Every morning at 06:00 JST, and whenever autopilot.yml changes, it fills the open mornings:
+# Every morning (tries at 04:13, 05:13 and 06:13 JST: GitHub starts scheduled runs late or drops
+# them; a later try only does what's still open, within the day's budget), and whenever
+# autopilot.yml changes, it fills the open mornings:
 # picks a topic, researches it, writes and checks the article and schedules it for 09:00.
 # mode: auto commits it to main; Zenn publishes it at 09:00. With `qiita: daily` it also writes
 # a separate Qiita article for each one (qiita/<slug>.md), which the Publish workflow posts at
@@ -10,7 +12,10 @@ name: Write articles
 
 on:
   schedule:
-    - cron: "0 21 * * *" # 06:00 JST
+    # Not on the hour, when GitHub is busiest and drops the most scheduled runs.
+    - cron: "13 19 * * *" # 04:13 JST
+    - cron: "13 20 * * *" # 05:13 JST
+    - cron: "13 21 * * *" # 06:13 JST
   push:
     branches: [main]
     paths: ["autopilot.yml"]
@@ -31,8 +36,11 @@ jobs:
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
+      # The branch as it is now, not as it was when the run was queued: a try that waited for
+      # the one before it must see the articles that one wrote.
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
       - uses: actions/setup-node@v7

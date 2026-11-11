@@ -63,8 +63,9 @@ ideas.md    post ideas built from your own projects and reviews
 
 ## Automatic writing (autopilot)
 
-Every morning at 06:00 (Japan time) the **Write articles** workflow fills the next
-open mornings on its own (`scripts/autowrite.mjs`, settings in `autopilot.yml`):
+Every morning (tries at 04:13, 05:13 and 06:13 Japan time, because GitHub starts
+scheduled runs late or drops them; a later try only does what's still open) the
+**Write articles** workflow fills the next open mornings on its own (`scripts/autowrite.mjs`, settings in `autopilot.yml`):
 
 1. **Topic:** it rotates through three pillars by weight: small-business technical
    problems and their solutions, hands-on AI and software work, and the latest
@@ -133,7 +134,7 @@ checks and comments the fact-check report. Merge any time before its morning:
    the first automatic copy on 2026-11-09, and its guideline wants knowledge
    useful to engineers, no posts mainly for promotion, and AI-written content
    checked before posting.
-   - **Writing** (the 06:00 autopilot run): for every scheduled Zenn article
+   - **Writing** (the morning autopilot run): for every scheduled Zenn article
      from today on without one, Claude writes `qiita/<slug>.md`, a separate
      engineer-facing article on one technical problem in that topic, with
      working code. It goes through validate, textlint and the fact-check (up

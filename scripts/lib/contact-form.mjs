@@ -51,7 +51,7 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
   <div class="inq-intro">
     <p class="inq-label">Contact</p>
     <h2 class="inq-title">一緒に、<br>次の景色へ。</h2>
-    <p>アイデアの段階でも、まだ整理できていないご構想でも、どうぞお気軽にご相談ください。</p>
+    <p>アイデアの段階でも、<wbr>まだ整理できていないご構想でも、<wbr><span class="nowrap">どうぞお気軽に</span>ご相談ください。</p>
     <p>内容を確認して、ご入力いただいたメールアドレスにお返事します。</p>
     <p class="inq-alt">ランサーズからのご相談も受け付けています。<br>${ext("Lancersで相談する")}</p>
   </div>

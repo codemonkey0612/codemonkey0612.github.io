@@ -469,7 +469,7 @@ function film(site, base, { video, poster, title, cls = "", ar = null, length = 
       <div class="film-frame" style="--ar:${ar ?? `${wh[0]}/${wh[1]}`}">
         <video controls playsinline preload="none" poster="${base}${esc(poster)}" width="${wh[0]}" height="${wh[1]}" aria-label="${esc(title)}"><source src="${base}${esc(video)}" type="video/mp4"></video>
         ${overlay ? `<span class="film-over" aria-hidden="true">${overlay}</span>` : ""}
-        ${length ? `<span class="film-bar" aria-hidden="true"><i class="fb-play"></i><span>0:00 / ${esc(length)}</span><i class="fb-line"></i>${icon("volume", "ic fb-ic")}${icon("full", "ic fb-ic")}</span>` : ""}
+        ${length ? `<span class="film-bar" aria-hidden="true"><i class="fb-play"></i><span>0:00 / ${esc(length)}</span><i class="fb-line"></i>${icon("volume", "ic fbar-ic")}${icon("full", "ic fbar-ic")}</span>` : ""}
       </div>
       <figcaption class="film-cap">${esc(title)}</figcaption>
     </figure>`;
@@ -620,6 +620,7 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
       ${featured[0] ? `<a class="dev-tablet" href="${base}works/${esc(featured[0].id)}/"><span class="dev-screen">${img(site, workImage(featured[0]), base, { alt: `${workName(featured[0])}（イメージ）` })}</span></a>` : ""}
       <span class="sel-orb" aria-hidden="true"></span>
     </div>
+    <ul class="sel-caps">${[lead, featured[0]].filter(Boolean).map((w) => `<li><a href="${base}works/${esc(w.id)}/"><b>${esc(workName(w))}</b><span>${esc(workLine(w))}</span>${icon("arrow", "ic sel-cap-ic")}</a></li>`).join("")}</ul>
   </div>
 </section>
 <section class="strip strip-exp${exNew ? " exp-pilot" : ""}" aria-labelledby="expertise-title">
@@ -982,9 +983,7 @@ export function renderService(site, s) {
     ${
       live
         ? `<div class="scope-device scope-device-live"><a class="dev-laptop" href="${base}works/${esc(live.id)}/"><span class="dev-screen">${img(site, live.top, base, { alt: `${workName(live)}のトップページ` })}</span><span class="dev-base" aria-hidden="true"></span></a>${live.phone ? `<span class="dev-phone" aria-hidden="true">${img(site, live.phone, base)}</span>` : ""}</div>`
-        : plate.plate
-          ? `<div class="scope-device scope-art" aria-hidden="true"><img src="${base}${plate.narrow}" alt="" width="${plate.mw}" height="${plate.mh}" loading="lazy" decoding="async"></div>`
-          : ""
+        : ""
     }
     <ul class="cap-row">
       ${s.scope
@@ -1407,7 +1406,7 @@ export function renderReviews(site) {
     <p class="fb-more">${ext(l.reviews_url ?? l.profile_url, `${icon("ext", "ic btn-pre")}Lancersで評価を見る${icon("chevron")}`, "btn btn-plate")}</p>
   </div>
 </section>
-${inquiry(site, base, { title: "ご相談からでも、お気軽にお問い合わせください。", titleHtml: "ご相談からでも、<br>お気軽にお問い合わせください。", text: "ご要望の整理や、どのような進め方がよいかのご相談だけでも歓迎です。", label: "Webサイトからお問い合わせ", compact: false, eyebrow: "Contact", art: site.art.section("sec-reviews-cta") ? "sec-reviews-cta" : null, btnPre: "mail", chev: true })}`;
+${inquiry(site, base, { title: "ご相談からでも、お気軽にお問い合わせください。", titleHtml: "ご相談からでも、<br>お気軽に<span class=\"nowrap\">お問い合わせください。</span>", text: "ご要望の整理や、どのような進め方がよいかのご相談だけでも歓迎です。", label: "Webサイトからお問い合わせ", compact: false, eyebrow: "Contact", art: site.art.section("sec-reviews-cta") ? "sec-reviews-cta" : null, btnPre: "mail", chev: true })}`;
   return layout(site, { route: "reviews/", title: "お客さまの声", description, body, ld: [personLd(site), crumbLd(site, [["お客さまの声", "reviews/"]])], tone: site.art.stage("reviews").tone });
 }
 

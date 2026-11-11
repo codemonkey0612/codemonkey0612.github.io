@@ -9511,7 +9511,7 @@ body:not(.route-home):not(.route-404) .stage .display {
 .seam-reel .deco-sakura-top {
   top: calc(-40 * var(--u)) !important;
 }
-.fb-ic {
+.fbar-ic {
   flex: none;
   width: calc(12 * var(--u));
   height: calc(12 * var(--u));
@@ -10730,5 +10730,404 @@ body:not(.route-home):not(.route-404) .stage .display {
   .route-prices .slogan .btn-frame {
     white-space: normal;
     min-height: 54px;
+  }
+}
+
+/* =====================================================================
+   PASS 6b (2026-11-11): phones and tablets, from the phone review.
+   ===================================================================== */
+.crumbs a {
+  min-height: 44px;
+}
+.more,
+.quote-link a,
+.clamp-toggle,
+.quote-mini a,
+.sel-lead a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.sel-caps {
+  display: none;
+}
+/* tablets: inner heroes keep their art, with a scrim behind a narrower copy column */
+@media (min-width: 761px) and (max-width: 1023px) {
+  body:not(.route-home) .stage-dark::before {
+    background: linear-gradient(90deg, rgba(8, 21, 33, 0.9) 0%, rgba(8, 21, 33, 0.78) 42%, rgba(8, 21, 33, 0.15) 68%, transparent 80%) !important;
+  }
+  body:not(.route-home) .stage-light::before {
+    background: linear-gradient(90deg, rgba(246, 247, 251, 0.96) 0%, rgba(246, 247, 251, 0.82) 42%, rgba(246, 247, 251, 0.15) 68%, transparent 80%) !important;
+  }
+  body:not(.route-home) .stage .stage-copy {
+    max-width: 54% !important;
+  }
+}
+@media (max-width: 1023px) {
+  /* home: expertise title, then its two lines */
+  .page-home .exp-col a {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 14px;
+    row-gap: 2px;
+    align-items: center;
+    height: auto;
+    padding-block: 10px;
+  }
+  .page-home .exp-col .svc-ic {
+    grid-row: 1 / span 2;
+  }
+  .page-home .exp-col .svc-desc {
+    grid-column: 2;
+    font-size: 12.5px;
+  }
+  /* home: captions under the two devices */
+  .sel-caps {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .sel-caps a {
+    display: grid;
+    gap: 4px;
+    min-height: 44px;
+    padding: 12px 14px;
+    border: 1px solid rgba(201, 162, 74, 0.35);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .sel-caps b {
+    font: 600 15px/1.3 var(--f-serif);
+  }
+  .sel-caps span {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .sel-cap-ic {
+    width: 26px;
+    height: 26px;
+    padding: 5px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    color: var(--gold-ink);
+  }
+  /* services index: the card picture across the card's top */
+  .route-services .svc-bg {
+    width: 100% !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  .route-services .svc-card .svc-no {
+    text-shadow: 0 1px 10px rgba(8, 21, 33, 0.6) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+  .card-soft.has-sec > :not(.card-art) {
+    max-width: none !important;
+  }
+}
+@media (max-width: 760px) {
+  /* home hero: two equal buttons side by side */
+  .stage-home .actions {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+  .stage-home .actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 1em;
+    white-space: nowrap;
+  }
+  .route-service .stage .actions {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+  .route-service .stage .actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 1em;
+  }
+  .band-compact .band-text {
+    display: block !important;
+    max-width: 30ch;
+  }
+  .band-compact::before {
+    background: linear-gradient(180deg, rgba(8, 21, 33, 0.85) 0%, rgba(8, 21, 33, 0.6) 55%, rgba(8, 21, 33, 0.25) 100%) !important;
+  }
+  /* service pages: capability cards one per row, icon beside the words; steps left-aligned on the rail */
+  .cap-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .cap-row li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 14px;
+    align-items: center;
+    text-align: left;
+    padding: 14px 16px;
+  }
+  .cap-row .cap-ic {
+    grid-row: 1 / span 2;
+  }
+  .route-service .step {
+    text-align: start !important;
+    align-items: flex-start !important;
+  }
+  .route-service .step-ic {
+    margin-inline: 0 !important;
+  }
+  .route-service .svc-more > summary {
+    border-radius: 14px;
+  }
+  /* works: one row of filters; small cards two across */
+  .route-works .filters {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+    justify-content: flex-start;
+  }
+  .route-works .filters::-webkit-scrollbar {
+    display: none;
+  }
+  .route-works .filters button {
+    flex: none;
+  }
+  .route-works .filter-count {
+    display: none;
+  }
+  .ggrid,
+  .ggrid.is-filtered {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  .ggrid > .gcard-lg,
+  .ggrid > .gcard-wide {
+    grid-column: 1 / -1 !important;
+  }
+  .ggrid > .gcard-sm {
+    grid-column: auto !important;
+  }
+  .gcard-sm .gcard-line,
+  .gcard-sm .gcard-go {
+    display: none !important;
+  }
+  .gcard-sm a {
+    display: flex !important;
+    flex-direction: column-reverse;
+  }
+  .gcard-sm .gcard-text {
+    padding: 10px 12px 14px !important;
+  }
+  .gcard-sm .gcard-title {
+    font-size: 14px !important;
+  }
+  /* services index */
+  .route-services .svc-head h2 {
+    font-size: clamp(20px, 6vw, 26px);
+  }
+  .route-services .stage .kicker {
+    justify-content: flex-start;
+  }
+  .route-services .stage .kicker::before {
+    display: none;
+  }
+  .card-soft .card-art {
+    position: relative !important;
+    inset: auto !important;
+    display: block;
+    width: calc(100% + 48px) !important;
+    height: 160px !important;
+    margin: -24px -24px 18px !important;
+    object-fit: cover;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  .card-night {
+    padding-bottom: 150px !important;
+  }
+  .card-night .card-art {
+    object-position: 100% 100% !important;
+    opacity: 0.6;
+  }
+  /* about */
+  .route-about .journey .sh-lead {
+    text-shadow: 0 1px 12px rgba(255, 255, 255, 0.85);
+  }
+  .route-about .constel-star {
+    font-size: 12.5px !important;
+  }
+  /* pricing: the steps inside the gutter; the package list as cards */
+  .plan-pilot .plan-stage .steps {
+    padding-left: calc(var(--gutter) + 22px) !important;
+    padding-right: var(--gutter) !important;
+  }
+  .table-prices,
+  .table-prices tbody,
+  .table-prices tr,
+  .table-prices th,
+  .table-prices td {
+    display: block;
+    width: auto;
+  }
+  .table-prices {
+    min-width: 0 !important;
+  }
+  .table-prices thead {
+    display: none;
+  }
+  .table-prices tr {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .table-prices tr.grp th {
+    padding: 14px 0 4px;
+    font: 600 14px/1.5 var(--f-serif);
+    color: var(--gold-ink);
+    border: 0;
+  }
+  .table-prices th[scope="row"] {
+    padding: 0 0 6px;
+    border: 0;
+  }
+  .table-prices td {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 2px 0;
+    border: 0;
+    text-align: right;
+  }
+  .table-prices td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 12.5px;
+    text-align: left;
+  }
+  /* reviews */
+  .route-reviews .qh-art {
+    width: 100%;
+    opacity: 0.3;
+  }
+  .route-reviews .bubbles.has-sec {
+    row-gap: 12px;
+  }
+  .route-reviews .bubbles.has-sec li + li {
+    margin-top: 0;
+  }
+  /* contact: the form higher up */
+  .route-contact .stage-art {
+    max-height: 180px;
+  }
+  .route-contact .stage-art img {
+    object-position: 75% 55% !important;
+  }
+  .inq-card {
+    padding: 22px 18px !important;
+  }
+  .inq-intro > p {
+    margin-block: 0 10px;
+    line-height: 1.85;
+  }
+  .consent label {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+}
+@media (min-width: 600px) and (max-width: 1023px) {
+  .route-reviews .bubbles.has-sec {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+  }
+  .route-reviews .bubbles.has-sec li {
+    max-width: none;
+  }
+}
+@media (max-width: 520px) {
+  .ggrid,
+  .ggrid.is-filtered {
+    gap: 10px !important;
+  }
+}
+@media (max-width: 374px) {
+  .route-contact .stage .display {
+    font-size: 8.4vw !important;
+  }
+  .inq-time::before,
+  .inq-time::after {
+    flex: 1 1 0;
+    min-width: 10px;
+    width: auto;
+  }
+  .stage-home .actions {
+    flex-wrap: wrap;
+  }
+  .stage-home .actions .btn {
+    flex: 1 1 100%;
+  }
+}
+/* contact: the submit button's chevron (not the shine layer of .btn-gold) */
+.inq-next::after {
+  position: static !important;
+  inset: auto !important;
+  z-index: auto !important;
+  background: none !important;
+  opacity: 1 !important;
+  transform: rotate(-45deg) !important;
+  animation: none !important;
+}
+@media (min-width: 1024px) {
+  .route-service .scope-in:not(:has(.scope-device)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .route-service .scope-in:not(:has(.scope-device)) .scope-lead {
+    max-width: 46em;
+  }
+}
+@media (min-width: 761px) and (max-width: 1023px) {
+  .cap-row li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 760px) {
+  .route-services .svc-head h2::before,
+  .route-services .svc-head h2::after {
+    display: none;
+  }
+  .route-services .svc-head h2 {
+    white-space: nowrap;
+  }
+  .card-night .card-art {
+    top: auto !important;
+    bottom: 0 !important;
+    height: 170px !important;
+    object-fit: cover;
+    object-position: 70% 70% !important;
+    opacity: 0.85;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 45%) !important;
+    mask-image: linear-gradient(180deg, transparent, #000 45%) !important;
+  }
+}
+@media (max-width: 760px) {
+  .route-reviews .band-title {
+    font-size: min(7vw, 30px) !important;
+  }
+  .route-reviews .bubbles.has-sec li + li {
+    margin-top: -40px !important;
+  }
+}
+@media (max-width: 760px) {
+  .route-works .filters-in {
+    align-items: stretch;
+    min-width: 0;
+  }
+  .route-works .filters {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 }

@@ -270,41 +270,37 @@ ${ld.length ? jsonld({ "@context": "https://schema.org", "@graph": ld }) : ""}
 <main id="main">
 ${body}
 </main>
-<footer class="ft">
-  <div class="ft-sky" aria-hidden="true"></div>
-  <div class="wrap ft-top">
-    <div class="ft-brand">
-      ${brand(site, base)}
-      <p class="ft-tag">想像を、<em>実装</em>する。</p>
-      <p class="ft-lead">AIとWebで、ビジネスの次の景色へ。<br>構想の段階から、お気軽にご相談ください。</p>
-      <p class="ft-actions"><a class="btn btn-gold" href="${contactHref(base)}">相談する${icon("arrow")}</a><a class="btn btn-line" href="${lancers}">Lancersで相談${icon("ext", "ic ic-xs")}</a></p>
-    </div>
-    <nav class="ft-cols" aria-label="サイト内のページ">
-      <div class="ft-col">
-        <h2 class="ft-h" lang="en">Pages</h2>
-        <ul>
-          <li><a href="${base}"><span lang="en">Home</span><small>トップ</small></a></li>
-          ${[...NAV_MAIN, ["contact/", "Contact", "お問い合わせ"]].map(([href, en, ja]) => `<li><a href="${base}${href}"><span lang="en">${en}</span><small>${ja}</small></a></li>`).join("\n          ")}
-        </ul>
-      </div>
-      <div class="ft-col">
-        <h2 class="ft-h" lang="en">Expertise</h2>
-        <ul>
-          ${site.services.map((sv) => `<li><a href="${base}services/${esc(sv.id)}/">${esc(sv.short ?? sv.name)}</a></li>`).join("\n          ")}
-        </ul>
-      </div>
-      <div class="ft-col">
-        <h2 class="ft-h" lang="en">Elsewhere</h2>
-        <ul>
-          ${sameAs(profile).map((u) => `<li>${ext(u, `${linkLabel(u)}${icon("ext", "ic ic-xs")}`)}</li>`).join("\n          ")}
-        </ul>
-      </div>
-    </nav>
+<footer class="ft fo">
+  <div class="fo-sky" aria-hidden="true">
+    <span class="fo-stars fo-stars-far"></span>
+    <span class="fo-stars fo-stars-near"></span>
+    <span class="fo-dawn"></span>
+    ${site.art.section("deco-glints") ? `<img class="fo-glints" src="${base}${site.art.section("deco-glints").src}" alt="" width="1536" height="1024" loading="lazy" decoding="async">` : ""}
+    <span class="fo-shoot"></span><span class="fo-shoot fo-shoot-2"></span>
   </div>
-  <div class="wrap ft-bottom">
-    <p class="ft-copy">© ${site.today.getFullYear()} ${esc(profile.name)}　<span lang="en">TAKUMI</span></p>
-    <p class="ft-motto">技術に、美意識を。</p>
-    <p class="ft-motion"><button class="motion-toggle" type="button" aria-pressed="false">動きを減らす</button></p>
+  <div class="fo-stage">
+    <a class="fo-seal" href="${base}" aria-label="匠（たくみ）トップへ">
+      <span class="fo-orbit" aria-hidden="true"></span><span class="fo-orbit fo-orbit-2" aria-hidden="true"></span>
+      <img src="${base}${esc(site.art.emblem ?? site.art.emblemSmall)}" alt="" width="640" height="640" loading="lazy" decoding="async">
+    </a>
+    <p class="fo-word" lang="en">TAKUMI<span>AI &amp; Web Engineering Studio</span></p>
+    <p class="fo-tag" data-reveal>想像を、<em>実装</em>する。</p>
+    <p class="fo-lead" data-reveal>AIとWebで、ビジネスの次の景色へ。<br>構想の段階から、お気軽にご相談ください。</p>
+    <p class="fo-actions" data-reveal><a class="btn btn-gold btn-lg" href="${contactHref(base)}">相談する${icon("arrow")}</a><a class="fo-alt" href="${lancers}">Lancersで相談${icon("ext", "ic ic-xs")}</a></p>
+    <nav class="fo-nav" aria-label="サイト内のページ">
+      <ul>
+        ${[["", "Home", "トップ"], ...NAV_MAIN, ["contact/", "Contact", "お問い合わせ"]].map(([href, en, ja]) => `<li><a href="${base}${href}"><span lang="en">${en}</span><small>${ja}</small></a></li>`).join("\n        ")}
+      </ul>
+    </nav>
+    <ul class="fo-else" aria-label="ほかのサイト">
+      ${sameAs(profile).map((u) => `<li>${ext(u, `${linkLabel(u)}${icon("ext", "ic ic-xs")}`)}</li>`).join("\n      ")}
+    </ul>
+  </div>
+  <p class="fo-giant" lang="en" aria-hidden="true">TAKUMI</p>
+  <div class="fo-base">
+    <p class="fo-copy">© ${site.today.getFullYear()} ${esc(profile.name)}</p>
+    <p class="fo-motto">技術に、美意識を。</p>
+    <p class="fo-motion"><button class="motion-toggle" type="button" aria-pressed="false">動きを減らす</button></p>
   </div>
 </footer>
 <dialog class="vmodal" aria-label="紹介動画">

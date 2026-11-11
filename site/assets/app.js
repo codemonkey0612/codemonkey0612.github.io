@@ -451,7 +451,7 @@
 
   // ---------- storybook: headings written in light, letter by letter ----------
   // The words stay whole for screen readers (a hidden copy); the letters are decoration.
-  var inkTargets = d.querySelectorAll("main .sh .h2, main .band-title, main .bio-motto, main .strip-title, main .svc-head h2, main > .stage .display, main .tale-statement, main .tale-h2, main .tale-next-title");
+  var inkTargets = d.querySelectorAll("main .sh .h2, main .band-title, main .bio-motto, main .strip-title, main .svc-head h2, main > .stage .display, main .tale-statement, main .tale-h2, main .tale-next-title, footer .fo-tag");
   var inkIo =
     "IntersectionObserver" in window
       ? new IntersectionObserver(

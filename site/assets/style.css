@@ -11468,7 +11468,7 @@ body:not(.route-home):not(.route-404) .stage .display {
     background-position: 0% 0;
   }
 }
-.motion :is(.stage-dark .display, .band-title, .ft-tag) em {
+.motion :is(.stage-dark .display, .band-title, .ft-tag, .fo-tag) em {
   background-image: linear-gradient(110deg, #c9a24a 22%, #f5e2ad 42%, #fff8e6 50%, #f5e2ad 58%, #c9a24a 78%) !important;
   background-size: 260% 100% !important;
   -webkit-background-clip: text !important;
@@ -13690,4 +13690,576 @@ body:not(.route-home):not(.route-404) .stage .display {
   .tale-silk {
     bottom: -30%;
   }
+}
+
+/* =====================================================================
+   FOOTER, the finale (2026-11-11): a night sky. The emblem in its orbit,
+   the closing line, one button, one row of pages, and the name written
+   large along the horizon.
+   ===================================================================== */
+.fo {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 0 !important;
+  border: 0 !important;
+  color: var(--night-text);
+  background: radial-gradient(120% 80% at 50% 0%, #17304f 0%, #0b1729 42%, #050b14 100%) !important;
+  text-align: center;
+}
+.fo::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(236, 208, 150, 0.25) 20%, #f5e2ad 50%, rgba(236, 208, 150, 0.25) 80%, transparent);
+  box-shadow: 0 0 18px rgba(236, 208, 150, 0.7);
+}
+/* ---------- the sky ---------- */
+.fo-sky {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.fo-stars {
+  position: absolute;
+  inset: -40px;
+  background-repeat: repeat;
+}
+.fo-stars-far {
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(1px 1px at 34% 62%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1px 1px at 58% 24%, rgba(255, 240, 210, 0.75), transparent 60%),
+    radial-gradient(1px 1px at 76% 70%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1px 1px at 88% 12%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(1px 1px at 22% 88%, rgba(255, 240, 210, 0.6), transparent 60%),
+    radial-gradient(1px 1px at 66% 92%, rgba(255, 255, 255, 0.5), transparent 60%);
+  background-size: 340px 300px;
+  opacity: 0.7;
+  translate: calc(var(--gx, 0) * -8px) calc(var(--gy, 0) * -6px);
+}
+.fo-stars-near {
+  background-image:
+    radial-gradient(1.6px 1.6px at 18% 32%, #fff6dc, transparent 60%),
+    radial-gradient(1.4px 1.4px at 46% 78%, #fff, transparent 60%),
+    radial-gradient(2px 2px at 72% 40%, #f5e2ad, transparent 60%),
+    radial-gradient(1.4px 1.4px at 90% 84%, #fff, transparent 60%),
+    radial-gradient(1.6px 1.6px at 8% 66%, #fff6dc, transparent 60%);
+  background-size: 620px 480px;
+  filter: drop-shadow(0 0 3px rgba(245, 226, 173, 0.9));
+  translate: calc(var(--gx, 0) * -20px) calc(var(--gy, 0) * -14px);
+}
+.fo-dawn {
+  position: absolute;
+  left: 50%;
+  top: -260px;
+  width: min(1100px, 120vw);
+  height: 620px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(236, 208, 150, 0.22), rgba(120, 160, 230, 0.08) 55%, transparent 75%);
+}
+.fo-shoot {
+  position: absolute;
+  left: 70%;
+  top: 14%;
+  width: 160px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 246, 220, 0), #fff6dc 70%, #fff);
+  filter: drop-shadow(0 0 4px #f5e2ad);
+  rotate: 158deg;
+  opacity: 0;
+}
+.fo-shoot-2 {
+  left: 24%;
+  top: 30%;
+  width: 110px;
+}
+@keyframes fo-shoot {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  2% {
+    opacity: 1;
+  }
+  9% {
+    opacity: 0;
+    translate: -320px 130px;
+  }
+  100% {
+    opacity: 0;
+    translate: -320px 130px;
+  }
+}
+@keyframes fo-twinkle {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+.motion .fo-stars-near {
+  animation: fo-twinkle 4s ease-in-out infinite alternate;
+}
+.motion .fo-stars-far {
+  animation: fo-twinkle 6.5s ease-in-out -3s infinite alternate;
+}
+.motion .fo-shoot {
+  animation: fo-shoot 11s linear 3s infinite;
+}
+.motion .fo-shoot-2 {
+  animation-duration: 17s;
+  animation-delay: 9s;
+}
+
+/* ---------- the stage ---------- */
+.fo-stage {
+  position: relative;
+  z-index: 1;
+  width: min(calc(100% - 2 * var(--gutter)), 1100px);
+  margin: 0 auto;
+  padding: clamp(80px, 8vw, 150px) 0 clamp(40px, 4vw, 70px);
+}
+.fo-seal {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: clamp(104px, 9vw, 160px);
+  aspect-ratio: 1;
+  margin-bottom: clamp(18px, 1.8vw, 30px);
+  perspective: 600px;
+}
+.fo-seal img {
+  position: relative;
+  z-index: 1;
+  width: 78%;
+  height: auto;
+  filter: drop-shadow(0 0 22px rgba(236, 208, 150, 0.45)) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5));
+  transition: filter 0.5s ease, scale 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.fo-seal:hover img {
+  scale: 1.05;
+  filter: drop-shadow(0 0 34px rgba(245, 226, 173, 0.75)) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5));
+}
+.fo-orbit {
+  position: absolute;
+  inset: -16%;
+  border: 1px solid rgba(236, 208, 150, 0.55);
+  border-radius: 50%;
+  transform: rotateX(72deg) rotateZ(0deg);
+  box-shadow: 0 0 14px rgba(236, 208, 150, 0.25);
+}
+.fo-orbit::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: #fff6dc;
+  box-shadow: 0 0 10px 2px rgba(245, 226, 173, 0.9);
+}
+.fo-orbit-2 {
+  inset: -4%;
+  border-color: rgba(200, 220, 255, 0.35);
+  transform: rotateX(70deg) rotateY(-28deg);
+}
+@keyframes fo-orbit {
+  to {
+    transform: rotateX(72deg) rotateZ(360deg);
+  }
+}
+@keyframes fo-orbit-2 {
+  to {
+    transform: rotateX(70deg) rotateY(-28deg) rotateZ(-360deg);
+  }
+}
+.motion .fo-orbit {
+  animation: fo-orbit 18s linear infinite;
+}
+.motion .fo-orbit-2 {
+  animation: fo-orbit-2 26s linear infinite;
+}
+.fo-word {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 clamp(34px, 3.4vw, 60px);
+  font: 500 clamp(22px, 1.9vw, 34px) / 1 var(--f-latin);
+  letter-spacing: 0.5em;
+  padding-left: 0.5em;
+  color: var(--gold-hi);
+}
+.fo-word span {
+  font: 500 clamp(11px, 0.8vw, 14px) / 1 var(--f-latin);
+  letter-spacing: 0.32em;
+  padding-left: 0.32em;
+  color: var(--night-muted);
+}
+.fo-tag {
+  margin: 0;
+  font: 500 clamp(34px, 4.2vw, 80px) / 1.3 var(--f-serif);
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(236, 208, 150, 0.25);
+}
+.fo-tag em {
+  font-style: normal;
+  background: linear-gradient(135deg, #f5e2ad, #c9a24a 60%, #e8cf8f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.fo-lead {
+  margin: clamp(18px, 1.8vw, 30px) auto 0;
+  font: 400 clamp(14px, 1.05vw, 18px) / 2 var(--f-serif);
+  letter-spacing: 0.06em;
+  color: #c9d2e0;
+}
+.fo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px 30px;
+  margin: clamp(30px, 3vw, 52px) 0 0;
+}
+.fo-alt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font: 500 14.5px/1 var(--f-sans);
+  letter-spacing: 0.08em;
+  color: var(--gold-hi);
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 calc(100% - 10px) / 0 1px no-repeat;
+  transition: background-size 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.fo-alt:hover {
+  background-size: 100% 1px;
+}
+/* one row of pages */
+.fo-nav {
+  margin: clamp(56px, 5.6vw, 100px) auto 0;
+  padding-top: clamp(26px, 2.4vw, 40px);
+  border-top: 1px solid rgba(236, 208, 150, 0.16);
+}
+.fo-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fo-nav li {
+  display: flex;
+  align-items: center;
+}
+.fo-nav li + li::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  margin: 0 clamp(10px, 1.4vw, 26px);
+  background: var(--gold);
+  opacity: 0.55;
+  rotate: 45deg;
+}
+.fo-nav a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  justify-content: center;
+  color: var(--night-text);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.fo-nav a span {
+  font: 500 clamp(15px, 1.1vw, 19px) / 1 var(--f-latin);
+  letter-spacing: 0.14em;
+}
+.fo-nav a small {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: var(--night-muted);
+  transition: color 0.3s;
+}
+.fo-nav a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  bottom: 2px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #f5e2ad, transparent);
+  box-shadow: 0 0 8px rgba(245, 226, 173, 0.9);
+  transition: left 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), right 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.fo-nav a:hover,
+.fo-nav a:hover small {
+  color: var(--gold-hi);
+}
+.fo-nav a:hover::after {
+  left: 0;
+  right: 0;
+}
+.fo-else {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 26px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.fo-else a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  font: 500 13px/1 var(--f-sans);
+  letter-spacing: 0.08em;
+  color: var(--night-muted);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.fo-else a:hover {
+  color: var(--gold-hi);
+}
+.fo-else .ic {
+  width: 10px;
+  height: 10px;
+  opacity: 0.7;
+}
+/* the base line, over the giant name */
+.fo-base {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px 24px;
+  width: min(calc(100% - 2 * var(--gutter)), 1320px);
+  margin: 0 auto;
+  padding: 18px 0 clamp(70px, 9vw, 170px);
+}
+.fo-base p {
+  margin: 0;
+}
+.fo-copy {
+  justify-self: start;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--night-muted);
+}
+.fo-motto {
+  font: 500 13px/1 var(--f-serif);
+  letter-spacing: 0.32em;
+  color: var(--gold-hi);
+}
+.fo-motion {
+  justify-self: end;
+}
+.fo .motion-toggle {
+  min-height: 36px;
+  padding: 0 16px;
+  border-color: rgba(236, 208, 150, 0.25);
+  font-size: 11.5px;
+}
+/* the name along the horizon */
+.fo-giant {
+  position: absolute;
+  left: 50%;
+  bottom: -0.3em;
+  z-index: 0;
+  margin: 0;
+  translate: calc(-50% + var(--gx, 0) * -14px) 0;
+  font: 500 clamp(110px, 21vw, 420px) / 1 var(--f-latin);
+  letter-spacing: 0.12em;
+  padding-left: 0.12em;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(236, 208, 150, 0.32);
+  background: linear-gradient(100deg, transparent 30%, rgba(245, 226, 173, 0.55) 48%, rgba(255, 248, 230, 0.8) 50%, rgba(245, 226, 173, 0.55) 52%, transparent 70%) 200% 0 / 300% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent 85%);
+  mask-image: linear-gradient(180deg, #000 30%, transparent 85%);
+  pointer-events: none;
+  user-select: none;
+}
+@keyframes fo-sheen {
+  0% {
+    background-position: 200% 0;
+  }
+  45%,
+  100% {
+    background-position: -100% 0;
+  }
+}
+.motion .fo-giant {
+  animation: fo-sheen 9s ease-in-out 1.5s infinite;
+}
+/* entrance: the seal and the name rise when the footer comes into view */
+@supports (animation-timeline: view()) {
+  @keyframes fo-rise {
+    from {
+      opacity: 0;
+      translate: 0 40px;
+      scale: 0.9;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+  @keyframes fo-giant-rise {
+    from {
+      opacity: 0;
+      letter-spacing: 0.3em;
+    }
+    to {
+      opacity: 1;
+      letter-spacing: 0.12em;
+    }
+  }
+  .motion .fo-seal {
+    animation: fo-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+  .motion .fo-giant {
+    animation: fo-sheen 9s ease-in-out 1.5s infinite, fo-giant-rise linear both;
+    animation-timeline: auto, view();
+    animation-range: normal, entry 0% cover 50%;
+  }
+}
+/* phones */
+@media (max-width: 760px) {
+  .fo-stage {
+    padding-top: 72px;
+  }
+  .fo-word {
+    letter-spacing: 0.4em;
+  }
+  .fo-word span {
+    letter-spacing: 0.2em;
+  }
+  .fo-tag {
+    font-size: clamp(30px, 9vw, 40px);
+  }
+  .fo-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .fo-nav ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 12px;
+  }
+  .fo-nav li + li::before {
+    display: none;
+  }
+  .fo-nav li:first-child {
+    grid-column: 1 / -1;
+  }
+  .fo-nav a {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    padding: 6px 0;
+  }
+  .fo-base {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    padding-bottom: 96px;
+  }
+  .fo-copy,
+  .fo-motion {
+    justify-self: center;
+  }
+  .fo-giant {
+    font-size: 27vw;
+    bottom: -0.25em;
+  }
+}
+/* footer, second look: a fuller sky; the name in its own row, whole */
+.fo-glints {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  opacity: 0.38;
+  translate: calc(var(--gx, 0) * -12px) calc(var(--gy, 0) * -8px);
+}
+.motion .fo-glints {
+  animation: fo-twinkle 7s ease-in-out -2s infinite alternate;
+}
+.fo-stars-far {
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.9), transparent 60%),
+    radial-gradient(1px 1px at 34% 62%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(1px 1px at 58% 24%, rgba(255, 240, 210, 0.85), transparent 60%),
+    radial-gradient(1px 1px at 76% 70%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(1px 1px at 88% 12%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(1px 1px at 22% 88%, rgba(255, 240, 210, 0.7), transparent 60%),
+    radial-gradient(1px 1px at 66% 92%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1px 1px at 46% 40%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1px 1px at 4% 50%, rgba(255, 240, 210, 0.7), transparent 60%),
+    radial-gradient(1px 1px at 94% 46%, rgba(255, 255, 255, 0.6), transparent 60%);
+  background-size: 220px 190px;
+  opacity: 0.9;
+}
+.fo-stars-near {
+  background-size: 420px 340px;
+}
+.fo-giant {
+  position: relative !important;
+  left: auto !important;
+  bottom: auto !important;
+  display: block;
+  margin: clamp(10px, 2vw, 40px) 0 0 !important;
+  translate: calc(var(--gx, 0) * -10px) 0 !important;
+  font-size: clamp(84px, 16.5vw, 320px) !important;
+  line-height: 0.82 !important;
+  -webkit-text-stroke: 1px rgba(236, 208, 150, 0.42) !important;
+  -webkit-mask-image: linear-gradient(180deg, #000 35%, rgba(0, 0, 0, 0.15) 100%) !important;
+  mask-image: linear-gradient(180deg, #000 35%, rgba(0, 0, 0, 0.15) 100%) !important;
+}
+.fo-base {
+  padding: 18px 0 26px !important;
+  border-top: 1px solid rgba(236, 208, 150, 0.16);
+}
+@media (max-width: 760px) {
+  .fo-giant {
+    font-size: 19vw !important;
+  }
+  .fo-base {
+    padding-bottom: 30px !important;
+  }
+}
+.fo-giant {
+  background:
+    linear-gradient(100deg, transparent 30%, rgba(245, 226, 173, 0.55) 48%, rgba(255, 248, 230, 0.85) 50%, rgba(245, 226, 173, 0.55) 52%, transparent 70%) 200% 0 / 300% 100% no-repeat,
+    linear-gradient(180deg, rgba(236, 208, 150, 0.16), rgba(236, 208, 150, 0.02) 80%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
 }

@@ -13,12 +13,12 @@ site_repo: codemonkey0612.github.io   # the GitHub repo that builds the site and
 site_aliases:
   - https://codemonkey0612.github.io/
 contact_url: https://www.lancers.jp/profile/navi_work/contact_light   # the secondary route: "Lancersで相談"
-# The on-site inquiry form (/contact/). Every "相談する" button goes there. It posts to a
-# serverless endpoint you deploy from contact/ (see contact/README.md); the recipient address
-# lives only in that endpoint's secrets, never here or on the site. Leave endpoint empty until
-# it is deployed: the form then says plainly that it cannot send, and points to Lancers.
+# The on-site inquiry form (/contact/). Every "相談する" button goes there. It posts to the
+# Cloudflare Worker in contact/ (deployed 2026-11-11 at form.shanaiai.com), which mails each
+# inquiry to you through Resend; the address and API key live only in the Worker's secrets,
+# never here or on the site. With an empty endpoint the form says plainly that it cannot send.
 contact_form:
-  endpoint: ""
+  endpoint: "https://form.shanaiai.com/"
 persona: 私           # the one first-person word used in every post
 
 # Facts posts may mention. The fact-checker treats everything below (facts,

@@ -1,13 +1,16 @@
 // Inquiry form endpoint (Cloudflare Worker). POST JSON (from site/assets/contact.js) or a
-// form-encoded POST (the no-JavaScript fallback). Sends one email per inquiry through Resend.
+// form-encoded POST (the no-JavaScript fallback). Sends one email per inquiry: over SMTP through
+// your own mailbox when SMTP_* is set (Hostinger: smtp.hostinger.com:465), otherwise through Resend.
 //
 // Bindings (see wrangler.toml and README.md):
 //   vars     ALLOWED_ORIGINS  comma-separated site origins allowed to post
-//   secrets  RESEND_API_KEY, CONTACT_TO (your inbox), CONTACT_FROM (an address on a domain
-//            verified in Resend), optional IP_SALT
+//            SMTP_HOST, SMTP_PORT  your mail server (465 = TLS, otherwise STARTTLS)
+//   secrets  CONTACT_TO (your inbox), CONTACT_FROM (the sender: with SMTP, the mailbox you log in as),
+//            SMTP_USER + SMTP_PASS (mailbox login) or RESEND_API_KEY, optional IP_SALT
 //   KV       CONTACT_KV       rate-limit counters (hashed IP, 10 min) and idempotency (24 h)
-// The recipient address exists only in these secrets: never in the site or this file.
+// The addresses and the password exist only in these secrets: never in the site or this file.
 import { LIMITS, buildEmail, makeRef, parseBody, validate } from "./core.mjs";
+import { SmtpError, sendSmtp } from "./smtp.mjs";
 
 export const RATE = { max: 5, windowSec: 600 };
 const IDEM_TTL = 24 * 60 * 60;
@@ -86,7 +89,8 @@ export async function handle(request, env = {}, deps = {}) {
   if (v.spam) return done(makeRef()); // honeypot filled: look normal, send nothing
 
   const kv = env.CONTACT_KV;
-  if (!kv || !env.RESEND_API_KEY || !env.CONTACT_TO || !env.CONTACT_FROM) {
+  const useSmtp = Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
+  if (!kv || !(useSmtp || env.RESEND_API_KEY) || !env.CONTACT_TO || !env.CONTACT_FROM) {
     return failed(503, "unavailable", ["現在、フォームから送信できません。時間をおいてお試しいただくか、Lancersからご相談ください。"]);
   }
 
@@ -114,22 +118,39 @@ export async function handle(request, env = {}, deps = {}) {
 
   const ref = makeRef();
   const mail = buildEmail(d, { from: env.CONTACT_FROM, to: env.CONTACT_TO, ref });
-  let res;
-  try {
-    res = await doFetch("https://api.resend.com/emails", {
+  const timeoutMs = deps.timeoutMs ?? PROVIDER_TIMEOUT_MS;
+  // "sent" or a refusal status; throws when the provider can't be reached in time.
+  const send = async () => {
+    if (useSmtp) {
+      const connect = deps.connect ?? (await import("cloudflare:sockets")).connect;
+      try {
+        await sendSmtp(mail, { host: env.SMTP_HOST, port: env.SMTP_PORT, user: env.SMTP_USER, pass: env.SMTP_PASS }, { connect, timeoutMs, messageId: ref });
+      } catch (err) {
+        if (err instanceof SmtpError) return `smtp ${err.step} ${err.code}`;
+        throw err;
+      }
+      return "sent";
+    }
+    const res = await doFetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json", "Idempotency-Key": idemKey.slice(5) },
       body: JSON.stringify(mail),
-      signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
+    return res.ok ? "sent" : `resend ${res.status}`;
+  };
+  let outcome;
+  try {
+    outcome = await send();
   } catch (err) {
     await kv.delete(idemKey);
-    console.error("contact: mail provider unreachable", err?.name ?? "error");
+    // Network errors only (refusals are handled above): their message never contains the password.
+    console.error("contact: mail provider unreachable", err?.name ?? "error", String(err?.message ?? "").slice(0, 200));
     return failed(504, "timeout", ["送信を確認できませんでした。時間をおいてもう一度お試しいただくか、Lancersからご相談ください。"]);
   }
-  if (!res.ok) {
+  if (outcome !== "sent") {
     await kv.delete(idemKey);
-    console.error("contact: mail provider refused", res.status); // never pass its message to the visitor
+    console.error("contact: mail provider refused", outcome); // never pass its message to the visitor
     return failed(502, "send_failed", ["送信できませんでした。時間をおいてもう一度お試しいただくか、Lancersからご相談ください。"]);
   }
   await kv.put(idemKey, JSON.stringify({ status: "sent", ref }), { expirationTtl: IDEM_TTL });

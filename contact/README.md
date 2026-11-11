@@ -2,7 +2,19 @@
 
 サイトの `/contact/` のフォームは、ここにある小さなプログラム（Cloudflare Worker）に送られ、
 メール配信サービス Resend を通じて、あなたのメールアドレスに届きます。
-**あなたのメールアドレスは Worker の「シークレット」にだけ置き、サイトやこのリポジトリには書きません。**
+**メールアドレスと API キーは Worker の「シークレット」にだけ置き、サイトやこのリポジトリには書きません。**
+
+## いまの設定（2026-11-11 デプロイ済み）
+
+- Worker: `takumi-contact`（Cloudflare アカウント Navinightwork@gmail.com's Account）
+- 公開URL: `https://form.shanaiai.com/`（Workers Custom Domain。`profile.yml` の `contact_form.endpoint`）
+- 送信: Resend（アカウントは contact@ アドレス、リージョン ap-northeast-1）。シークレット `RESEND_API_KEY`
+  （送信専用キー）・`CONTACT_TO`・`CONTACT_FROM`
+- 送信元: ドメイン shanaiai.com を Resend で認証するまでは `onboarding@resend.dev`
+  （Resend のアカウントのアドレス宛てにだけ送れる）。認証後は `form@shanaiai.com`。
+- KV: `CONTACT_KV`（id は `wrangler.toml`）
+- 自分のメールボックスから SMTP で送る機能（`src/smtp.mjs`）もありますが、Hostinger の SMTP サーバーは
+  Cloudflare の IP 上にあり、Worker から接続できないため使っていません。
 
 まだ設定していない間は、フォームは「送信先がまだ設定されていません」と表示し、Lancers を案内します（送れたふりはしません）。
 
@@ -16,7 +28,7 @@
 - 返信先（Reply-To）はお問い合わせした人のアドレス。メールに返信すればその人に届きます
 - Resend が受け付けたときだけ「送信しました」と受付番号を返す。失敗や時間切れは正直にエラーを返す
 
-## 設定のしかた（初回だけ）
+## 設定のしかた（Resend を使う場合・初回だけ）
 
 1. [Cloudflare](https://dash.cloudflare.com/sign-up) と [Resend](https://resend.com/signup) のアカウントを作る（どちらも無料枠あり）。
 2. Resend で API キーを作る。送信元に使うドメインを Resend で認証する（DNS に TXT/MX レコードを追加）。
@@ -46,9 +58,12 @@
 
 # Inquiry form endpoint (English summary)
 
-`/contact/` posts to this Cloudflare Worker, which emails you through Resend. Your address is a Worker
-secret only; it never appears in the site, its bundles or this repo. Until you deploy, the form says it
-cannot send and points to Lancers.
+`/contact/` posts to this Cloudflare Worker (live at https://form.shanaiai.com/), which emails you through
+Resend (send-only key; sender onboarding@resend.dev until shanaiai.com is verified in Resend, then
+form@shanaiai.com). SMTP through your own mailbox is also implemented (src/smtp.mjs; SMTP_HOST/SMTP_PORT
+vars + SMTP_USER/SMTP_PASS secrets) but can't reach Hostinger, whose SMTP host is on Cloudflare IPs that
+Workers sockets may not connect to. Your address and keys are Worker secrets only; they never appear in
+the site, its bundles or this repo. Until you deploy, the form says it cannot send and points to Lancers.
 
 Setup: create Cloudflare and Resend accounts; verify a sending domain in Resend (without one, Resend only
 delivers to your own account address from `onboarding@resend.dev` — fine for a first test). Then in

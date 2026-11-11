@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildEmail, LIMITS, makeRef, oneLine, parseBody, validate } from "../contact/src/core.mjs";
 import { handle, RATE } from "../contact/src/worker.mjs";
+import { buildMessage, dotStuff, encodeHeader, sendSmtp, SmtpError } from "../contact/src/smtp.mjs";
 import { PRIVACY_HTML, renderInquiryForm } from "../scripts/lib/contact-form.mjs";
 
 const good = () => ({
@@ -201,6 +202,148 @@ test("spam, bad input, oversize bodies and missing configuration never send", as
   const unset = await handle(post(good()), env({ CONTACT_TO: "" }), m);
   assert.equal(unset.status, 503);
   assert.equal(m.calls.length, 0);
+});
+
+// ---------- SMTP (your own mailbox) ----------
+
+/** A pretend mail server speaking SMTP over the same socket shape as cloudflare:sockets. */
+function smtpServer({ auth = "AUTH PLAIN LOGIN", refuse = {}, silent = false } = {}) {
+  const dec = new TextDecoder();
+  const srv = { log: [], data: null, opened: null, closed: false, tls: false };
+  let ctrl;
+  let buf = "";
+  let mode = "cmd";
+  const say = (line) => ctrl.enqueue(new TextEncoder().encode(`${line}\r\n`));
+  const answer = (line) => {
+    srv.log.push(line);
+    if (mode === "user") return (mode = "pass"), say("334 UGFzc3dvcmQ6");
+    if (mode === "pass") return (mode = "cmd"), say(refuse.AUTH ?? "235 ok");
+    const verb = line.split(/[ :]/)[0].toUpperCase();
+    if (refuse[verb] && !(verb === "AUTH" && line === "AUTH LOGIN")) return say(refuse[verb]);
+    if (verb === "EHLO") return say("250-smtp.test"), say(`250-${auth}`), say("250 SIZE 1000000");
+    if (verb === "AUTH") return line === "AUTH LOGIN" ? ((mode = "user"), say("334 VXNlcm5hbWU6")) : say("235 ok");
+    if (verb === "STARTTLS") return (srv.tls = true), say("220 go ahead");
+    if (verb === "DATA") return (mode = "data"), say("354 end with .");
+    if (verb === "QUIT") return say("221 bye");
+    return say("250 ok");
+  };
+  const socket = {
+    readable: new ReadableStream({ start: (c) => void (ctrl = c) }),
+    writable: new WritableStream({
+      write(chunk) {
+        buf += dec.decode(chunk);
+        for (;;) {
+          if (mode === "data") {
+            const end = buf.indexOf("\r\n.\r\n");
+            if (end < 0) return;
+            srv.data = buf.slice(0, end);
+            buf = buf.slice(end + 5);
+            mode = "cmd";
+            say(refuse.DOT ?? "250 queued");
+            continue;
+          }
+          const i = buf.indexOf("\r\n");
+          if (i < 0) return;
+          const line = buf.slice(0, i);
+          buf = buf.slice(i + 2);
+          answer(line);
+        }
+      },
+    }),
+    close: async () => void (srv.closed = true),
+    startTls: () => socket,
+  };
+  srv.connect = (addr, opts) => {
+    srv.opened = { ...addr, ...opts };
+    if (!silent) say("220 smtp.test ESMTP");
+    return socket;
+  };
+  return srv;
+}
+
+const unB64 = (s) => new TextDecoder().decode(Uint8Array.from(atob(s), (c) => c.charCodeAt(0)));
+// Unfold (CRLF goes, the space stays), drop the space between two encoded words (RFC 2047), decode.
+const unHeader = (v) =>
+  v
+    .replace(/\r\n(?= )/g, "")
+    .replace(/(\?=)\s+(?==\?)/g, "$1")
+    .replace(/=\?UTF-8\?B\?([^?]+)\?=/g, (_, b) => unB64(b));
+const SMTP = { host: "smtp.test", port: 465, user: "me@site.test", pass: "pa55-wörd" };
+const MAIL = { from: "匠 お問い合わせフォーム <me@site.test>", to: ["me@site.test"], reply_to: "taro@example.test", subject: "【お問い合わせ】AI 山田 太郎様（TK-ABCDEF）", text: "一行目\n.先頭がドット\n" + "長い本文。".repeat(200) };
+
+test("SMTP: logs in over TLS, sends one message, and says goodbye", async () => {
+  const srv = smtpServer();
+  await sendSmtp(MAIL, SMTP, { connect: srv.connect, messageId: "TK-ABCDEF" });
+  assert.deepEqual(srv.opened, { hostname: "smtp.test", port: 465, secureTransport: "on", allowHalfOpen: false });
+  assert.deepEqual(srv.log.map((l) => l.split(" ")[0]), ["EHLO", "AUTH", "MAIL", "RCPT", "DATA", "QUIT"]);
+  assert.equal(unB64(srv.log[1].split(" ")[2]), "\0me@site.test\0pa55-wörd");
+  assert.equal(srv.log[2], "MAIL FROM:<me@site.test>");
+  assert.equal(srv.log[3], "RCPT TO:<me@site.test>");
+  assert.ok(srv.closed);
+  const [head, body] = srv.data.split("\r\n\r\n");
+  const h = Object.fromEntries(head.split(/\r\n(?! )/).map((l) => [l.slice(0, l.indexOf(":")), l.slice(l.indexOf(":") + 2)]));
+  assert.equal(unHeader(h.Subject), MAIL.subject);
+  assert.equal(unHeader(h.From), "匠 お問い合わせフォーム <me@site.test>");
+  assert.equal(h["Reply-To"], "taro@example.test");
+  assert.equal(h["Message-ID"], "<TK-ABCDEF@site.test>");
+  assert.equal(h["Content-Transfer-Encoding"], "base64");
+  for (const line of head.split("\r\n")) assert.ok(line.length <= 78, `header line too long: ${line}`);
+  assert.equal(unB64(body.replace(/\r\n/g, "")), MAIL.text.replace(/\n/g, "\r\n"));
+});
+
+test("SMTP: AUTH LOGIN when PLAIN isn't offered, STARTTLS on port 587", async () => {
+  const srv = smtpServer({ auth: "AUTH LOGIN" });
+  await sendSmtp(MAIL, { ...SMTP, port: 587 }, { connect: srv.connect });
+  assert.equal(srv.opened.secureTransport, "starttls");
+  assert.ok(srv.tls);
+  assert.deepEqual(srv.log.slice(0, 6).map((l) => l.split(" ")[0]), ["EHLO", "STARTTLS", "EHLO", "AUTH", srv.log[4], srv.log[5]]);
+  assert.equal(unB64(srv.log[4]), "me@site.test");
+  assert.equal(unB64(srv.log[5]), "pa55-wörd");
+});
+
+test("SMTP: a wrong password is a refusal that never repeats the password", async () => {
+  const srv = smtpServer({ refuse: { AUTH: "535 5.7.8 authentication failed" } });
+  await assert.rejects(sendSmtp(MAIL, SMTP, { connect: srv.connect }), (err) => {
+    assert.ok(err instanceof SmtpError);
+    assert.equal(err.step, "AUTH");
+    assert.equal(err.code, 535);
+    assert.doesNotMatch(err.message, /pa55/);
+    return true;
+  });
+  assert.equal(srv.data, null);
+  assert.ok(srv.closed);
+});
+
+test("SMTP: header values can't add headers, and dots are stuffed", () => {
+  assert.doesNotMatch(encodeHeader("a\r\nBcc: x@y.test"), /\r\nBcc/);
+  assert.throws(() => buildMessage({ ...MAIL, from: "x <me@site.test>\r\nBcc: x@y.test" }));
+  assert.throws(() => buildMessage({ ...MAIL, reply_to: "a@b.test>\r\nBcc: <x@y.test" }));
+  assert.equal(dotStuff(".a\r\nb\r\n.c"), "..a\r\nb\r\n..c");
+});
+
+const smtpEnv = (over = {}) => env({ RESEND_API_KEY: "", SMTP_HOST: "smtp.test", SMTP_PORT: "465", SMTP_USER: "me@site.test", SMTP_PASS: "pa55-wörd", CONTACT_TO: "me@site.test", CONTACT_FROM: "匠 お問い合わせフォーム <me@site.test>", ...over });
+
+test("worker: with SMTP settings, an inquiry goes through the mailbox and returns a reference", async () => {
+  const srv = smtpServer();
+  const m = mailer();
+  const res = await handle(post(good()), smtpEnv(), { ...m, connect: srv.connect });
+  assert.equal(res.status, 200);
+  const { ok, ref } = await res.json();
+  assert.equal(ok, true);
+  assert.equal(m.calls.length, 0, "Resend is not used");
+  assert.match(unHeader(srv.data.match(/^Subject: (.*(?:\r\n .*)*)/m)[1]), new RegExp(`山田 太郎様（${ref}）`));
+  assert.match(srv.data, /^Reply-To: taro@example\.test$/m);
+});
+
+test("worker: a refused or unreachable mailbox is reported neutrally and can be retried", async () => {
+  const e = smtpEnv();
+  const refused = await handle(post(good()), e, { connect: smtpServer({ refuse: { AUTH: "535 nope" } }).connect });
+  assert.equal(refused.status, 502);
+  assert.doesNotMatch(await refused.text(), /535|smtp|pa55/i);
+  const silent = await handle(post(good()), e, { connect: smtpServer({ silent: true }).connect, timeoutMs: 30 });
+  assert.equal(silent.status, 504);
+  const ok = await handle(post(good()), e, { connect: smtpServer().connect });
+  assert.equal(ok.status, 200, "the same key works after failures");
 });
 
 // ---------- the form ----------

@@ -200,8 +200,8 @@ test("your emblem, package images, showreel and promo videos are on the site", (
     assert.match(files[page], /class="mark" src="[./]*assets\/brand\/emblem-160\.webp"/, `${page} shows the emblem in the header`);
   }
   assert.ok(home.includes(`<source src="./${art.showreel.video}" type="video/mp4">`), "showreel video");
-  // The showreel's poster is the home artwork when it exists (as in the mockup), else its own frame.
-  const poster = site.art.stage("home").plate ? site.art.stage("home").wide : art.showreel.poster;
+  // The showreel's poster: its own artwork when it exists, else the home artwork, else its own frame.
+  const poster = site.art.section("reel-poster")?.src ?? (site.art.stage("home").plate ? site.art.stage("home").wide : art.showreel.poster);
   assert.ok(home.includes(`poster="./${poster}"`), "showreel poster");
   for (const s of site.services) {
     assert.ok(s.cover, `${s.id} has a package image`);

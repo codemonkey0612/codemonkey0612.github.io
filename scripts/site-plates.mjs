@@ -62,6 +62,7 @@ export const SECTIONS = [
   "sec-prices-steps",
   "deco-silk-wave",
   "deco-gold-leaves",
+  "reel-poster",
 ];
 const MW = 1000;
 const MH = 860;

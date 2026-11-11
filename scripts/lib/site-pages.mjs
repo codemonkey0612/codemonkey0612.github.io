@@ -51,7 +51,7 @@ const ICON = {
   cloud: '<path d="M7 18.5h10.2a4 4 0 0 0 .5-8 6 6 0 0 0-11.6 1.6A3.5 3.5 0 0 0 7 18.5z"/>',
   browser: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8.5h18M6.5 6.3h.01M9 6.3h.01"/>',
   bag: '<path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
-  gears: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
+  gears: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
   shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.6 12.2l2.4 2.4 4.4-4.8"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   doc: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',
@@ -59,6 +59,76 @@ const ICON = {
   layers: '<path d="M12 3.5 3 8.5l9 5 9-5z"/><path d="M3 12.5l9 5 9-5M3 16.5l9 5 9-5"/>',
   code: '<path d="M8.5 7 3.5 12l5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15"/>',
   rocket: '<path d="M12 15c4-2.5 7-6.5 7.5-11.5C14.5 4 10.5 7 8 11z"/><path d="M8 11l-3.5.5L3 15l4-1M12 15l-.5 3.5L15 21l1-4M6 18c-1 1-1.5 2.5-1.5 2.5S6 20 7 19"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/>',
+  bars: '<path d="M5 20v-5M10 20v-9M15 20V7M20 20V3"/>',
+  chevron: '<path d="M9 6l6 6-6 6"/>',
+  clipboard: '<rect x="5.5" y="4.5" width="13" height="16" rx="1.5"/><path d="M9.5 4.5V3h5v1.5M8.5 10h7M8.5 13.5h7M8.5 17h4.5"/>',
+  alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v6M12 16.6v.01"/>',
+  quill: '<path d="M20 4C11 4.5 6.5 9.5 5.5 19.5"/><path d="M5.5 19.5C12 19 16.5 15.5 18 9"/><path d="M4 21l2-2"/>',
+  volume: '<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/>',
+  full: '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>',
+  cart: '<path d="M3 4h2.5l2.2 10.5a1.5 1.5 0 0 0 1.5 1.2h8.3a1.5 1.5 0 0 0 1.5-1.2L20.5 8H6.4"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/>',
+  box: '<path d="M12 3 4 7v10l8 4 8-4V7z"/><path d="M4 7l8 4 8-4M12 11v10"/>',
+  users: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.5"/><path d="M15.5 14.2c2.5.2 4.4 1.8 5 4.8"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>',
+  monitor: '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8.5 20h7M12 16v4"/>',
+  lock: '<rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/>',
+  wrench: '<path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5"/><path d="M14.5 6.5 17 4l3 3-2.5 2.5"/>',
+  target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+  database: '<ellipse cx="12" cy="6" rx="7.5" ry="2.8"/><path d="M4.5 6v12c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8V6M4.5 12c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8"/>',
+  book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/>',
+  pen: '<path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5z"/><path d="M13.5 7l3 3"/>',
+  chart: '<path d="M4 4v16h16"/><path d="M7.5 15l3.5-4 3 2.5 5-6"/>',
+  server: '<rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><path d="M8 7.5h.01M8 16.5h.01"/>',
+  sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',
+  mobile: '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 17.5h2"/>',
+  file: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M9.5 14l2 2 3.5-4"/>',
+  refresh: '<path d="M20 11a8 8 0 0 0-14.3-4.6L4 8.5M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.6L20 15.5M20 20v-4.5h-4.5"/>',
+};
+/** A line icon for a capability, step or deliverable, chosen from its own words. */
+const ICON_RULES = [
+  [/RAG|社内文書|資料の整理|資料の取り込み|手順書|マニュアル|手順/, "book"],
+  [/根拠|検索/, "search"],
+  [/推測で答えず|分からない/, "shield"],
+  [/LINE|組み込み|連携/, "link"],
+  [/権限|認証|アクセス/, "lock"],
+  [/ログ|監視|利用量|費用対効果|SEO|導線|評価|結果/, "chart"],
+  [/ChatGPT|OpenAI|生成AI|AI機能|AI活用|プロンプト/, "sparkle"],
+  [/iOS|Android|スマホ/, "mobile"],
+  [/Windows|Excel|帳票|レポート/, "file"],
+  [/Python|データ収集|集計|データ/, "database"],
+  [/不具合|修正/, "wrench"],
+  [/コードレビュー|ソースコード|HTML|Figma|コーディング|実装|開発|試作/, "code"],
+  [/セキュリティ|脆弱性/, "shield"],
+  [/再テスト|移行|改善|定着/, "refresh"],
+  [/Shopify|ネットショップ|ストア/, "cart"],
+  [/決済|配送|商品/, "box"],
+  [/予約|応募|マッチング|研修|ルール|体制/, "users"],
+  [/業務システム|管理画面|環境|構築/, "monitor"],
+  [/WordPress|サイト/, "browser"],
+  [/更新しやすい|設計|デザイン|構成/, "layers"],
+  [/サーバー|Linux|DNS|SSL|保守|Docker|CI\/CD|AWS|Azure|基盤/, "server"],
+  [/整理|目的|現状|範囲|確認|分析/, "target"],
+  [/選定|計画|ロードマップ|方針|道筋|PoC/, "compass"],
+  [/公開|導入|拡張|広げて|引き渡し|引き継ぎ/, "rocket"],
+];
+const pickIcon = (text, fallback = "check") => ICON_RULES.find(([re]) => re.test(text))?.[1] ?? fallback;
+/** "主文（補足）" → ["主文", "（補足）"]. */
+const splitNote = (t) => {
+  const i = t.indexOf("（");
+  return i > 0 ? [t.slice(0, i), t.slice(i)] : [t, ""];
+};
+/** Measured video lengths (site/assets/media/durations.json, written with ffprobe). */
+const DURATIONS = (() => {
+  try {
+    return JSON.parse(fs.readFileSync(new URL("../../site/assets/media/durations.json", import.meta.url), "utf8"));
+  } catch {
+    return {};
+  }
+})();
+const videoLength = (path) => {
+  const d = DURATIONS[path];
+  return d ? `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}` : "";
 };
 const SVC_ICON = { "ai-apps": "chip", "ai-chatbot": "speech", "ai-consulting": "compass", "ai-infra": "cloud", wordpress: "browser", shopify: "bag", system: "gears", quality: "shield" };
 const CAT_LABEL = { ai: "AI", web: "Web", system: "System" };
@@ -127,8 +197,16 @@ const NAV = [
   ["about/", "About", "私について"],
   ["contact/", "Contact", "お問い合わせ"],
 ];
+/** The header's pages (Contact is the button beside them). */
+const NAV_MAIN = [
+  ["works/", "Works", "実績"],
+  ["services/", "Expertise", "サービス"],
+  ["about/", "About", "私について"],
+  ["prices/", "Pricing", "料金"],
+  ["reviews/", "Voices", "お客さまの声"],
+];
 
-function layout(site, { route, title, description, body, ld = [], absolute = false, image = null, page = "sub", tone = "dark", head = "" }) {
+function layout(site, { route, title, description, body, ld = [], absolute = false, image = null, page = "sub", tone = "dark", head = "", style = "" }) {
   const { profile } = site;
   const depth = route.split("/").filter(Boolean).length;
   const base = absolute ? profile.site_url : depth ? "../".repeat(depth) : "./";
@@ -164,52 +242,68 @@ ${head}<script>(function (d) { d.classList.replace("no-js", "js"); var off = fal
 <script src="${base}assets/app.js?v=${site.assetVersion}" defer></script>
 ${ld.length ? jsonld({ "@context": "https://schema.org", "@graph": ld }) : ""}
 </head>
-<body class="page-${page} hero-${tone} route-${routeClass(route)}" data-base="${base}" data-v="${site.assetVersion}">
+<body class="page-${page} hero-${tone} route-${routeClass(route)}" data-base="${base}" data-v="${site.assetVersion}"${style ? ` style="${esc(style)}"` : ""}>
 <a class="skip" href="#main">本文へ移動</a>
 <header class="hd">
   <div class="hd-in">
     ${brand(site, base)}
     <nav class="nav" aria-label="メインメニュー">
       <ul>
-        ${NAV.slice(0, 3).map(([href, en, ja]) => `<li><a href="${base}${href}"${current(href)}><span lang="en">${en}</span><span class="nav-ja">${ja}</span></a></li>`).join("\n        ")}
-        <li><a class="nav-pill" href="${contactHref(base)}"${current("contact/")}><span lang="en">Contact</span><span class="nav-ja">お問い合わせ</span></a></li>
+        ${NAV_MAIN.map(([href, en, ja]) => `<li><a href="${base}${href}"${current(href)} title="${ja}"><span lang="en">${en}</span><span class="nav-ja">${ja}</span></a></li>`).join("\n        ")}
       </ul>
     </nav>
+    <a class="hd-cta" href="${contactHref(base)}"${current("contact/")}><span lang="en">Contact</span><span class="sr-only">（お問い合わせ）</span>${icon("arrow")}</a>
     <button class="menu-btn" type="button" aria-controls="menu" aria-expanded="false">${icon("menu")}<span class="sr-only">メニューを開く</span></button>
   </div>
 </header>
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="メニュー" hidden>
   <div class="menu-in">
+    <div class="menu-brand">${brand(site, base)}</div>
     <button class="menu-close" type="button">${icon("close")}<span class="sr-only">メニューを閉じる</span></button>
     <ul class="menu-list">
       <li><a href="${base}"><span lang="en">Home</span><span class="nav-ja">トップ</span></a></li>
-      ${NAV.map(([href, en, ja]) => `<li><a href="${base}${href}"${current(href)}><span lang="en">${en}</span><span class="nav-ja">${ja}</span></a></li>`).join("\n      ")}
-      <li><a href="${base}prices/"${current("prices/")}><span lang="en">Pricing</span><span class="nav-ja">料金</span></a></li>
-      <li><a href="${base}reviews/"${current("reviews/")}><span lang="en">Voices</span><span class="nav-ja">お客さまの声</span></a></li>
+      ${[...NAV_MAIN, ["contact/", "Contact", "お問い合わせ"]].map(([href, en, ja]) => `<li><a href="${base}${href}"${current(href)}><span lang="en">${en}</span><span class="nav-ja">${ja}</span></a></li>`).join("\n      ")}
     </ul>
-    <p><a class="btn btn-gold btn-lg" href="${contactHref(base)}">相談する${icon("arrow")}</a></p>
+    <p class="menu-actions"><a class="btn btn-gold btn-lg" href="${contactHref(base)}">相談する${icon("arrow")}</a><a class="btn btn-line btn-lg" href="${lancers}">Lancersで相談${icon("ext", "ic ic-xs")}</a></p>
   </div>
 </div>
 <main id="main">
 ${body}
 </main>
 <footer class="ft">
-  <div class="wrap ft-line">
-    ${brand(site, base)}
-    <nav class="ft-nav" aria-label="サイト内のページ">
-      <ul>
-        ${NAV.map(([href, en]) => `<li><a href="${base}${href}" lang="en">${en}</a></li>`).join("")}
-      </ul>
+  <div class="ft-sky" aria-hidden="true"></div>
+  <div class="wrap ft-top">
+    <div class="ft-brand">
+      ${brand(site, base)}
+      <p class="ft-tag">想像を、<em>実装</em>する。</p>
+      <p class="ft-lead">AIとWebで、ビジネスの次の景色へ。<br>構想の段階から、お気軽にご相談ください。</p>
+      <p class="ft-actions"><a class="btn btn-gold" href="${contactHref(base)}">相談する${icon("arrow")}</a><a class="btn btn-line" href="${lancers}">Lancersで相談${icon("ext", "ic ic-xs")}</a></p>
+    </div>
+    <nav class="ft-cols" aria-label="サイト内のページ">
+      <div class="ft-col">
+        <h2 class="ft-h" lang="en">Pages</h2>
+        <ul>
+          <li><a href="${base}"><span lang="en">Home</span><small>トップ</small></a></li>
+          ${[...NAV_MAIN, ["contact/", "Contact", "お問い合わせ"]].map(([href, en, ja]) => `<li><a href="${base}${href}"><span lang="en">${en}</span><small>${ja}</small></a></li>`).join("\n          ")}
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h2 class="ft-h" lang="en">Expertise</h2>
+        <ul>
+          ${site.services.map((sv) => `<li><a href="${base}services/${esc(sv.id)}/">${esc(sv.short ?? sv.name)}</a></li>`).join("\n          ")}
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h2 class="ft-h" lang="en">Elsewhere</h2>
+        <ul>
+          ${sameAs(profile).map((u) => `<li>${ext(u, `${linkLabel(u)}${icon("ext", "ic ic-xs")}`)}</li>`).join("\n          ")}
+        </ul>
+      </div>
     </nav>
   </div>
-  <div class="wrap ft-base">
-    <ul class="ft-ext">
-      <li><a href="${lancers}">Lancersで相談${icon("ext", "ic ic-xs")}</a></li>
-      <li><a href="${base}prices/">料金</a></li>
-      <li><a href="${base}reviews/">お客さまの声</a></li>
-      ${sameAs(profile).filter((u) => !/lancers/.test(u)).map((u) => `<li>${ext(u, `${linkLabel(u)}${icon("ext", "ic ic-xs")}`)}</li>`).join("")}
-    </ul>
+  <div class="wrap ft-bottom">
     <p class="ft-copy">© ${site.today.getFullYear()} ${esc(profile.name)}　<span lang="en">TAKUMI</span></p>
+    <p class="ft-motto">技術に、美意識を。</p>
     <p class="ft-motion"><button class="motion-toggle" type="button" aria-pressed="false">動きを減らす</button></p>
   </div>
 </footer>
@@ -278,12 +372,14 @@ function heading(eyebrow, title, { lead = "", tag = "h2", id = "", cls = "" } = 
 const more = (href, text) => `<a class="more" href="${href}">${text}${icon("arrow")}</a>`;
 
 /** The inquiry band: the gold portal behind a headline and the consultation button. */
-function inquiry(site, base, { title = "次の景色を、一緒に。", text = "アイデアの段階でも、まだ整理できていない構想でも大丈夫です。目的と現状を伺い、進め方とお見積もりをご提案します。", query = "", label = "相談する", shape = "split", eyebrow = "Inquiry", art = null, light = false, compact = shape === "split", titleHtml = null } = {}) {
+function inquiry(site, base, { title = "次の景色を、一緒に。", text = "アイデアの段階でも、まだ整理できていない構想でも大丈夫です。目的と現状を伺い、進め方とお見積もりをご提案します。", textHtml = null, query = "", label = "相談する", shape = "split", eyebrow = "Inquiry", art = null, light = false, compact = shape === "split", titleHtml = null, btnPre = null, btnCls = "btn-gold btn-lg", chev = false, lancers = true, plain = false } = {}) {
   const a = site.art.stage("portal");
   const own = art && site.art.section(art);
-  return `<section class="band band-${shape}${own && light ? " band-light" : ""}${compact ? " band-compact" : ""}" aria-labelledby="band-title">
+  return `<section class="band band-${shape}${own && light ? " band-light" : ""}${compact ? " band-compact" : ""}${plain ? " band-plain" : ""}" aria-labelledby="band-title">
   ${
-    own
+    plain
+      ? ""
+      : own
       ? `<picture class="band-art">${secImg(site, base, art, "")}</picture>`
       : compact && a.wide
         ? `<div class="band-art band-duo" aria-hidden="true"><img class="duo-fill" src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async"><img class="duo-main" src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async"></div>`
@@ -293,12 +389,12 @@ function inquiry(site, base, { title = "次の景色を、一緒に。", text = 
   }
   <div class="wrap band-in" data-reveal>
     <div class="band-copy">
-      <p class="eyebrow" lang="en">${eyebrow}</p>
+      ${eyebrow ? `<p class="eyebrow" lang="en">${eyebrow}</p>` : ""}
       <h2 class="h2 band-title" id="band-title">${titleHtml ?? brk(title)}</h2>
       ${compact ? `<svg class="band-swoosh" viewBox="0 0 400 24" aria-hidden="true"><path d="M2 18 C 90 4, 200 2, 398 12"/></svg>` : ""}
-      <p class="band-text">${esc(text)}</p>
+      <p class="band-text">${textHtml ?? esc(text)}</p>
     </div>
-    <p class="actions"><a class="btn btn-gold btn-lg" href="${contactHref(base, query)}">${esc(label)}${icon("arrow")}</a>${compact ? "" : `<a class="link-sub" href="${esc(site.profile.contact_url)}">Lancersで相談する${icon("ext", "ic ic-xs")}</a>`}</p>
+    <p class="actions"><a class="btn ${btnCls}" href="${contactHref(base, query)}">${btnPre ? icon(btnPre, "ic btn-pre") : ""}${esc(label)}${icon(chev ? "chevron" : "arrow")}</a>${compact || !lancers ? "" : `<a class="link-sub" href="${esc(site.profile.contact_url)}">Lancersで相談する${icon("ext", "ic ic-xs")}</a>`}</p>
   </div>
 </section>`;
 }
@@ -351,7 +447,7 @@ const COMMON_FAQ = [
   { q: "ランサーズから依頼することもできますか？", a: "はい。ランサーズでパッケージを出品しているほか、メッセージからのご相談も受け付けています。" },
 ];
 const faqList = (items) =>
-  `<div class="faq">${items.map((f) => `<details class="acc"><summary><span class="acc-q" aria-hidden="true">Q</span><span class="acc-title">${esc(f.q)}</span></summary><p>${esc(f.a)}</p></details>`).join("")}</div>`;
+  `<div class="faq">${items.map((f) => `<details class="acc"><summary><span class="acc-q" aria-hidden="true">Q.</span><span class="acc-title">${esc(f.q)}</span></summary><p>${esc(f.a)}</p></details>`).join("")}</div>`;
 const ldFaq = (items) => ({
   "@type": "FAQPage",
   mainEntity: items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
@@ -362,17 +458,18 @@ function steps(list, { cls = "" } = {}) {
   const rise = cls.includes("steps-rise");
   return `<ol class="steps${cls ? ` ${cls}` : ""}" data-draw>
       <li class="steps-line" aria-hidden="true"><svg viewBox="0 0 1000 ${rise ? 140 : 20}" preserveAspectRatio="none"><path d="${rise ? "M0 132 C 260 128, 420 96, 560 78 S 860 22, 1000 6" : "M0 10 C 250 -6, 500 26, 1000 10"}"/></svg></li>
-      ${list.map((s, i) => `<li class="step" data-reveal><span class="step-no" lang="en">${pad2(i + 1)}</span>${rise ? "" : `<span class="step-ic" aria-hidden="true">${icon(["search", "layers", "code", "rocket", "check"][i % 5])}</span>`}<h3 class="step-title">${esc(s.t)}</h3><p>${esc(s.d)}</p>${rise ? `<span class="step-dot" aria-hidden="true"></span><span class="step-glass" aria-hidden="true" style="--lvl:${i + 1}"><i></i><i></i><i></i></span>` : ""}</li>`).join("\n      ")}
+      ${list.map((s, i) => `<li class="step" data-reveal><span class="step-no" lang="en">${pad2(i + 1)}</span>${rise ? "" : `<span class="step-ic" aria-hidden="true">${icon(s.i ?? ["search", "layers", "code", "rocket", "check"][i % 5])}</span>`}<h3 class="step-title">${esc(s.t)}</h3><p>${esc(s.d)}</p>${rise ? `<span class="step-dot" aria-hidden="true"></span><span class="step-glass" aria-hidden="true" style="--lvl:${i + 1}"><i></i><i></i><i></i></span>` : ""}</li>`).join("\n      ")}
     </ol>`;
 }
 
 /** A user-controlled film: poster in a frame; plays only when asked. */
-function film(site, base, { video, poster, title, cls = "", ar = null, length = "" }) {
+function film(site, base, { video, poster, title, cls = "", ar = null, length = "", overlay = "" }) {
   const wh = site.size(poster) ?? [1600, 900];
   return `<figure class="film${cls ? ` ${cls}` : ""}" data-reveal>
       <div class="film-frame" style="--ar:${ar ?? `${wh[0]}/${wh[1]}`}">
         <video controls playsinline preload="none" poster="${base}${esc(poster)}" width="${wh[0]}" height="${wh[1]}" aria-label="${esc(title)}"><source src="${base}${esc(video)}" type="video/mp4"></video>
-        ${length ? `<span class="film-bar" aria-hidden="true"><i class="fb-play"></i><span>0:00 / ${esc(length)}</span><i class="fb-line"></i><i class="fb-vol"></i><i class="fb-full"></i></span>` : ""}
+        ${overlay ? `<span class="film-over" aria-hidden="true">${overlay}</span>` : ""}
+        ${length ? `<span class="film-bar" aria-hidden="true"><i class="fb-play"></i><span>0:00 / ${esc(length)}</span><i class="fb-line"></i>${icon("volume", "ic fb-ic")}${icon("full", "ic fb-ic")}</span>` : ""}
       </div>
       <figcaption class="film-cap">${esc(title)}</figcaption>
     </figure>`;
@@ -411,7 +508,7 @@ function galleryCard(site, w, base, i) {
           <span class="gcard-text">
             <span class="gcard-top"><span class="gcard-no" lang="en">${w.no}</span><span class="pill" lang="en">${CAT_LABEL[w.cat]}</span></span>
             <span class="gcard-title">${esc(workName(w))}</span>
-            <span class="gcard-line">${esc(w.kindOf === "site" ? w.summary : w.subtitle)}</span>
+            <span class="gcard-line">${esc(size === "sm" ? (w.kindOf === "site" ? w.kind : w.headline ?? w.subtitle) : w.kindOf === "site" ? w.summary.split("。")[0] + "。" : w.subtitle)}</span>
             <span class="gcard-go">${icon("arrow")}</span>
           </span>
           <span class="gcard-media"><span class="gdev" style="--ar:${(site.size(workImage(w)) ?? [16, 10]).join("/")}"><span class="gdev-screen">${img(site, workImage(w), base, { eager: i < 2 })}</span><span class="gdev-base" aria-hidden="true"></span></span></span>
@@ -473,11 +570,11 @@ export function renderIndex(site) {
   const reel = art.showreel;
   const film1 = services.find((s) => s.id === "ai-apps")?.packages[0];
   const half = Math.ceil(services.length / 2);
-  const svcItem = (s) => `<li><a href="${base}services/${esc(s.id)}/">${icon(SVC_ICON[s.id] ?? "chip", "ic svc-ic")}<span class="svc-name">${esc(s.short)}</span></a></li>`;
+  const svcItem = (s) => `<li><a href="${base}services/${esc(s.id)}/">${icon(SVC_ICON[s.id] ?? "chip", "ic svc-ic")}<span class="svc-name">${esc(s.short)}</span><span class="svc-desc">${s.card.map(esc).join("<br>")}</span></a></li>`;
   const [lead] = works.sites;
   const ex = site.art.stage("expertise");
   // The showreel's poster: the home artwork's bright lower half (clouds and pavilion), as in the mockup.
-  const reelPoster = site.art.stage("home").plate ? site.art.stage("home").wide : reel?.poster;
+  const reelPoster = site.art.section("reel-poster")?.src ?? (site.art.stage("home").plate ? site.art.stage("home").wide : reel?.poster);
   // Each section is a short, wide strip filled with artwork, like the mockup; the detail
   // lives on the inner pages.
   // The home pilot: the mockup's own sections without their text (~/dev/note/mockup/home-pilot).
@@ -590,9 +687,9 @@ export function renderWorks(site) {
     scene: "works",
     inner: `    <div class="stage-copy">
       ${crumbs(base, [[null, "実績"]])}
-      <p class="kicker" lang="en">Work Index</p>
+      <p class="kicker" lang="en">Works Gallery</p>
       <p class="kicker-ja">実績ギャラリー</p>
-      <h1 class="display">作品の、<br><em>その先</em>へ。</h1>
+      <h1 class="display">作品の、<br><span class="d-ind">その<em>先</em>へ。</span></h1>
       <p class="lead">開発に参加した公開中のサイトと、<br>ランサーズで評価をいただいた案件です。</p>
     </div>`,
   })}
@@ -616,7 +713,7 @@ export function renderWorks(site) {
   </div>
 </section>
 ${seam(site, base, "seam-next", ["deco-silk-wave", "deco-silk-a"], ["deco-gold-leaves", "deco-leaves-a"])}
-${inquiry(site, base, { title: "次の「作品」を、あなたと。", text: "課題の発見から、企画・デザイン・開発・運用まで。目的に合った進め方をご提案します。", shape: "center", eyebrow: "Next Project", label: "プロジェクトを相談する", art: site.art.section("sec-works-next") ? "sec-works-next" : null })}`;
+${inquiry(site, base, { title: "次の「作品」を、あなたと。", text: "課題の発見から、企画・デザイン・開発・運用まで。目的に合った進め方をご提案します。", textHtml: "課題の発見から、企画・デザイン・開発・運用まで。<br>目的に合った進め方をご提案します。", shape: "center", eyebrow: "Next Project", label: "プロジェクトを相談する", art: site.art.section("sec-works-next") ? "sec-works-next" : null, btnPre: "clipboard", chev: true, btnCls: "btn-gold btn-lg btn-wide" })}`;
   return layout(site, { route: "works/", title: "実績", description, body, ld: [personLd(site), crumbLd(site, [["実績", "works/"]])], tone: site.art.stage("works").tone });
 }
 
@@ -656,25 +753,27 @@ export function renderWork(site, w) {
     : `<figure class="hero-media" data-expand>${img(site, w.cover, base, { alt: `${w.headline}（イメージ）`, eager: true })}<figcaption>画像はイメージです（実際の画面ではありません）。</figcaption></figure>`;
   const l = profile.lancers ?? {};
   const art = site.art.stage(scene);
-  const artFig = art.narrow ? `<figure class="crow-art"><img src="${base}${art.narrow}" alt="" width="${art.mw}" height="${art.mh}" loading="lazy" decoding="async"></figure>` : "";
+  const [sum1, ...sumRest] = isSite ? w.summary.split(/(?<=。)/) : [];
   const chapterList = isSite
     ? [
-        `<div class="chapter" data-reveal><p class="chapter-no" lang="en">01</p><h2 class="h3">サイトについて</h2><p>${esc(w.summary)}</p></div>`,
-        `<div class="chapter" data-reveal><p class="chapter-no" lang="en">02</p><h2 class="h3">担当</h2><p>${esc(w.role)}担当した範囲の詳細は、公開できる内容がまとまり次第ここに追記します。</p></div>`,
+        `<div class="chapter" data-reveal><p class="chapter-no" lang="en">01</p><h2 class="h3">サイトの特長</h2><p>${esc(sumRest.join("") || w.summary)}</p><p class="chapter-link">${ext(w.url, `サイトを見る${icon("ext", "ic ic-xs")}`, "btn btn-ghost")}</p></div>`,
       ]
     : story.chapters.slice(0, 3).map((c, k) => `<div class="chapter prose" data-reveal><p class="chapter-no" lang="en">${pad2(k + 1)}</p><h2 class="h3">${esc(c.title)}${c.note ? `<small>${esc(c.note)}</small>` : ""}</h2>${c.html}</div>`);
+  // The second row has no picture of its own (the hero art would repeat), so its text runs full width.
   const rows = [
     { html: chapterList[0] ?? "", fig: media },
-    ...(chapterList.length > 1 ? [{ html: chapterList.slice(1).join("\n"), fig: artFig }] : []),
+    ...(chapterList.length > 1 ? [{ html: chapterList.slice(1).join("\n"), fig: "" }] : []),
   ];
+  const title = workName(w);
+  const titleHtml = brk(title).replace(/-/g, "\u2011");
   const body = `${stage(site, base, {
     scene,
     inner: `    <div class="stage-copy">
       ${crumbs(base, [[`${base}works/`, "実績"], [null, workName(w)]])}
       <p class="kicker" lang="en">Case Study ${w.no}</p>
-      <h1 class="display display-md">${brk(workName(w))}</h1>
+      <h1 class="display display-md${[...title].length > 6 ? " display-long" : ""}">${titleHtml}</h1>
       <p class="accent-line" lang="en" style="--accent:${esc(w.color ?? "#c9a24a")}">${esc(w.en ?? "")}</p>
-      <p class="lead">${esc(isSite ? w.summary : w.subtitle)}</p>
+      <p class="lead">${esc(isSite ? workLine(w) : w.subtitle)}</p>
     </div>`,
   })}
 <section class="ch ch-pearl case" aria-labelledby="overview-title">
@@ -683,8 +782,8 @@ export function renderWork(site, w) {
       <div class="case-context" data-reveal>
         <p class="eyebrow" lang="en">Project Overview</p>
         <h2 class="h2" id="overview-title">プロジェクト概要</h2>
-        <p class="case-headline">${esc(isSite ? w.name : w.headline)}</p>
-        ${isSite ? `<p>${esc(w.summary)}</p>` : story.context.join("\n") || `<p>${esc(w.title)}</p>`}
+        ${isSite ? "" : `<p class="case-headline">${esc(w.headline)}</p>`}
+        ${isSite ? `<p>${esc(sum1)}</p>` : story.context.join("\n") || `<p>${esc(w.title)}</p>`}
       </div>
       <dl class="meta" data-reveal>
         ${meta.filter(Boolean).map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("\n        ")}
@@ -694,18 +793,21 @@ export function renderWork(site, w) {
 </section>
 <section class="ch ch-white chapters" aria-label="取り組み">
   <div class="wrap">
-    ${rows.map((r, k) => `<div class="crow${k % 2 ? " crow-flip" : ""}">
+    ${(w.points ?? []).length ? `<ul class="hl-cards" aria-label="この案件のポイント">${w.points.map((x) => `<li data-reveal><span class="hl-ic" aria-hidden="true">${icon(pickIcon(x, "check"))}</span><span>${esc(x)}</span></li>`).join("")}</ul>` : ""}
+    ${rows.map((r, k) => `<div class="crow${k % 2 ? " crow-flip" : ""}${r.fig ? "" : " crow-solo"}">
       <div class="crow-text">${r.html}</div>
-      <div class="crow-fig" data-reveal>${r.fig}</div>
+      ${r.fig ? `<div class="crow-fig" data-reveal>${r.fig}</div>` : ""}
     </div>`).join("\n    ")}
   </div>
 </section>
 ${
   isSite
     ? ""
-    : `<section class="ch ch-mist" aria-labelledby="review-title">
+    : w.reviews.some((t) => t.comment)
+      ? `<section class="ch ch-mist case-voice" aria-labelledby="review-title">
   <div class="wrap narrow">
-    ${heading("Client Voice", "お客さまの評価", { id: "review-title" })}
+    <h2 class="sr-only" id="review-title">お客さまの評価</h2>
+    <p class="eyebrow eyebrow-center" lang="en">Client Voice</p>
     ${w.reviews
       .map(
         (t) => `<figure class="quote quote-wide" data-reveal>
@@ -715,7 +817,12 @@ ${
     </figure>`,
       )
       .join("\n    ")}
-    <p class="fine">評価は${ext(l.reviews_url ?? l.profile_url, "ランサーズの評価ページ")}で確認できます。</p>
+    <p class="fine center">評価は${ext(l.reviews_url ?? l.profile_url, "ランサーズの評価ページ")}で確認できます。</p>
+  </div>
+</section>`
+      : `<section class="ch ch-mist case-voice case-voice-min" aria-label="お客さまの評価">
+  <div class="wrap">
+    <p class="voice-min">${stars()}<span>評価「満足」</span>${w.reviews.map((t) => `<span>${esc(t.job)}・${jaDate(t.date)}</span>`).join("")}<a href="${base}reviews/#${esc(w.reviews[0].id)}">評価一覧で見る${icon("arrow", "ic ic-xs")}</a></p>
   </div>
 </section>`
 }
@@ -725,10 +832,10 @@ ${
       const na = site.art.stage(`work-${next.id}`);
       return na.wide ? `<img src="${base}${na.wide}" alt="" width="${na.w}" height="${na.h}" loading="lazy" decoding="async">` : img(site, workImage(next), base);
     })()}</span>
-    <span class="next-body"><span class="eyebrow" lang="en">Next Project</span><span class="next-title">${esc(workName(next))}</span><span class="next-line">${esc(workLine(next))}</span>${icon("arrow", "ic next-ic")}</span>
+    <span class="next-body"><span class="eyebrow" lang="en">Next Project</span><span class="next-title">${esc(workName(next))}${icon("arrow", "ic next-ic")}</span><span class="next-line">${esc(workLine(next))}</span></span>
   </a>
 </nav>
-${inquiry(site, base, { title: "このような開発のご相談", text: "似た課題をお持ちでしたら、まずは現状をお聞かせください。進め方とお見積もりをご提案します。", query: `?work=${encodeURIComponent(w.id)}` })}`;
+${inquiry(site, base, { title: "このような開発のご相談", text: "似た課題をお持ちでしたら、まずは現状をお聞かせください。進め方とお見積もりをご提案します。", textHtml: "似た課題をお持ちでしたら、まずは現状をお聞かせください。<br>進め方とお見積もりをご提案します。", query: `?work=${encodeURIComponent(w.id)}`, shape: "center", eyebrow: "", light: true, art: "sec-silk", label: "相談する", chev: true, lancers: false })}`;
   const ld = [
     personLd(site),
     { "@type": "CreativeWork", name: workName(w), description, url: new URL(route, profile.site_url).href, ...(isSite && { sameAs: w.url }), creator: { "@id": `${profile.site_url}#person` }, inLanguage: "ja" },
@@ -780,7 +887,7 @@ export function renderServices(site) {
         ${a.wide ? `<img class="svc-bg" src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async">` : s.cover ? img(site, s.cover, base, { cls: "svc-bg" }) : ""}
         <p class="svc-no" lang="en" aria-hidden="true">${s.no}</p>
         <div class="svc-body">
-          <h3 class="svc-card-en" lang="en"><a class="svc-link" href="${base}services/${esc(s.id)}/">${esc(s.en.replace(/ & .*/, ""))}<span class="sr-only">：${esc(s.name)}</span></a></h3>
+          <h3 class="svc-card-en" lang="en"><a class="svc-link" href="${base}services/${esc(s.id)}/">${esc(s.en.replace(/ & .*/, "")).replace(/^(BUSINESS) /, "$1<br>")}<span class="sr-only">：${esc(s.name)}</span></a></h3>
           <p class="svc-card-desc">${s.card.map(esc).join("<br>")}</p>
           <p class="svc-card-foot"><a class="btn ${tone === "light" ? "btn-gold" : "btn-ghost"} btn-sm" href="${contactHref(base, `?service=${encodeURIComponent(s.id)}`)}">お問い合わせ${icon("arrow")}<span class="sr-only">（${esc(s.name)}）</span></a></p>
         </div>
@@ -797,7 +904,8 @@ export function renderServices(site) {
     <div class="card-soft${hasSec(site, "sec-services-discovery")}" data-reveal>
       ${secImg(site, base, "sec-services-discovery", "card-art")}
       <p class="eyebrow" lang="en">Service Discovery</p>
-      <h2 class="h3" id="find-title">目的から、サービスを選ぶ</h2>
+      <h2 class="h3" id="find-title">サービスを見つける</h2>
+      <p class="card-lead">目的や課題から、<br>最適なサービスをご案内します。</p>
       <ul class="finder">
         <li><a href="${base}services/ai-consulting/">AIを使いたいが、何から始めればいいか分からない${icon("arrow")}</a></li>
         <li><a href="${base}services/ai-chatbot/">社内の資料に答えるAIがほしい${icon("arrow")}</a></li>
@@ -811,8 +919,8 @@ export function renderServices(site) {
       ${secImg(site, base, "sec-services-inquiry", "card-art")}
       <p class="eyebrow" lang="en">Inquiry</p>
       <h2 class="h3">まずはご相談ください</h2>
-      <p>やりたいこと、課題、構想の段階でも構いません。目的に合った進め方をご提案します。</p>
-      <p><a class="btn btn-gold" href="${contactHref(base)}">相談する${icon("arrow")}</a></p>
+      <p>やりたいこと、課題、構想の段階でも構いません。<br>目的に合った進め方をご提案します。</p>
+      <p><a class="btn btn-gold btn-wide-sm" href="${contactHref(base)}">お問い合わせはこちら${icon("arrow")}</a></p>
     </div>
   </div>
 </section>`;
@@ -828,12 +936,20 @@ export function renderService(site, s) {
   const related = site.works.all.filter((w) => w.service?.id === s.id);
   const faq = [...s.faq, ...COMMON_FAQ];
   const q = `?service=${encodeURIComponent(s.id)}`;
+  const isAI = s.pillar === "AI";
+  // Two lines, split at the first 、; the board-6 pages set the second phrase in gold.
+  const [h1a, ...h1b] = s.headline.split("、");
+  const h1 = h1b.length ? `${esc(h1a)}、<br>${isAI ? esc(h1b.join("、")) : `<em>${esc(h1b.join("、"))}</em>`}` : brk(s.headline);
+  const plate = site.art.stage(scene);
+  const flow = { system: "開発の流れ", quality: "対応の流れ", "ai-apps": "開発の流れ", "ai-chatbot": "構築の流れ", "ai-consulting": "支援の流れ", "ai-infra": "構築の流れ" }[s.id] ?? "制作の流れ";
+  // Real screens for the two services with a live site of their own; the others show their artwork.
+  const live = site.works.sites.find((w) => w.service?.id === s.id);
   const body = `${stage(site, base, {
     scene,
     inner: `    <div class="stage-copy">
       ${crumbs(base, [[`${base}services/`, "サービス"], [null, s.name]])}
-      <p class="kicker" lang="en" style="--accent:${esc(s.accent)}">${esc(s.en)}</p>
-      <h1 class="display display-md">${brk(s.headline)}</h1>
+      <p class="kicker${isAI ? " kicker-pill" : ""}" lang="en" style="--accent:${esc(s.accent)}">${esc(s.en)}</p>
+      <h1 class="display display-md">${h1}</h1>
       <p class="lead">${esc(s.lead)}</p>
       <p class="actions"><a class="btn btn-gold btn-lg" href="${contactHref(base, q)}">相談する${icon("arrow")}</a>${s.packages.length ? `<a class="btn btn-ghost btn-lg" href="#price">料金を見る</a>` : ""}</p>
     </div>`,
@@ -846,12 +962,12 @@ export function renderService(site, s) {
         <h2 class="h2" id="intro-title">${esc(s.name)}</h2>
         <p class="intro-text">${esc(s.description)}</p>
       </div>
-      ${s.problems.length ? `<ul class="svc-points" data-reveal aria-label="こんな課題に">${s.problems.map((p) => `<li>${icon("check")}${esc(p)}</li>`).join("")}</ul>` : ""}
+      ${s.problems.length ? `<div class="svc-points-box" data-reveal><p class="svc-points-label">こんな課題に</p><ul class="svc-points">${s.problems.map((p) => `<li>${icon("check")}${esc(p)}</li>`).join("")}</ul></div>` : ""}
     </div>
     ${
       s.video
         ? `<h2 class="sr-only" id="film-title">紹介動画</h2>
-    ${film(site, base, { video: s.video.video, poster: s.video.cover ?? s.cover, title: s.video.title, cls: "film-svc" })}`
+    ${film(site, base, { video: s.video.video, poster: plate.plate ? plate.wide : s.video.cover ?? s.cover, title: s.video.title, cls: "film-svc", ar: "16/9", length: videoLength(s.video.video), overlay: `<b lang="en">${esc(s.en.replace(/ & .*/, ""))}</b><small lang="en">Service Film</small>` })}`
         : ""
     }
   </div>
@@ -859,25 +975,40 @@ export function renderService(site, s) {
 <section class="ch ch-night scope" style="--accent:${esc(s.accent)}" aria-labelledby="scope-title">
   <div class="wrap scope-in">
     <div>
-      ${heading("Capabilities", "できること", { id: "scope-title" })}
+      ${heading("Capabilities", "できること", { id: "scope-title", cls: "sh-inline" })}
       ${s.approach.map((p) => `<p class="scope-lead">${esc(p)}</p>`).join("")}
-      <ul class="scope-list">
-        ${s.scope.map((x, i) => `<li data-reveal><span class="scope-no" lang="en">${pad2(i + 1)}</span>${esc(x)}</li>`).join("\n        ")}
-      </ul>
-      ${s.scopeNote.map((p) => `<p class="scope-note">${esc(p)}</p>`).join("")}
+      ${s.scopeNote.map((p) => `<p class="scope-note">${icon("shield", "ic")}<span>${esc(p)}</span></p>`).join("")}
     </div>
-    ${s.cover ? `<div class="scope-device" aria-hidden="true"><span class="dev-laptop"><span class="dev-screen">${img(site, s.cover, base)}</span><span class="dev-base"></span></span></div>` : ""}
+    ${
+      live
+        ? `<div class="scope-device scope-device-live"><a class="dev-laptop" href="${base}works/${esc(live.id)}/"><span class="dev-screen">${img(site, live.top, base, { alt: `${workName(live)}のトップページ` })}</span><span class="dev-base" aria-hidden="true"></span></a>${live.phone ? `<span class="dev-phone" aria-hidden="true">${img(site, live.phone, base)}</span>` : ""}</div>`
+        : plate.plate
+          ? `<div class="scope-device scope-art" aria-hidden="true"><img src="${base}${plate.narrow}" alt="" width="${plate.mw}" height="${plate.mh}" loading="lazy" decoding="async"></div>`
+          : ""
+    }
+    <ul class="cap-row">
+      ${s.scope
+        .map((x) => {
+          const [t, note] = splitNote(x);
+          return `<li data-reveal><span class="cap-ic" aria-hidden="true">${icon(pickIcon(x))}</span><b>${esc(t)}</b>${note ? `<small>${esc(note)}</small>` : ""}</li>`;
+        })
+        .join("\n      ")}
+    </ul>
   </div>
 </section>
 ${
   s.process.length
     ? `<section class="ch ch-pearl svc-process" aria-labelledby="process-title">
   <div class="wrap">
-    ${heading("Workflow", "制作の流れ", { id: "process-title" })}
-    ${steps(s.process)}
+    ${heading("Workflow", flow, { id: "process-title", cls: "sh-inline" })}
+    ${steps(s.process.map((x) => ({ ...x, i: pickIcon(x.t, null) })))}
     ${
       s.deliverables.length
-        ? `<p class="deliver-line" data-reveal><b>主な成果物</b>${s.deliverables.map((d) => `<span>${icon("doc")}${esc(d)}</span>`).join("")}<small>内容はご依頼の範囲によって変わります。</small></p>`
+        ? `<div class="deliv" data-reveal>
+      <h3 class="deliv-h">主な成果物<span lang="en">Deliverables</span></h3>
+      <ul class="deliv-cards">${s.deliverables.map((d) => `<li>${icon(pickIcon(d, "doc"))}<span>${esc(d)}</span></li>`).join("")}</ul>
+      <p class="deliv-note">内容はご依頼の範囲によって変わります。</p>
+    </div>`
         : ""
     }
   </div>
@@ -886,7 +1017,7 @@ ${
 }
 <section class="ch ch-white svc-faq" aria-labelledby="faq-title">
   <div class="wrap">
-    ${heading("FAQ", "よくある質問", { id: "faq-title" })}
+    ${heading("FAQ", "よくある質問", { id: "faq-title", cls: "sh-inline" })}
     ${faqList(faq)}
     ${
       s.packages.length
@@ -924,7 +1055,7 @@ ${
     }
   </div>
 </section>
-${inquiry(site, base, { title: `${s.name}のご相談`, text: "目的と現状を伺い、進め方とお見積もりをご提案します。仕様が決まっていない段階でも大丈夫です。", query: q, art: "sec-service-cta" })}`;
+${inquiry(site, base, { title: `${s.short}のご相談`, text: "目的と現状を伺い、進め方とお見積もりをご提案します。仕様が決まっていない段階でも大丈夫です。", textHtml: "目的と現状を伺い、進め方とお見積もりをご提案します。<br>仕様が決まっていない段階でも大丈夫です。", query: q, art: isAI ? "sec-service-cta" : null, plain: !isAI, label: "相談する", chev: true })}`;
   const ld = [
     personLd(site),
     {
@@ -940,7 +1071,7 @@ ${inquiry(site, base, { title: `${s.name}のご相談`, text: "目的と現状�
     ldFaq(faq),
     crumbLd(site, [["サービス", "services/"], [s.name, route]]),
   ];
-  return layout(site, { route, title: s.name, description: s.description, body, ld, image: s.cover, tone: site.art.stage(scene).tone });
+  return layout(site, { route, title: s.name, description: s.description, body, ld, image: s.cover, tone: site.art.stage(scene).tone, style: `--accent:${s.accent};--svc-accent:${s.accent}` });
 }
 
 // The technologies, grouped. Everything here appears in profile.yml (projects, certifications) or works.yml.
@@ -999,9 +1130,9 @@ export function renderAbout(site) {
       ${(() => {
         const v = profile.values ?? [];
         const groups = [
-          ["、", "深く考える", [0, 2]],
-          ["○", "丁寧につくる", [3, 1]],
-          ["！", "そして、磨き続ける", [4]],
+          ['<svg viewBox="0 0 40 40"><path d="M14 9c7 2 12 8 13 15 .6 4-1.6 7-4.6 7-3.2 0-4.6-2.7-4.8-6-.3-5.2-2.1-10.6-3.6-16z"/></svg>', "深く考える", [0, 2]],
+          ['<svg viewBox="0 0 40 40"><circle cx="20" cy="21" r="10" fill="none" stroke-width="3.2"/></svg>', "丁寧につくる", [3, 1]],
+          ['<svg viewBox="0 0 40 40"><path d="M21.5 6h6l-5.5 19h-4z"/><circle cx="18" cy="32" r="3"/></svg>', "そして、磨き続ける", [4]],
         ];
         // Your values, grouped under the mockup's three headings; any extra values go last.
         const used = new Set(groups.flatMap((g) => g[2]));
@@ -1037,14 +1168,26 @@ ${
 <section class="ch ch-pearl stackch" aria-labelledby="stack-title">
   <div class="wrap stack-band">
     <div class="stack-copy">
-      ${heading("Tools &amp; Technology", "ものづくりを支える、<wbr>技術の星座", { id: "stack-title", lead: "目的に合わせて最適な技術を選び、組み合わせながら、柔軟で拡張性のあるものづくりを行います。" })}
-      <p class="stack-certs">保有資格 ${(profile.certifications ?? []).length}件（AWS・Google Cloud・Azure・情報処理安全確保支援士 ほか）</p>
+      ${heading("Tools &amp; Technology", "ものづくりを支える、<br>技術の星座", { id: "stack-title", lead: "目的に合わせて最適な技術を選び、<br>組み合わせながら、<br>柔軟で拡張性のあるものづくりを行います。" })}
+      <p class="stack-certs">保有資格 ${(profile.certifications ?? []).length}件<br>（AWS・Google Cloud・Azure・情報処理安全確保支援士 ほか）</p>
     </div>
     <div class="constel${hasSec(site, "sec-about-constellation")}" aria-hidden="true">
       ${secImg(site, base, "sec-about-constellation", "constel-art")}
       <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet"><ellipse cx="300" cy="180" rx="250" ry="92"/><ellipse cx="300" cy="180" rx="190" ry="140" transform="rotate(-18 300 180)"/><ellipse cx="300" cy="180" rx="150" ry="60" transform="rotate(24 300 180)"/></svg>
       <span class="constel-core"></span>
-      ${[["Next.js", 47, 29], ["React", 35, 38], ["Python", 34, 55], ["Docker", 40, 68], ["AWS", 61, 72], ["Shopify", 80, 67], ["OpenAI", 87, 54], ["WordPress", 84, 34]].map(([t, x, y]) => `<span class="constel-star constel-${x < 58.6 ? "l" : "r"}" style="left:${x}%;top:${y}%">${t}</span>`).join("")}
+      ${(() => {
+        // The names around the painted sphere (centre 58.6% / 49%), each with a gold leader to the rings.
+        const stars = [["Next.js", 47, 26], ["React", 33, 36], ["Python", 30, 55], ["Docker", 38, 70], ["AWS", 61, 76], ["Shopify", 82, 69], ["OpenAI", 89, 52], ["WordPress", 85, 31]];
+        const cx = 58.6, cy = 49, rx = 18, ry = 14.5;
+        const lines = stars.map(([, x, y]) => {
+          const a = Math.atan2((y - cy) / ry, (x - cx) / rx);
+          const ex = cx + rx * Math.cos(a), ey = cy + ry * Math.sin(a);
+          const dx = ex - x, dy = (ey - y) / 1.5, len = Math.hypot(dx, dy);
+          const sx = x + (dx / len) * 4.2, sy = y + ((dy / len) * 4.2) * 1.5;
+          return `<line x1="${(sx * 1.5).toFixed(1)}" y1="${sy.toFixed(1)}" x2="${(ex * 1.5).toFixed(1)}" y2="${ey.toFixed(1)}"/><circle cx="${(ex * 1.5).toFixed(1)}" cy="${ey.toFixed(1)}" r="0.55"/>`;
+        });
+        return `<svg class="constel-leaders" viewBox="0 0 150 100" preserveAspectRatio="none" aria-hidden="true">${lines.join("")}</svg>${stars.map(([t, x, y]) => `<span class="constel-star constel-${x < cx ? "l" : "r"}" style="left:${x}%;top:${y}%">${t}</span>`).join("")}`;
+      })()}
     </div>
   </div>
   <div class="wrap">
@@ -1067,7 +1210,7 @@ ${
     </details>
   </div>
 </section>
-${inquiry(site, base, { title: "一緒に、価値あるものをつくりませんか。", text: "ご相談・ご依頼・ご質問など、お気軽にお問い合わせください。", shape: "center", eyebrow: "Contact", art: "sec-about-cta", light: true })}`;
+${inquiry(site, base, { title: "一緒に、価値あるものをつくりませんか。", titleHtml: "一緒に、価値あるものをつくりませんか。", text: "ご相談・ご依頼・ご質問など、お気軽にお問い合わせください。", textHtml: "ご相談・ご依頼・ご質問など、<br>お気軽にお問い合わせください。", shape: "center", eyebrow: "", art: "sec-about-cta", light: true, label: "Contact", btnCls: "btn-frame btn-frame-dark", lancers: false })}`;
   return layout(site, { route: "about/", title: "私について", description, body, ld: [personLd(site), crumbLd(site, [["私について", "about/"]])], tone: site.art.stage("about").tone });
 }
 
@@ -1111,7 +1254,7 @@ export function renderPrices(site) {
       ${crumbs(base, [[null, "料金"]])}
       <p class="kicker" lang="en">Pricing</p>
       <h1 class="display">小さく始めて、<br><em>大きく</em>育てる。</h1>
-      <p class="lead">いきなり大きな投資は必要ありません。まずは課題の見極めと検証から。確かめながら、段階的に広げていく進め方をおすすめしています。</p>
+      <p class="lead">いきなり大きな投資は必要ありません。<br>まずは課題の見極めと検証から。<br>確かめながら、段階的に広げていく進め方をおすすめしています。</p>
     </div>`,
   })}
 <section class="ch ch-pearl" aria-labelledby="eng-title">
@@ -1127,20 +1270,32 @@ export function renderPrices(site) {
         <span class="tier-no" lang="en">${t.no}</span>
         <h3 class="h3">${t.t}</h3>
         <p>${t.d}</p>
-        <p class="tier-price">${t.price ? `パッケージ ${yen(t.price)}〜` : "個別お見積もり"}</p>
         <p class="tier-actions"><a class="btn btn-ghost btn-sm tier-btn" href="${contactHref(base, "?topic=estimate")}">個別お見積もり</a><a class="more" href="${base}${t.href}">関連するサービス${icon("arrow")}</a></p>
       </li>`,
         )
         .join("\n      ")}
     </ol>
     <div class="compare" data-reveal>
-      <h3 class="h3 compare-title">支援内容の比較</h3>
+      <div class="compare-head"><h3 class="h3 compare-title">支援内容の比較</h3><p class="compare-note">各フェーズでご提供する主な支援の内容を、比較形式でご確認いただけます。</p></div>
       <table class="matrix">
         <thead><tr><th scope="col">主な支援内容</th>${tiers.map((t) => `<th scope="col">${t.t}</th>`).join("")}</tr></thead>
         <tbody>
           ${rows.map(([k, v]) => `<tr><th scope="row">${k}</th>${v.map((x, i) => `<td data-label="${tiers[i].t}">${x ? `<span class="dot" role="img" aria-label="対応"></span>` : `<span class="dash" role="img" aria-label="対象外">—</span>`}</td>`).join("")}</tr>`).join("\n          ")}
         </tbody>
       </table>
+    </div>
+    <div class="pk-block" id="packages" data-reveal>
+      <div class="pk-head"><p class="eyebrow" lang="en">Packages</p><h3 class="h3 pk-title" id="pk-title">パッケージ料金</h3><p class="pk-lead">${`ランサーズで出品している${n}のパッケージです（${jaDate(profile.lancers?.as_of)}時点）。ベーシック・スタンダード・プレミアムの3プランから選べます。`}</p></div>
+      <details class="pk-more" id="pk-list">
+      <summary><span>${n}のパッケージの料金と納期を見る</span>${icon("arrow")}</summary>
+      <div class="table-scroll"><table class="table table-prices">
+        <thead><tr><th scope="col">パッケージ</th><th scope="col">料金</th><th scope="col">納期の目安</th></tr></thead>
+        <tbody>
+          ${pkRows.join("\n          ")}
+        </tbody>
+      </table></div>
+      <p class="fine">パッケージ名を押すと、ランサーズで各プランの内容を確認できます。</p>
+    </details>
     </div>
   </div>
 </section>
@@ -1163,28 +1318,13 @@ export function renderPrices(site) {
   ${secImg(site, base, "sec-pricing-band")}
   <div class="wrap center" data-reveal>
     <h2 class="h2">必要なものを、<wbr>必要なだけ。</h2>
-    <p>目的や状況に合わせて、支援の内容と体制をご提案します。まずは現在の課題や構想をお聞かせください。</p>
+    <p>目的や状況に合わせて、支援の内容と体制をご提案します。<br>まずは現在の課題や構想をお聞かせください。</p>
     <p><a class="btn btn-frame" href="${contactHref(base, "?topic=estimate")}">${icon("doc")}提案のご相談・お見積もりのご依頼${icon("arrow")}</a></p>
-  </div>
-</section>
-<section class="ch ch-white" id="packages" aria-labelledby="pk-title">
-  <div class="wrap">
-    ${heading("Packages", "パッケージ料金", { id: "pk-title", lead: `ランサーズで出品している${n}のパッケージです（${jaDate(profile.lancers?.as_of)}時点）。ベーシック・スタンダード・プレミアムの3プランから選べます。` })}
-    <details class="pk-more" id="pk-list">
-      <summary><span>${n}のパッケージの料金と納期を見る</span>${icon("arrow")}</summary>
-      <div class="table-scroll"><table class="table table-prices">
-        <thead><tr><th scope="col">パッケージ</th><th scope="col">料金</th><th scope="col">納期の目安</th></tr></thead>
-        <tbody>
-          ${pkRows.join("\n          ")}
-        </tbody>
-      </table></div>
-      <p class="fine">パッケージ名を押すと、ランサーズで各プランの内容を確認できます。</p>
-    </details>
   </div>
 </section>
 <section class="ch ch-pearl" aria-labelledby="faq-title">
   <div class="wrap faq-split">
-    ${heading("FAQ", "よくあるご質問", { id: "faq-title", lead: "ご相談前に多くいただくご質問をまとめました。その他のご不明点も、どうぞお気軽にお問い合わせください。" })}
+    ${heading("FAQ", "よくあるご質問", { id: "faq-title", lead: "ご相談前に多くいただくご質問をまとめました。<br>その他のご不明点も、どうぞお気軽にお問い合わせください。" })}
     ${faqList(faq)}
   </div>
 </section>`;
@@ -1214,12 +1354,13 @@ export function renderReviews(site) {
   <div class="wrap">
     <div class="value-band" data-reveal><p class="value-label" lang="en">Client Voices<br>Our Value</p><p class="value-line">いただいた信頼の声は、<br>これからの仕事を、さらに良くするための道しるべです。</p></div>
     <h2 class="sr-only" id="rv-title">いただいた評価（新しい順）</h2>
-    <div class="reviews" data-more="7">
+    <div class="reviews" data-more="7" data-step="6">
       ${(() => {
         const card = (t) => {
           const w = workOf.get(t.id);
           if (featured && t.id === featured.id)
             return `<figure class="quote quote-hero" id="${esc(t.id)}">
+        ${site.art.stage("reviews").plate ? `<span class="qh-art" aria-hidden="true"><img src="${base}${site.art.stage("reviews").wide}" alt="" loading="lazy" decoding="async" width="${site.art.stage("reviews").w}" height="${site.art.stage("reviews").h}"></span>` : ""}
         <div class="qh-head">${icon("quote", "quote-mark")}<p class="qh-title">${esc(jobName(t))}</p></div>
         <div class="qh-body">
           <blockquote><p>${esc(t.comment)}</p></blockquote>
@@ -1234,14 +1375,14 @@ export function renderReviews(site) {
             return pa.plate ? pa.narrow : null;
           })();
           const thumbAr = thumb ? (site.size(thumb) ?? [1000, 860]).join("/") : "";
-          return `<figure class="quote quote-full quote-card${t.comment ? "" : " quote-quiet"}" id="${esc(t.id)}">
+          return `<figure class="quote quote-full quote-card${t.comment ? "" : " quote-quiet"}${thumb ? " has-art" : ""}" id="${esc(t.id)}">
+        ${thumb ? `<span class="qc-art" aria-hidden="true"><img src="${base}${esc(thumb)}" alt="" loading="lazy" decoding="async"${(() => { const wh = site.size(thumb); return wh ? ` width="${wh[0]}" height="${wh[1]}"` : ""; })()}></span>` : ""}
         <div class="qc-head">
           <div class="qc-title">${icon("quote", "quote-mark")}<p>${esc(jobName(t))}</p></div>
-          ${thumb ? `<span class="qc-thumb" aria-hidden="true"><span class="gdev" style="--ar:${thumbAr}"><span class="gdev-screen"><img src="${base}${esc(thumb)}" alt="" loading="lazy" decoding="async"${(() => { const wh = site.size(thumb); return wh ? ` width="${wh[0]}" height="${wh[1]}"` : ""; })()}></span><span class="gdev-base"></span></span></span>` : ""}
         </div>
         ${t.comment ? `<blockquote><p>${esc(t.comment)}</p></blockquote>` : `<p class="quote-none">（コメントは公開されていません。評価は「満足」です）</p>`}
         <figcaption>${stars()}<span class="quote-meta">${jaDate(t.date)}${t.repeat ? `・${esc(t.repeat)}` : ""}</span></figcaption>
-        ${w ? `<p class="quote-link"><a href="${base}works/${esc(w.id)}/">この案件の実績：${esc(workName(w))}${icon("arrow", "ic ic-xs")}</a></p>` : ""}
+        ${w ? `<p class="quote-link"><a href="${base}works/${esc(w.id)}/">この案件の実績：${esc(workName(w))}${icon("arrow", "ic ic-xs")}</a></p>` : `<p class="quote-link quote-link-none" aria-hidden="true"></p>`}
       </figure>`;
         };
         // As in the mockup: three cards, the featured voice across the row, then the rest.
@@ -1254,18 +1395,19 @@ export function renderReviews(site) {
 </section>
 <section class="ch ch-mist dialog" aria-labelledby="dlg-title">
   <div class="wrap">
-    ${heading("Our Communication", "対話から、<wbr>品質が生まれる。", { id: "dlg-title", lead: "ご依頼の前後を通じた、ていねいな対話を大切にしています。" })}
+    ${heading("Our Communication", "対話から、<br>品質が生まれる。", { id: "dlg-title", lead: "ご依頼の前後を通じた、ていねいな対話を大切にしています。<br>その積み重ねが、安心と、より良い成果につながると考えています。" })}
     <ul class="bubbles${hasSec(site, "sec-bubble")}">
       ${values.slice(0, 3).map((v, i) => `<li data-reveal style="--i:${i}">${secImg(site, base, "sec-bubble", "bubble-bg")}${icon(["speech", "gears", "shield"][i], "ic bubble-ic")}<b class="bubble-title">${["丁寧なヒアリング", "こまめな共有・確認", "原因からの改善"][i]}</b><span>${esc(v)}</span></li>`).join("\n      ")}
     </ul>
     <div class="feedback" data-reveal>
-      <h3 class="h3">ご意見を、次の改善へ。</h3>
-      <p>納品後のご意見やご要望も、改善の機会として大切にしています。評価はランサーズでも確認できます。</p>
-      <p>${ext(l.reviews_url ?? l.profile_url, `Lancersで評価を見る${icon("ext", "ic ic-xs")}`, "btn btn-ghost")}</p>
+      <span class="fb-ic" aria-hidden="true">${icon("bars")}</span>
+      <div class="fb-head"><h3 class="h3">ご意見を、<br>次の改善へ。</h3><p class="fb-label" lang="en">Feedback &amp; Improvement</p></div>
+      <p class="fb-text">納品後のご意見やご要望も、改善の機会として大切にしています。<br>いただいた評価は、ランサーズでも確認できます。</p>
     </div>
+    <p class="fb-more">${ext(l.reviews_url ?? l.profile_url, `${icon("ext", "ic btn-pre")}Lancersで評価を見る${icon("chevron")}`, "btn btn-plate")}</p>
   </div>
 </section>
-${inquiry(site, base, { title: "ご相談からでも、お気軽にお問い合わせください。", titleHtml: "ご相談からでも、<br>お気軽にお問い合わせください。", text: "ご要望の整理や、どのような進め方がよいかのご相談だけでも歓迎です。", label: "Webサイトからお問い合わせ", compact: false, eyebrow: "Contact", art: site.art.section("sec-reviews-cta") ? "sec-reviews-cta" : null })}`;
+${inquiry(site, base, { title: "ご相談からでも、お気軽にお問い合わせください。", titleHtml: "ご相談からでも、<br>お気軽にお問い合わせください。", text: "ご要望の整理や、どのような進め方がよいかのご相談だけでも歓迎です。", label: "Webサイトからお問い合わせ", compact: false, eyebrow: "Contact", art: site.art.section("sec-reviews-cta") ? "sec-reviews-cta" : null, btnPre: "mail", chev: true })}`;
   return layout(site, { route: "reviews/", title: "お客さまの声", description, body, ld: [personLd(site), crumbLd(site, [["お客さまの声", "reviews/"]])], tone: site.art.stage("reviews").tone });
 }
 

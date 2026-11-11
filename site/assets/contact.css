@@ -808,3 +808,355 @@ html.no-js .privacy-actions {
     margin-left: 2px;
   }
 }
+
+/* =====================================================================
+   PASS 6 (2026-11-11): the contact mockup's details.
+   ===================================================================== */
+.route-contact .stage-art {
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+.inq-card {
+  overflow: hidden;
+}
+/* left column: Mincho copy; the mountains bleed to the card's corner */
+.inq-intro {
+  position: relative;
+  z-index: 0;
+}
+.inq-intro > p {
+  font-family: var(--f-serif);
+  color: #2b3646;
+  line-height: 2;
+  letter-spacing: 0.03em;
+}
+.inq-title {
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+@media (min-width: 1024px) {
+  .inq-intro {
+    padding-bottom: 260px;
+  }
+  .inq-art {
+    position: absolute;
+    left: calc(-1 * clamp(28px, 4.5vw, 64px));
+    bottom: calc(-1 * clamp(28px, 4.5vw, 64px));
+    width: calc(100% + clamp(28px, 4.5vw, 64px) + 40px);
+    height: 300px;
+    padding: 0;
+    margin: 0;
+    object-fit: cover;
+    object-position: 30% 70%;
+    z-index: -1;
+    -webkit-mask-image: radial-gradient(120% 100% at 0% 100%, #000 40%, transparent 78%);
+    mask-image: radial-gradient(120% 100% at 0% 100%, #000 40%, transparent 78%);
+  }
+}
+/* the notice while the form can't send yet */
+.inq-notice {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 0 0 22px;
+  padding: 14px 18px;
+  border: 1px solid rgba(201, 162, 74, 0.45);
+  border-radius: 8px;
+  background: rgba(255, 248, 232, 0.8);
+  font-size: 14px;
+  line-height: 1.8;
+  color: #4a3a1a;
+}
+.inq-notice .ic {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  color: var(--gold-ink);
+}
+.inq-notice a {
+  color: var(--gold-ink);
+  font-weight: 600;
+}
+/* fields: one row of four pills; budget and timing side by side; the message full width */
+.choice-body {
+  border-radius: 999px;
+  min-height: 52px;
+  padding: 8px 16px 8px 40px;
+}
+.choice-body small {
+  display: none;
+}
+@media (min-width: 1000px) {
+  .inq-panel[data-step="input"] .choices {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  .inq-panel[data-step="input"] .field-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 0 20px;
+  }
+  .inq-panel[data-step="input"] .field-row > .field:last-child {
+    grid-template-columns: 5.5em minmax(0, 1fr) !important;
+  }
+  .inq-panel[data-step="input"] > .field[data-field="message"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .inq-panel[data-step="input"] > .field[data-field="message"] > * {
+    grid-column: 1 !important;
+    margin-left: 0 !important;
+  }
+}
+.field-hint-after {
+  margin: 6px 0 0;
+}
+.field-input {
+  border-radius: 4px;
+  border-color: #d9c9a0;
+}
+/* the button and its caption */
+.inq-panel[data-step="input"] .inq-actions {
+  justify-content: center;
+}
+.inq-next {
+  min-width: min(100%, 480px);
+  min-height: 60px;
+  border: 0;
+  background: linear-gradient(90deg, #7a5a22, #c9a24a 50%, #7a5a22);
+  color: #fff8e8;
+  font-family: var(--f-serif);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  box-shadow: 0 10px 26px rgba(160, 120, 40, 0.35);
+}
+.inq-next::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-left: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+}
+.inq-next:hover {
+  background: linear-gradient(90deg, #8a6a2e, #d8b45c 50%, #8a6a2e);
+}
+.inq-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 18px 0 0;
+  font-family: var(--f-serif);
+  font-size: 14px;
+  color: #4a5566;
+}
+.inq-time::before,
+.inq-time::after {
+  content: "";
+  width: 72px;
+  height: 1px;
+  background: rgba(15, 29, 46, 0.2);
+}
+.inq-time .ic {
+  width: 16px;
+  height: 16px;
+  color: var(--gold-ink);
+}
+/* success: a glass orb holding the check, a gold rule, the title on the left */
+.inq-done {
+  text-align: left !important;
+}
+.inq-done-card {
+  display: grid;
+  grid-template-columns: auto 1px minmax(0, 1fr);
+  align-items: center;
+  gap: 0 32px;
+  margin: 0 0 18px;
+  padding: 34px 36px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  background: url("plates/deco-silk-wave.webp") 70% 60% / 140% auto no-repeat, linear-gradient(135deg, #f4f1ea, #e9ecf5 60%, #f6efe0);
+  box-shadow: 0 24px 50px -36px rgba(15, 29, 46, 0.55);
+}
+.inq-done-card::after {
+  content: "";
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--gold), transparent);
+}
+.inq-orb {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #fff 0 12%, rgba(255, 255, 255, 0.7) 24%, rgba(214, 226, 248, 0.45) 58%, rgba(255, 255, 255, 0.15) 72%);
+  box-shadow: inset -10px -14px 28px rgba(120, 150, 210, 0.35), inset 6px 8px 18px rgba(255, 255, 255, 0.9), 0 18px 30px -16px rgba(15, 29, 46, 0.45), 0 0 34px rgba(236, 208, 150, 0.45);
+}
+.inq-orb .inq-check {
+  width: 64px;
+  height: 64px;
+  margin: 0;
+}
+.inq-orb .inq-check circle {
+  display: none;
+}
+.inq-orb .inq-check path {
+  stroke: #c9a24a;
+  stroke-width: 4;
+}
+.inq-done-text {
+  grid-column: 3;
+  grid-row: 1;
+}
+.inq-done-text .inq-h {
+  margin: 0 0 10px;
+  font-family: var(--f-serif);
+  font-weight: 500;
+  font-size: clamp(26px, 2.6vw, 38px);
+  letter-spacing: 0.08em;
+}
+.inq-done-text p {
+  margin: 0 0 6px;
+  font-family: var(--f-serif);
+  line-height: 1.9;
+}
+/* error: a red "!" and a rule, the message beside it */
+.inq-error {
+  display: grid !important;
+  grid-template-columns: auto 1px minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 20px;
+  padding: 18px 24px !important;
+  border: 1px solid rgba(178, 64, 64, 0.35) !important;
+  border-radius: 8px !important;
+  background: #fbf1f1 !important;
+}
+.inq-error[hidden] {
+  display: none !important;
+}
+.inq-error::before {
+  content: "";
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: stretch;
+  width: 1px;
+  background: rgba(178, 64, 64, 0.35);
+}
+.inq-error-ic {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 36px;
+  height: 36px;
+  color: #b24040;
+}
+.inq-error-text,
+.inq-error-alt {
+  grid-column: 3;
+  margin: 0 !important;
+}
+.inq-error-text {
+  font-family: var(--f-serif);
+  color: #8a2f2f;
+}
+@media (max-width: 700px) {
+  .inq-done-card {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+    gap: 18px;
+    padding: 28px 22px;
+  }
+  .inq-done-card::after {
+    display: none;
+  }
+  .inq-done-text {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .inq-orb {
+    width: 104px;
+    height: 104px;
+  }
+  .inq-time::before,
+  .inq-time::after {
+    width: 32px;
+  }
+}
+@media (min-width: 1000px) {
+  .inq-panel[data-step="input"] > .field:not(.field-consent),
+  .inq-panel[data-step="input"] .field-row > .field:first-child {
+    grid-template-columns: 8.2em minmax(0, 1fr) !important;
+  }
+  .inq-panel[data-step="input"] .field-choice > legend {
+    width: 8.2em !important;
+  }
+  .inq-panel[data-step="input"] .field-choice > .choices,
+  .inq-panel[data-step="input"] .field-choice > .field-err {
+    margin-left: calc(8.2em + 18px) !important;
+  }
+}
+.choices {
+  gap: 8px !important;
+}
+.choice-body {
+  padding: 6px 12px 6px 34px !important;
+  min-height: 46px !important;
+}
+.choice-body b {
+  white-space: nowrap;
+  font-family: var(--f-serif);
+  font-weight: 500;
+}
+.inq-actions .btn.inq-next {
+  width: min(100%, 460px) !important;
+  min-width: 0 !important;
+  min-height: 58px !important;
+  font-size: 16px !important;
+}
+@media (min-width: 1000px) {
+  .inq-panel[data-step="input"] > .field:not(.field-consent):not([data-field="message"]),
+  .inq-panel[data-step="input"] .field-row > .field:first-child {
+    grid-template-columns: 150px minmax(0, 1fr) !important;
+  }
+  .inq-panel[data-step="input"] .field-row > .field:last-child {
+    grid-template-columns: auto minmax(0, 1fr) !important;
+  }
+  .inq-panel[data-step="input"] .field-choice > legend {
+    width: 150px !important;
+  }
+  .inq-panel[data-step="input"] .field-choice > .choices,
+  .inq-panel[data-step="input"] .field-choice > .field-err {
+    margin-left: 168px !important;
+  }
+  .inq-panel[data-step="input"] > .field[data-field="message"].field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .inq-panel[data-step="input"] .field-label {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+}
+@media (min-width: 1000px) {
+  .inq-panel[data-step="input"] .field-choice > .choices,
+  .inq-panel[data-step="input"] .field-choice > .field-err {
+    margin-left: 0 !important;
+  }
+}
+.inq-ref b {
+  font-family: var(--f-sans);
+  letter-spacing: 0.06em;
+}
+.inq-done-card {
+  background: url("plates/deco-silk-wave.webp") 30% 135% / 150% auto no-repeat, linear-gradient(135deg, #f4f1ea, #e9ecf5 60%, #f6efe0);
+}
+@media (max-width: 999px) {
+  .inq-panel[data-step="input"] .choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

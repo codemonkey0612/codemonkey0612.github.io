@@ -104,6 +104,12 @@
     "h2": 2048,
     "source2x": "pricing@2x.png"
   },
+  "reel-poster": {
+    "kind": "section",
+    "w": 1920,
+    "h": 817,
+    "source": "reel-poster.png"
+  },
   "reviews": {
     "tone": "dark",
     "w": 1536,

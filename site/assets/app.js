@@ -292,7 +292,7 @@
       });
       var moreBtn = d.createElement("button");
       moreBtn.type = "button";
-      moreBtn.className = "btn btn-ghost more-btn";
+      moreBtn.className = "btn btn-plate more-btn";
       var label = function () {
         moreBtn.textContent = "さらに表示する（残り" + (items.length - shownN) + "件）";
       };
@@ -300,11 +300,12 @@
       reviews.after(moreBtn);
       moreBtn.addEventListener("click", function () {
         var first = items[shownN];
-        items.slice(shownN, shownN + step).forEach(function (el) {
+        var more = Number(reviews.getAttribute("data-step")) || step;
+        items.slice(shownN, shownN + more).forEach(function (el) {
           el.hidden = false;
           el.classList.add("is-in");
         });
-        shownN = Math.min(items.length, shownN + step);
+        shownN = Math.min(items.length, shownN + more);
         if (first) {
           first.setAttribute("tabindex", "-1");
           first.focus();
@@ -391,4 +392,19 @@
     }
     syncToggle();
   });
+
+  // ---------- folded sections reached by a link (#price) open themselves ----------
+  var openTarget = function () {
+    var id = location.hash ? decodeURIComponent(location.hash.slice(1)) : "";
+    var el = id && d.getElementById(id);
+    if (el && el.tagName === "DETAILS") el.open = true;
+  };
+  window.addEventListener("hashchange", openTarget);
+  d.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var el = d.getElementById(decodeURIComponent(a.getAttribute("href").slice(1)));
+    if (el && el.tagName === "DETAILS") el.open = true;
+  });
+  openTarget();
 })();

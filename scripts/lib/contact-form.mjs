@@ -36,10 +36,11 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
       works.map((w) => [w.id, { name: w.name ?? w.headline ?? w.id, cat: PILLAR_TO_CATEGORY[w.service?.pillar] ?? "other" }]),
     ),
   };
-  const field = (name, label, input, { optional = false, hint = "" } = {}) => `<div class="field" data-field="${name}">
+  const field = (name, label, input, { optional = false, hint = "", hintAfter = false } = {}) => `<div class="field" data-field="${name}">
         <label class="field-label" for="f-${name}">${label}${optional ? '<span class="opt">任意</span>' : '<span class="req">必須</span>'}</label>
-        ${hint ? `<p class="field-hint" id="f-${name}-hint">${hint}</p>` : ""}
+        ${hint && !hintAfter ? `<p class="field-hint" id="f-${name}-hint">${hint}</p>` : ""}
         ${input}
+        ${hint && hintAfter ? `<p class="field-hint field-hint-after" id="f-${name}-hint">${hint}</p>` : ""}
         <p class="field-err" id="f-${name}-err" hidden></p>
       </div>`;
   const describedBy = (name, hint) => `aria-describedby="${hint ? `f-${name}-hint ` : ""}f-${name}-err"`;
@@ -69,6 +70,7 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
     <script type="application/json" class="inq-topics">${JSON.stringify(topics).replace(/</g, "\\u003c")}</script>
 
     <div class="inq-panel" data-step="input">
+      ${ep ? "" : `<p class="inq-notice"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v6M12 16.6v.01"/></svg><span>このフォームからの送信は、現在準備中です。お手数ですが、ご相談は${ext("Lancers")}からお送りください。</span></p>`}
       <div class="inq-context" hidden>
         <span>ご相談の対象：<b class="inq-context-name"></b></span>
         <button type="button" class="inq-context-x"><span aria-hidden="true">×</span><span class="sr-only">ご相談の対象を外す</span></button>
@@ -76,7 +78,7 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
       <input type="hidden" name="context" value="">
       ${field("name", "お名前", `<input class="field-input" id="f-name" name="name" type="text" placeholder="例）山田 太郎" autocomplete="name" maxlength="${LIMITS.name}" required ${describedBy("name")}>`)}
       ${field("company", "会社名・団体名", `<input class="field-input" id="f-company" name="company" type="text" placeholder="例）株式会社〇〇" autocomplete="organization" maxlength="${LIMITS.company}" ${describedBy("company")}>`, { optional: true })}
-      ${field("email", "返信先メールアドレス", `<input class="field-input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" maxlength="${LIMITS.email}" required ${describedBy("email", true)}>`, { hint: "お返事はこのアドレスにお送りします。" })}
+      ${field("email", "返信先メールアドレス", `<input class="field-input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" maxlength="${LIMITS.email}" required ${describedBy("email", true)}>`, { hint: "お返事はこのアドレスにお送りします。", hintAfter: true })}
       <fieldset class="field field-choice" data-field="category" aria-describedby="f-category-err">
         <legend class="field-label">相談したいこと<span class="req">必須</span></legend>
         <div class="choices">
@@ -112,6 +114,7 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
       <div class="inq-actions${ep ? "" : " inq-needs-js"}">
         <button class="btn btn-gold inq-next" type="submit">送信する</button>
       </div>
+      <p class="inq-time"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M20 4C11 4.5 6.5 9.5 5.5 19.5"/><path d="M5.5 19.5C12 19 16.5 15.5 18 9"/><path d="M4 21l2-2"/></svg>ご入力は数分で完了します。</p>
     </div>
 
     <div class="inq-panel" data-step="confirm" hidden>
@@ -119,6 +122,7 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
       <p class="inq-lead">この内容で送信します。直す場合は「修正する」を押してください。</p>
       <dl class="inq-review"></dl>
       <div class="inq-error" role="alert" tabindex="-1" hidden>
+        <svg class="inq-error-ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v6M12 16.6v.01"/></svg>
         <p class="inq-error-text"></p>
         <p class="inq-error-alt">${ext("Lancersで相談する")}</p>
       </div>
@@ -129,10 +133,14 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
     </div>
 
     <div class="inq-panel inq-done" data-step="done" hidden>
-      <svg class="inq-check" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="29"/><path d="M19 33.5l8.5 8.5L45 23.5"/></svg>
-      <h3 class="inq-h" tabindex="-1">送信しました</h3>
-      <p>お問い合わせを受け付けました。内容を確認のうえ、ご入力いただいたメールアドレスにお返事します。</p>
-      <p class="inq-ref">受付番号：<b class="inq-ref-no"></b></p>
+      <div class="inq-done-card">
+        <span class="inq-orb" aria-hidden="true"><svg class="inq-check" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="29"/><path d="M19 33.5l8.5 8.5L45 23.5"/></svg></span>
+        <div class="inq-done-text">
+          <h3 class="inq-h" tabindex="-1">送信しました</h3>
+          <p>お問い合わせを受け付けました。<br>内容を確認のうえ、ご入力いただいたメールアドレスにお返事します。</p>
+          <p class="inq-ref">受付番号：<b class="inq-ref-no"></b></p>
+        </div>
+      </div>
       <p class="inq-note">しばらくたってもお返事が届かない場合は、迷惑メールのフォルダもご確認ください。</p>
       <p><a class="btn btn-ghost" href="${esc(base)}">トップへ戻る</a></p>
     </div>

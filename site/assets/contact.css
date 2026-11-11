@@ -317,6 +317,8 @@
   display: none;
 }
 .inq-context-k {
+  flex: none;
+  white-space: nowrap;
   color: var(--muted, #55606f);
 }
 .inq-context-name {

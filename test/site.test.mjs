@@ -305,8 +305,8 @@ test("the home page uses the pilot plates when they exist, and its links survive
   if (site.art.section("sec-home-sel")) {
     assert.match(home, /<source media="\(min-width: 1024px\)" srcset="\.\/assets\/plates\/sec-home-sel\.webp[ "]/, "desktop gets the plate with the screenshots on its laptops");
     // The laptops in the picture are links to the two works, with real alt text for the screenshots.
-    assert.match(home, /class="dev-laptop" href="\.\/works\/[^"]+\/"><span class="dev-screen"><img[^>]+alt="[^"]+"/);
-    assert.match(home, /class="dev-tablet" href="\.\/works\/[^"]+\/">/);
+    assert.match(home, /class="dev-laptop" href="\.\/works\/[^"]+\/" aria-label="[^"]+"><span class="dev-screen"><img[^>]+alt="[^"]+"/);
+    assert.match(home, /class="dev-tablet" href="\.\/works\/[^"]+\/" aria-label="[^"]+">/);
   }
   // Upscaled copies go to large and high-density screens only, through srcset (phones keep the 1× files).
   for (const name of ["sec-home-hero", "sec-home-sel", "sec-home-exp", "sec-home-reel", "sec-home-cta"]) {

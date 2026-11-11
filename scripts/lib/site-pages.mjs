@@ -640,8 +640,8 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
       <p class="sel-cta"><a class="btn btn-ghost" href="${base}works/">実績を見る${icon("arrow")}</a></p>
     </div>
     <div class="sel-devices" data-reveal>
-      <a class="dev-laptop" href="${base}works/${esc(lead.id)}/"><span class="dev-screen">${img(site, workImage(lead), base, { alt: `${workName(lead)}のトップページ` })}</span><span class="dev-base" aria-hidden="true"></span></a>
-      ${featured[0] ? `<a class="dev-tablet" href="${base}works/${esc(featured[0].id)}/"><span class="dev-screen">${img(site, workImage(featured[0]), base, { alt: `${workName(featured[0])}（イメージ）` })}</span></a>` : ""}
+      <a class="dev-laptop" href="${base}works/${esc(lead.id)}/" aria-label="${esc(workName(lead))}の実績を見る"><span class="dev-screen">${img(site, workImage(lead), base, { alt: `${workName(lead)}のトップページ` })}</span><span class="dev-base" aria-hidden="true"></span></a>
+      ${featured[0] ? `<a class="dev-tablet" href="${base}works/${esc(featured[0].id)}/" aria-label="${esc(workName(featured[0]))}の実績を見る"><span class="dev-screen">${img(site, workImage(featured[0]), base, { alt: `${workName(featured[0])}（イメージ）` })}</span></a>` : ""}
       <span class="sel-orb" aria-hidden="true"></span>
     </div>
     <ul class="sel-caps">${[lead, featured[0]].filter(Boolean).map((w) => `<li><a href="${base}works/${esc(w.id)}/"><b>${esc(workName(w))}</b><span>${esc(workLine(w))}</span>${icon("arrow", "ic sel-cap-ic")}</a></li>`).join("")}</ul>

@@ -10,12 +10,12 @@
   --white: #fff;
   --gold: #c9a24a;
   --gold-hi: #ecd096;
-  --gold-ink: #8a6418;
+  --gold-ink: #7a5813;
   --ice: #9ec3ff;
   --ink: #0f1d2e;
   --muted: #55606f;
   --night-text: #e8edf6;
-  --night-muted: rgba(232, 237, 246, 0.74);
+  --night-muted: rgba(232, 237, 246, 0.84);
   --line: rgba(15, 29, 46, 0.14);
   --line-night: rgba(232, 237, 246, 0.16);
   --glass: rgba(255, 255, 255, 0.62);
@@ -15582,4 +15582,117 @@ html.ov-seen.motion .stage-home .stage-film {
   border-color: color-mix(in srgb, var(--accent, #c9a24a) 60%, #8a6418);
   background: rgba(255, 255, 255, 0.62);
   color: #6b4f16 !important;
+}
+/* services index and pricing: type at the mockup's scale */
+@media (min-width: 1024px) {
+  .route-services .svc-card .svc-body {
+    padding-right: 31% !important;
+  }
+  .route-services .svc-card-en {
+    font-size: calc(21 * var(--u)) !important;
+  }
+  .route-services .svc-card-desc {
+    font-size: calc(11.5 * var(--ut)) !important;
+    line-height: 1.75 !important;
+  }
+  .route-prices .matrix th,
+  .route-prices .matrix td {
+    font-size: calc(11.5 * var(--ut));
+  }
+  .route-prices .faq .acc summary {
+    font-size: calc(11.5 * var(--ut)) !important;
+  }
+}
+
+/* =====================================================================
+   ACCESSIBILITY pass (2026-11-11): small text measured against the real
+   pixels behind it reaches 4.5:1 (WCAG AA).
+   ===================================================================== */
+.tale-page-art figcaption,
+.tale-page-art .fine,
+.tale-page-art .fine a,
+.hero-media figcaption {
+  color: #3d4757;
+}
+.route-prices .matrix .dash {
+  color: #687282;
+}
+.route-works .filters button:not([aria-pressed="true"]) .f-ja {
+  color: #626b7a;
+}
+.page-home .exp-col .svc-desc {
+  color: rgba(232, 237, 246, 0.9);
+}
+.strip-reel .eyebrow {
+  color: #4f3a0e;
+}
+.tale-next a::before {
+  background: linear-gradient(90deg, rgba(8, 21, 33, 0.9) 0%, rgba(8, 21, 33, 0.74) 42%, rgba(8, 21, 33, 0.38) 66%, rgba(8, 21, 33, 0) 86%), linear-gradient(0deg, rgba(8, 21, 33, 0.5), transparent 40%);
+}
+/* the phone hangs below the laptop: the caption sits clear of it */
+.tale-page-art .showcase:has(.device-phone) + .fine {
+  margin-top: 52px;
+}
+.strip-reel .eyebrow {
+  color: #3b2b09;
+}
+.route-works .filters button:not([aria-pressed="true"]) .f-ja {
+  color: #59616f;
+}
+.journey .sh-lead {
+  color: #3d4757;
+}
+.journey-more:not([open]) > summary {
+  color: #4f3a0e;
+}
+.page-home .sel-lead a {
+  color: #2f3a4b;
+}
+@media (max-width: 760px) {
+  /* phones: the copy sits over the full plate, so the veils carry more */
+  .tale-next a::before {
+    background: linear-gradient(0deg, rgba(8, 21, 33, 0.95) 0%, rgba(8, 21, 33, 0.82) 55%, rgba(8, 21, 33, 0.5) 100%);
+  }
+  .band:not(.band-plain):not(.band-light)::before {
+    background: linear-gradient(180deg, rgba(8, 21, 33, 0.86), rgba(8, 21, 33, 0.74)) !important;
+  }
+  .stage-dark .cs-blur {
+    filter: blur(42px) saturate(1.1) brightness(0.48);
+  }
+  .stage-light .cs-blur {
+    filter: blur(42px) saturate(1.05) brightness(1.28);
+  }
+  .stage-dark .lead {
+    color: rgba(232, 237, 246, 0.92);
+  }
+}
+@media (max-width: 760px) {
+  .stage-light .cs-blur {
+    opacity: 0.5;
+  }
+}
+@media (max-width: 760px) {
+  .stage-light .stage-copy .kicker:not(.kicker-pill) {
+    color: #3b2b09;
+  }
+}
+.sv-next-title {
+  text-shadow: 0 2px 26px rgba(8, 21, 33, 0.9), 0 0 3px rgba(8, 21, 33, 0.55);
+}
+.page-home .exp-col .svc-desc {
+  color: #eef2f8;
+}
+.stage-light .stage-copy .kicker:not(.kicker-pill) {
+  color: #5c420c;
+}
+/* the hidden breadcrumb appears above the kicker while a keyboard user is on it */
+@media (min-width: 1024px) {
+  body:not(.route-home) .stage .crumbs:focus-within {
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: nowrap;
+    translate: 0 -150%;
+  }
 }

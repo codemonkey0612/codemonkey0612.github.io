@@ -11,7 +11,7 @@ url: https://note.com/shanaiai/n/n1d611e2de7b8
 cover: covers/1351631.jpg
 note_id: "190464061"
 note_key: n1d611e2de7b8
-note_hash: 3864882332cf
+note_hash: e5554311e02e
 ---
 <!-- crossposted from articles/multitenant-rag-rls-pgvector.md: edit the Zenn article, not this copy -->
 複数の企業が同じRAGを使うSaaSでは、A社への回答にB社の文書が1件混ざるだけでも、重大な情報漏えいです。一方で、すべてのクエリに `WHERE tenant_id = ?` を書き忘れない運用は、開発者や機能が増えるほど破綻しやすくなります。

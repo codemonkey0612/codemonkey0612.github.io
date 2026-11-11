@@ -451,7 +451,7 @@
 
   // ---------- storybook: headings written in light, letter by letter ----------
   // The words stay whole for screen readers (a hidden copy); the letters are decoration.
-  var inkTargets = d.querySelectorAll("main .sh .h2, main .band-title, main .bio-motto, main .strip-title, main .svc-head h2, main > .stage .display");
+  var inkTargets = d.querySelectorAll("main .sh .h2, main .band-title, main .bio-motto, main .strip-title, main .svc-head h2, main > .stage .display, main .tale-statement, main .tale-h2, main .tale-next-title");
   var inkIo =
     "IntersectionObserver" in window
       ? new IntersectionObserver(
@@ -595,7 +595,7 @@
     });
 
     // Cards tilt toward the pointer and catch a light where it is.
-    d.querySelectorAll(".route-works .gcard a, .svc-card, .tier, .quote-card, .hl-cards li, .cap-row li, .deliv-cards li, .card-soft, .card-night, .sel-caps a, .cs-points li, .cs-next").forEach(function (el) {
+    d.querySelectorAll(".route-works .gcard a, .svc-card, .tier, .quote-card, .hl-cards li, .cap-row li, .deliv-cards li, .card-soft, .card-night, .sel-caps a, .cs-points li, .cs-next, .tale-hl li").forEach(function (el) {
       var sheen = d.createElement("span");
       sheen.className = "sheen";
       sheen.setAttribute("aria-hidden", "true");
@@ -673,6 +673,36 @@
         heroKick();
       });
     }
+  }
+
+  // ---------- storybook figures count up when they come into view ----------
+  var counts = d.querySelectorAll(".tale-count[data-to]");
+  if (counts.length && "IntersectionObserver" in window) {
+    var countIo = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          countIo.unobserve(e.target);
+          var el = e.target;
+          var to = Number(el.getAttribute("data-to")) || 0;
+          if (!root.classList.contains("motion") || !to) return;
+          var t0 = performance.now();
+          var dur = 1600;
+          var tick = function (now) {
+            var p = Math.min(1, (now - t0) / dur);
+            var eased = 1 - Math.pow(1 - p, 4);
+            el.textContent = Math.round(to * eased).toLocaleString("ja-JP");
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          el.textContent = "0";
+          requestAnimationFrame(tick);
+        });
+      },
+      { threshold: 0.6 },
+    );
+    counts.forEach(function (el) {
+      countIo.observe(el);
+    });
   }
 
   // ---------- folded sections reached by a link (#price) open themselves ----------

@@ -12787,3 +12787,907 @@ body:not(.route-home):not(.route-404) .stage .display {
   padding: 12px 0;
   margin: -12px 0;
 }
+
+/* =====================================================================
+   PASS 10 (2026-11-11): case studies as a storybook. Each project is
+   told in chapters at a generous scale: a full-screen opening plate, a
+   prologue set like the first line of a book, a night band of figures,
+   floating highlights, chapters as book spreads, the client's words
+   over the project's own illustration, and a full-screen next chapter.
+   ===================================================================== */
+.tale {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-block: clamp(96px, 10vw, 200px);
+}
+.tale-in {
+  position: relative;
+  z-index: 1;
+  width: min(calc(100% - 2 * var(--gutter)), 1320px);
+  margin-inline: auto;
+}
+.tale-narrow {
+  width: min(calc(100% - 2 * var(--gutter)), 980px);
+}
+@media (min-width: 1024px) {
+  .tale-in {
+    width: min(calc(100% - 2 * var(--gutter)), calc(940 * var(--u)));
+  }
+  .tale-narrow {
+    width: min(calc(100% - 2 * var(--gutter)), calc(680 * var(--u)));
+  }
+}
+.tale-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 24px;
+  font: 600 clamp(12px, 0.9vw, 16px) / 1 var(--f-latin);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+.tale-label::before,
+.tale-label::after {
+  content: "";
+  width: clamp(36px, 4.5vw, 90px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+}
+.tale-label::after {
+  background: linear-gradient(270deg, transparent, var(--gold));
+}
+.tale-label-left {
+  justify-content: flex-start;
+}
+.tale-label-left::before {
+  display: none;
+}
+.tale-label-light {
+  color: var(--gold-hi);
+}
+.tale-h2 {
+  margin: 0 0 clamp(28px, 3vw, 48px);
+  font: 500 clamp(30px, 3.1vw, 58px) / 1.4 var(--f-serif);
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+.tale-h2.center {
+  text-align: center;
+}
+.tale-h2 small {
+  display: block;
+  margin-top: 10px;
+  font: 500 clamp(13px, 0.95vw, 16px) / 1.6 var(--f-sans);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.tale-body p,
+.tale-body li {
+  font-family: var(--f-serif);
+  font-size: clamp(16px, 1.2vw, 21px);
+  line-height: 2.15;
+  letter-spacing: 0.03em;
+  color: #364152;
+}
+.tale-body p {
+  margin: 0 0 1em;
+}
+.tale-body ul,
+.tale-body ol {
+  margin: 0.4em 0 1.2em;
+  padding: 0;
+  list-style: none;
+}
+.tale-body li {
+  position: relative;
+  padding: 0.35em 0 0.35em 1.7em;
+}
+.tale-body ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0.15em;
+  top: 1.15em;
+  width: 7px;
+  height: 7px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  box-shadow: 0 0 10px rgba(236, 208, 150, 0.8);
+}
+.tale-body ol {
+  counter-reset: tl;
+}
+.tale-body ol > li::before {
+  counter-increment: tl;
+  content: counter(tl, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  font: 600 0.82em/2 var(--f-latin);
+  font-variant-numeric: lining-nums;
+  color: var(--gold-ink);
+}
+
+/* ---------- the opening plate: full screen ---------- */
+@media (min-width: 761px) {
+  body.route-work .stage.tale-hero {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    min-height: min(100svh, 1080px) !important;
+    padding: calc(var(--hd) + 24px) 0 96px !important;
+  }
+  body.route-work .tale-hero .stage-art {
+    top: calc(50% + var(--hd) / 2 - 24px) !important;
+    translate: 0 -50%;
+    width: calc(var(--cw) * 0.64) !important;
+  }
+  body.route-work .tale-hero .stage-copy {
+    width: 42% !important;
+  }
+  body.route-work .tale-hero .display {
+    font-size: clamp(40px, 4.8vw, 96px) !important;
+  }
+  body.route-work .tale-hero .lead {
+    font-size: clamp(14px, 1.15vw, 20px) !important;
+  }
+}
+.tale-scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  translate: -50% 0;
+  font: 600 11px/1 var(--f-latin);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.85;
+}
+.tale-scroll i {
+  position: relative;
+  width: 1px;
+  height: 56px;
+  overflow: hidden;
+  background: rgba(236, 208, 150, 0.25);
+}
+.tale-scroll i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, #f5e2ad, transparent);
+}
+@keyframes scroll-line {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+.motion .tale-scroll i::after {
+  animation: scroll-line 2.2s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+}
+@media (max-width: 760px) {
+  .tale-scroll {
+    display: none;
+  }
+}
+
+/* ---------- prologue: the first line of the book ---------- */
+.tale-prologue {
+  background: radial-gradient(80% 70% at 50% 0%, #ffffff 0%, #f5f3f8 55%, #eef0f6 100%);
+  text-align: center;
+}
+.tale-silk {
+  position: absolute;
+  left: -20%;
+  bottom: -14%;
+  z-index: -1;
+  width: 140%;
+  max-width: none;
+  opacity: 0.6;
+  pointer-events: none;
+}
+.tale-sakura {
+  position: absolute;
+  right: -6%;
+  top: -4%;
+  z-index: -1;
+  width: clamp(240px, 30vw, 560px);
+  max-width: none;
+  pointer-events: none;
+}
+.tale-kicker {
+  margin: 0 0 clamp(20px, 2vw, 34px);
+  font: 500 clamp(14px, 1vw, 17px) / 1 var(--f-serif);
+  letter-spacing: 0.34em;
+  color: #5b6577;
+}
+.tale-statement {
+  margin: 0;
+  font: 500 clamp(28px, 3.4vw, 64px) / 1.5 var(--f-serif);
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  text-wrap: balance;
+  word-break: auto-phrase;
+}
+.tale-ornament {
+  position: relative;
+  display: block;
+  width: clamp(160px, 16vw, 280px);
+  height: 14px;
+  margin: clamp(34px, 3.4vw, 60px) auto;
+  background: linear-gradient(90deg, transparent, var(--gold) 38%, transparent 38% 62%, var(--gold) 62%, transparent) center / 100% 1px no-repeat;
+}
+.tale-ornament i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--gold);
+  translate: -50% -50%;
+  rotate: 45deg;
+  box-shadow: 0 0 12px rgba(236, 208, 150, 0.8);
+}
+.tale-prologue .tale-body {
+  max-width: 34em;
+  margin-inline: auto;
+  text-align: left;
+}
+.tale-dropcap > p:first-child::first-letter {
+  float: left;
+  margin: 0.12em 0.16em 0 0;
+  font: 600 3.6em/0.9 var(--f-serif);
+  color: transparent;
+  background: linear-gradient(160deg, #e8c77a, #a77a28 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ---------- at a glance: figures in the night sky ---------- */
+.tale-facts {
+  background: radial-gradient(70% 100% at 50% 0%, #1c3658 0%, #0b1626 60%, #070f1b 100%);
+  color: var(--night-text);
+  text-align: center;
+}
+.tale-glints {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.tale-stats {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+  margin: clamp(30px, 4vw, 70px) 0 0;
+}
+.tale-stats > div {
+  padding: 8px clamp(14px, 2vw, 36px);
+}
+.tale-stats > div + div {
+  border-left: 1px solid rgba(236, 208, 150, 0.25);
+}
+.tale-stats dt {
+  font: 600 clamp(12px, 0.9vw, 15px) / 1 var(--f-sans);
+  letter-spacing: 0.3em;
+  color: var(--gold-hi);
+}
+.tale-stats dd {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: clamp(16px, 1.6vw, 26px) 0 0;
+}
+.tale-count {
+  font: 500 clamp(56px, 6.6vw, 128px) / 1 var(--f-latin);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: 0.02em;
+  background: linear-gradient(170deg, #fff6dc 10%, #e3c27a 55%, #b48633 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 24px rgba(236, 208, 150, 0.35));
+}
+.tale-stats small {
+  font: 500 clamp(17px, 1.5vw, 28px) / 1 var(--f-serif);
+  color: var(--night-text);
+}
+.tale-word {
+  font: 500 clamp(22px, 2.2vw, 42px) / 1.45 var(--f-serif);
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+.tale-word a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gold-hi);
+}
+.tale-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: clamp(40px, 4vw, 72px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.tale-chips li {
+  padding: 11px 22px;
+  border: 1px solid rgba(236, 208, 150, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 22px rgba(236, 208, 150, 0.14), inset 0 0 12px rgba(236, 208, 150, 0.08);
+  font: 500 clamp(14px, 1vw, 17px) / 1 var(--f-latin);
+  letter-spacing: 0.08em;
+  color: #f3e6c8;
+}
+.tale-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px 16px;
+  margin: clamp(30px, 3vw, 52px) 0 0;
+  font-size: clamp(13px, 0.9vw, 15px);
+  color: var(--night-muted);
+}
+.tale-links i {
+  font-size: 8px;
+  font-style: normal;
+  color: var(--gold);
+}
+.tale-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--gold-hi);
+}
+
+/* ---------- highlights: three glass cards floating at different heights ---------- */
+.tale-highlights {
+  background: linear-gradient(180deg, #eef0f6, #f6f4ef);
+}
+.tale-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.75;
+  pointer-events: none;
+}
+.tale-hl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2.6vw, 48px);
+  margin: 0;
+  padding: 0 0 70px;
+  list-style: none;
+  perspective: 1300px;
+}
+.tale-hl li {
+  position: relative;
+  overflow: hidden;
+  min-height: clamp(240px, 21vw, 380px);
+  margin-top: calc(var(--k) * 36px);
+  padding: clamp(32px, 3vw, 56px) clamp(26px, 2.6vw, 48px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 30px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.55));
+  backdrop-filter: blur(12px);
+  box-shadow: 0 50px 90px -56px rgba(15, 29, 46, 0.6), inset 0 0 0 1px rgba(201, 162, 74, 0.28);
+}
+.tale-hl-num {
+  position: absolute;
+  right: 14px;
+  top: -14px;
+  font: 500 clamp(110px, 11vw, 200px) / 1 var(--f-latin);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(201, 162, 74, 0.5);
+  pointer-events: none;
+}
+.tale-hl-orb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(58px, 5vw, 84px);
+  height: clamp(58px, 5vw, 84px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 26%, #fff 0 16%, #f0f4ff 42%, #dfe6f6 80%);
+  border: 1px solid #fff;
+  box-shadow: 0 18px 30px -18px rgba(15, 29, 46, 0.55), 0 0 0 7px rgba(201, 162, 74, 0.12);
+  color: var(--gold-ink);
+}
+.tale-hl-orb .ic {
+  width: 42%;
+  height: 42%;
+  stroke-width: 1.4;
+}
+.tale-hl p {
+  position: relative;
+  margin: clamp(26px, 2.4vw, 40px) 0 0;
+  font: 600 clamp(18px, 1.55vw, 28px) / 1.65 var(--f-serif);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+@keyframes tale-float {
+  from {
+    translate: 0 -8px;
+  }
+  to {
+    translate: 0 8px;
+  }
+}
+.motion .tale-hl li.is-in {
+  animation: tale-float 7s ease-in-out calc(var(--k) * -2.3s) infinite alternate;
+}
+
+/* ---------- chapters as book spreads ---------- */
+.tale-chapter {
+  background: linear-gradient(180deg, #ffffff, #f7f5f0);
+}
+.tale-chapter.is-flip {
+  background: linear-gradient(180deg, #f7f5f0, #eef0f6);
+}
+.tale-haze {
+  position: absolute;
+  right: -10%;
+  top: 0;
+  z-index: -1;
+  width: 70%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.14;
+  filter: saturate(0.9);
+  -webkit-mask-image: radial-gradient(70% 70% at 60% 50%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(70% 70% at 60% 50%, #000 30%, transparent 100%);
+  pointer-events: none;
+}
+.tale-side-deco {
+  position: absolute;
+  left: -3%;
+  bottom: -4%;
+  z-index: -1;
+  width: clamp(240px, 26vw, 480px);
+  max-width: none;
+  pointer-events: none;
+}
+.tale-chapter.is-flip .tale-side-deco {
+  left: auto;
+  right: -3%;
+  transform: scaleX(-1);
+}
+.tale-spread {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(40px, 6vw, 120px);
+  align-items: center;
+}
+.tale-page-text {
+  position: relative;
+  isolation: isolate;
+}
+.tale-bignum {
+  font: 500 clamp(140px, 15vw, 300px) / 0.8 var(--f-latin);
+  font-variant-numeric: lining-nums;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(201, 162, 74, 0.45);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+.tale-chapter-art .tale-bignum {
+  position: absolute;
+  left: -0.06em;
+  top: -0.55em;
+  z-index: -1;
+}
+.tale-chapter-plain .tale-spread {
+  display: block;
+}
+.tale-chapter-plain .tale-page-text {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  grid-template-areas: "num body" "label body" "title body" ". body";
+  grid-template-rows: auto auto auto 1fr;
+  column-gap: clamp(40px, 6vw, 120px);
+}
+.tale-chapter-plain .tale-bignum {
+  grid-area: num;
+  margin-bottom: 18px;
+}
+.tale-chapter-plain .tale-label {
+  grid-area: label;
+}
+.tale-chapter-plain .tale-h2 {
+  grid-area: title;
+}
+.tale-chapter-plain .tale-body {
+  grid-area: body;
+  padding-top: clamp(12px, 1.6vw, 30px);
+}
+.tale-chapter.is-flip .tale-page-text {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  grid-template-areas: "body num" "body label" "body title" "body .";
+}
+.tale-page-art {
+  position: relative;
+  isolation: isolate;
+}
+.tale-page-art::before {
+  content: "";
+  position: absolute;
+  inset: 10% -6% -8% 10%;
+  z-index: -1;
+  border-radius: 40px;
+  background: radial-gradient(closest-side, rgba(236, 208, 150, 0.6), rgba(236, 208, 150, 0));
+  filter: blur(30px);
+}
+.tale-page-art::after {
+  content: "";
+  position: absolute;
+  inset: -20px 22px 22px -20px;
+  z-index: -1;
+  border: 1px solid rgba(201, 162, 74, 0.5);
+  border-radius: 30px;
+}
+.tale-page-art .hero-media,
+.tale-page-art .showcase {
+  margin: 0;
+}
+.tale-page-art .hero-media img {
+  width: 100%;
+  border-radius: 24px;
+  box-shadow: 0 60px 100px -54px rgba(15, 29, 46, 0.65), 0 0 0 1px rgba(201, 162, 74, 0.35);
+}
+.tale-page-art figcaption,
+.tale-page-art .fine {
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: center;
+}
+.tale-cta-line {
+  margin-top: 26px;
+}
+
+/* ---------- the client's words, over the project's own illustration ---------- */
+.tale-voice {
+  background: #081521;
+  color: var(--night-text);
+  text-align: center;
+}
+.tale-voice::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(70% 70% at 50% 50%, rgba(8, 21, 33, 0.55), rgba(8, 21, 33, 0.9));
+}
+.tale-voice-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+  filter: blur(2px) saturate(1.1);
+  scale: 1.08;
+  pointer-events: none;
+}
+.tale-quote {
+  position: relative;
+  margin: 0 auto clamp(48px, 5vw, 90px);
+}
+.tale-quote::before {
+  content: "\201C";
+  display: block;
+  height: 0.55em;
+  font: 700 clamp(90px, 9vw, 170px) / 1 Georgia, serif;
+  color: var(--gold);
+  text-shadow: 0 0 34px rgba(236, 208, 150, 0.55);
+}
+.tale-quote.is-quiet::before {
+  display: none;
+}
+.tale-quote blockquote {
+  margin: 0;
+}
+.tale-quote blockquote p {
+  margin: 0;
+  font: 500 clamp(19px, 1.75vw, 32px) / 2 var(--f-serif);
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-wrap: pretty;
+  text-shadow: 0 2px 20px rgba(8, 21, 33, 0.8);
+}
+.tale-quote.is-more::before {
+  font-size: clamp(60px, 5vw, 100px);
+}
+.tale-quote.is-more blockquote p {
+  font-size: clamp(16px, 1.3vw, 23px);
+}
+.tale-quiet {
+  margin: 0;
+  font: 500 clamp(18px, 1.5vw, 26px) / 1.8 var(--f-serif);
+  color: #fff;
+}
+.tale-quote figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 16px;
+  margin-top: clamp(20px, 2vw, 34px);
+  font-size: clamp(13px, 0.9vw, 15px);
+  color: var(--night-muted);
+}
+.tale-q-job {
+  color: #e8ecf4;
+}
+.tale-quote figcaption a,
+.tale-fine a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--gold-hi);
+}
+.tale-fine {
+  margin: 0;
+  font-size: 13px;
+  color: var(--night-muted);
+}
+
+/* ---------- the next chapter: a full-screen plate ---------- */
+.tale-next a {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: clamp(420px, 48vw, 820px);
+  overflow: hidden;
+  background: #081521;
+  color: #fff;
+  text-decoration: none;
+}
+.tale-next a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgba(8, 21, 33, 0.88) 0%, rgba(8, 21, 33, 0.5) 45%, rgba(8, 21, 33, 0) 75%), linear-gradient(0deg, rgba(8, 21, 33, 0.5), transparent 40%);
+}
+.tale-next-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 70% 50%;
+  transition: scale 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.tale-next a:hover .tale-next-art {
+  scale: 1.05;
+}
+.tale-next-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(calc(100% - 2 * var(--gutter)), 1320px);
+  margin-inline: auto;
+}
+.tale-next-body .tale-label {
+  margin: 0;
+}
+.tale-next-title {
+  max-width: 12em;
+  font: 500 clamp(40px, 5.4vw, 104px) / 1.15 var(--f-serif);
+  letter-spacing: 0.05em;
+  text-shadow: 0 4px 30px rgba(8, 21, 33, 0.7);
+}
+.tale-next-line {
+  font-size: clamp(14px, 1.1vw, 19px);
+  color: #dfe5ef;
+}
+.tale-next-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  width: fit-content;
+  margin-top: 12px;
+  padding: 15px 30px;
+  border: 1px solid rgba(236, 208, 150, 0.8);
+  border-radius: 999px;
+  background: rgba(8, 21, 33, 0.35);
+  backdrop-filter: blur(6px);
+  font: 600 15px/1 var(--f-sans);
+  letter-spacing: 0.1em;
+  color: var(--gold-hi);
+  transition: background 0.3s, color 0.3s;
+}
+.tale-next-go .ic {
+  width: 16px;
+  height: 16px;
+  transition: translate 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.tale-next a:hover .tale-next-go {
+  background: linear-gradient(135deg, #f5e2ad, #c9a24a 70%);
+  color: #10202f;
+}
+.tale-next a:hover .tale-next-go .ic {
+  translate: 4px 0;
+}
+
+/* ---------- motion: the story moves as it scrolls ---------- */
+@supports (animation-timeline: view()) {
+  @keyframes tale-drift {
+    from {
+      translate: 0 -7%;
+    }
+    to {
+      translate: 0 7%;
+    }
+  }
+  @keyframes tale-zoom {
+    from {
+      scale: 1.16;
+    }
+    to {
+      scale: 1;
+    }
+  }
+  @keyframes num-rise {
+    from {
+      opacity: 0;
+      translate: 0 60px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+  .motion :is(.tale-voice-art, .tale-haze, .tale-silk) {
+    animation: tale-drift linear both;
+    animation-timeline: view();
+  }
+  .motion .tale-next-art {
+    animation: tale-zoom linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 60%;
+  }
+  .motion .tale-bignum {
+    animation: num-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 5% cover 35%;
+  }
+}
+
+/* ---------- tablets and phones ---------- */
+@media (max-width: 860px) {
+  .tale-spread,
+  .tale-chapter-plain .tale-page-text,
+  .tale-chapter.is-flip .tale-page-text {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "num" "label" "title" "body";
+  }
+  .tale-hl {
+    grid-template-columns: minmax(0, 1fr);
+    padding-bottom: 0;
+  }
+  .tale-hl li {
+    margin-top: 0;
+    min-height: 0;
+  }
+  .tale-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tale-stats > div {
+    padding: 22px 0;
+  }
+  .tale-stats > div + div {
+    border-left: 0;
+    border-top: 1px solid rgba(236, 208, 150, 0.25);
+  }
+  .tale-chapter-art .tale-bignum {
+    position: static;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .tale-page-art {
+    margin-top: 20px;
+  }
+  .tale-page-art::after {
+    inset: -12px 12px 12px -12px;
+  }
+  .tale-next a::before {
+    background: linear-gradient(0deg, rgba(8, 21, 33, 0.92) 0%, rgba(8, 21, 33, 0.55) 55%, rgba(8, 21, 33, 0.2) 100%);
+  }
+  .tale-next a {
+    align-items: flex-end;
+    padding-bottom: 48px;
+  }
+}
+@media (max-width: 760px) {
+  .tale {
+    padding-block: 80px;
+  }
+  .tale-bignum {
+    font-size: 110px;
+  }
+  .tale-side-deco,
+  .tale-sakura {
+    width: 200px;
+    opacity: 0.6;
+  }
+}
+@media (min-width: 761px) {
+  body.route-work .tale-hero .display {
+    font-size: min(clamp(40px, 4.8vw, 96px), calc(min(100vw - 2 * var(--gutter), 1180px) * 0.4 / var(--len, 6))) !important;
+  }
+}
+@media (min-width: 1024px) {
+  body.route-work .tale-hero .display {
+    font-size: min(clamp(40px, 4.8vw, 96px), calc(min(100vw - 2 * var(--gutter), 860 * var(--u)) * 0.4 / var(--len, 6))) !important;
+  }
+}
+@media (max-width: 760px) {
+  body.route-work .tale-hero .display {
+    font-size: min(10vw, calc((100vw - 2 * var(--gutter)) / var(--len, 6))) !important;
+  }
+}
+.tale-prologue .tale-body.tale-center {
+  text-align: center;
+}
+.tale-next-title {
+  word-break: auto-phrase;
+  text-wrap: balance;
+}
+@media (max-width: 760px) {
+  .tale-next-title {
+    font-size: clamp(30px, 8.4vw, 40px);
+  }
+  .tale-quote blockquote p {
+    text-align: left;
+  }
+}
+.tale-silk {
+  bottom: -46%;
+  opacity: 0.5;
+}
+.tale-hl-num {
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  -webkit-text-stroke: 1.2px rgba(201, 162, 74, 0.55);
+}
+.tale-silk {
+  bottom: -92%;
+  opacity: 0.55;
+}
+@media (max-width: 760px) {
+  .tale-silk {
+    bottom: -30%;
+  }
+}

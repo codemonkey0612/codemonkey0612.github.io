@@ -774,94 +774,146 @@ export function renderWork(site, w) {
   const l = profile.lancers ?? {};
   const art = site.art.stage(scene);
   const [sum1, ...sumRest] = isSite ? w.summary.split(/(?<=。)/) : [];
-  // The story: chapter 01 beside the project's picture, then each further chapter as an editorial row.
   const chapters = isSite
-    ? [{ title: "サイトの特長", html: `<p>${esc(sumRest.join("") || w.summary)}</p><p class="cs-link">${ext(w.url, `サイトを見る${icon("ext", "ic ic-xs")}`, "btn btn-ghost")}</p>` }]
+    ? [{ title: "公開中のサイト", html: `<p>${esc(w.role)}</p><p class="tale-cta-line">${ext(w.url, `サイトを見る${icon("ext", "ic ic-xs")}`, "btn btn-ghost")}</p>` }]
     : story.chapters.slice(0, 3);
   const title = workName(w);
   const titleHtml = brk(title).replace(/-/g, "‑");
-  const blur = art.wide ? `<img class="cs-blur" src="${base}${art.wide}" alt="" width="${art.w}" height="${art.h}" aria-hidden="true" decoding="async">` : "";
+  // The longest piece that can't break (Latin letters count as about half a character), so the title fits its column.
+  const titleLen = Math.max(...title.split(/[\s・]+/).map((seg) => [...seg].reduce((n, ch) => n + (/[\x00-\x7f]/.test(ch) ? 0.56 : 1), 0)));
+  const sec = (name) => site.art.section(name);
+  const deco = (name, cls) => (sec(name) ? `<img class="${cls}" src="${base}${sec(name).src}" alt="" width="${sec(name).w}" height="${sec(name).h}" loading="lazy" decoding="async" aria-hidden="true">` : "");
+  const plateImg = (a, cls) => (a.wide ? `<img class="${cls}" src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async" aria-hidden="true">` : "");
+  // At a glance: real figures only, the largest first.
+  const stats = (
+    isSite
+      ? [
+          { k: "種類", word: w.kind },
+          { k: "担当", word: w.role },
+          { k: "サイト", html: ext(w.url, `${esc(w.host)}${icon("ext", "ic ic-xs")}`) },
+        ]
+      : [
+          w.days && { k: "制作期間", num: w.days, unit: "日" },
+          w.price && { k: "参考価格", num: w.price, unit: "円〜" },
+          w.industry && { k: "業種", word: w.industry },
+          !w.industry && { k: "分野", word: String(w.category).split("＞").pop().trim() },
+        ]
+  ).filter(Boolean).slice(0, 3);
+  const factLinks = [
+    !isSite && `<span>${esc(w.category)}</span>`,
+    serviceLink && `<span>関連するサービス：${serviceLink}</span>`,
+    !isSite && (w.job ? `<span>${ext(LANCERS_JOB(w.job), `ランサーズの募集ページ${icon("ext", "ic ic-xs")}`)}</span>` : `<span>非公開のご依頼です</span>`),
+  ].filter(Boolean);
+  const reviews = isSite ? [] : w.reviews;
   const body = `${stage(site, base, {
     scene,
-    cls: "cs-hero",
-    over: blur,
+    cls: "cs-hero tale-hero",
+    over: `${art.wide ? `<img class="cs-blur" src="${base}${art.wide}" alt="" width="${art.w}" height="${art.h}" aria-hidden="true" decoding="async">` : ""}<a class="tale-scroll" href="#prologue" aria-label="物語を読む"><span lang="en">Scroll</span><i aria-hidden="true"></i></a>`,
     inner: `    <div class="stage-copy">
       ${crumbs(base, [[`${base}works/`, "実績"], [null, title]])}
       <p class="kicker" lang="en">Case Study ${w.no}</p>
-      <h1 class="display">${titleHtml}</h1>
+      <h1 class="display" style="--len:${titleLen.toFixed(2)}">${titleHtml}</h1>
       <p class="accent-line" lang="en">${esc(w.en ?? "")}</p>
       <p class="lead">${esc(isSite ? workLine(w) : w.subtitle)}</p>
     </div>`,
   })}
-<section class="cs-sec cs-overview" aria-labelledby="overview-title">
-  <div class="cs-wrap">
-    <div class="cs-ov-grid">
-      <div class="cs-ov-text" data-reveal>
-        <p class="eyebrow" lang="en">Project Overview</p>
-        <h2 class="cs-h2" id="overview-title">プロジェクト概要</h2>
-        <p class="cs-headline">${esc(isSite ? w.name : w.headline)}</p>
-        <div class="cs-body">${isSite ? `<p>${esc(sum1)}</p>` : story.context.join("\n") || `<p>${esc(w.title)}</p>`}</div>
-      </div>
-      <dl class="cs-meta" data-reveal>
-        ${meta.filter(Boolean).map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("\n        ")}
-      </dl>
-    </div>
-    ${(w.points ?? []).length ? `<ul class="cs-points" aria-label="この案件のポイント">${w.points.map((x, k) => `<li data-reveal><span class="cs-pt-ic" aria-hidden="true">${icon(pickIcon(x, "check"))}</span><span class="cs-pt-no" lang="en">${pad2(k + 1)}</span><span class="cs-pt-t">${esc(x)}</span></li>`).join("")}</ul>` : ""}
+<section class="tale tale-prologue" id="prologue" aria-labelledby="overview-title">
+  ${deco("deco-silk-wave", "tale-silk")}
+  ${deco("deco-sakura-a", "tale-sakura")}
+  <div class="tale-in tale-narrow">
+    <p class="tale-label" lang="en"><span>Prologue</span></p>
+    <h2 class="tale-kicker" id="overview-title">プロジェクト概要</h2>
+    <p class="tale-statement" data-reveal>${esc(isSite ? sum1 : w.headline)}</p>
+    <span class="tale-ornament" aria-hidden="true"><i></i></span>
+    ${(() => {
+      const prose = isSite ? (sumRest.join("") ? `<p>${esc(sumRest.join(""))}</p>` : "") : story.context.join("\n") || `<p>${esc(w.title)}</p>`;
+      const plain = prose.replace(/<[^>]+>/g, "");
+      return prose ? `<div class="tale-body${plain.length > 90 ? " tale-dropcap" : " tale-center"}" data-reveal>${prose}</div>` : "";
+    })()}
   </div>
 </section>
-<section class="cs-sec cs-story" aria-label="取り組み">
-  <div class="cs-wrap">
-    ${chapters
-      .map((c, k) =>
-        k === 0
-          ? `<article class="cs-row cs-row-media">
-      <div class="cs-row-text" data-reveal>
-        <p class="cs-no" lang="en">${pad2(k + 1)}</p>
-        <h2 class="cs-h3">${esc(c.title)}${c.note ? `<small>${esc(c.note)}</small>` : ""}</h2>
-        <div class="cs-body">${c.html}</div>
-      </div>
-      <div class="cs-row-fig" data-reveal>${media}</div>
-    </article>`
-          : `<article class="cs-row cs-row-plain">
-      <div class="cs-row-head" data-reveal>
-        <p class="cs-no" lang="en">${pad2(k + 1)}</p>
-        <h2 class="cs-h3">${esc(c.title)}${c.note ? `<small>${esc(c.note)}</small>` : ""}</h2>
-      </div>
-      <div class="cs-body" data-reveal>${c.html}</div>
-    </article>`,
-      )
-      .join("\n    ")}
+<section class="tale tale-facts" aria-label="プロジェクトの情報">
+  ${deco("deco-glints", "tale-glints")}
+  <div class="tale-in">
+    <p class="tale-label tale-label-light" lang="en"><span>At a Glance</span></p>
+    <dl class="tale-stats" style="--n:${stats.length}">
+      ${stats
+        .map(
+          (x) => `<div data-reveal><dt>${x.k}</dt><dd>${
+            x.num
+              ? `<b class="tale-count" data-to="${x.num}">${Number(x.num).toLocaleString("ja-JP")}</b><small>${x.unit}</small>`
+              : x.html
+                ? `<span class="tale-word">${x.html}</span>`
+                : `<span class="tale-word">${esc(x.word)}</span>`
+          }</dd></div>`,
+        )
+        .join("\n      ")}
+    </dl>
+    ${(story?.stack ?? []).length ? `<ul class="tale-chips" aria-label="使用技術">${story.stack.map((t) => `<li data-reveal>${esc(t.trim())}</li>`).join("")}</ul>` : ""}
+    <p class="tale-links">${factLinks.join('<i aria-hidden="true">◆</i>')}</p>
   </div>
 </section>
 ${
-  isSite
-    ? ""
-    : `<section class="cs-sec cs-voice" aria-labelledby="review-title">
-  <div class="cs-wrap">
-    <p class="eyebrow eyebrow-center" lang="en">Client Voice</p>
-    <h2 class="cs-h2 center" id="review-title">お客さまの評価</h2>
-    ${w.reviews
+  (w.points ?? []).length
+    ? `<section class="tale tale-highlights" aria-labelledby="hl-title">
+  ${deco("sec-silk", "tale-bg")}
+  <div class="tale-in">
+    <p class="tale-label" lang="en"><span>Highlights</span></p>
+    <h2 class="tale-h2 center" id="hl-title">この案件のポイント</h2>
+    <ol class="tale-hl">
+      ${w.points.map((x, k) => `<li data-reveal style="--k:${k}"><span class="tale-hl-num" lang="en" aria-hidden="true">${["I", "II", "III", "IV"][k]}</span><span class="tale-hl-orb" aria-hidden="true">${icon(pickIcon(x, "check"))}</span><p>${esc(x)}</p></li>`).join("\n      ")}
+    </ol>
+  </div>
+</section>`
+    : ""
+}
+${chapters
+  .map(
+    (c, k) => `<section class="tale tale-chapter${k === 0 ? " tale-chapter-art" : " tale-chapter-plain"}${k % 2 ? " is-flip" : ""}" aria-labelledby="ch-${k + 1}">
+  ${k === 0 ? plateImg(art, "tale-haze") : deco(k % 2 ? "deco-sakura-b" : "deco-gold-leaves", "tale-side-deco")}
+  <div class="tale-in tale-spread">
+    <div class="tale-page tale-page-text">
+      <span class="tale-bignum" lang="en" aria-hidden="true">${pad2(k + 1)}</span>
+      <p class="tale-label tale-label-left" lang="en"><span>Chapter ${pad2(k + 1)}</span></p>
+      <h2 class="tale-h2" id="ch-${k + 1}">${esc(c.title)}${c.note ? `<small>${esc(c.note)}</small>` : ""}</h2>
+      <div class="tale-body" data-reveal>${c.html}</div>
+    </div>
+    ${k === 0 ? `<div class="tale-page tale-page-art" data-reveal>${media}</div>` : ""}
+  </div>
+</section>`,
+  )
+  .join("\n")}
+${
+  reviews.length
+    ? `<section class="tale tale-voice" aria-labelledby="review-title">
+  ${plateImg(art, "tale-voice-art")}
+  ${deco("deco-glints", "tale-glints")}
+  <div class="tale-in tale-narrow">
+    <p class="tale-label tale-label-light" lang="en"><span>Client Voice</span></p>
+    <h2 class="sr-only" id="review-title">お客さまの評価</h2>
+    ${reviews
       .map(
-        (t) => `<figure class="cs-quote${t.comment ? "" : " cs-quote-quiet"}" data-reveal>
-      ${t.comment ? `<span class="cs-qmark" aria-hidden="true">&ldquo;</span><blockquote><p>${esc(t.comment)}</p></blockquote>` : `<p class="cs-quote-none">コメントは公開されていません。評価は「満足」です。</p>`}
-      <figcaption>${stars()}<span class="cs-q-job">${esc(t.job)}</span><span class="cs-q-meta">${jaDate(t.date)}${t.repeat ? `・${esc(t.repeat)}` : ""}</span><a href="${base}reviews/#${esc(t.id)}">評価一覧で見る${icon("arrow", "ic ic-xs")}</a></figcaption>
+        (t, k) => `<figure class="tale-quote${k ? " is-more" : ""}${t.comment ? "" : " is-quiet"}" data-reveal>
+      ${t.comment ? `<blockquote><p>${esc(t.comment)}</p></blockquote>` : `<p class="tale-quiet">コメントは公開されていません。評価は「満足」です。</p>`}
+      <figcaption>${stars()}<span class="tale-q-job">${esc(t.job)}</span><span class="tale-q-meta">${jaDate(t.date)}${t.repeat ? `・${esc(t.repeat)}` : ""}</span><a href="${base}reviews/#${esc(t.id)}">評価一覧で見る${icon("arrow", "ic ic-xs")}</a></figcaption>
     </figure>`,
       )
       .join("\n    ")}
-    <p class="cs-fine">評価は${ext(l.reviews_url ?? l.profile_url, "ランサーズの評価ページ")}で確認できます。</p>
+    <p class="tale-fine">評価は${ext(l.reviews_url ?? l.profile_url, "ランサーズの評価ページ")}で確認できます。</p>
   </div>
 </section>`
+    : ""
 }
-<nav class="cs-sec cs-next-sec" aria-label="次の実績">
-  <div class="cs-wrap">
-    <a class="cs-next" href="${base}works/${esc(next.id)}/">
-      <span class="cs-next-art" aria-hidden="true">${(() => {
-        const na = site.art.stage(`work-${next.id}`);
-        return na.wide ? `<img src="${base}${na.wide}" alt="" width="${na.w}" height="${na.h}" loading="lazy" decoding="async">` : img(site, workImage(next), base);
-      })()}</span>
-      <span class="cs-next-body"><span class="eyebrow" lang="en">Next Project</span><span class="cs-next-title">${esc(workName(next))}${icon("arrow", "ic cs-next-ic")}</span><span class="cs-next-line">${esc(workLine(next))}</span></span>
-    </a>
-  </div>
+<nav class="tale-next" aria-label="次の実績">
+  <a href="${base}works/${esc(next.id)}/">
+    ${plateImg(site.art.stage(`work-${next.id}`), "tale-next-art")}
+    <span class="tale-next-body">
+      <span class="tale-label tale-label-light tale-label-left" lang="en"><span>Next Chapter</span></span>
+      <span class="tale-next-title">${esc(workName(next))}</span>
+      <span class="tale-next-line">${esc(workLine(next))}</span>
+      <span class="tale-next-go">次の実績へ${icon("arrow")}</span>
+    </span>
+  </a>
 </nav>
 ${inquiry(site, base, { title: "このような開発のご相談", text: "似た課題をお持ちでしたら、まずは現状をお聞かせください。進め方とお見積もりをご提案します。", textHtml: "似た課題をお持ちでしたら、まずは現状をお聞かせください。<br>進め方とお見積もりをご提案します。", query: `?work=${encodeURIComponent(w.id)}`, shape: "center", eyebrow: "", light: true, art: "sec-silk", label: "相談する", chev: true, lancers: false })}`;
   const ld = [

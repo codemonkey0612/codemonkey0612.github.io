@@ -11,9 +11,7 @@
 # keep (0 top, 0.5 middle, 1 bottom). note-covers refuses a 4:3 or square image, which would
 # need its sides filled in.
 #
-# Not here on purpose: face swap, AI business matching, scraping and game development. Also
-# not here: the 民泊・求人 matching system (1319670), whose package image is 4:3 with no 16:9
-# version.
+# Not here on purpose: face swap, AI business matching, scraping and game development.
 
 - id: "1351569"
   service: ChatGPT・生成AIを活用した業務効率化AIアプリ開発
@@ -105,3 +103,9 @@
   original: 4e8800b6-31a5-4fa2-a803-e1cdf597950c.png
   y: 0.1
   keywords: [test, testing, debug, debugging, codereview, review, ci, cicd, githubactions, playwright, jest, vitest, eval, evaluation, qa, refactoring, テスト, デバッグ, バグ, 不具合, コードレビュー, 品質, リファクタリング, 障害]
+
+- id: "1319670"
+  service: 民泊・求人向けマッチングシステム開発
+  original: 06-ai-matching.png
+  y: 0.3
+  keywords: [matching, marketplace, booking, reservation, saas, マッチング, 民泊, 求人, 予約, 予約システム, プラットフォーム]

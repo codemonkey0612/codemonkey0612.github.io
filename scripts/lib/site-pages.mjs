@@ -1606,7 +1606,6 @@ export function renderContact(site) {
   // sky and the form on a pale frosted panel.
   const bg = site.art.section("sec-contact-side");
   const bgImg = bg ? `<img class="inq-bg" src="${base}${bg.src}" alt="" width="${bg.w}" height="${bg.h}" loading="lazy" decoding="async">` : "";
-  const point = (ic, title, text) => `<li>${icon(ic)}<span><b>${title}</b><small>${text}</small></span></li>`;
   const css = fs.existsSync(new URL("../../site/assets/contact.css", import.meta.url)) ? `<link rel="stylesheet" href="${base}assets/contact.css?v=${site.assetVersion}">\n` : "";
   const js = fs.existsSync(new URL("../../site/assets/contact.js", import.meta.url)) ? `<script src="${base}assets/contact.js?v=${site.assetVersion}" defer></script>\n` : "";
   const body = `${stage(site, base, {
@@ -1624,13 +1623,7 @@ export function renderContact(site) {
     <div class="inq-intro">
       <p class="inq-kicker" lang="en">Contact Form</p>
       <h2 class="inq-h2" id="inq-win-title"><span class="nw">一緒に、</span><span class="nw">次の<em>景色</em>へ。</span></h2>
-      <p class="inq-lead"><span class="nw">アイデアの段階でも、</span><span class="nw">まだ整理できていない</span><span class="nw">ご構想でも、</span><span class="nw">どうぞお気軽に</span><span class="nw">ご相談ください。</span></p>
-      <ul class="inq-points">
-        ${point("pen", "必要なのは3つだけ", "ご相談内容・お名前・メールアドレス")}
-        ${point("sparkle", "ご相談だけでも歓迎", "進め方の整理から、ご一緒します")}
-        ${point("mail", "お返事はメールで", "内容を確認して、ご連絡します")}
-      </ul>
-      <p class="inq-alt">ランサーズからのご相談も受け付けています。<a href="${esc(profile.contact_url)}" target="_blank" rel="noopener">Lancersで相談する${icon("ext", "ic ic-xs")}<span class="sr-only">（新しいタブで開きます）</span></a></p>
+      <p class="inq-alt"><a href="${esc(profile.contact_url)}" target="_blank" rel="noopener">Lancersで相談する${icon("ext", "ic ic-xs")}<span class="sr-only">（新しいタブで開きます）</span></a></p>
     </div>
 ${form}
   </div>

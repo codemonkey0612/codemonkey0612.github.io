@@ -100,14 +100,13 @@
   opacity: 0.6;
 }
 .inq-h2 {
-  margin: 0 0 calc(18 * var(--s));
-  font: 500 calc(38 * var(--s)) / 1.5 var(--f-serif, serif);
+  margin: 0 0 calc(22 * var(--s));
+  font: 500 calc(44 * var(--s)) / 1.5 var(--f-serif, serif);
   letter-spacing: 0.06em;
   font-feature-settings: "palt";
   color: var(--ink, #0f1d2e);
 }
-.inq-h2 .nw,
-.inq-lead .nw {
+.inq-h2 .nw {
   display: inline-block;
 }
 .inq-h2 em {
@@ -117,73 +116,19 @@
   background-clip: text;
   color: transparent;
 }
-.inq-lead {
-  max-width: 26em;
-  margin: 0 0 calc(26 * var(--s));
-  font-size: calc(15 * var(--s));
-  line-height: 2;
-  color: #2a3749;
-}
-.inq-points {
-  display: grid;
-  gap: calc(12 * var(--s));
-  max-width: calc(420 * var(--s));
-  margin: 0 0 calc(24 * var(--s));
-  padding: 0;
-  list-style: none;
-}
-.inq-points li {
-  display: flex;
-  align-items: center;
-  gap: calc(14 * var(--s));
-  padding: calc(11 * var(--s)) calc(18 * var(--s)) calc(11 * var(--s)) calc(12 * var(--s));
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: calc(16 * var(--s));
-  background: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 12px 30px -22px rgba(11, 20, 40, 0.45);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-.inq-points .ic {
-  box-sizing: border-box;
-  flex: none;
-  width: calc(38 * var(--s));
-  height: calc(38 * var(--s));
-  padding: calc(9 * var(--s));
-  border: 1px solid rgba(201, 162, 74, 0.45);
-  border-radius: 50%;
-  background: linear-gradient(140deg, #fffaf0, #f3e4c2);
-  color: var(--gold-ink, #8a6418);
-}
-.inq-points b {
-  display: block;
-  font-size: calc(15 * var(--s));
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--ink, #0f1d2e);
-}
-.inq-points small {
-  display: block;
-  font-size: calc(12.5 * var(--s));
-  line-height: 1.6;
-  color: #4a5668;
-}
 .inq-alt {
   margin: 0;
-  font-size: calc(13 * var(--s));
+  font-size: calc(13.5 * var(--s));
   line-height: 1.8;
-  color: #3a475a;
 }
 .inq-alt a {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-left: 0.5em;
   color: var(--gold-ink, #8a6418);
   text-decoration: underline;
   text-decoration-color: rgba(138, 100, 24, 0.4);
   text-underline-offset: 4px;
-  white-space: nowrap;
 }
 
 /* ---- the frosted panel ---- */
@@ -203,40 +148,6 @@
   backdrop-filter: blur(22px) saturate(1.15);
   color: var(--ink, #0f1d2e);
   font: 400 calc(15 * var(--s)) / 1.7 var(--f-sans, sans-serif);
-}
-.inq-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 16px;
-  margin-bottom: calc(22 * var(--s));
-}
-.inq-title {
-  margin: 0;
-  white-space: nowrap;
-  font: 500 calc(22 * var(--s)) / 1.4 var(--f-serif, serif);
-  letter-spacing: 0.1em;
-  color: var(--ink, #0f1d2e);
-}
-.inq-time {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  padding: 5px 12px;
-  border: 1px solid rgba(201, 162, 74, 0.4);
-  border-radius: 999px;
-  background: rgba(201, 162, 74, 0.1);
-  font-size: calc(12 * var(--s));
-  letter-spacing: 0.06em;
-  color: var(--gold-ink, #8a6418);
-  white-space: nowrap;
-}
-.inq-time .ic {
-  width: 14px;
-  height: 14px;
 }
 
 /* ---- fields ---- */
@@ -877,18 +788,12 @@
   .inq-card {
     padding-block: calc(26 * var(--s)) calc(24 * var(--s)) !important;
   }
-  .inq-head {
-    margin-bottom: calc(16 * var(--s));
-  }
   .inq .field,
   .inq .chips-set {
     margin-bottom: calc(14 * var(--s));
   }
   .inq textarea.field-input {
     min-height: calc(92 * var(--s));
-  }
-  .inq-points li {
-    padding-block: calc(8 * var(--s));
   }
 }
 
@@ -922,45 +827,9 @@
   .inq-intro {
     padding-inline: 6px;
   }
-  .inq-lead {
-    font-size: 14.5px;
-    margin-bottom: 20px;
-  }
-  /* the three promises as small pills */
-  .inq-points {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .inq-points li {
-    gap: 8px;
-    padding: 4px 14px 4px 4px;
-    border-radius: 999px;
-  }
-  .inq-points .ic {
-    width: 28px;
-    height: 28px;
-    padding: 6px;
-  }
-  .inq-points b {
-    font-size: 13px;
-  }
-  .inq-points small {
-    display: none;
-  }
   .inq-sec .inq-card {
     padding: 24px 16px 22px !important;
     border-radius: 18px;
-  }
-  .inq-title {
-    font-size: 19px;
-    letter-spacing: 0.06em;
-  }
-  .inq-time {
-    padding: 4px 10px;
-    font-size: 11px;
-    letter-spacing: 0.02em;
   }
   .inq .chip {
     font-size: 13px;

@@ -19,11 +19,11 @@ const KINDS = [
 ];
 /** What the message box suggests for each kind (contact.js swaps it in). */
 export const MESSAGE_HINTS = {
-  "": "例）こんなことを実現したい、いまこんなことに困っている、など。アイデアの段階でも大丈夫です。",
-  ai: "例）社内の問い合わせ対応をAIで効率化したい。社内の文書を探せるチャットボットを作りたい。",
-  web: "例）会社のWebサイトを新しくしたい。ネットショップを始めたい。",
-  system: "例）Excelで回している業務をシステムにしたい。いまのシステムの不具合を直したい。",
-  other: "例）こんなことができるか知りたい、という段階でも大丈夫です。",
+  "": "例）こんなことができるか相談したい",
+  ai: "例）社内の問い合わせ対応をAIで効率化したい",
+  web: "例）会社のWebサイトを新しくしたい",
+  system: "例）Excelの業務をシステムにしたい",
+  other: "例）まだ構想の段階です",
 };
 const PILLAR_TO_CATEGORY = { AI: "ai", "Web・EC": "web", システム開発: "system", "品質・セキュリティ": "system" };
 
@@ -34,7 +34,6 @@ const ICON = {
   plus: svg('<path d="M12 5v14M5 12h14"/>', "ic more-ic"),
   arrow: svg('<path d="M5 12h14M13 6l6 6-6 6"/>', "ic"),
   alert: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7.5v6M12 16.6v.01"/>', "ic"),
-  clock: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>', "ic"),
 };
 
 /** Processing actually done by the form and contact/ (shown in the privacy panel). */
@@ -76,10 +75,7 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
 
   return `<div class="inq-card" data-state="input">
   <form class="inq" id="inquiry" novalidate data-endpoint="${esc(ep)}" data-lancers="${lancers}"${ep ? ` action="${esc(ep)}" method="post"` : ""} aria-labelledby="inq-title">
-    <header class="inq-head">
-      <h2 class="inq-title" id="inq-title">ご相談フォーム</h2>
-      <p class="inq-time">${ICON.clock}1分ほどで送れます</p>
-    </header>
+    <h2 class="sr-only" id="inq-title">お問い合わせフォーム</h2>
     <noscript><p class="inq-notice">${ep ? "JavaScriptが無効のため、送信後に結果のページが開きます。" : `このフォームはJavaScriptを使います。お手数ですが、${ext("Lancers")}からご相談ください。`}</p></noscript>
     ${ep ? "" : `<p class="inq-notice">${ICON.alert}<span>このフォームからの送信は、現在準備中です。お手数ですが、ご相談は${ext("Lancers")}からお送りください。</span></p>`}
     <script type="application/json" class="inq-topics">${JSON.stringify(topics).replace(/</g, "\\u003c")}</script>
@@ -90,7 +86,7 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
     </p>
 
     <fieldset class="chips-set chips-kind" data-field="category">
-      <legend class="field-label">どんなご相談ですか？<span class="opt">任意</span></legend>
+      <legend class="field-label">ご相談の種類<span class="opt">任意</span></legend>
       <div class="chips">
         ${KINDS.map(([v, text]) => `<label class="chip"><input type="radio" name="category" value="${v}">${ICON.check}<span>${esc(text)}</span></label>`).join("\n        ")}
       </div>
@@ -111,14 +107,14 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
         ${err("name")}
       </div>
       <div class="field" data-field="email">
-        <label class="field-label" for="f-email">お返事先のメールアドレス</label>
+        <label class="field-label" for="f-email">メールアドレス</label>
         <input class="field-input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" maxlength="${LIMITS.email}" required aria-describedby="f-email-err">
         ${err("email")}
       </div>
     </div>
 
     <details class="inq-more">
-      <summary>${ICON.plus}<span>会社名・ご予算・時期も伝える</span><span class="opt">任意</span></summary>
+      <summary>${ICON.plus}<span>会社名・ご予算・時期</span><span class="opt">任意</span></summary>
       <div class="inq-more-body">
         <div class="field" data-field="company">
           <label class="field-label" for="f-company">会社名・団体名</label>
@@ -139,7 +135,7 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
     <div class="inq-error" role="alert" tabindex="-1" hidden>${ICON.alert}<p><span class="inq-error-text"></span> <span class="inq-error-alt">${ext("Lancersで相談する")}</span></p></div>
     <div class="inq-send${ep ? "" : " inq-needs-js"}">
       <button class="btn btn-gold btn-lg inq-submit" type="submit"><span class="inq-submit-label">同意して送信する</span>${ICON.arrow}</button>
-      <p class="inq-consent"><a href="#privacy" class="privacy-open" aria-haspopup="dialog">個人情報の取り扱い</a>をご確認のうえ、送信してください。</p>
+      <p class="inq-consent"><a href="#privacy" class="privacy-open" aria-haspopup="dialog">個人情報の取り扱い</a></p>
     </div>
     <p class="inq-status sr-only" role="status" aria-live="polite"></p>
   </form>
@@ -150,9 +146,9 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
       <i class="glint g1"></i><i class="glint g2"></i><i class="glint g3"></i><i class="glint g4"></i><i class="glint g5"></i>
     </div>
     <h2 class="inq-done-title" tabindex="-1">ありがとうございます<span class="inq-done-name"></span>。</h2>
-    <p class="inq-done-text">ご相談を受け付けました。内容を拝見して、<span class="inq-done-mail-wrap"><b class="inq-done-mail"></b> に</span>お返事します。</p>
+    <p class="inq-done-text">ご相談を受け付けました。<span class="inq-done-mail-wrap"><b class="inq-done-mail"></b> に</span>お返事します。</p>
     <p class="inq-ref">受付番号 <b class="inq-ref-no"></b></p>
-    <p class="inq-done-note">お返事が見当たらないときは、迷惑メールのフォルダもご確認ください。</p>
+    <p class="inq-done-note">届かないときは、迷惑メールのフォルダもご確認ください。</p>
     <p class="inq-done-actions"><a class="btn btn-ghost" href="${esc(base)}works/">実績を見る</a><a class="inq-link" href="${esc(base)}">トップへ戻る</a></p>
   </div>
 

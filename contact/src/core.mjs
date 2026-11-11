@@ -67,8 +67,8 @@ export function validate(raw = {}) {
   if (!emailRaw) errors.email = "required";
   else if (emailRaw.length > LIMITS.email) errors.email = "too_long";
   else if (/[\r\n]/.test(emailRaw) || !EMAIL.test(emailRaw)) errors.email = "invalid";
-  if (!category) errors.category = "required";
-  else if (!Object.hasOwn(CATEGORIES, category)) errors.category = "invalid";
+  // The kind of inquiry is optional (a one-tap hint on the form); a value must be a known one.
+  if (category && !Object.hasOwn(CATEGORIES, category)) errors.category = "invalid";
   if (budget && !BUDGETS.includes(budget)) errors.budget = "invalid";
   if (schedule && !SCHEDULES.includes(schedule)) errors.schedule = "invalid";
   if (!message) errors.message = "required";
@@ -106,14 +106,15 @@ const jst = (d) =>
 
 /** The email to the site owner (Resend API payload). Reply-To is the visitor. */
 export function buildEmail(data, { from, to, ref, receivedAt = new Date() }) {
-  const subject = oneLine(`【お問い合わせ】${CATEGORIES[data.category]} ${data.name}様（${ref}）`).slice(0, 200);
+  const kind = CATEGORIES[data.category] ?? "";
+  const subject = oneLine(`【お問い合わせ】${kind ? `${kind} ` : ""}${data.name}様（${ref}）`).slice(0, 200);
   const rows = [
     ["受付番号", ref],
     ["受付日時", `${jst(receivedAt)}（日本時間）`],
     ["お名前", data.name],
     ["会社名", data.company || "（未入力）"],
     ["返信先", data.email],
-    ["相談したいこと", CATEGORIES[data.category]],
+    ["相談したいこと", kind || "（未選択）"],
     ["ご予算", data.budget || "（未選択）"],
     ["希望時期", data.schedule || "（未選択）"],
     ...(data.context ? [["ご相談の対象", data.context]] : []),

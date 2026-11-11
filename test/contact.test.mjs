@@ -31,7 +31,7 @@ test("a complete submission validates", () => {
 
 test("missing, short, long and malformed fields are reported", () => {
   const v = validate({ ...good(), name: " ", email: "", category: "", message: "", consent: false });
-  assert.deepEqual(v, { ok: false, errors: { name: "required", email: "required", category: "required", message: "required", consent: "required" } });
+  assert.deepEqual(v, { ok: false, errors: { name: "required", email: "required", message: "required", consent: "required" } }, "the kind of inquiry is optional");
   const w = validate({
     ...good(),
     name: "あ".repeat(LIMITS.name + 1),
@@ -81,6 +81,14 @@ test("the email replies to the visitor and carries the reference", () => {
   assert.match(mail.text, /受付日時：2026\/11\/10 12:00（日本時間）/);
   assert.match(mail.text, /ご相談の対象：サービス：AIチャットボット/);
   assert.match(makeRef(), /^TK-[A-HJ-NP-Z2-9]{6}$/);
+});
+
+test("without a kind of inquiry the email leaves it out of the subject", () => {
+  const v = validate({ ...good(), category: "" });
+  assert.equal(v.ok, true);
+  const mail = buildEmail(v.data, { from: "Form <form@example.test>", to: "owner@example.test", ref: "TK-ABCDEF" });
+  assert.equal(mail.subject, "【お問い合わせ】山田 太郎様（TK-ABCDEF）");
+  assert.match(mail.text, /相談したいこと：（未選択）/);
 });
 
 // ---------- worker ----------
@@ -363,6 +371,10 @@ test("the form never shows an email address or a mailto link", () => {
     assert.match(html, /"ai-chatbot":\{"name":"AIチャットボット","cat":"ai"\}/);
     assert.match(html, /"a-worker":\{"name":"A-worker","cat":"system"\}/);
     assert.match(html, /<dialog class="privacy" id="privacy"/);
+    assert.match(html, /同意して送信する/, "the button is the consent");
+    assert.doesNotMatch(html, /data-step="confirm"|inq-steps/, "no confirm step");
+    assert.match(html, /<input type="hidden" name="consent" value="on">/, "a no-JS post consents through the same button");
+    assert.match(html, /"hints":\{"":"例）/, "message hints travel with the topics");
   }
   assert.doesNotMatch(PRIVACY_HTML, /@/);
 });

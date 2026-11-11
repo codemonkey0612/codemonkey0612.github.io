@@ -1,19 +1,46 @@
 // The inquiry form on /contact/ (markup only; behaviour in site/assets/contact.js, styles in
 // site/assets/contact.css, the endpoint in contact/). No address of the site owner appears
 // anywhere here: the form posts to the endpoint, which holds the recipient as a secret.
-import { BUDGETS, CATEGORIES, LIMITS, SCHEDULES } from "../../contact/src/core.mjs";
+//
+// One column, in the order of a conversation: what it's about (optional, one tap) → the
+// message → who to reply to. Company, budget and timing fold away as optional extras.
+// No confirm step: the button itself is the consent ("同意して送信する").
+import { BUDGETS, LIMITS, SCHEDULES } from "../../contact/src/core.mjs";
 
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
-const CATEGORY_HINT = { ai: "生成AI・チャットボット・AI導入", web: "WordPress・Shopify・サイト制作", system: "業務システム・改修・診断", other: "まだ決まっていない" };
+/** The one-tap kinds of inquiry (values match CATEGORIES in contact/src/core.mjs). */
+const KINDS = [
+  ["ai", "AI導入・活用"],
+  ["web", "Webサイト・EC"],
+  ["system", "業務システム"],
+  ["other", "その他・未定"],
+];
+/** What the message box suggests for each kind (contact.js swaps it in). */
+export const MESSAGE_HINTS = {
+  "": "例）こんなことを実現したい、いまこんなことに困っている、など。アイデアの段階でも大丈夫です。",
+  ai: "例）社内の問い合わせ対応をAIで効率化したい。社内の文書を探せるチャットボットを作りたい。",
+  web: "例）会社のWebサイトを新しくしたい。ネットショップを始めたい。",
+  system: "例）Excelで回している業務をシステムにしたい。いまのシステムの不具合を直したい。",
+  other: "例）こんなことができるか知りたい、という段階でも大丈夫です。",
+};
 const PILLAR_TO_CATEGORY = { AI: "ai", "Web・EC": "web", システム開発: "system", "品質・セキュリティ": "system" };
+
+const svg = (body, cls = "ic") =>
+  `<svg class="${cls}" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+const ICON = {
+  check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>', "ic chip-check"),
+  plus: svg('<path d="M12 5v14M5 12h14"/>', "ic more-ic"),
+  arrow: svg('<path d="M5 12h14M13 6l6 6-6 6"/>', "ic"),
+  alert: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7.5v6M12 16.6v.01"/>', "ic"),
+};
 
 /** Processing actually done by the form and contact/ (shown in the privacy panel). */
 export const PRIVACY_HTML = `<h2 id="privacy-title" class="privacy-title">個人情報の取り扱い（お問い合わせフォーム）</h2>
-<p>このフォームでお預かりする情報と、その扱いは次のとおりです。</p>
+<p>このフォームでお預かりする情報と、その扱いは次のとおりです。「同意して送信する」を押すと、この内容に同意いただいたものとして送信します。</p>
 <dl class="privacy-list">
-  <div><dt>お預かりする情報</dt><dd>お名前、会社名（任意）、返信先のメールアドレス、相談したいこと、ご予算・希望時期（任意）、ご相談内容。実績やサービスのページから来た場合は、そのページの名前（ご相談の対象）も一緒に送ります。</dd></div>
+  <div><dt>お預かりする情報</dt><dd>お名前、返信先のメールアドレス、ご相談内容。ご入力いただいた場合は、ご相談の種類、会社名、ご予算、希望時期も。実績やサービスのページから来た場合は、そのページの名前（ご相談の対象）も一緒に送ります。</dd></div>
   <div><dt>使う目的</dt><dd>お問い合わせへのお返事と、そのご相談に関するご連絡のためだけに使います。</dd></div>
   <div><dt>送られ方</dt><dd>入力内容は、送信用のプログラム（Cloudflare Workers）から、メール配信サービス（Resend）を通じて、このサイトの運営者にメールで届きます。このサイト上には保存しません。どちらも米国の事業者のサービスのため、日本国外のサーバーで処理されることがあります。</dd></div>
   <div><dt>一時的に残る情報</dt><dd>短い時間に何度も送られたり、同じ内容が二重に送られたりするのを防ぐため、送信元IPアドレスを元に戻せない形（ハッシュ値）に変えたものを最長10分、送信ごとの識別番号と受付番号を最長24時間、送信用のプログラムの保存領域に残します。いずれも期限が来ると自動で消えます。</dd></div>
@@ -35,116 +62,100 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
     work: Object.fromEntries(
       works.map((w) => [w.id, { name: w.name ?? w.headline ?? w.id, cat: PILLAR_TO_CATEGORY[w.service?.pillar] ?? "other" }]),
     ),
+    hints: MESSAGE_HINTS,
   };
-  const field = (name, label, input, { optional = false, hint = "", hintAfter = false } = {}) => `<div class="field" data-field="${name}">
-        <label class="field-label" for="f-${name}">${label}${optional ? '<span class="opt">任意</span>' : '<span class="req">必須</span>'}</label>
-        ${hint && !hintAfter ? `<p class="field-hint" id="f-${name}-hint">${hint}</p>` : ""}
-        ${input}
-        ${hint && hintAfter ? `<p class="field-hint field-hint-after" id="f-${name}-hint">${hint}</p>` : ""}
-        <p class="field-err" id="f-${name}-err" hidden></p>
-      </div>`;
-  const describedBy = (name, hint) => `aria-describedby="${hint ? `f-${name}-hint ` : ""}f-${name}-err"`;
-  const select = (name, list) =>
-    `<select class="field-input" id="f-${name}" name="${name}" ${describedBy(name)}><option value="">選択してください</option>${list.map((x) => `<option>${esc(x)}</option>`).join("")}</select>`;
+  const err = (name) => `<p class="field-err" id="f-${name}-err" hidden></p>`;
+  const chips = (name, list, label) => `<fieldset class="chips-set" data-field="${name}">
+          <legend class="chips-label">${label}</legend>
+          <div class="chips">
+            ${list.map(([v, text]) => `<label class="chip"><input type="radio" name="${name}" value="${esc(v)}">${ICON.check}<span>${esc(text)}</span></label>`).join("\n            ")}
+          </div>
+        </fieldset>`;
 
-  return `<div class="inq-card">
-  <div class="inq-intro">
-    <p class="inq-label">Contact</p>
-    <h2 class="inq-title">一緒に、<br>次の景色へ。</h2>
-    <p>アイデアの段階でも、<wbr>まだ整理できていないご構想でも、<wbr><span class="nowrap">どうぞお気軽に</span>ご相談ください。</p>
-    <p>内容を確認して、ご入力いただいたメールアドレスにお返事します。</p>
-    <p class="inq-alt">ランサーズからのご相談も受け付けています。<br>${ext("Lancersで相談する")}</p>
-  </div>
-  <form class="inq" id="inquiry" novalidate data-endpoint="${esc(ep)}" data-lancers="${lancers}"${ep ? ` action="${esc(ep)}" method="post"` : ""} aria-labelledby="inq-form-title">
-    <h2 class="sr-only" id="inq-form-title">お問い合わせフォーム</h2>
-    <ol class="inq-steps" aria-label="お問い合わせの流れ">
-      <li class="is-current" aria-current="step"><span class="inq-step-no" aria-hidden="true">1</span>入力</li>
-      <li><span class="inq-step-no" aria-hidden="true">2</span>確認</li>
-      <li><span class="inq-step-no" aria-hidden="true">3</span>完了</li>
-    </ol>
-    <noscript><p class="inq-note">${ep ? "JavaScriptが無効のため、確認画面を省いてそのまま送信します。" : `このフォームはJavaScriptを使います。お手数ですが、${ext("Lancers")}からご相談ください。`}</p></noscript>
-    <div class="inq-summary" role="alert" tabindex="-1" hidden>
-      <p class="inq-summary-title">入力内容をご確認ください</p>
-      <ul></ul>
-    </div>
+  return `<div class="inq-card" data-state="input">
+  <form class="inq" id="inquiry" novalidate data-endpoint="${esc(ep)}" data-lancers="${lancers}"${ep ? ` action="${esc(ep)}" method="post"` : ""} aria-labelledby="inq-title" aria-describedby="inq-sub">
+    <header class="inq-head">
+      <p class="inq-eyebrow" lang="en">Contact Form</p>
+      <h2 class="inq-title" id="inq-title">ご相談を、<span class="nw">お聞かせください。</span></h2>
+      <p class="inq-sub" id="inq-sub">必要なのは、<span class="nw">ご相談内容・お名前・メールアドレスの</span><span class="nw">3つだけ。</span><span class="nw">1分ほどで送れます。</span></p>
+    </header>
+    <noscript><p class="inq-notice">${ep ? "JavaScriptが無効のため、送信後に結果のページが開きます。" : `このフォームはJavaScriptを使います。お手数ですが、${ext("Lancers")}からご相談ください。`}</p></noscript>
+    ${ep ? "" : `<p class="inq-notice">${ICON.alert}<span>このフォームからの送信は、現在準備中です。お手数ですが、ご相談は${ext("Lancers")}からお送りください。</span></p>`}
     <script type="application/json" class="inq-topics">${JSON.stringify(topics).replace(/</g, "\\u003c")}</script>
+    <input type="hidden" name="context" value="">
+    <p class="inq-context" hidden>
+      <span class="inq-context-k">ご相談の対象</span><b class="inq-context-name"></b>
+      <button type="button" class="inq-context-x"><span aria-hidden="true">×</span><span class="sr-only">ご相談の対象を外す</span></button>
+    </p>
 
-    <div class="inq-panel" data-step="input">
-      ${ep ? "" : `<p class="inq-notice"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v6M12 16.6v.01"/></svg><span>このフォームからの送信は、現在準備中です。お手数ですが、ご相談は${ext("Lancers")}からお送りください。</span></p>`}
-      <div class="inq-context" hidden>
-        <span>ご相談の対象：<b class="inq-context-name"></b></span>
-        <button type="button" class="inq-context-x"><span aria-hidden="true">×</span><span class="sr-only">ご相談の対象を外す</span></button>
+    <fieldset class="chips-set chips-kind" data-field="category">
+      <legend class="field-label">どんなご相談ですか？<span class="opt">任意</span></legend>
+      <div class="chips">
+        ${KINDS.map(([v, text]) => `<label class="chip"><input type="radio" name="category" value="${v}">${ICON.check}<span>${esc(text)}</span></label>`).join("\n        ")}
       </div>
-      <input type="hidden" name="context" value="">
-      ${field("name", "お名前", `<input class="field-input" id="f-name" name="name" type="text" placeholder="例）山田 太郎" autocomplete="name" maxlength="${LIMITS.name}" required ${describedBy("name")}>`)}
-      ${field("company", "会社名・団体名", `<input class="field-input" id="f-company" name="company" type="text" placeholder="例）株式会社〇〇" autocomplete="organization" maxlength="${LIMITS.company}" ${describedBy("company")}>`, { optional: true })}
-      ${field("email", "返信先メールアドレス", `<input class="field-input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" maxlength="${LIMITS.email}" required ${describedBy("email", true)}>`, { hint: "お返事はこのアドレスにお送りします。", hintAfter: true })}
-      <fieldset class="field field-choice" data-field="category" aria-describedby="f-category-err">
-        <legend class="field-label">相談したいこと<span class="req">必須</span></legend>
-        <div class="choices">
-          ${Object.entries(CATEGORIES)
-            .map(([v, label]) => `<label class="choice"><input type="radio" name="category" value="${v}" required><span class="choice-body"><b>${esc(label)}</b><small>${esc(CATEGORY_HINT[v])}</small></span></label>`)
-            .join("\n          ")}
-        </div>
-        <p class="field-err" id="f-category-err" hidden></p>
-      </fieldset>
-      <div class="field-row">
-        ${field("budget", "ご予算", select("budget", BUDGETS), { optional: true })}
-        ${field("schedule", "希望時期", select("schedule", SCHEDULES), { optional: true })}
-      </div>
-      <div class="field" data-field="message">
-        <label class="field-label" for="f-message">ご相談内容<span class="req">必須</span></label>
-        <p class="field-hint" id="f-message-hint">ご相談の背景、実現したいこと、いまの課題などを、分かる範囲でご記入ください（${LIMITS.messageMin}〜${LIMITS.message}文字）。</p>
-        <textarea class="field-input" id="f-message" name="message" rows="8" placeholder="ご相談の背景、実現したいこと、いまの課題などをご自由にご記入ください。" maxlength="${LIMITS.message}" required ${describedBy("message", true)}></textarea>
-        <p class="field-count" aria-hidden="true"><span class="field-count-n">0</span> / ${LIMITS.message}</p>
-        <p class="field-err" id="f-message-err" hidden></p>
-      </div>
-      <div class="field field-consent" data-field="consent">
-        <div class="consent">
-          <input id="f-consent" name="consent" type="checkbox" value="on" required aria-describedby="f-consent-err">
-          <label for="f-consent">個人情報の取り扱いに同意します<span class="req">必須</span></label>
-        </div>
-        <p class="consent-link"><a href="#privacy" class="privacy-open" aria-haspopup="dialog">個人情報の取り扱いを読む</a></p>
-        <p class="field-err" id="f-consent-err" hidden></p>
-      </div>
-      <div class="inq-hp" aria-hidden="true">
-        <label for="f-website">Webサイト（入力しないでください）</label>
-        <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
-      </div>
-      <div class="inq-actions${ep ? "" : " inq-needs-js"}">
-        <button class="btn btn-gold inq-next" type="submit">送信する</button>
-      </div>
-      <p class="inq-time"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M20 4C11 4.5 6.5 9.5 5.5 19.5"/><path d="M5.5 19.5C12 19 16.5 15.5 18 9"/><path d="M4 21l2-2"/></svg>ご入力は数分で完了します。</p>
+      ${err("category")}
+    </fieldset>
+
+    <div class="field" data-field="message">
+      <label class="field-label" for="f-message">ご相談内容</label>
+      <textarea class="field-input" id="f-message" name="message" rows="5" placeholder="${esc(MESSAGE_HINTS[""])}" maxlength="${LIMITS.message}" required aria-describedby="f-message-err f-message-count"></textarea>
+      <p class="field-count" id="f-message-count" aria-live="polite" hidden></p>
+      ${err("message")}
     </div>
 
-    <div class="inq-panel" data-step="confirm" hidden>
-      <h3 class="inq-h" tabindex="-1">入力内容の確認</h3>
-      <p class="inq-lead">この内容で送信します。直す場合は「修正する」を押してください。</p>
-      <dl class="inq-review"></dl>
-      <div class="inq-error" role="alert" tabindex="-1" hidden>
-        <svg class="inq-error-ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v6M12 16.6v.01"/></svg>
-        <p class="inq-error-text"></p>
-        <p class="inq-error-alt">${ext("Lancersで相談する")}</p>
+    <div class="field-pair">
+      <div class="field" data-field="name">
+        <label class="field-label" for="f-name">お名前</label>
+        <input class="field-input" id="f-name" name="name" type="text" placeholder="山田 太郎" autocomplete="name" maxlength="${LIMITS.name}" required aria-describedby="f-name-err">
+        ${err("name")}
       </div>
-      <div class="inq-actions">
-        <button type="button" class="btn btn-ghost" data-action="edit">修正する</button>
-        <button type="button" class="btn btn-gold" data-action="send">この内容で送信する</button>
+      <div class="field" data-field="email">
+        <label class="field-label" for="f-email">お返事先のメールアドレス</label>
+        <input class="field-input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" maxlength="${LIMITS.email}" required aria-describedby="f-email-err">
+        ${err("email")}
       </div>
     </div>
 
-    <div class="inq-panel inq-done" data-step="done" hidden>
-      <div class="inq-done-card">
-        <span class="inq-orb" aria-hidden="true"><svg class="inq-check" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="29"/><path d="M19 33.5l8.5 8.5L45 23.5"/></svg></span>
-        <div class="inq-done-text">
-          <h3 class="inq-h" tabindex="-1">送信しました</h3>
-          <p>お問い合わせを受け付けました。<br>内容を確認のうえ、ご入力いただいたメールアドレスにお返事します。</p>
-          <p class="inq-ref">受付番号：<b class="inq-ref-no"></b></p>
+    <details class="inq-more">
+      <summary>${ICON.plus}<span>会社名・ご予算・時期も伝える</span><span class="opt">任意</span></summary>
+      <div class="inq-more-body">
+        <div class="field" data-field="company">
+          <label class="field-label" for="f-company">会社名・団体名</label>
+          <input class="field-input" id="f-company" name="company" type="text" autocomplete="organization" maxlength="${LIMITS.company}" aria-describedby="f-company-err">
+          ${err("company")}
         </div>
+        ${chips("budget", BUDGETS.filter((b) => b !== "未定").map((b) => [b, b]), "ご予算")}
+        ${chips("schedule", SCHEDULES.filter((s) => s !== "未定").map((s) => [s, s]), "希望時期")}
       </div>
-      <p class="inq-note">しばらくたってもお返事が届かない場合は、迷惑メールのフォルダもご確認ください。</p>
-      <p><a class="btn btn-ghost" href="${esc(base)}">トップへ戻る</a></p>
+    </details>
+
+    <div class="inq-hp" aria-hidden="true">
+      <label for="f-website">Webサイト（入力しないでください）</label>
+      <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
     </div>
+    <input type="hidden" name="consent" value="on">
+
+    <div class="inq-error" role="alert" tabindex="-1" hidden>${ICON.alert}<p><span class="inq-error-text"></span> <span class="inq-error-alt">${ext("Lancersで相談する")}</span></p></div>
+    <div class="inq-send${ep ? "" : " inq-needs-js"}">
+      <button class="btn btn-gold btn-lg inq-submit" type="submit"><span class="inq-submit-label">同意して送信する</span>${ICON.arrow}</button>
+      <p class="inq-consent"><a href="#privacy" class="privacy-open" aria-haspopup="dialog">個人情報の取り扱い</a>をご確認のうえ、送信してください。</p>
+    </div>
+    <p class="inq-status sr-only" role="status" aria-live="polite"></p>
   </form>
+
+  <div class="inq-done" hidden>
+    <div class="inq-seal" aria-hidden="true">
+      <svg viewBox="0 0 80 80" width="80" height="80" focusable="false"><circle class="seal-ring" cx="40" cy="40" r="36"/><path class="seal-check" d="M25 41.5l10 10L56 30"/></svg>
+      <i class="glint g1"></i><i class="glint g2"></i><i class="glint g3"></i><i class="glint g4"></i><i class="glint g5"></i>
+    </div>
+    <h2 class="inq-done-title" tabindex="-1">ありがとうございます<span class="inq-done-name"></span>。</h2>
+    <p class="inq-done-text">ご相談を受け付けました。内容を拝見して、<span class="inq-done-mail-wrap"><b class="inq-done-mail"></b> に</span>お返事します。</p>
+    <p class="inq-ref">受付番号 <b class="inq-ref-no"></b></p>
+    <p class="inq-done-note">お返事が見当たらないときは、迷惑メールのフォルダもご確認ください。</p>
+    <p class="inq-done-actions"><a class="btn btn-ghost" href="${esc(base)}works/">実績を見る</a><a class="inq-link" href="${esc(base)}">トップへ戻る</a></p>
+  </div>
+
+  <p class="inq-alt">ランサーズからのご相談も受け付けています。${ext("Lancersで相談する")}</p>
 </div>
 <dialog class="privacy" id="privacy" aria-labelledby="privacy-title">
   <div class="privacy-body">

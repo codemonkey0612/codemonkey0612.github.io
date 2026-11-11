@@ -270,9 +270,8 @@ test("every service and work page has its own hero scene, and each page's chapte
   assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `service chapters in order: ${order}`);
   const scenes = new Set();
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) for (const [, n] of files[page].matchAll(/data-scene="([^"]+)"/g)) scenes.add(n);
-  // Contact is one full-screen form over its own picture instead of a hero stage.
-  assert.equal(scenes.size, 6 + site.services.length + site.works.all.length, "one scene per page (contact and 404 have none)");
-  assert.match(files["contact/index.html"], /<section class="inq-sec inq-scene"[^>]*>\s*<img class="inq-bg"/, "the contact form sits on its full-screen picture");
+  assert.equal(scenes.size, 7 + site.services.length + site.works.all.length, "one scene per page (404 has none)");
+  assert.match(files["contact/index.html"], /<div class="inq-window">\s*<img class="inq-bg"/, "the contact form window has its picture inside");
 });
 
 test("the pages carry the mockups' elements", () => {

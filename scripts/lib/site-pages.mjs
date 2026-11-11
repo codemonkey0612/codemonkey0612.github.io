@@ -1542,21 +1542,29 @@ export function renderContact(site) {
   const form = renderInquiryForm
     ? renderInquiryForm({ endpoint, lancersUrl: profile.contact_url, services, works: works.all, base })
     : `<p class="fine">フォームを準備しています。<a href="${esc(profile.contact_url)}">Lancersからご相談ください。</a></p>`;
-  // One full-screen scene: the misty mountains behind everything, the page's words on the left,
-  // the form on a night-glass panel on the right (stacked on phones).
+  // Below the page's own first screen: a window onto the misty mountains, with the words on its
+  // sky and the form on a pale frosted panel.
   const bg = site.art.section("sec-contact-side");
-  const bgImg = bg ? `<img class="inq-bg" src="${base}${bg.src}" alt="" width="${bg.w}" height="${bg.h}" decoding="async" fetchpriority="high">` : "";
+  const bgImg = bg ? `<img class="inq-bg" src="${base}${bg.src}" alt="" width="${bg.w}" height="${bg.h}" loading="lazy" decoding="async">` : "";
   const point = (ic, title, text) => `<li>${icon(ic)}<span><b>${title}</b><small>${text}</small></span></li>`;
   const css = fs.existsSync(new URL("../../site/assets/contact.css", import.meta.url)) ? `<link rel="stylesheet" href="${base}assets/contact.css?v=${site.assetVersion}">\n` : "";
   const js = fs.existsSync(new URL("../../site/assets/contact.js", import.meta.url)) ? `<script src="${base}assets/contact.js?v=${site.assetVersion}" defer></script>\n` : "";
-  const body = `<section class="inq-sec inq-scene" aria-labelledby="inq-h1">
-  ${bgImg}
-  <div class="inq-scene-in">
-    <div class="inq-intro">
+  const body = `${stage(site, base, {
+    scene: "contact",
+    inner: `    <div class="stage-copy">
       ${crumbs(base, [[null, "お問い合わせ"]])}
-      <p class="inq-kicker" lang="en">Contact</p>
-      <h1 class="inq-h1" id="inq-h1"><span class="nw">まだ、言葉にならない</span><span class="nw"><em>構想</em>から。</span></h1>
-      <p class="inq-lead">AI開発・Web制作・システム開発のご相談を<span class="nw">受け付けています。</span><span class="nw">アイデアの段階でも、</span><span class="nw">どうぞお気軽に</span><span class="nw">お聞かせください。</span></p>
+      <p class="kicker" lang="en">Contact</p>
+      <h1 class="display display-line">まだ、言葉にならない<em>構想</em>から。</h1>
+      <p class="lead">AI開発・Web制作・システム開発のご相談を受け付けています。まずはお気軽にお聞かせください。</p>
+    </div>`,
+  })}
+<section class="ch ch-pearl inq-sec" aria-labelledby="inq-win-title">
+  <div class="inq-window">
+    ${bgImg}
+    <div class="inq-intro">
+      <p class="inq-kicker" lang="en">Contact Form</p>
+      <h2 class="inq-h2" id="inq-win-title"><span class="nw">一緒に、</span><span class="nw">次の<em>景色</em>へ。</span></h2>
+      <p class="inq-lead"><span class="nw">アイデアの段階でも、</span><span class="nw">まだ整理できていない</span><span class="nw">ご構想でも、</span><span class="nw">どうぞお気軽に</span><span class="nw">ご相談ください。</span></p>
       <ul class="inq-points">
         ${point("pen", "必要なのは3つだけ", "ご相談内容・お名前・メールアドレス")}
         ${point("sparkle", "ご相談だけでも歓迎", "進め方の整理から、ご一緒します")}

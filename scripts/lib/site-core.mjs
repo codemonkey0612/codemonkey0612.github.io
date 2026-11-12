@@ -207,6 +207,13 @@ export function loadSite({ root, profile, today = new Date() }) {
       jobUrl: w.job ? LANCERS_JOB(w.job) : null,
     };
   });
+  // Live sites you worked on, shown as a gallery of screens (no page of their own).
+  const showcase = (worksRaw.showcase ?? []).map((w, i) => {
+    const where = `site/works.yml showcase ${i + 1}`;
+    if (!["lp", "system"].includes(w.group)) throw new Error(`${where}: group must be lp or system`);
+    if (!/^https:\/\//.test(w.url ?? "")) throw new Error(`${where}: url must be https://…`);
+    return { ...w, shot: asset(w.shot, `${where} shot`), host: new URL(w.url).host.replace(/^www\./, "") };
+  });
   const works = [...sites, ...lancers];
   const seen = new Set();
   for (const w of works) {
@@ -329,7 +336,7 @@ export function loadSite({ root, profile, today = new Date() }) {
     services,
     packages: allPackages.filter((p) => p.onSite), // what the site shows
     lancersPackages: allPackages, // every package on Lancers (the counts in profile.yml)
-    works: { sites, lancers, all: works },
+    works: { sites, lancers, all: works, showcase },
     art,
     years,
     aboutHtml,

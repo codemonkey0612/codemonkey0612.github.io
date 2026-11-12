@@ -500,9 +500,11 @@ export function recordFacts(site) {
     { n: years, u: "年", k: "開発歴" },
     n(l.jobs) && { n: n(l.jobs), u: "件", k: "ランサーズでのお仕事" },
     rv && rv[1] === rv[2] && { n: +rv[1], u: "件", k: "いただいた評価", note: "すべて「満足」" },
+    { n: site.works.sites.length + (site.works.showcase ?? []).length, u: "件", k: "制作に携わった公開中のサイト", note: "LP・Webサイト・システム" },
     ext && { n: +ext[1], u: "件", k: "他社サービスでの実績", note: `満足率${ext[2]}%` },
     (profile.cases ?? []).length && { n: profile.cases.length, u: "件", k: "チームでの開発プロジェクト", note: "お客さまの名前は非公開" },
     n(l.repeat_clients) && { n: n(l.repeat_clients), u: "人", k: "リピートのお客さま" },
+    n(l.completion_rate) && { n: n(l.completion_rate), u: "%", k: "ランサーズでの完了率" },
   ].filter(Boolean);
   const fromCases = (profile.cases ?? []).map((c) => /^(?:中堅)?(.+?)(?:企業|会社|事業者|メーカー)?向け/.exec(c.title)?.[1]).filter((x) => x && x !== "中堅" && !/^企業$/.test(x));
   const fromWorks = site.works.lancers.map((w) => INDUSTRY_SHORT[w.industry] ?? w.industry).filter(Boolean);
@@ -516,7 +518,7 @@ function trackRecord(site, base, { id = "record-title", cls = "" } = {}) {
   return `<div class="rec${cls ? ` ${cls}` : ""}">
       <p class="eyebrow eyebrow-center" lang="en">Track Record</p>
       <h2 class="strip-title strip-title-sm" id="${id}">これまでの実績を、数字で。</h2>
-      <dl class="rec-stats">
+      <dl class="rec-stats" style="--n:${stats.length}">
         ${stats.map((x) => `<div data-reveal><dt>${x.k}</dt><dd><b class="tale-count" data-to="${x.n}">${x.n}</b><small>${x.u}</small>${x.note ? `<span class="rec-note">${esc(x.note)}</span>` : ""}</dd></div>`).join("\n        ")}
       </dl>
       ${checks.length ? `<p class="rec-checks">${checks.map((c) => `<span>${icon("check", "ic ic-xs")}${esc(c)}</span>`).join("")}</p>` : ""}
@@ -761,7 +763,7 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
     <div class="sel-copy" data-reveal>
       <p class="eyebrow" lang="en">Selected Work</p>
       <h2 class="strip-title" id="selected-title">実装で、<br><span class="nowrap"><em>成果</em>につなげる。</span></h2>
-      <p class="sel-lead">${works.sites.map((w) => `<a href="${base}works/${esc(w.id)}/">${esc(workName(w))}</a>${w.made ? `の${esc(w.made)}` : ""}`).join("、")}など、<br>制作したページと、評価をいただいた案件。</p>
+      <p class="sel-lead">${works.sites.map((w) => `<a href="${base}works/${esc(w.id)}/">${esc(workName(w))}</a>${w.made ? `の${esc(w.made)}` : ""}`).join("、")}など、<br>制作に携わった公開中のサイト${works.sites.length + (works.showcase ?? []).length}件と、評価をいただいた案件。</p>
       <p class="sel-cta"><a class="btn btn-ghost" href="${base}works/">実績を見る${icon("arrow")}</a></p>
     </div>
     <div class="sel-devices" data-reveal>
@@ -823,7 +825,8 @@ export function renderWorks(site) {
   const { profile, works } = site;
   const base = "../";
   const cases = profile.cases ?? [];
-  const description = `${profile.name}の実績。制作に携わった公開中のサイト${works.sites.length}件、ランサーズで評価をいただいた案件${works.lancers.length}件、お客さまの名前を伏せたチーム開発${cases.length}件を紹介します。`;
+  const show = works.showcase ?? [];
+  const description = `${profile.name}の実績。制作に携わった公開中のサイト${works.sites.length + show.length}件、ランサーズで評価をいただいた案件${works.lancers.length}件、お客さまの名前を伏せたチーム開発${cases.length}件を紹介します。`;
   const counts = { all: works.all.length };
   for (const w of works.all) counts[w.cat] = (counts[w.cat] ?? 0) + 1;
   // Editorial rhythm: a large card, then two, then three; repeat.
@@ -858,6 +861,38 @@ export function renderWorks(site) {
     <p class="fine">ランサーズの案件は、お客さまの画面を載せられないため、案件ごとのイラストで紹介しています（内容と評価はランサーズで確認できます）。公開中のサイトの画面は撮影時点のものです。</p>
   </div>
 </section>
+${
+  show.length
+    ? `<section class="ch ch-pearl show-sec" id="live-sites" aria-labelledby="show-title">
+  <div class="wrap">
+    ${heading("Live Sites", "制作に携わった、公開中のサイト", { id: "show-title", cls: "sh-center", lead: `ランディングページ・Webサイト${show.filter((x) => x.group === "lp").length}件と、B2B・B2Cのシステム${show.filter((x) => x.group === "system").length}件。<br>画面を押すと、実際のサイトが新しいタブで開きます。` })}
+    ${[
+      ["lp", "ランディングページ・Webサイト", "Landing Pages"],
+      ["system", "B2B・B2C システム", "Systems"],
+    ]
+      .map(([g, ja, en]) => {
+        const list = show.filter((x) => x.group === g);
+        return list.length
+          ? `<h3 class="show-h"><span lang="en">${en}</span>${ja}<small>${list.length}件</small></h3>
+    <ul class="show-grid">
+      ${list
+        .map(
+          (x, i) => `<li class="show-card" data-reveal style="--k:${i % 4}"><a href="${esc(x.url)}" target="_blank" rel="noopener">
+        <span class="show-frame"><span class="show-bar" aria-hidden="true"><i></i><i></i><i></i><span>${esc(x.host)}</span></span>${img(site, x.shot, base, { alt: `${x.name}の画面` })}</span>
+        <span class="show-name">${esc(x.name)}</span>
+        <span class="show-host">${esc(x.host)}${icon("ext", "ic ic-xs")}</span><span class="sr-only">（新しいタブで開きます）</span>
+      </a></li>`,
+        )
+        .join("\n      ")}
+    </ul>`
+          : "";
+      })
+      .join("\n    ")}
+    <p class="fine">画面は2026年11月12日に撮影したものです。各サイトの内容と権利は、それぞれの運営者に帰属します。</p>
+  </div>
+</section>`
+    : ""
+}
 ${
   cases.length
     ? `<section class="tale cf-sec" id="confidential" aria-labelledby="cf-title">
@@ -1914,6 +1949,7 @@ export function renderLlmsTxt(site) {
     "",
     "## 実績",
     ...works.all.map((w) => `- [${workName(w)}](${new URL(`works/${w.id}/`, profile.site_url).href}): ${w.kindOf === "site" ? `${w.url} ${w.role}` : `${w.title}（ランサーズ・評価${w.reviews.length}件）`}`),
+    ...(works.showcase ?? []).map((x) => `- ${x.name}: ${x.url}（制作に携わった公開中の${x.group === "lp" ? "LP・Webサイト" : "システム"}）`),
     "",
     "## ほか",
     `- [料金（${site.packages.length}パッケージ）](${new URL("prices/", profile.site_url).href})`,

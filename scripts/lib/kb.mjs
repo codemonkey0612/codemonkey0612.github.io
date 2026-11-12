@@ -90,7 +90,14 @@ export function buildKnowledge(site, { faq = [], root = process.cwd() } = {}) {
     ...works.sites.map((w) => `公開中のサイト：${w.name}（${w.made ? `${w.made}を制作` : w.kind}）。`),
     ...works.lancers.map((w) => `ランサーズの案件：${w.headline ?? w.title}（${w.industry ?? "業種非公開"}）。`),
     ...(profile.cases ?? []).map((c) => `お客さまの名前を伏せた案件：${c.title}（${c.period}）。`),
-  ]);
+    (works.showcase ?? []).length && `ほかに、制作に携わった公開中のサイトが${works.showcase.length}件あります（ランディングページ・Webサイトと、B2B・B2Cのシステム）。`,
+  ].filter(Boolean));
+  const show = works.showcase ?? [];
+  if (show.length)
+    add("live-sites", "制作に携わった公開中のサイト（LP・Webサイト・システム）", "works/#live-sites", [
+      ...show.filter((x) => x.group === "lp").map((x) => `ランディングページ・Webサイト：${x.name}（${x.url}）。`),
+      ...show.filter((x) => x.group === "system").map((x) => `B2B・B2Cのシステム：${x.name}（${x.url}）。`),
+    ]);
   // Live sites, Lancers works, confidential projects, reviews.
   for (const w of works.sites) add(`work-${w.id}`, `実績：${w.name}（公開中のサイト）`, `works/${w.id}/`, [w.summary, `担当：${w.role}`, `サイト：${w.url}`]);
   for (const w of works.lancers)

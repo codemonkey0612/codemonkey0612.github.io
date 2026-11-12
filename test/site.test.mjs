@@ -379,3 +379,19 @@ function caseMonthsOf(period) {
   const m = /(\d{4})-(\d{2})\s*[–-]\s*(\d{4})-(\d{2})/.exec(period);
   return (m[3] - m[1]) * 12 + (m[4] - m[2]) + 1;
 }
+
+test("live sites: each listed site has its screen and opens in a new tab; the counts add up", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const files = renderSite(site);
+  const works = files["works/index.html"];
+  const show = site.works.showcase;
+  assert.ok(show.length >= 20);
+  for (const x of show) {
+    assert.ok(works.includes(`href="${esc(x.url)}" target="_blank" rel="noopener"`), `${x.name} links out`);
+    assert.ok(works.includes(`src="../${x.shot}"`), `${x.name} shows its screen`);
+  }
+  assert.equal(new Set(show.map((x) => x.url)).size, show.length, "no site listed twice");
+  const n = site.works.sites.length + show.length;
+  assert.match(files["index.html"], new RegExp(`公開中のサイト${n}件`), "home says how many");
+  assert.match(works, new RegExp(`data-to="${n}"`), "the track record counts them");
+});

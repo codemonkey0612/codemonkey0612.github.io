@@ -120,6 +120,16 @@ export function imageSize(file) {
   return null;
 }
 
+/** Groups of the Live Sites gallery on /works/, in the order they are shown. */
+export const SHOWCASE_GROUPS = [
+  { id: "salon", en: "Hair Salons", ja: "美容室・ヘアサロン" },
+  { id: "app", en: "Services & Apps", ja: "Webサービス・アプリ" },
+  { id: "shop", en: "Online Stores", ja: "オンラインストア" },
+  { id: "media", en: "Local Media", ja: "地域情報サイト・メディア" },
+  { id: "lp", en: "Landing Pages", ja: "ランディングページ・Webサイト" },
+  { id: "system", en: "Systems", ja: "B2B・B2C システム" },
+];
+
 /** Why consultations go through Lancers for now (contact page, FAQ, the assistant). */
 export const LANCERS_ONLY = "お客さまの安全と、より確実なお取引のため、現在ご相談はランサーズでのみ受け付けています。";
 
@@ -213,10 +223,12 @@ export function loadSite({ root, profile, today = new Date() }) {
   // Live sites you worked on, shown as a gallery of screens (no page of their own).
   const showcase = (worksRaw.showcase ?? []).map((w, i) => {
     const where = `site/works.yml showcase ${i + 1}`;
-    if (!["lp", "system"].includes(w.group)) throw new Error(`${where}: group must be lp or system`);
+    const group = SHOWCASE_GROUPS.find((g) => g.id === w.group);
+    if (!group) throw new Error(`${where}: group must be one of ${SHOWCASE_GROUPS.map((g) => g.id).join(", ")}`);
     if (!/^https:\/\//.test(w.url ?? "")) throw new Error(`${where}: url must be https://…`);
-    return { ...w, shot: asset(w.shot, `${where} shot`), host: new URL(w.url).host.replace(/^www\./, "") };
+    return { ...w, groupJa: group.ja, shot: asset(w.shot, `${where} shot`), host: new URL(w.url).host.replace(/^www\./, "") };
   });
+  const showcaseGroups = SHOWCASE_GROUPS.map((g) => ({ ...g, list: showcase.filter((x) => x.group === g.id) })).filter((g) => g.list.length);
   const works = [...sites, ...lancers];
   const seen = new Set();
   for (const w of works) {
@@ -341,7 +353,7 @@ export function loadSite({ root, profile, today = new Date() }) {
     services,
     packages: allPackages.filter((p) => p.onSite), // what the site shows
     lancersPackages: allPackages, // every package on Lancers (the counts in profile.yml)
-    works: { sites, lancers, all: works, showcase },
+    works: { sites, lancers, all: works, showcase, showcaseGroups },
     art,
     years,
     aboutHtml,

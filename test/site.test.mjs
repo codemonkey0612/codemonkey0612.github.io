@@ -398,6 +398,11 @@ test("live sites: each listed site has its screen and opens in a new tab; the co
     assert.ok(works.includes(`src="../${x.shot}"`), `${x.name} shows its screen`);
   }
   assert.equal(new Set(show.map((x) => x.url)).size, show.length, "no site listed twice");
+  for (const g of site.works.showcaseGroups) {
+    assert.match(works, new RegExp(`<h3 class="show-h" id="live-${g.id}">.*?${g.ja}<small>${g.list.length}件</small>`), `${g.ja} has its heading`);
+    if (site.works.showcaseGroups.length > 1) assert.ok(works.includes(`href="#live-${g.id}"`), `${g.ja} is in the jump menu`);
+  }
+  assert.equal(site.works.showcaseGroups.reduce((a, g) => a + g.list.length, 0), show.length, "every site sits in a group");
   const n = site.works.sites.length + show.length;
   assert.match(files["index.html"], new RegExp(`公開中のサイト${n}件`), "home says how many");
   assert.match(works, new RegExp(`data-to="${n}"`), "the track record counts them");

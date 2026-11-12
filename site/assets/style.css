@@ -16798,3 +16798,65 @@ body:has(.ask-fab) .fo-base {
     font-size: 13.5px;
   }
 }
+/* jump to a group (美容室・Webサービス・…) */
+.show-jump {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: clamp(22px, 2.4vw, 34px) auto 0;
+}
+.show-jump a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(201, 162, 74, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  font: 600 14px / 1 var(--f-sans);
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 0.25s, background-color 0.25s, color 0.25s;
+}
+.show-jump small {
+  font: 600 12px / 1 var(--f-latin);
+  color: var(--gold-ink);
+}
+@media (hover: hover) {
+  .show-jump a:hover {
+    border-color: rgba(201, 162, 74, 0.9);
+    background: #fff;
+    color: var(--gold-ink);
+  }
+}
+.show-h {
+  scroll-margin-top: 110px;
+}
+/* long host names (tomorrowsendai2018.com) wrap inside the card instead of running past it */
+.show-card a {
+  min-width: 0;
+}
+.show-host {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.show-host .ic {
+  display: inline-block;
+  margin-left: 4px;
+  vertical-align: -1px;
+}
+@media (max-width: 600px) {
+  .show-jump {
+    gap: 8px;
+  }
+  .show-jump a {
+    padding: 0 14px;
+    font-size: 13px;
+  }
+  .show-host {
+    font-size: 11.5px;
+  }
+}

@@ -41,7 +41,7 @@ test("the Publish workflow only passes a well-formed time to crosspost", () => {
   assert.doesNotMatch(step.run, /\$\{\{/, "no expression inside the shell command");
 });
 
-const env = { REPO: "owner/repo", GITHUB_TOKEN: "test-token" };
+const env = { REPO: "owner/repo", GITHUB_TOKEN: "github_pat_test0token\n" };
 function fakeFetch(responses) {
   const calls = [];
   return {
@@ -62,7 +62,7 @@ test("dispatch asks GitHub to start the workflow on main, with its inputs", asyn
   const [{ url, init }] = calls;
   assert.equal(url, "https://api.github.com/repos/owner/repo/actions/workflows/publish.yml/dispatches");
   assert.equal(init.method, "POST");
-  assert.equal(init.headers.authorization, "Bearer test-token");
+  assert.equal(init.headers.authorization, "Bearer github_pat_test0token", "the pasted newline is trimmed");
   assert.ok(init.headers["user-agent"]);
   assert.deepEqual(JSON.parse(init.body), { ref: "main", inputs: { at: "09:00" } });
 });
@@ -77,6 +77,13 @@ test("server errors and network failures are retried; a bad token fails at once;
   await assert.rejects(dispatch(env, JOBS["13 19 * * *"], { fetchImpl: down.fetchImpl, wait: noWait }), /HTTP 503/);
   assert.equal(down.calls.length, 5);
   await assert.rejects(dispatch({ REPO: "owner/repo" }, JOBS["13 19 * * *"]), /GITHUB_TOKEN secret is not set/);
+});
+
+test("a secret that isn't a token (say, the prompt pasted by mistake) is named as such and never sent", async () => {
+  const never = fakeFetch([{ status: 204 }]);
+  const pasted = { REPO: "owner/repo", GITHUB_TOKEN: "? Enter a secret value: ›" };
+  await assert.rejects(dispatch(pasted, JOBS["13 19 * * *"], { fetchImpl: never.fetchImpl }), /isn't a GitHub token \(it should start with github_pat_\)/);
+  assert.equal(never.calls.length, 0);
 });
 
 test("an unknown trigger is an error, not a silent no-op", async () => {

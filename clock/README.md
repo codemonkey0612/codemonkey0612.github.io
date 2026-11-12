@@ -38,8 +38,15 @@ cd ~/dev/note/writing/clock
 npx wrangler@4.154.0 secret put GITHUB_TOKEN
 ```
 
-と打つと入力を求められるので、コピーしたトークンを貼り付けて Enter。トークンは Cloudflare に
-暗号化して保存され、このリポジトリやサイトには書かれません。
+と打つと `? Enter a secret value: ›` と表示されるので、**その後ろに** トークン（`github_pat_` で始まる文字列）
+だけを貼り付けて Enter（画面には表示されません）。トークンは Cloudflare に暗号化して保存され、
+このリポジトリやサイトには書かれません。
+
+コマンドの代わりにダッシュボードでも入れられます: Workers & Pages → `takumi-clock` → 設定（Settings）→
+変数とシークレット（Variables and Secrets）→ `GITHUB_TOKEN` を編集（種類は Secret）→ トークンを貼り付けて保存・デプロイ。
+
+`github_pat_` で始まらない値（たとえば上の表示文を貼ってしまった場合）だと、Worker は GitHub に送らずに
+「isn't a GitHub token」とログに出して止まります。
 
 ### 3. 動作確認
 

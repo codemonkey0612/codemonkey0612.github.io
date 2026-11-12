@@ -23,7 +23,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  * Returns the number of tries it took.
  */
 export async function dispatch(env, job, { fetchImpl = fetch, wait = sleep } = {}) {
-  if (!env.GITHUB_TOKEN) throw new Error("the GITHUB_TOKEN secret is not set (clock/README.md)");
+  const token = String(env.GITHUB_TOKEN ?? "").trim(); // a pasted token often ends in a newline
+  if (!token) throw new Error("the GITHUB_TOKEN secret is not set (clock/README.md)");
+  // Never logged: only whether it looks like a GitHub token at all.
+  if (!/^(github_pat_|ghp_)\w+$/.test(token)) throw new Error("the GITHUB_TOKEN secret isn't a GitHub token (it should start with github_pat_); set it again (clock/README.md)");
   const url = `https://api.github.com/repos/${env.REPO}/actions/workflows/${job.workflow}/dispatches`;
   const body = JSON.stringify({ ref: env.BRANCH || "main", ...(job.inputs ? { inputs: job.inputs } : {}) });
   let last = "";
@@ -32,7 +35,7 @@ export async function dispatch(env, job, { fetchImpl = fetch, wait = sleep } = {
       const res = await fetchImpl(url, {
         method: "POST",
         headers: {
-          authorization: `Bearer ${env.GITHUB_TOKEN}`,
+          authorization: `Bearer ${token}`,
           accept: "application/vnd.github+json",
           "x-github-api-version": "2022-11-28",
           "content-type": "application/json",

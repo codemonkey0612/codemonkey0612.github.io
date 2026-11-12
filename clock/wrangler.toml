@@ -1,0 +1,24 @@
+# Starts the autopilot's GitHub Actions workflows on time (GitHub's own schedule runs hours late
+# or not at all). Setup: clock/README.md. No secrets here: the GitHub token is set with
+# `npx wrangler@4.154.0 secret put GITHUB_TOKEN` and never committed.
+name = "takumi-clock"
+main = "src/worker.mjs"
+compatibility_date = "2025-10-01"
+# Nothing to visit: it only runs on its schedule.
+workers_dev = false
+preview_urls = false
+
+[triggers]
+# UTC. Must match JOBS in src/worker.mjs (test/clock.test.mjs checks).
+crons = [
+  "13 19 * * *", # 04:13 JST  Write articles
+  "13 21 * * *", # 06:13 JST  Write articles (second try)
+  "50 23 * * *", # 08:50 JST  Publish articles, waits until 09:00
+  "20 0 * * *",  # 09:20 JST  Publish articles (anything still missing)
+]
+
+[vars]
+REPO = "codemonkey0612/codemonkey0612.github.io"
+
+[observability]
+enabled = true

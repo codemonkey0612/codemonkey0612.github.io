@@ -4,3 +4,6 @@ dist/
 factcheck-report.*
 .env
 .remote
+.wrangler/
+.dev.vars
+*.selftest.toml

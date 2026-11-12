@@ -11,10 +11,11 @@ on:
     branches:
       - main
       - master
-  # GitHub starts scheduled runs late when it's busy (on 2026-11-10 the 08:40 run started at
-  # 13:45), so the job is scheduled several times from 03:47 JST. The first run to start before
-  # 09:00 waits until 09:00 and posts; the others queue behind it (see concurrency) and then find
-  # nothing left to do. If every run is late, the first one posts as soon as it starts.
+  # The morning runs are started on time by the Cloudflare Worker in clock/ (08:50 JST with
+  # at: 09:00, and 09:20 JST for anything missed). GitHub's own schedule below is only a
+  # fallback: it starts runs hours late or not at all when GitHub is busy (on 2026-11-10 the
+  # 08:40 run started at 13:45). The first run to start before 09:00 waits until 09:00 and posts;
+  # the others queue behind it (see concurrency) and then find nothing left to do.
   schedule:
     - cron: "47 18 * * *" # 03:47 JST
     - cron: "47 19 * * *" # 04:47 JST
@@ -23,6 +24,11 @@ on:
     - cron: "47 22 * * *" # 07:47 JST
     - cron: "37 23 * * *" # 08:37 JST
   workflow_dispatch:
+    inputs:
+      at:
+        description: "Wait until this time (JST, HH:MM) before posting. Empty: post now."
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -62,10 +68,13 @@ jobs:
         run: echo "qiita=$(node -e 'const y=require("yaml");const fs=require("fs");console.log(y.parse(fs.readFileSync("autopilot.yml","utf8"))?.qiita ?? "auto")')" >> "$GITHUB_OUTPUT"
 
       # Zenn publishes each article itself at its published_at; this makes the Qiita and note
-      # copies (with a note header image) of every article that's due. On the daily run it
-      # first waits until 09:00 JST.
+      # copies (with a note header image) of every article that's due. On the daily run (GitHub's
+      # schedule, or the clock Worker's start with at: 09:00) it first waits until 09:00 JST.
       - name: Copy due Zenn articles to Qiita and note
-        run: node scripts/crosspost.mjs ${{ github.event_name == 'schedule' && '--at 09:00' || '' }}
+        env:
+          AT: ${{ github.event_name == 'schedule' && '09:00' || inputs.at }}
+        run: |
+          if [[ "$AT" =~ ^[0-2][0-9]:[0-5][0-9]$ ]]; then node scripts/crosspost.mjs --at "$AT"; else node scripts/crosspost.mjs; fi
 
       # autopilot.yml `qiita: daily`: puts the morning's Qiita article (written by the autopilot in
       # qiita/) into public/ for qiita-cli. At most one new Qiita article a day; none while

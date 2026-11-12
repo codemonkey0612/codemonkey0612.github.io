@@ -1,7 +1,8 @@
 # Writes the next articles on its own (scripts/autowrite.mjs; settings in autopilot.yml).
-# Every morning (tries at 04:13, 05:13 and 06:13 JST: GitHub starts scheduled runs late or drops
-# them; a later try only does what's still open, within the day's budget), and whenever
-# autopilot.yml changes, it fills the open mornings:
+# Every morning (started on time at 04:13 and 06:13 JST by the Cloudflare Worker in clock/;
+# GitHub's own schedule below is a fallback, since it starts runs late or drops them; a later try
+# only does what's still open, within the day's budget), and whenever autopilot.yml changes, it
+# fills the open mornings:
 # picks a topic, researches it, writes and checks the article and schedules it for 09:00.
 # mode: auto commits it to main; Zenn publishes it at 09:00. With `qiita: daily` it also writes
 # a separate Qiita article for each one (qiita/<slug>.md), which the Publish workflow posts at
@@ -12,7 +13,7 @@ name: Write articles
 
 on:
   schedule:
-    # Not on the hour, when GitHub is busiest and drops the most scheduled runs.
+    # Fallback only (see above). Not on the hour, when GitHub drops the most scheduled runs.
     - cron: "13 19 * * *" # 04:13 JST
     - cron: "13 20 * * *" # 05:13 JST
     - cron: "13 21 * * *" # 06:13 JST

@@ -65,8 +65,8 @@ ideas.md    post ideas built from your own projects and reviews
 
 ## Automatic writing (autopilot)
 
-Every morning (tries at 04:13, 05:13 and 06:13 Japan time, because GitHub starts
-scheduled runs late or drops them; a later try only does what's still open) the
+Every morning (started on time at 04:13 and 06:13 Japan time by the clock
+Worker, see below; a later try only does what's still open) the
 **Write articles** workflow fills the next open mornings on its own (`scripts/autowrite.mjs`, settings in `autopilot.yml`):
 
 1. **Topic:** it rotates through three pillars by weight: small-business technical
@@ -161,11 +161,10 @@ checks and comments the fact-check report. Merge any time before its morning:
    nothing. With `auto`, every morning the Publish workflow waits until
    09:00, copies each article that's due to `public/<slug>.md` (Zenn-only
    syntax converted: `:::message` → `:::note`, `:::details` → `<details>`,
-   embeds → links, `/images/…` → their GitHub URLs) and publishes it. GitHub
-   starts scheduled runs late when it's busy (5 hours late on 2026-11-10), so
-   the workflow is scheduled six times between 03:47 and 08:37; the first run
-   to start waits for 09:00 and posts, and the rest find nothing to do. If all
-   of them start after 09:00, the article goes out as soon as the first one runs.
+   embeds → links, `/images/…` → their GitHub URLs) and publishes it. The
+   run is started at 08:50 by the clock Worker (below) and waits for 09:00; a
+   second start at 09:20 posts anything that was missed, and otherwise finds
+   nothing to do.
    Edit the Zenn article later and its Qiita copy follows. A Qiita article you
    write yourself in `public/` is never touched.
 3. **note:** the same run makes `notes/<slug>.md` (Zenn syntax converted,
@@ -185,8 +184,16 @@ checks and comments the fact-check report. Merge any time before its morning:
 
 Topics become the Qiita tags, so give every article 1–5. To change a date,
 edit `published_at`; `npm run schedule` flags two posts on the same morning.
-GitHub pauses scheduled jobs in a repository with no activity for 60 days;
-daily posts keep it active.
+
+**On time every morning (`clock/`).** GitHub's own `schedule:` triggers start
+runs hours late or not at all when GitHub is busy (about 5 hours late on
+2026-11-11; on 2026-11-12 none had started by 09:30), so a Cloudflare Worker
+with Cron Triggers starts the workflows instead, through GitHub's API: Write
+articles at 04:13 and 06:13, Publish articles at 08:50 (it waits until 09:00)
+and 09:20 (Japan time). It needs a GitHub token that can only start this
+repository's workflows; setup in `clock/README.md`. The GitHub schedules stay
+as a fallback. Every workflow skips work that's already done, so the extra
+starts never post or write anything twice.
 
 **note** has no posting API for individual accounts (note's "note API" from
 October 2026 is for corporate note pro customers only), so the Publish job uses

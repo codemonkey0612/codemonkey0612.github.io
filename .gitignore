@@ -7,3 +7,6 @@ factcheck-report.*
 .wrangler/
 .dev.vars
 *.selftest.toml
+
+# The pipeline guide stays on this computer only (removed from GitHub on 2026-11-12)
+/README.md

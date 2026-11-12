@@ -10,6 +10,47 @@
   var d = document;
   // The site assistant: chat.js (a module) loads only when someone opens it.
   var APP_SRC = d.currentScript && d.currentScript.src;
+  (function askButton() {
+    var fab = d.querySelector(".ask-fab");
+    if (!fab) return;
+    // Phones: the label folds into the orb after a moment, or once the page is scrolled.
+    var small = window.matchMedia("(max-width: 760px)");
+    var fold = function () {
+      if (small.matches) fab.classList.add("is-compact");
+    };
+    setTimeout(fold, 5000);
+    addEventListener("scroll", function once() {
+      if (window.scrollY > 240) {
+        fold();
+        removeEventListener("scroll", once);
+      }
+    }, { passive: true });
+    // A greeting once per visit, a few seconds in; it goes when touched, closed or the chat opens.
+    var seen = false;
+    try {
+      seen = sessionStorage.getItem("takumi-ask-hint") === "1";
+    } catch (e) {}
+    if (seen) return;
+    var hint = d.createElement("div");
+    hint.className = "ask-hint";
+    hint.hidden = true;
+    hint.innerHTML = '<p><button type="button" data-ask><b lang="en">Ask TAKUMI</b>サービスや料金、実績のこと。このサイトの内容から、AIがすぐにお答えします。</button></p><button class="ask-hint-x" type="button" aria-label="閉じる">×</button>';
+    d.body.appendChild(hint);
+    var done = function () {
+      hint.hidden = true;
+      try {
+        sessionStorage.setItem("takumi-ask-hint", "1");
+      } catch (e) {}
+    };
+    hint.querySelector(".ask-hint-x").addEventListener("click", done);
+    d.addEventListener("click", function (e) {
+      if (e.target.closest && e.target.closest("[data-ask]")) done();
+    });
+    setTimeout(function () {
+      if (!d.querySelector("dialog.ask[open]")) hint.hidden = false;
+      setTimeout(done, 12000);
+    }, 6000);
+  })();
   d.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("[data-ask]");
     var fab = d.querySelector(".ask-fab");

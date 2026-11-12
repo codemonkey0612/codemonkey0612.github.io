@@ -35,7 +35,7 @@ function build() {
       <textarea id="ask-in" rows="1" maxlength="400" placeholder="例：RAGチャットボットの料金は？" autocomplete="off"></textarea>
       <button class="ask-send" type="submit"><span class="sr-only">送信</span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button>
     </form>
-    <p class="ask-note">AI（Anthropic社のClaude）が、このサイトの内容だけをもとに答えます。間違えることがあるため、正式なお見積もりはお問い合わせください。個人情報や機密情報は入力しないでください。入力内容はAnthropic社に送られ、このサイトでは保存しません。</p>`;
+    <p class="ask-note">AIが、このサイトの内容だけをもとに答えます。間違えることがあるため、正式なお見積もりはお問い合わせください。個人情報や機密情報は入力しないでください。入力内容は回答を作るために外部のAIサービスに送られ、このサイトでは保存しません。</p>`;
   document.body.append(dlg);
   log = dlg.querySelector(".ask-log");
   form = dlg.querySelector(".ask-form");

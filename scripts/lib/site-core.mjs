@@ -293,8 +293,11 @@ export function loadSite({ root, profile, today = new Date() }) {
       minDays: days.length ? Math.min(...days) : null,
       maxDays: days.length ? Math.max(...days) : null,
       service: serviceOf.get(id) ?? null,
+      onSite: p.site !== false,
     };
   });
+  // `site: false` keeps a package on Lancers only; no page may show it.
+  for (const p of allPackages) if (!p.onSite && p.service) throw new Error(`site/packages.yml ${p.id} has site: false but services/${p.service.id} lists it`);
   // Group by service (in profile order); packages no service page covers go last.
   // (Object keys that look like numbers come back sorted numerically, not in file order.)
   const rank = (p) => (p.service ? services.indexOf(p.service) : services.length);
@@ -324,7 +327,8 @@ export function loadSite({ root, profile, today = new Date() }) {
     assetVersion,
     profile,
     services,
-    packages: allPackages,
+    packages: allPackages.filter((p) => p.onSite), // what the site shows
+    lancersPackages: allPackages, // every package on Lancers (the counts in profile.yml)
     works: { sites, lancers, all: works },
     art,
     years,

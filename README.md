@@ -339,11 +339,14 @@ twice. `bluesky: off` in `autopilot.yml` stops it;
   "as of" date). For a new review, add it at the top of `testimonials:` and bump
   `lancers.reviews`. The tests fail if the number of reviews or packages doesn't
   match the counts in `lancers:`. Each service page links to its Lancers package.
-- **Price list only** (on purpose): the real-time face swap, AI business-partner
-  matching, game development and web scraping packages appear on the price list
-  but have no service page with plan details. They don't fit the AI/Web
-  positioning, and their Lancers plans make claims or offers (95% accuracy, a
-  3.2× guarantee, getting around bot protection) the site shouldn't repeat.
+- **Lancers only** (`site: false` in `site/packages.yml`): the real-time face
+  swap, AI business-partner matching and game development packages stay on
+  Lancers but appear nowhere on the site; they hurt the AI & Web message (face
+  swap reads as deepfake to company buyers). The counts in `lancers:` still
+  include them; a test checks no page shows them.
+- **Price list only** (on purpose): the web scraping package appears on the
+  price list but has no service page with plan details; its Lancers plans make
+  claims (getting around bot protection) the site shouldn't repeat.
 - **Images and videos.** The cover image and promo video of each package on a
   service page are copied from Lancers (2026-11-08) into
   `site/assets/media/packages/<id>.webp` and `.mp4`, and listed as `cover:` and

@@ -1,6 +1,7 @@
 # Works on /works/ and the home page. Two kinds:
 #   sites:   live websites you took part in developing (as you told me on 2026-11-08).
-#            Add what you did in `role` when you can say it publicly.
+#            `made` = the part you built (a short noun, shown on cards and the home page);
+#            `role` = the same as a sentence (case page).
 #   lancers: your 14 Lancers portfolio items. Each is backed by client reviews
 #            (`reviews` = ids in profile.yml testimonials), so visitors can check them.
 # `service` links a work to a service page; `featured` ones appear on the home page;
@@ -19,7 +20,8 @@ sites:
     service: wordpress
     kind: サービスサイト
     summary: Go-to-Market（GTM）戦略の設計・実行を支援するサービスのWebサイトです。約3分で答えられる「GTM成熟度 無料診断」と、診断結果のレポートを提供しています。
-    role: 開発に参加しました。
+    made: ランディングページ   # what you built (you, 2026-11-12)
+    role: ランディングページを制作しました。
     page: media/works/go-to-market-page.webp
     top: media/works/go-to-market-top.webp
     phone: media/works/go-to-market-phone.webp
@@ -32,7 +34,8 @@ sites:
     service: system
     kind: 求人サイト（Webシステム）
     summary: 建築設計事務所に特化した、就職・転職・アルバイトの求人情報サイトです。職種・勤務地・雇用形態での求人検索、会員登録、採用担当者向けのページなどを備えています。
-    role: 開発に参加しました。
+    made: 学生向けMBTIページ   # what you built (you, 2026-11-12)
+    role: 学生向けのMBTIページを制作しました。
     page: media/works/a-worker-page.webp
     top: media/works/a-worker-top.webp
     phone: media/works/a-worker-phone.webp

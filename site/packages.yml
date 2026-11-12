@@ -210,6 +210,7 @@
       days: 21
       desc: "中規模システムの総合品質検証。最大15,000行のコードレビュー、バグ修正10件、詳細テスト・改善提案に対応。"
 "1319679":
+  site: false   # Lancers only: off the site, it doesn't fit the AI & Web message (you, 2026-11-12)
   title: "Unity・Unreal Engineで高品質なゲームを開発します"
   plans:
     - name: ベーシック
@@ -308,6 +309,7 @@
       days: 30
       desc: "最大10時間の相談・導入支援に対応。システム分析・AI活用・DX推進・技術選定・導入ロードマップを総合的に支援します。"
 "1319001":
+  site: false   # Lancers only: off the site, it doesn't fit the AI & Web message (you, 2026-11-12)
   title: "Webカメラやライブストリーミングでリアルタイム顔交換を実現するシステムを開発します"
   lancers_title: "Webカメラやライブストリーミングでリアルタイム顔交換を実現するシステムを開発ます"   # as written on Lancers (typo)
   plans:
@@ -324,6 +326,7 @@
       days: 75
       desc: "OBS仮想カメラ、ONNX Runtime GPU高速化、顔角度・表情完全同期、カスタムモデル学習対応、処理速度：30ms/フレーム"
 "1319015":
+  site: false   # Lancers only: off the site, it doesn't fit the AI & Web message (you, 2026-11-12)
   title: "AIで最適なビジネスパートナーを自動マッチングします"
   lancers_title: "AIで最適ビジネスパートナーを自動マッチング ます"   # as written on Lancers (typo)
   plans:

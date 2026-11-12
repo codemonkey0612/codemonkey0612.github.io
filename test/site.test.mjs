@@ -128,10 +128,14 @@ test("the site lists every Lancers review and package profile.yml counts", () =>
   const site = loadSite({ root: ROOT, profile, today });
   const count = (s) => Number(/^(\d+)/.exec(s)?.[1]);
   assert.equal(profile.testimonials.length, count(profile.lancers.reviews), "testimonials vs lancers.reviews");
-  assert.equal(site.packages.length, count(profile.lancers.packages), "site/packages.yml vs lancers.packages");
+  assert.equal(site.lancersPackages.length, count(profile.lancers.packages), "site/packages.yml vs lancers.packages");
   const files = renderSite(site);
   for (const t of profile.testimonials) assert.match(files["reviews/index.html"], new RegExp(`id="${t.id}"`));
   for (const p of site.packages) assert.match(files["prices/index.html"], new RegExp(`menu/detail/${p.id}"`));
+  // Lancers-only packages (site: false) appear nowhere on the site.
+  const hidden = site.lancersPackages.filter((p) => !p.onSite);
+  assert.deepEqual(hidden.map((p) => p.id).sort(), ["1319001", "1319015", "1319679"]);
+  for (const [f, html] of Object.entries(files)) for (const p of hidden) assert.ok(!html.includes(`menu/detail/${p.id}"`) && !html.includes(p.title), `${f} shows Lancers-only package ${p.id}`);
   const ids = new Set(profile.testimonials.map((t) => t.id));
   assert.equal(ids.size, profile.testimonials.length, "testimonial ids are unique");
 });
@@ -143,7 +147,7 @@ test("every work page is backed by something a visitor can check", () => {
   for (const w of site.works.sites) {
     const html = files[`works/${w.id}/index.html`];
     assert.ok(html.includes(`href="${w.url}" target="_blank" rel="noopener"`), `${w.id} links to the live site`);
-    assert.match(html, /開発に参加/, `${w.id} states the role`);
+    assert.ok(w.role && html.includes(esc(w.role)), `${w.id} states the role`);
   }
   for (const w of site.works.lancers) {
     assert.ok(w.reviews.length > 0, `${w.id} has at least one review`);

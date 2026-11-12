@@ -515,7 +515,8 @@ function film(site, base, { video, poster, title, cls = "", ar = null, length = 
 
 const workName = (w) => w.title_;
 const workImage = (w) => (w.kindOf === "site" ? w.top : w.cover);
-const workLine = (w) => (w.kindOf === "site" ? `公開中のサイト・${w.kind}` : w.headline);
+// A live site's line says what you built there when works.yml has it (`made`).
+const workLine = (w) => (w.kindOf === "site" ? (w.made ? `${w.kind}・${w.made}を制作` : `公開中のサイト・${w.kind}`) : w.headline);
 
 function workCard(site, w, base, { size = "", eager = false } = {}) {
   // The frame takes the picture's own shape, so text inside a cover is never cropped.
@@ -596,6 +597,9 @@ function workStory(text) {
 
 // ---------- pages ----------
 
+// The services named on the first screen (labels as you put them, 2026-11-12), each linked to its page.
+const HERO_SERVICES = [[["ai-apps", "AIアプリ"]], [["ai-chatbot", "RAGチャットボット"]], [["wordpress", "WordPress"], ["shopify", "Shopify"]], [["system", "業務システム"]]];
+
 export function renderIndex(site) {
   const { profile, services, years, works, art } = site;
   const base = "./";
@@ -608,6 +612,10 @@ export function renderIndex(site) {
   const half = Math.ceil(services.length / 2);
   const svcItem = (s) => `<li><a href="${base}services/${esc(s.id)}/">${icon(SVC_ICON[s.id] ?? "chip", "ic svc-ic")}<span class="svc-name">${esc(s.short)}</span><span class="svc-desc">${s.card.map(esc).join("<br>")}</span></a></li>`;
   const [lead] = works.sites;
+  // The first screen's proof, from the Lancers record: rank, reviews (when all are 満足), years.
+  const lr = profile.lancers ?? {};
+  const rv = /^(\d+)件（満足(\d+)件・残念0件）/.exec(lr.reviews ?? "");
+  const proof = [lr.rank, rv && rv[1] === rv[2] && `評価${rv[1]}件すべて満足`, `開発歴${years}年`].filter(Boolean);
   const ex = site.art.stage("expertise");
   // The showreel's poster: the home artwork's bright lower half (clouds and pavilion), as in the mockup.
   const reelPoster = site.art.section("reel-poster")?.src ?? (site.art.stage("home").plate ? site.art.stage("home").wide : reel?.poster);
@@ -627,7 +635,9 @@ export function renderIndex(site) {
     over: secImg(site, base, "deco-glints", "deco deco-glints"),
     inner: `    <div class="stage-copy">
       <h1 class="display">想像を、<br><em>実装</em>する。</h1>
+      ${proof.length ? `<p class="hero-proof">${proof.map((x) => `<span>${esc(x)}</span>`).join(`<i>・</i>`)}</p>` : ""}
       <p class="lead lead-one">AIとWebで、ビジネスの次の景色へ。</p>
+      <ul class="hero-svcs" aria-label="主なサービス">${HERO_SERVICES.map((group) => `<li>${group.map(([id, label]) => (services.some((s) => s.id === id) ? `<a href="${base}services/${id}/">${esc(label)}</a>` : esc(label))).join("・")}</li>`).join("")}</ul>
       <p class="actions"><a class="btn btn-ghost btn-lg" href="#selected">実績を見る${icon("arrow")}</a><a class="btn btn-gold btn-lg" href="${contactHref(base)}">相談する${icon("arrow")}</a></p>
     </div>
     ${
@@ -648,7 +658,7 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
     <div class="sel-copy" data-reveal>
       <p class="eyebrow" lang="en">Selected Work</p>
       <h2 class="strip-title" id="selected-title">実装で、<br><span class="nowrap"><em>成果</em>につなげる。</span></h2>
-      <p class="sel-lead">${works.sites.map((w) => `<a href="${base}works/${esc(w.id)}/">${esc(workName(w))}</a>`).join("・")}など、<br>開発に参加したサイトと評価をいただいた案件。</p>
+      <p class="sel-lead">${works.sites.map((w) => `<a href="${base}works/${esc(w.id)}/">${esc(workName(w))}</a>${w.made ? `の${esc(w.made)}` : ""}`).join("、")}など、<br>制作したページと、評価をいただいた案件。</p>
       <p class="sel-cta"><a class="btn btn-ghost" href="${base}works/">実績を見る${icon("arrow")}</a></p>
     </div>
     <div class="sel-devices" data-reveal>
@@ -716,7 +726,7 @@ ${inquiry(site, base, { label: "プロジェクトを相談する", titleHtml: "
 export function renderWorks(site) {
   const { profile, works } = site;
   const base = "../";
-  const description = `${profile.name}の実績。開発に参加した公開中のサイト${works.sites.length}件と、ランサーズで評価をいただいた案件${works.lancers.length}件を紹介します。`;
+  const description = `${profile.name}の実績。制作に携わった公開中のサイト${works.sites.length}件と、ランサーズで評価をいただいた案件${works.lancers.length}件を紹介します。`;
   const counts = { all: works.all.length };
   for (const w of works.all) counts[w.cat] = (counts[w.cat] ?? 0) + 1;
   // Editorial rhythm: a large card, then two, then three; repeat.
@@ -727,7 +737,7 @@ export function renderWorks(site) {
       <p class="kicker" lang="en">Works Gallery</p>
       <p class="kicker-ja">実績ギャラリー</p>
       <h1 class="display">作品の、<br><span class="d-ind">その<em>先</em>へ。</span></h1>
-      <p class="lead">開発に参加した公開中のサイトと、<br>ランサーズで評価をいただいた案件です。</p>
+      <p class="lead">制作に携わった公開中のサイトと、<br>ランサーズで評価をいただいた案件です。</p>
     </div>`,
   })}
 <section class="ch ch-pearl gallery${hasSec(site, "sec-silk")}" aria-labelledby="gallery-title">
@@ -808,7 +818,7 @@ export function renderWork(site, w) {
     isSite
       ? [
           { k: "種類", word: w.kind },
-          { k: "担当", word: w.role },
+          { k: "担当", word: w.made ?? w.role },
           { k: "サイト", html: ext(w.url, `${esc(w.host)}${icon("ext", "ic ic-xs")}`) },
         ]
       : [
@@ -1374,7 +1384,7 @@ export function renderPrices(site) {
   const { profile, services } = site;
   const base = "../";
   const n = site.packages.length;
-  const description = `${profile.name}の料金と進め方。相談・検証から設計・開発、運用・改善まで。ランサーズで出品している${n}のパッケージの料金と納期の一覧です。`;
+  const description = `${profile.name}の料金と進め方。相談・検証から設計・開発、運用・改善まで。ランサーズのパッケージ${n}件の料金と納期の一覧です。`;
   const from = (ids) => {
     const xs = site.packages.filter((p) => ids.includes(p.id)).map((p) => p.minPrice).filter(Number.isFinite);
     return xs.length ? Math.min(...xs) : null;
@@ -1441,7 +1451,7 @@ export function renderPrices(site) {
       </table>
     </div>
     <div class="pk-block" id="packages" data-reveal>
-      <div class="pk-head"><p class="eyebrow" lang="en">Packages</p><h3 class="h3 pk-title" id="pk-title">パッケージ料金</h3><p class="pk-lead">${`ランサーズで出品している${n}のパッケージです（${jaDate(profile.lancers?.as_of)}時点）。ベーシック・スタンダード・プレミアムの3プランから選べます。`}</p></div>
+      <div class="pk-head"><p class="eyebrow" lang="en">Packages</p><h3 class="h3 pk-title" id="pk-title">パッケージ料金</h3><p class="pk-lead">${`ランサーズで出品しているパッケージから、${n}件を掲載しています（${jaDate(profile.lancers?.as_of)}時点）。ベーシック・スタンダード・プレミアムの3プランから選べます。`}</p></div>
       <details class="pk-more" id="pk-list">
       <summary><span>${n}のパッケージの料金と納期を見る</span>${icon("arrow")}</summary>
       <div class="table-scroll"><table class="table table-prices">

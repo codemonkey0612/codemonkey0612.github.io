@@ -669,51 +669,7 @@ lancers:
 
       ※非公開のご依頼のため、システムの詳細は掲載を控えています。
 
-# Live sites you built or worked on, shown in the works page's "Live Sites" section, grouped
-# (group: salon | app | shop | media | lp | system — see SHOWCASE_GROUPS in scripts/lib/site-core.mjs).
-# The 41 below are your portfolio links as you sent them on 2026-11-12 (names as you wrote them;
-# the J@m link had a stray "))" and Uni-Log a utm tag — both dropped). shot = the first screen at
-# 1440×900, captured 2026-11-12 in headless Chrome and saved at 960×600 (site/assets/media/showcase/);
-# MokuMoku Match's welcome dialog was dismissed and ならシカノオト's ads hidden for the picture.
-showcase:
-  - { group: salon, name: Hair Salon MOU, url: "https://hairsalon-mou.com/", shot: media/showcase/hairsalon-mou-com.webp }
-  - { group: salon, name: "Re:coa", url: "https://recoa.jp/", shot: media/showcase/recoa-jp.webp }
-  - { group: salon, name: "J@m", url: "https://www.jamtruebeauty.com/", shot: media/showcase/jamtruebeauty-com.webp }
-  - { group: salon, name: HAIR PEPPINO, url: "https://hairpeppino.com/", shot: media/showcase/hairpeppino-com.webp }
-  - { group: salon, name: 光と曲線の美容室 page, url: "https://www.page-light-and-shape.com/", shot: media/showcase/page-light-and-shape-com.webp }
-  - { group: salon, name: ハナブルー, url: "https://www.hana.blue/", shot: media/showcase/hana-blue.webp }
-  - { group: salon, name: hairsalon tomorrow, url: "https://tomorrowsendai2018.com/", shot: media/showcase/tomorrowsendai2018-com.webp }
-  - { group: salon, name: Suzy, url: "https://www.suzysendai.com/", shot: media/showcase/suzysendai-com.webp }
-  - { group: salon, name: hair salon haru, url: "https://salon.haru-hp.jp/", shot: media/showcase/salon-haru-hp-jp.webp }
-  - { group: salon, name: Aria, url: "https://ariakobe.com/", shot: media/showcase/ariakobe-com.webp }
-  - { group: salon, name: SUEDA Hair Room, url: "https://sueda-hr.com/", shot: media/showcase/sueda-hr-com.webp }
-  - { group: salon, name: 髪KOTOBA, url: "https://kamikotoba.com/", shot: media/showcase/kamikotoba-com.webp }
-  - { group: salon, name: malie, url: "https://malie-hairsalon.jp/", shot: media/showcase/malie-hairsalon-jp.webp }
-  - { group: salon, name: Sur, url: "https://kobe-sur.com/", shot: media/showcase/kobe-sur-com.webp }
-  - { group: salon, name: FASCINO, url: "https://kobe-fascino.jp/", shot: media/showcase/kobe-fascino-jp.webp }
-  - { group: salon, name: South Place, url: "https://southplace-kobe.com/", shot: media/showcase/southplace-kobe-com.webp }
-  - { group: salon, name: ORIGINAL, url: "https://original-1930.com/", shot: media/showcase/original-1930-com.webp }
-  - { group: salon, name: honu, url: "https://www.honu-kyoto.com/", shot: media/showcase/honu-kyoto-com.webp }
-  - { group: salon, name: N Salon, url: "https://nsalon.jp/", shot: media/showcase/nsalon-jp.webp }
-  - { group: salon, name: AnS Hair Salon, url: "https://www.ans-hair.com/", shot: media/showcase/ans-hair-com.webp }
-  - { group: app, name: aidly, url: "https://www.aidly-ai.jp/", shot: media/showcase/aidly-ai-jp.webp }
-  - { group: app, name: こころぼっと, url: "https://cocorobot.me/", shot: media/showcase/cocorobot-me.webp }
-  - { group: app, name: Uni-Log, url: "https://uni-log-official.web.app/index.html", shot: media/showcase/uni-log-official-web-app.webp }
-  - { group: app, name: ADA Lab, url: "https://adalabtech.com/", shot: media/showcase/adalabtech-com.webp }
-  - { group: app, name: Selah, url: "https://selah.jp/", shot: media/showcase/selah-jp.webp }
-  - { group: app, name: MokuMoku Match, url: "https://mokumokumatch.top/", shot: media/showcase/mokumokumatch-top.webp }
-  - { group: app, name: CoPath, url: "https://copath.jp/", shot: media/showcase/copath-jp.webp }
-  - { group: app, name: ＆1, url: "https://www.andone.space/", shot: media/showcase/andone-space.webp }
-  - { group: shop, name: sisiri, url: "https://sisiri-online.com/", shot: media/showcase/sisiri-online-com.webp }
-  - { group: shop, name: 喫茶室 山脈, url: "https://kissa-sanmyakustore.com/", shot: media/showcase/kissa-sanmyakustore-com.webp }
-  - { group: shop, name: プレヴナン, url: "https://prevenant-shop.myshopify.com/", shot: media/showcase/prevenant-shop-myshopify-com.webp }
-  - { group: media, name: シェアあだち, url: "https://share-adachi.com/", shot: media/showcase/share-adachi-com.webp }
-  - { group: media, name: なだらぶ, url: "https://nadalove.com/", shot: media/showcase/nadalove-com.webp }
-  - { group: media, name: 戸塚であそぼ！, url: "https://totsukadeasobo.com/", shot: media/showcase/totsukadeasobo-com.webp }
-  - { group: media, name: MACHINOHI TOKYO, url: "https://machinohi.tokyo/", shot: media/showcase/machinohi-tokyo.webp }
-  - { group: media, name: まちなぎ, url: "https://machinagi.com/about/", shot: media/showcase/machinagi-com-about.webp }
-  - { group: media, name: ならシカノオト, url: "https://nara-media.nara.jp/", shot: media/showcase/nara-media-nara-jp.webp }
-  - { group: media, name: いずみごこち, url: "https://izumi-media.osaka.jp/", shot: media/showcase/izumi-media-osaka-jp.webp }
-  - { group: media, name: 流山暮らしガイド, url: "https://www.nagareyama.link/", shot: media/showcase/nagareyama-link.webp }
-  - { group: media, name: はまこれ横浜, url: "https://hamakore.yokohama/", shot: media/showcase/hamakore-yokohama.webp }
-  - { group: media, name: co-lect, url: "https://co-lect.com/", shot: media/showcase/co-lect-com.webp }
+# Live sites you built or worked on, shown in the works page's "Live Sites" section (group lp|system,
+# name, url, shot: media/showcase/<slug>.webp). Emptied on 2026-11-12 at your request; list only
+# sites you actually worked on.
+showcase: []

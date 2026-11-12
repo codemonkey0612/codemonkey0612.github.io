@@ -23,10 +23,11 @@ test("the real site builds: every page, link and structured-data block is valid"
   const site = loadSite({ root: ROOT, profile, today });
   const files = renderSite(site);
   const pages = Object.keys(files).filter((f) => f.endsWith(".html"));
-  assert.equal(pages.length, profile.services.length + site.works.all.length + 8);
+  assert.equal(pages.length, profile.services.length + site.works.all.length + profile.cases.length + 8);
   for (const f of ["services/index.html", "contact/index.html", "prices/index.html", "reviews/index.html", "about/index.html", "works/index.html"]) assert.ok(files[f], f);
   for (const s of profile.services) assert.ok(files[`services/${s.id}/index.html`], s.id);
   for (const w of site.works.all) assert.ok(files[`works/${w.id}/index.html`], w.id);
+  for (const c of profile.cases) assert.ok(files[`works/${c.id}/index.html`], `confidential case ${c.id}`);
 
   for (const page of pages) {
     const html = files[page];
@@ -352,3 +353,29 @@ test("search verification and analytics tags come from profile.yml, and the cont
   assert.match(on["about/index.html"], /data-cf-beacon='\{"token": "0123456789abcdef0123456789abcdef"\}'/);
   assert.doesNotMatch(on["contact/index.html"], /cloudflareinsights/);
 });
+
+test("confidential projects: a page each, no client name, nothing beyond the record", () => {
+  const profile = loadProfile();
+  const site = loadSite({ root: ROOT, profile, today });
+  const files = renderSite(site);
+  const works = files["works/index.html"];
+  assert.match(works, /id="confidential"/);
+  assert.match(works, /id="nda"/, "the works page says how confidentiality is kept");
+  for (const c of profile.cases) {
+    assert.ok(works.includes(`href="../works/${c.id}/"`), `works index links to ${c.id}`);
+    const html = files[`works/${c.id}/index.html`];
+    assert.ok(html.includes(esc(c.result)), `${c.id} states the result as recorded`);
+    for (const t of c.stack) assert.ok(html.includes(`<span>${esc(t)}</span>`), `${c.id} places ${t} in the technology map`);
+    assert.match(html, /お客さまの名前と画面について/);
+    assert.ok(html.includes(profile.lancers.profile_url), `${c.id} links to the Lancers record`);
+    // Every percentage on the page comes from the record.
+    for (const [, n] of html.replace(/<style[\s\S]*?<\/style>|style="[^"]*"/g, "").matchAll(/data-to="(\d+)"/g)) {
+      const ok = [String(caseMonthsOf(c.period)), /^(\d+)名/.exec(c.team)?.[1], ...[...c.result.matchAll(/約(\d+)%/g)].map((m) => m[1])];
+      assert.ok(ok.includes(n), `${c.id}: figure ${n} is in the record`);
+    }
+  }
+});
+function caseMonthsOf(period) {
+  const m = /(\d{4})-(\d{2})\s*[–-]\s*(\d{4})-(\d{2})/.exec(period);
+  return (m[3] - m[1]) * 12 + (m[4] - m[2]) + 1;
+}

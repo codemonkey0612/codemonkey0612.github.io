@@ -428,7 +428,7 @@ function quoteCard(t, { full = false, cls = "", base = "" } = {}) {
       </figure>`;
 }
 
-function caseItem(c) {
+function caseItem(c, base = "") {
   return `<details class="acc" id="${esc(c.id)}">
       <summary><span class="acc-meta">${esc(c.period)}</span><span class="acc-title">${esc(c.title)}</span></summary>
       <dl class="dl">
@@ -439,6 +439,7 @@ function caseItem(c) {
         <div><dt>成果</dt><dd><strong>${esc(c.result)}</strong></dd></div>
         <div><dt>技術</dt><dd>${chips(c.stack)}</dd></div>
       </dl>
+      ${base ? `<p class="acc-more"><a href="${base}works/${esc(c.id)}/">この案件のページを見る${icon("arrow", "ic ic-xs")}</a></p>` : ""}
     </details>`;
 }
 
@@ -517,6 +518,97 @@ function trackRecord(site, base, { id = "record-title", cls = "" } = {}) {
       ${industries.length ? `<p class="rec-ind"><span class="rec-ind-k">これまでの業種</span>${industries.map((x) => `<span>${esc(x)}</span>`).join("")}</p>` : ""}
       <p class="rec-src">ランサーズの数字は${jaDate(l.as_of)}時点。${ext(l.profile_url, `ランサーズのプロフィール${icon("ext", "ic ic-xs")}`)}で確認できます。</p>
     </div>`;
+}
+
+/* ---------- Confidential projects: profile.yml cases (the Lancers "ビジネス経験"), told
+   without the client's name or screens. Nothing here goes beyond the record. ---------- */
+const CASE_SERVICE = { "ai-saas": "ai-apps", "rag-docs": "ai-chatbot", "knowledge-search": "ai-chatbot", "auth-security": "quality", "desktop-automation": "system", "live-streaming": "system", "delivery-management": "system", "production-management": "system", "ec-inventory": "shopify", "wp-real-estate": "wordpress" };
+const caseService = (site, c) => site.services.find((x) => x.id === CASE_SERVICE[c.id]) ?? site.services.find((x) => x.cases.some((y) => y.id === c.id)) ?? null;
+const caseCat = (svc) => (!svc ? "system" : svc.pillar === "AI" ? "ai" : ["wordpress", "shopify"].includes(svc.id) ? "web" : "system");
+const caseMonths = (period) => {
+  const m = /(\d{4})-(\d{2})\s*[–-]\s*(\d{4})-(\d{2})/.exec(period ?? "");
+  return m ? (m[3] - m[1]) * 12 + (m[4] - m[2]) + 1 : null;
+};
+/** Measured results in the record ("…を約75%削減", "…の約80%を自動化"). */
+const caseResults = (text) =>
+  [...String(text).matchAll(/([^、。]+?)(?:を約(\d+)%(削減|短縮)|の約(\d+)%を(自動化))/g)].map((m) => ({
+    k: m[2] ? `${m[1].replace(/^.*?、/, "")}の${m[3]}` : `${m[1]}の自動化`,
+    n: Number(m[2] ?? m[4]),
+  }));
+// A title's unbreakable phrases: after ・, and before a katakana word that follows kanji or kana
+// ("業務自動化｜デスクトップアプリ開発", "Webアプリの｜セキュリティ強化").
+const jaPhrases = (str) => str.split(/(?<=・)|(?<=[^ァ-ヶー・A-Za-z0-9])(?=[ァ-ヶー])/).filter(Boolean);
+const phraseLen = (seg) => [...seg].reduce((n, ch) => n + (/[\x00-\x7f]/.test(ch) ? 0.66 : 1), 0);
+const phraseHtml = (str) => jaPhrases(str).map((x) => `<span class="nowrap">${esc(x)}</span>`).join("<wbr>");
+const caseTitle = (c) => {
+  const [who, ...rest] = c.title.split("向け");
+  const what = rest.join("向け");
+  const sub = /（([^）]+)）$/.exec(what)?.[1] ?? "";
+  return { who: rest.length ? `${who}向け` : "", what: (rest.length ? what : c.title).replace(/（[^）]+）$/, ""), sub };
+};
+/** The record's technologies, grouped by the part of a system they belong to. */
+const STACK_ROLE = [
+  ["画面", "UI", /^(React|Next\.js|TypeScript|JavaScript|jQuery|HTML\/CSS|PySide|Vue|Flutter)$/],
+  ["サーバー・API", "Server", /^(Python|FastAPI|Django|Node\.js|Express|PHP|REST API|WebSocket|Cron|WordPress)$/],
+  ["AI", "AI", /^(OpenAI API|LangChain|RAG|Claude|LLM)$/],
+  ["データ", "Data", /^(PostgreSQL|MySQL|SQLite|Elasticsearch|Pandas|OpenPyXL|Redis)$/],
+  ["配信・外部連携", "Media", /^(WebRTC|FFmpeg|Google Maps API)$/],
+  ["認証・セキュリティ", "Security", /^(OAuth 2\.0|JWT|OWASP)$/],
+  ["基盤", "Infra", /^(AWS|Docker|Linux|Azure|GCP|Kubernetes|Terraform)$/],
+];
+function stackMap(stack) {
+  const left = [...stack];
+  const groups = STACK_ROLE.map(([ja, en, re]) => ({ ja, en, items: left.filter((x) => re.test(x)) })).filter((g) => g.items.length);
+  const known = new Set(groups.flatMap((g) => g.items));
+  const rest = left.filter((x) => !known.has(x));
+  if (rest.length) groups.push({ ja: "そのほか", en: "Other", items: rest });
+  const base = groups.filter((g) => ["Infra", "Security"].includes(g.en));
+  const flow = groups.filter((g) => !["Infra", "Security"].includes(g.en));
+  return `<div class="cf-map" data-reveal>
+      <ol class="cf-flow">${flow.map((g) => `<li><span class="cf-layer" lang="en">${g.en}</span><b>${g.ja}</b><span class="cf-items">${g.items.map((x) => `<span>${esc(x)}</span>`).join("")}</span></li>`).join("")}</ol>
+      ${base.length ? `<ul class="cf-base">${base.map((g) => `<li><span class="cf-layer" lang="en">${g.en}</span><b>${g.ja}</b><span class="cf-items">${g.items.map((x) => `<span>${esc(x)}</span>`).join("")}</span></li>`).join("")}</ul>` : ""}
+    </div>`;
+}
+/** A confidential project's card on the works page. */
+function caseCard(site, c, base, i) {
+  const svc = caseService(site, c);
+  const a = svc ? site.art.stage(`svc-${svc.id}`) : {};
+  const t = caseTitle(c);
+  const [r] = caseResults(c.result);
+  return `<li class="cf-card" data-reveal style="--k:${i % 3}">
+        <a href="${base}works/${esc(c.id)}/">
+          ${a.wide ? `<span class="cf-card-art"><img src="${base}${a.narrow ?? a.wide}" alt="" loading="lazy" decoding="async"${a.mw ? ` width="${a.mw}" height="${a.mh}"` : ""}></span>` : ""}
+          <span class="cf-card-body">
+            <span class="cf-card-top"><span class="cf-card-no" lang="en">Confidential ${pad2(i + 1)}</span><span class="cf-card-period">${esc(c.period)}</span></span>
+            <span class="cf-card-who">${esc(t.who || "非公開のお客さま")}</span>
+            <span class="cf-card-title">${esc(t.what)}</span>
+            <span class="cf-card-role">${esc(c.team.replace(/（.*$/, ""))}のチーム・${esc(c.role.replace(/（.*$/, ""))}</span>
+            ${r ? `<span class="cf-card-result"><b>${r.n}<small>%</small></b><span>${esc(r.k)}</span></span>` : `<span class="cf-card-result cf-card-result-text"><span>${esc(c.result.split("。")[0])}。</span></span>`}
+            <span class="cf-card-go">詳しく見る${icon("arrow")}</span>
+          </span>
+        </a>
+      </li>`;
+}
+/** What confidentiality means here — only what the record shows. */
+function ndaPromise(site, base) {
+  const { profile } = site;
+  const l = profile.lancers ?? {};
+  const sec = profile.certifications?.find((c) => /情報処理安全確保支援士/.test(c.name));
+  const items = [
+    profile.facts?.nda && { i: "doc", t: "NDA（秘密保持契約）を結べます", d: "ご希望があれば、詳しいお話を伺う前に結びます。" },
+    (l.verified ?? []).length && { i: "shield", t: "ランサーズの確認済み", d: `ランサーズで${l.verified.join("・")}を済ませています。` },
+    { i: "lock", t: "名前と画面は載せません", d: `このサイトでも、お客さまの名前・画面・社内の数値は載せていません（公開中のサイトとして紹介している${site.works.sites.length}件を除きます）。` },
+    sec && { i: "check", t: "セキュリティの資格", d: `${sec.name.replace(/試験 合格$/, "試験")}に合格しています。` },
+  ].filter(Boolean);
+  return `<section class="tale cf-nda" id="nda" aria-labelledby="nda-title">
+  <div class="tale-in">
+    <p class="tale-label" lang="en"><span>Confidentiality</span></p>
+    <h2 class="tale-h2 center" id="nda-title">あなたの案件も、同じように守ります。</h2>
+    <ul class="cf-nda-list" style="--n:${items.length}">
+      ${items.map((x, k) => `<li data-reveal style="--k:${k}"><span class="tale-hl-orb" aria-hidden="true">${icon(ICON[x.i] ? x.i : "check")}</span><b>${esc(x.t)}</b><p>${esc(x.d)}</p></li>`).join("\n      ")}
+    </ul>
+  </div>
+</section>`;
 }
 
 const workName = (w) => w.title_;
@@ -725,7 +817,8 @@ ${inquiry(site, base, { label: "プロジェクトを相談する", titleHtml: "
 export function renderWorks(site) {
   const { profile, works } = site;
   const base = "../";
-  const description = `${profile.name}の実績。制作に携わった公開中のサイト${works.sites.length}件と、ランサーズで評価をいただいた案件${works.lancers.length}件を紹介します。`;
+  const cases = profile.cases ?? [];
+  const description = `${profile.name}の実績。制作に携わった公開中のサイト${works.sites.length}件、ランサーズで評価をいただいた案件${works.lancers.length}件、お客さまの名前を伏せたチーム開発${cases.length}件を紹介します。`;
   const counts = { all: works.all.length };
   for (const w of works.all) counts[w.cat] = (counts[w.cat] ?? 0) + 1;
   // Editorial rhythm: a large card, then two, then three; repeat.
@@ -736,7 +829,7 @@ export function renderWorks(site) {
       <p class="kicker" lang="en">Works Gallery</p>
       <p class="kicker-ja">実績ギャラリー</p>
       <h1 class="display">作品の、<br><span class="d-ind">その<em>先</em>へ。</span></h1>
-      <p class="lead">制作に携わった公開中のサイトと、<br>ランサーズで評価をいただいた案件です。</p>
+      <p class="lead">制作に携わった公開中のサイト、ランサーズで評価をいただいた案件、<br>そしてお客さまの名前を伏せたチーム開発の実績です。</p>
     </div>`,
   })}
 <section class="ch ch-pearl gallery${hasSec(site, "sec-silk")}" aria-labelledby="gallery-title">
@@ -760,9 +853,147 @@ export function renderWorks(site) {
     <p class="fine">ランサーズの案件は、お客さまの画面を載せられないため、案件ごとのイラストで紹介しています（内容と評価はランサーズで確認できます）。公開中のサイトの画面は撮影時点のものです。</p>
   </div>
 </section>
+${
+  cases.length
+    ? `<section class="tale cf-sec" id="confidential" aria-labelledby="cf-title">
+  <div class="tale-in">
+    <p class="tale-label" lang="en"><span>Confidential Projects</span></p>
+    <h2 class="tale-h2 center" id="cf-title">名前を伏せた、開発の実績。</h2>
+    <p class="cf-lead">守秘義務などのため、お客さまの名前と画面は載せていません。<br>業種・規模・期間・担当・成果は、${ext(profile.lancers?.profile_url, "ランサーズのプロフィール（ビジネス経験）")}と同じ内容です。</p>
+    <ul class="cf-grid">
+      ${cases.map((c, i) => caseCard(site, c, base, i)).join("\n      ")}
+    </ul>
+  </div>
+</section>
+${ndaPromise(site, base)}`
+    : ""
+}
+<section class="strip strip-record strip-record-works" aria-labelledby="works-record-title">
+  <div class="wrap strip-in">
+    ${trackRecord(site, base, { id: "works-record-title" })}
+  </div>
+</section>
 ${seam(site, base, "seam-next", ["deco-silk-wave", "deco-silk-a"], ["deco-gold-leaves", "deco-leaves-a"])}
 ${inquiry(site, base, { title: "次の「作品」を、あなたと。", text: "課題の発見から、企画・デザイン・開発・運用まで。目的に合った進め方をご提案します。", textHtml: "課題の発見から、企画・デザイン・開発・運用まで。<br>目的に合った進め方をご提案します。", shape: "center", eyebrow: "Next Project", label: "プロジェクトを相談する", art: site.art.section("sec-works-next") ? "sec-works-next" : null, btnPre: "clipboard", chev: true, btnCls: "btn-gold btn-lg btn-wide" })}`;
   return layout(site, { route: "works/", title: "実績", description, body, ld: [personLd(site), crumbLd(site, [["実績", "works/"]])], tone: site.art.stage("works").tone });
+}
+
+export function renderCase(site, c) {
+  const { profile } = site;
+  const base = "../../";
+  const route = `works/${c.id}/`;
+  const cases = profile.cases ?? [];
+  const i = cases.indexOf(c);
+  const svc = caseService(site, c);
+  const scene = svc ? `svc-${svc.id}` : "works";
+  const art = site.art.stage(scene);
+  const t = caseTitle(c);
+  // Long titles wrap (about nine characters a line) instead of shrinking to fit one line.
+  const titleLen = Math.max(...jaPhrases(t.what).map(phraseLen)) + 0.6;
+  const months = caseMonths(c.period);
+  const team = Number(/^(\d+)名/.exec(c.team)?.[1]) || null;
+  const results = caseResults(c.result);
+  const roleHead = c.role.replace(/（.*$/, "");
+  const roleItems = (/（(.+)）$/.exec(c.role)?.[1] ?? "").split("、").filter(Boolean);
+  const actions = c.actions.split(/(?<=。)/).map((x) => x.trim()).filter(Boolean);
+  const [st1, ...stRest] = c.challenge.split(/(?<=。)/);
+  const next = cases[(i + 1) % cases.length];
+  const nextSvc = caseService(site, next);
+  const l = profile.lancers ?? {};
+  const sec = (name) => site.art.section(name);
+  const deco = (name, cls) => (sec(name) ? `<img class="${cls}" src="${base}${sec(name).src}" alt="" width="${sec(name).w}" height="${sec(name).h}" loading="lazy" decoding="async" aria-hidden="true">` : "");
+  const stats = [
+    months && { k: "期間", num: months, unit: "か月" },
+    team && { k: "チーム", num: team, unit: "名" },
+    ...results.slice(0, 2).map((r) => ({ k: r.k, num: r.n, unit: "%" })),
+  ].filter(Boolean);
+  const description = `${c.title}（${c.period}・${c.team.replace(/（.*$/, "")}）。担当：${roleHead}。${c.result}`;
+  const body = `${stage(site, base, {
+    scene,
+    cls: "cs-hero tale-hero",
+    over: `${art.wide ? `<picture><source media="(max-width: 760px)" srcset="${base}${art.narrow}"><img class="cs-blur" src="${base}${art.wide}" alt="" width="${art.w}" height="${art.h}" aria-hidden="true" decoding="async"></picture>` : ""}<a class="tale-scroll" href="#prologue" aria-label="プロジェクトの説明を読む"><span lang="en">Scroll</span><i aria-hidden="true"></i></a>`,
+    inner: `    <div class="stage-copy">
+      ${crumbs(base, [[`${base}works/`, "実績"], [null, t.what]])}
+      <p class="kicker" lang="en">Confidential Case ${pad2(i + 1)}</p>
+      <h1 class="display" style="--len:${titleLen.toFixed(2)}">${t.who ? `<span class="cf-who">${esc(t.who)}</span><br>` : ""}${phraseHtml(t.what)}</h1>
+      <p class="accent-line">${esc(c.period)}・${esc(c.team.replace(/（.*$/, ""))}のチーム</p>
+      <p class="lead">担当：${esc(roleHead)}${t.sub ? `<br>${esc(t.sub)}` : ""}</p>
+    </div>`,
+  })}
+<section class="tale tale-prologue" id="prologue" aria-labelledby="pro-title">
+  ${deco("deco-silk-wave", "tale-silk")}
+  ${deco("deco-sakura-a", "tale-sakura")}
+  <div class="tale-in tale-narrow">
+    <p class="tale-label" lang="en"><span>Prologue</span></p>
+    <h2 class="tale-kicker" id="pro-title">プロジェクトの課題</h2>
+    <p class="tale-statement" data-reveal>${esc(st1)}</p>
+    <span class="tale-ornament" aria-hidden="true"><i></i></span>
+    <div class="tale-body tale-center" data-reveal>${stRest.length ? `<p>${esc(stRest.join(""))}</p>` : ""}<p class="cf-quiet">お客さまの名前と画面は、守秘義務などのため載せていません。</p></div>
+  </div>
+</section>
+<section class="tale tale-facts" aria-label="プロジェクトの情報">
+  ${deco("deco-glints", "tale-glints")}
+  <div class="tale-in">
+    <p class="tale-label tale-label-light" lang="en"><span>At a Glance</span></p>
+    <dl class="tale-stats" style="--n:${stats.length}">
+      ${stats.map((x) => `<div data-reveal><dt>${esc(x.k)}</dt><dd><b class="tale-count" data-to="${x.num}">${x.num}</b><small>${x.unit}</small></dd></div>`).join("\n      ")}
+    </dl>
+    <ul class="tale-chips" aria-label="使用技術">${c.stack.map((x) => `<li data-reveal>${esc(x)}</li>`).join("")}</ul>
+    <p class="tale-links">${[
+      svc && `<span>関連するサービス：<a href="${base}services/${esc(svc.id)}/">${esc(svc.name)}</a></span>`,
+      `<span>${ext(l.profile_url, `ランサーズのプロフィール（ビジネス経験）${icon("ext", "ic ic-xs")}`)}にも掲載しています</span>`,
+    ].filter(Boolean).join('<i aria-hidden="true">◆</i>')}</p>
+  </div>
+</section>
+${[
+  { title: "担当したこと", html: `<p>役割：${esc(roleHead)}</p>${roleItems.length ? `<ul>${roleItems.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}<p>チーム：${esc(c.team)}</p>` },
+  { title: "取り組んだこと", html: `<ul>${actions.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` },
+  { title: "成果", html: `<p class="cf-result">${esc(c.result)}</p>` },
+]
+  .map(
+    (ch, k) => `<section class="tale tale-chapter tale-chapter-plain${k % 2 ? " is-flip" : ""}" aria-labelledby="ch-${k + 1}">
+  ${k === 0 ? (art.wide ? `<img class="tale-haze" src="${base}${art.wide}" alt="" width="${art.w}" height="${art.h}" loading="lazy" decoding="async" aria-hidden="true">` : "") : deco(k % 2 ? "deco-sakura-b" : "deco-gold-leaves", "tale-side-deco")}
+  <div class="tale-in tale-spread">
+    <div class="tale-page tale-page-text">
+      <span class="tale-bignum" lang="en" aria-hidden="true">${pad2(k + 1)}</span>
+      <p class="tale-label tale-label-left" lang="en"><span>Chapter ${pad2(k + 1)}</span></p>
+      <h2 class="tale-h2" id="ch-${k + 1}">${ch.title}</h2>
+      <div class="tale-body" data-reveal>${ch.html}</div>
+    </div>
+  </div>
+</section>`,
+  )
+  .join("\n")}
+<section class="tale cf-arch" aria-labelledby="arch-title">
+  ${deco("sec-silk", "tale-bg")}
+  <div class="tale-in">
+    <p class="tale-label" lang="en"><span>Technology</span></p>
+    <h2 class="tale-h2 center" id="arch-title">使った技術を、役割ごとに。</h2>
+    ${stackMap(c.stack)}
+    <p class="cf-map-note">記録にある技術を、システムの中での役割ごとに並べた図です。</p>
+  </div>
+</section>
+<section class="tale cf-why" aria-labelledby="why-title">
+  <div class="tale-in tale-narrow">
+    <h2 class="tale-h2 center" id="why-title">お客さまの名前と画面について</h2>
+    <p>守秘義務などのため、お客さまの名前・画面・社内の数値は載せていません。業種・規模・期間・担当・成果は、ランサーズのプロフィールの「ビジネス経験」に載せている内容と同じです。</p>
+    <p class="cf-why-links"><a class="btn btn-ghost" href="${base}works/#nda">機密保持について${icon("arrow")}</a>${ext(l.profile_url, `ランサーズで確認する${icon("ext", "ic ic-xs")}`, "btn btn-ghost")}</p>
+  </div>
+</section>
+<nav class="tale-next" aria-label="次の案件">
+  <a href="${base}works/${esc(next.id)}/">
+    ${(() => { const na = nextSvc ? site.art.stage(`svc-${nextSvc.id}`) : {}; return na.wide ? `<img class="tale-next-art" src="${base}${na.wide}" alt="" width="${na.w}" height="${na.h}" loading="lazy" decoding="async" aria-hidden="true">` : ""; })()}
+    <span class="tale-next-body">
+      <span class="tale-label tale-label-light tale-label-left" lang="en"><span>Next Case</span></span>
+      <span class="tale-next-title sv-next-title" style="--len:${(Math.max(...jaPhrases(caseTitle(next).what).map(phraseLen)) + 0.6).toFixed(2)}">${phraseHtml(caseTitle(next).what)}</span>
+      <span class="tale-next-line">${esc(caseTitle(next).who || next.period)}</span>
+      <span class="tale-next-go">次の案件へ${icon("arrow")}</span>
+    </span>
+  </a>
+</nav>
+${inquiry(site, base, { title: "このような開発のご相談", text: "似た課題をお持ちでしたら、まずは現状をお聞かせください。NDAを結んでから伺うこともできます。", textHtml: "似た課題をお持ちでしたら、まずは現状をお聞かせください。<br>NDAを結んでから伺うこともできます。", query: svc ? `?service=${encodeURIComponent(svc.id)}` : "", plain: true, label: "相談する", chev: true })}`;
+  const ld = [personLd(site), crumbLd(site, [["実績", "works/"], [t.what, route]])];
+  return layout(site, { route, title: `${t.what}（非公開案件）`, description, body, ld, image: art.wide ?? null, tone: art.tone });
 }
 
 export function renderWork(site, w) {
@@ -1187,7 +1418,7 @@ ${
       <div class="svc-more-in">
         ${related.length ? `<h3 class="h3">このサービスの実績</h3><ul class="wgrid wgrid-3">${related.map((w) => workCard(site, w, base)).join("")}</ul>` : ""}
         ${s.testimonials.some(reviewText) ? `<h3 class="h3">お客さまの声</h3><div class="quotes">${s.testimonials.filter(reviewText).map((t) => quoteCard(t, { base })).join("")}</div>` : ""}
-        ${s.cases.length ? `<h3 class="h3">関連する開発経験</h3><p class="fine">ランサーズを始める前から担当してきたプロジェクトです（ランサーズのプロフィールの「ビジネス経験」と同じ内容です）。</p><div class="acc-list">${s.cases.map(caseItem).join("")}</div>` : ""}
+        ${s.cases.length ? `<h3 class="h3">関連する開発経験</h3><p class="fine">企業のチームで担当してきたプロジェクトです（ランサーズのプロフィールの「ビジネス経験」と同じ内容です）。</p><div class="acc-list">${s.cases.map((c) => caseItem(c, base)).join("")}</div>` : ""}
       </div>
     </details>`
         : ""
@@ -1308,7 +1539,7 @@ ${
       <summary><span>これまでのプロジェクト（${cases.length}件）を見る</span>${icon("arrow")}</summary>
       <p class="fine journey-note">ランサーズのプロフィールの「ビジネス経験」と同じ内容です。お客さまの名前は伏せています。</p>
     <ol class="timeline">
-      ${cases.map((c) => `<li data-reveal><span class="timeline-stone" aria-hidden="true"></span>${caseItem(c)}</li>`).join("\n      ")}
+      ${cases.map((c) => `<li data-reveal><span class="timeline-stone" aria-hidden="true"></span>${caseItem(c, base)}</li>`).join("\n      ")}
       ${l.joined ? `<li data-reveal><span class="timeline-stone" aria-hidden="true"></span><div class="acc acc-static"><span class="acc-meta">${dotDate(l.joined)} –</span><span class="acc-title">ランサーズで活動を開始（${esc(l.rank ?? "")}・評価${esc(String(l.reviews ?? "").replace(/（.*$/, ""))}）</span></div></li>` : ""}
     </ol>
     </details>
@@ -1741,7 +1972,11 @@ export function renderSite(site) {
   };
   for (const s of site.services) files[`services/${s.id}/index.html`] = renderService(site, s);
   for (const w of site.works.all) files[`works/${w.id}/index.html`] = renderWork(site, w);
-  const routes = ["", "works/", ...site.works.all.map((w) => `works/${w.id}/`), "services/", ...site.services.map((s) => `services/${s.id}/`), "prices/", "about/", "reviews/", "contact/"];
+  for (const c of site.profile.cases ?? []) {
+    if (files[`works/${c.id}/index.html`]) throw new Error(`profile.yml case ${c.id} has the same id as a work`);
+    files[`works/${c.id}/index.html`] = renderCase(site, c);
+  }
+  const routes = ["", "works/", ...site.works.all.map((w) => `works/${w.id}/`), ...(site.profile.cases ?? []).map((c) => `works/${c.id}/`), "services/", ...site.services.map((s) => `services/${s.id}/`), "prices/", "about/", "reviews/", "contact/"];
   files["sitemap.xml"] = renderSitemap(site, routes);
   files["robots.txt"] = `User-agent: *\nAllow: /\n\nSitemap: ${new URL("sitemap.xml", site.profile.site_url).href}\n`;
   return files;

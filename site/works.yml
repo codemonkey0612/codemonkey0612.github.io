@@ -674,7 +674,7 @@ lancers:
 # The 41 below are your portfolio links as you sent them on 2026-11-12 (names as you wrote them;
 # the J@m link had a stray "))" and Uni-Log a utm tag — both dropped). shot = the first screen at
 # 1440×900, captured 2026-11-12 in headless Chrome and saved at 960×600 (site/assets/media/showcase/);
-# cookie notices, a welcome dialog (MokuMoku Match) and ads (ならシカノオト) were hidden for the picture.
+# MokuMoku Match's welcome dialog was dismissed and ならシカノオト's ads hidden for the picture.
 showcase:
   - { group: salon, name: Hair Salon MOU, url: "https://hairsalon-mou.com/", shot: media/showcase/hairsalon-mou-com.webp }
   - { group: salon, name: "Re:coa", url: "https://recoa.jp/", shot: media/showcase/recoa-jp.webp }

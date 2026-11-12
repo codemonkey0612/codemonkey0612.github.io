@@ -52,5 +52,23 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.23
+  },
+  {
+    "date": "2026-11-14 09:00",
+    "zenn": "articles/rag-abstain-insufficient-evidence.md",
+    "written_at": "2026-11-12T01:33:59.795Z",
+    "title": "pgvectorの距離を類似度に直して根拠不足を判定する：RAG検索層とpytest回帰",
+    "file": "qiita/rag-abstain-insufficient-evidence.md",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 20,
+      "output_tokens": 9779,
+      "cache_read_input_tokens": 33703,
+      "cache_creation_input_tokens": 55136,
+      "web_search_requests": 1
+    },
+    "cost_usd": 0.25
   }
 ]

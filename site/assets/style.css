@@ -15771,3 +15771,146 @@ html.ov-seen.motion .stage-home .stage-film {
 .hero-proof {
   color: #fff6e0;
 }
+
+/* =====================================================================
+   TRUST (2026-11-12): the track record in one place — real figures from
+   the Lancers record, other platforms and the team projects, the checks
+   Lancers made, and the industries — on a glass panel.
+   ===================================================================== */
+.page-home .strip-record {
+  height: auto !important;
+  min-height: 0 !important;
+  padding: clamp(64px, 7vw, 130px) 0 !important;
+}
+.page-home .strip-record .sec-bg {
+  object-position: 50% 46%;
+}
+.rec {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(34px, 4vw, 66px) clamp(20px, 4vw, 70px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 32px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.66));
+  backdrop-filter: blur(14px);
+  box-shadow: 0 60px 110px -60px rgba(15, 29, 46, 0.55), inset 0 0 0 1px rgba(201, 162, 74, 0.3);
+  text-align: center;
+}
+.rec .eyebrow {
+  color: var(--gold-ink);
+}
+.rec .strip-title {
+  margin: 0 0 clamp(18px, 2.4vw, 40px);
+  color: var(--ink);
+}
+.rec-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+.rec-stats > div {
+  padding: clamp(16px, 2vw, 30px) 10px;
+}
+.rec-stats > div:not(:nth-child(3n + 1)) {
+  border-left: 1px solid rgba(201, 162, 74, 0.32);
+}
+.rec-stats > div:nth-child(n + 4) {
+  border-top: 1px solid rgba(201, 162, 74, 0.32);
+}
+.rec-stats dt {
+  font: 600 clamp(13px, 1vw, 16px) / 1.4 var(--f-sans);
+  letter-spacing: 0.08em;
+  color: #2f3a4b;
+}
+.rec-stats dd {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 2px 6px;
+  margin: 8px 0 0;
+}
+.rec .tale-count {
+  font-size: clamp(46px, 5vw, 92px);
+  background: linear-gradient(170deg, #d9b25e 5%, #a77a28 55%, #6f4f10 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: none;
+}
+.rec-stats small {
+  font: 500 clamp(16px, 1.3vw, 22px) / 1 var(--f-serif);
+  color: var(--ink);
+}
+.rec-note {
+  flex-basis: 100%;
+  font-size: 13px;
+  color: #5c420c;
+}
+.rec-checks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 10px;
+  margin: clamp(22px, 3vw, 42px) 0 0;
+}
+.rec-checks span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid rgba(201, 162, 74, 0.5);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  font: 600 13.5px / 1.2 var(--f-sans);
+  color: var(--ink);
+}
+.rec-checks .ic {
+  width: 14px;
+  height: 14px;
+  color: var(--gold-ink);
+}
+.rec-ind {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 18px 0 0;
+}
+.rec-ind span {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(15, 29, 46, 0.06);
+  font-size: 13px;
+  color: #273246;
+}
+.rec-ind .rec-ind-k {
+  flex-basis: 100%;
+  padding: 0;
+  background: none;
+  font: 600 12px / 1.6 var(--f-sans);
+  letter-spacing: 0.2em;
+  color: var(--gold-ink);
+}
+.rec-src {
+  margin: 20px 0 0;
+  font-size: 12.5px;
+  color: #3d4757;
+}
+.rec-src a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gold-ink);
+}
+@media (max-width: 760px) {
+  .rec-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rec-stats > div {
+    border: 0 !important;
+    padding: 14px 6px;
+  }
+}

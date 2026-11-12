@@ -119,18 +119,6 @@ const splitNote = (t) => {
   const m = /^(.+?)（([^（）]+)）$/.exec(t);
   return m && m[2].length > 4 ? [m[1], `（${m[2]}）`] : [t, ""];
 };
-/** Measured video lengths (site/assets/media/durations.json, written with ffprobe). */
-const DURATIONS = (() => {
-  try {
-    return JSON.parse(fs.readFileSync(new URL("../../site/assets/media/durations.json", import.meta.url), "utf8"));
-  } catch {
-    return {};
-  }
-})();
-const videoLength = (path) => {
-  const d = DURATIONS[path];
-  return d ? `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}` : "";
-};
 const SVC_ICON = { "ai-apps": "chip", "ai-chatbot": "speech", "ai-consulting": "compass", "ai-infra": "cloud", wordpress: "browser", shopify: "bag", system: "gears", quality: "shield" };
 const CAT_LABEL = { ai: "AI", web: "Web", system: "System" };
 const icon = (name, cls = "ic") =>
@@ -326,11 +314,6 @@ ${body}
     <p class="fo-motion"><button class="motion-toggle" type="button" aria-pressed="false">動きを減らす</button></p>
   </div>
 </footer>
-<dialog class="vmodal" aria-label="紹介動画">
-  <button class="vmodal-x" type="button">${icon("close")}<span class="sr-only">閉じる</span></button>
-  <video controls playsinline preload="none"></video>
-  <p class="vmodal-meta"><span class="vmodal-t"></span></p>
-</dialog>
 ${beacon}</body>
 </html>
 `;
@@ -498,32 +481,61 @@ function flow(list) {
     </ol>`;
 }
 
-/** A user-controlled film: poster in a frame; plays only when asked. */
-function film(site, base, { video, poster, title, cls = "", ar = null, length = "", overlay = "" }) {
-  const wh = site.size(poster) ?? [1600, 900];
-  return `<figure class="film${cls ? ` ${cls}` : ""}" data-reveal>
-      <div class="film-frame" style="--ar:${ar ?? `${wh[0]}/${wh[1]}`}">
-        <video controls playsinline preload="none" data-poster="${base}${esc(poster)}" width="${wh[0]}" height="${wh[1]}" aria-label="${esc(title)}"><source src="${base}${esc(video)}" type="video/mp4"></video>
-        ${overlay ? `<span class="film-over" aria-hidden="true">${overlay}</span>` : ""}
-        ${length ? `<span class="film-bar" aria-hidden="true"><i class="fb-play"></i><span>0:00 / ${esc(length)}</span><i class="fb-line"></i>${icon("volume", "ic fbar-ic")}${icon("full", "ic fbar-ic")}</span>` : ""}
-      </div>
-      <figcaption class="film-cap">${esc(title)}</figcaption>
-    </figure>`;
+/** Track record: the Lancers record, other platforms and the team projects, side by side
+ * (each figure as published; nothing is added up), the verifications and the industries. */
+const INDUSTRY_SHORT = { "IT・通信・インターネット": "IT・通信", "コンサルティング・シンクタンク": "コンサルティング", "広告・イベント・プロモーション": "広告・プロモーション", "医療・医薬": "医療", "マスコミ・メディア": "メディア", "金融・保険": "金融・保険" };
+export function recordFacts(site) {
+  const { profile, years } = site;
+  const l = profile.lancers ?? {};
+  const n = (x) => Number(/(\d+)/.exec(String(x ?? ""))?.[1]) || null;
+  const rv = /^(\d+)件（満足(\d+)件・残念0件）/.exec(l.reviews ?? "");
+  const ext = /他社サービスでの実績(\d+)件（満足率(\d+)%）/.exec(l.external_record ?? "");
+  const stats = [
+    { n: years, u: "年", k: "開発歴" },
+    n(l.jobs) && { n: n(l.jobs), u: "件", k: "ランサーズでのお仕事" },
+    rv && rv[1] === rv[2] && { n: +rv[1], u: "件", k: "いただいた評価", note: "すべて「満足」" },
+    ext && { n: +ext[1], u: "件", k: "他社サービスでの実績", note: `満足率${ext[2]}%` },
+    (profile.cases ?? []).length && { n: profile.cases.length, u: "件", k: "チームでの開発プロジェクト", note: "お客さまの名前は非公開" },
+    n(l.repeat_clients) && { n: n(l.repeat_clients), u: "人", k: "リピートのお客さま" },
+  ].filter(Boolean);
+  const fromCases = (profile.cases ?? []).map((c) => /^(?:中堅)?(.+?)(?:企業|会社|事業者|メーカー)?向け/.exec(c.title)?.[1]).filter((x) => x && x !== "中堅" && !/^企業$/.test(x));
+  const fromWorks = site.works.lancers.map((w) => INDUSTRY_SHORT[w.industry] ?? w.industry).filter(Boolean);
+  const industries = [...new Set([...fromWorks, ...fromCases].map((x) => (x === "IT" ? "IT・通信" : x)))];
+  const checks = [l.rank, ...(l.verified ?? []).map((v) => `${v}済み`)].filter(Boolean);
+  return { stats, industries, checks };
+}
+function trackRecord(site, base, { id = "record-title", cls = "" } = {}) {
+  const { stats, industries, checks } = recordFacts(site);
+  const l = site.profile.lancers ?? {};
+  return `<div class="rec${cls ? ` ${cls}` : ""}">
+      <p class="eyebrow eyebrow-center" lang="en">Track Record</p>
+      <h2 class="strip-title strip-title-sm" id="${id}">これまでの実績を、数字で。</h2>
+      <dl class="rec-stats">
+        ${stats.map((x) => `<div data-reveal><dt>${x.k}</dt><dd><b class="tale-count" data-to="${x.n}">${x.n}</b><small>${x.u}</small>${x.note ? `<span class="rec-note">${esc(x.note)}</span>` : ""}</dd></div>`).join("\n        ")}
+      </dl>
+      ${checks.length ? `<p class="rec-checks">${checks.map((c) => `<span>${icon("check", "ic ic-xs")}${esc(c)}</span>`).join("")}</p>` : ""}
+      ${industries.length ? `<p class="rec-ind"><span class="rec-ind-k">これまでの業種</span>${industries.map((x) => `<span>${esc(x)}</span>`).join("")}</p>` : ""}
+      <p class="rec-src">ランサーズの数字は${jaDate(l.as_of)}時点。${ext(l.profile_url, `ランサーズのプロフィール${icon("ext", "ic ic-xs")}`)}で確認できます。</p>
+    </div>`;
 }
 
-// ---------- works ----------
-
 const workName = (w) => w.title_;
-const workImage = (w) => (w.kindOf === "site" ? w.top : w.cover);
+// A live site shows its own screen; every other work its illustrated scene (no people, no mock screens).
+const workImage = (site, w, { narrow = false } = {}) => {
+  if (w.kindOf === "site") return w.top;
+  const a = site.art.stage(w.scene ?? `work-${w.id}`);
+  return a.wide ? (narrow ? a.narrow : a.wide) : null;
+};
 // A live site's line says what you built there when works.yml has it (`made`).
 const workLine = (w) => (w.kindOf === "site" ? (w.made ? `${w.kind}・${w.made}を制作` : `公開中のサイト・${w.kind}`) : w.headline);
 
 function workCard(site, w, base, { size = "", eager = false } = {}) {
   // The frame takes the picture's own shape, so text inside a cover is never cropped.
-  const wh = site.size(workImage(w)) ?? [16, 10];
+  const pic = workImage(site, w);
+  const wh = site.size(pic) ?? [16, 10];
   return `<li class="wcard${size ? ` wcard-${size}` : ""}" data-cat="${w.cat}" data-reveal>
         <a href="${base}works/${esc(w.id)}/" style="--accent:${esc(w.color ?? "#c9a24a")};--ar:${wh[0]}/${wh[1]}">
-          <span class="wcard-media">${img(site, workImage(w), base, { eager })}</span>
+          <span class="wcard-media">${pic ? img(site, pic, base, { eager }) : ""}</span>
           <span class="wcard-body">
             <span class="wcard-top"><span class="wcard-no" lang="en">${w.no}</span><span class="pill" lang="en">${CAT_LABEL[w.cat]}</span></span>
             <span class="wcard-title">${esc(workName(w))}</span>
@@ -548,7 +560,11 @@ function galleryCard(site, w, base, i) {
             <span class="gcard-line">${esc(size === "sm" ? (w.kindOf === "site" ? w.kind : w.headline ?? w.subtitle) : w.kindOf === "site" ? w.summary.split("。")[0] + "。" : w.subtitle)}</span>
             <span class="gcard-go">${icon("arrow")}</span>
           </span>
-          <span class="gcard-media"><span class="gdev" style="--ar:${(site.size(workImage(w)) ?? [16, 10]).join("/")}"><span class="gdev-screen">${img(site, workImage(w), base, { eager: i < 2 })}</span><span class="gdev-base" aria-hidden="true"></span></span></span>
+          ${
+            w.kindOf === "site"
+              ? `<span class="gcard-media"><span class="gdev" style="--ar:${(site.size(w.top) ?? [16, 10]).join("/")}"><span class="gdev-screen">${img(site, w.top, base, { eager: i < 2 })}</span><span class="gdev-base" aria-hidden="true"></span></span></span>`
+              : `<span class="gcard-media gcard-scene">${workImage(site, w) ? img(site, workImage(site, w), base, { eager: i < 2 }) : ""}</span>`
+          }
         </a>
       </li>`;
 }
@@ -604,28 +620,23 @@ export function renderIndex(site) {
   const { profile, services, years, works, art } = site;
   const base = "./";
   const description = `${profile.title}の${profile.name}です。開発歴${years}年。ChatGPT・RAGを使った業務アプリやAIチャットボット、WordPress・Shopify、業務システムの開発を、要件の整理から保守まで担当します。`;
-  const featured = works.lancers.filter((w) => w.featured);
   // The shortest client quote reads best as the home page's one-line voice.
   const quote = (profile.testimonials ?? []).filter((t) => t.quote).sort((x, y) => x.quote.length - y.quote.length)[0];
-  const reel = art.showreel;
-  const film1 = services.find((s) => s.id === "ai-apps")?.packages[0];
   const half = Math.ceil(services.length / 2);
   const svcItem = (s) => `<li><a href="${base}services/${esc(s.id)}/">${icon(SVC_ICON[s.id] ?? "chip", "ic svc-ic")}<span class="svc-name">${esc(s.short)}</span><span class="svc-desc">${s.card.map(esc).join("<br>")}</span></a></li>`;
-  const [lead] = works.sites;
+  const [lead, second] = works.sites;
   // The first screen's proof, from the Lancers record: rank, reviews (when all are 満足), years.
   const lr = profile.lancers ?? {};
   const rv = /^(\d+)件（満足(\d+)件・残念0件）/.exec(lr.reviews ?? "");
   const proof = [lr.rank, rv && rv[1] === rv[2] && `評価${rv[1]}件すべて満足`, `開発歴${years}年`].filter(Boolean);
   const ex = site.art.stage("expertise");
-  // The showreel's poster: the home artwork's bright lower half (clouds and pavilion), as in the mockup.
-  const reelPoster = site.art.section("reel-poster")?.src ?? (site.art.stage("home").plate ? site.art.stage("home").wide : reel?.poster);
   // Each section is a short, wide strip filled with artwork, like the mockup; the detail
   // lives on the inner pages.
   // The home pilot: the mockup's own sections without their text (~/dev/note/mockup/home-pilot).
   const hero = art.section("sec-home-hero");
   const heroM = art.section("sec-home-hero-m") ?? hero;
   const heroArt = hero && { wide: hero.src, narrow: heroM.src, w: hero.w, h: hero.h, mw: heroM.w, mh: heroM.h, plate: true, tone: "dark", wide2x: hero.src2x, w2: hero.w2, sizes: "(min-width: 1024px) 112vw, 100vw" };
-  const sel = art.section("sec-home-sel");
+  const sel = null; // the baked Selected Work picture showed a portfolio cover; the live devices take its place
   const selOld = art.section("sec-home-selected");
   const exNew = art.section("sec-home-exp");
   const body = `${stage(site, base, {
@@ -640,11 +651,6 @@ export function renderIndex(site) {
       <ul class="hero-svcs" aria-label="主なサービス">${HERO_SERVICES.map((group) => `<li>${group.map(([id, label]) => (services.some((s) => s.id === id) ? `<a href="${base}services/${id}/">${esc(label)}</a>` : esc(label))).join("・")}</li>`).join("")}</ul>
       <p class="actions"><a class="btn btn-ghost btn-lg" href="#selected">実績を見る${icon("arrow")}</a><a class="btn btn-gold btn-lg" href="${contactHref(base)}">相談する${icon("arrow")}</a></p>
     </div>
-    ${
-      film1?.video
-        ? `<button class="stage-film" type="button" data-video="${base}${esc(film1.video)}" data-video-title="${esc(film1.title)}"><span class="stage-film-img">${img(site, film1.cover, base, { alt: `${film1.title}（パッケージ画像）`, eager: false })}</span><span class="stage-film-cap">${icon("play", "ic play-ic")}<span class="sr-only">紹介動画を再生：${esc(services[0].name)}</span></span></button>`
-        : ""
-    }
 `,
   })}
 ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
@@ -662,11 +668,11 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
       <p class="sel-cta"><a class="btn btn-ghost" href="${base}works/">実績を見る${icon("arrow")}</a></p>
     </div>
     <div class="sel-devices" data-reveal>
-      <a class="dev-laptop" href="${base}works/${esc(lead.id)}/" aria-label="${esc(workName(lead))}の実績を見る"><span class="dev-screen">${img(site, workImage(lead), base, { alt: `${workName(lead)}のトップページ` })}</span><span class="dev-base" aria-hidden="true"></span></a>
-      ${featured[0] ? `<a class="dev-tablet" href="${base}works/${esc(featured[0].id)}/" aria-label="${esc(workName(featured[0]))}の実績を見る"><span class="dev-screen">${img(site, workImage(featured[0]), base, { alt: `${workName(featured[0])}（イメージ）` })}</span></a>` : ""}
+      <a class="dev-laptop" href="${base}works/${esc(lead.id)}/" aria-label="${esc(workName(lead))}の実績を見る"><span class="dev-screen">${img(site, lead.top, base, { alt: `${workName(lead)}のトップページ` })}</span><span class="dev-base" aria-hidden="true"></span></a>
+      ${second ? `<a class="dev-tablet" href="${base}works/${esc(second.id)}/" aria-label="${esc(workName(second))}の実績を見る"><span class="dev-screen">${img(site, second.top, base, { alt: `${workName(second)}のトップページ` })}</span></a>` : ""}
       <span class="sel-orb" aria-hidden="true"></span>
     </div>
-    <ul class="sel-caps">${[lead, featured[0]].filter(Boolean).map((w) => `<li><a href="${base}works/${esc(w.id)}/"><b>${esc(workName(w))}</b><span>${esc(workLine(w))}</span>${icon("arrow", "ic sel-cap-ic")}</a></li>`).join("")}</ul>
+    <ul class="sel-caps">${[lead, second].filter(Boolean).map((w) => `<li><a href="${base}works/${esc(w.id)}/"><b>${esc(workName(w))}</b><span>${esc(workLine(w))}</span>${icon("arrow", "ic sel-cap-ic")}</a></li>`).join("")}</ul>
   </div>
 </section>
 <section class="strip strip-exp${exNew ? " exp-pilot" : ""}" aria-labelledby="expertise-title">
@@ -688,20 +694,13 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
     </div>
   </div>
 </section>
-${
-  reel
-    ? `${seam(site, base, "seam-reel", ["deco-sakura-a", "deco-sakura-top"])}
-<section class="strip strip-reel${hasSec(site, pickSec(site, "sec-home-reel", "sec-home-showreel"))}${art.section("sec-home-reel") ? " reel-pilot" : ""}" aria-labelledby="reel-title">
+${seam(site, base, "seam-reel", ["deco-sakura-a", "deco-sakura-top"])}
+<section class="strip strip-reel strip-record${hasSec(site, pickSec(site, "sec-home-reel", "sec-home-showreel"))}" aria-labelledby="record-title">
   ${secImg(site, base, pickSec(site, "sec-home-reel", "sec-home-showreel"))}
   <div class="wrap strip-in">
-    <p class="eyebrow eyebrow-center" lang="en">Showreel</p>
-    <h2 class="strip-title strip-title-sm" id="reel-title">実装の、その先へ。</h2>
-    <p class="reel-sub">TAKUMIのものづくりを、映像でご覧ください。</p>
-    ${film(site, base, { video: reel.video, poster: reelPoster, title: "紹介動画のダイジェスト（音声なし・18秒）", cls: "film-cine", ar: "3.9/1", length: "0:18" })}
+    ${trackRecord(site, base)}
   </div>
-</section>`
-    : ""
-}
+</section>
 ${
   quote
     ? `${seam(site, base, "seam-quote", ["deco-sakura-b", "deco-sakura-low"])}
@@ -758,7 +757,7 @@ export function renderWorks(site) {
     <ul class="ggrid wgrid-edit">
       ${works.all.map((w, i) => galleryCard(site, w, base, i)).join("\n      ")}
     </ul>
-    <p class="fine">ランサーズの案件のカバー画像はイメージです（実際の画面ではありません）。公開中のサイトの画面は撮影時点のものです。</p>
+    <p class="fine">ランサーズの案件は、お客さまの画面を載せられないため、案件ごとのイラストで紹介しています（内容と評価はランサーズで確認できます）。公開中のサイトの画面は撮影時点のものです。</p>
   </div>
 </section>
 ${seam(site, base, "seam-next", ["deco-silk-wave", "deco-silk-a"], ["deco-gold-leaves", "deco-leaves-a"])}
@@ -799,7 +798,7 @@ export function renderWork(site, w) {
       <figure class="device device-phone">${img(site, w.phone, base, { alt: `${w.name}のスマートフォン表示` })}</figure>
     </div>
     <p class="fine center">画面は${jaDate(site.today.toISOString())}に撮影したものです。最新の内容は${ext(w.url, "サイト")}でご確認ください。</p>`
-    : `<figure class="hero-media" data-expand>${img(site, w.cover, base, { alt: `${w.headline}（イメージ）` })}<figcaption>画像はイメージです（実際の画面ではありません）。</figcaption></figure>`;
+    : "";
   const l = profile.lancers ?? {};
   const art = site.art.stage(scene);
   const [sum1, ...sumRest] = isSite ? w.summary.split(/(?<=。)/) : [];
@@ -898,7 +897,7 @@ ${
 }
 ${chapters
   .map(
-    (c, k) => `<section class="tale tale-chapter${k === 0 ? " tale-chapter-art" : " tale-chapter-plain"}${k % 2 ? " is-flip" : ""}" aria-labelledby="ch-${k + 1}">
+    (c, k) => `<section class="tale tale-chapter${k === 0 && media ? " tale-chapter-art" : " tale-chapter-plain"}${k % 2 ? " is-flip" : ""}" aria-labelledby="ch-${k + 1}">
   ${k === 0 ? plateImg(art, "tale-haze") : deco(k % 2 ? "deco-sakura-b" : "deco-gold-leaves", "tale-side-deco")}
   <div class="tale-in tale-spread">
     <div class="tale-page tale-page-text">
@@ -907,7 +906,7 @@ ${chapters
       <h2 class="tale-h2" id="ch-${k + 1}">${esc(c.title)}${c.note ? `<small>${esc(c.note)}</small>` : ""}</h2>
       <div class="tale-body" data-reveal>${c.html}</div>
     </div>
-    ${k === 0 ? `<div class="tale-page tale-page-art" data-reveal>${media}</div>` : ""}
+    ${k === 0 && media ? `<div class="tale-page tale-page-art" data-reveal>${media}</div>` : ""}
   </div>
 </section>`,
   )
@@ -950,7 +949,7 @@ ${inquiry(site, base, { title: "このような開発のご相談", text: "似�
     { "@type": "CreativeWork", name: workName(w), description, url: new URL(route, profile.site_url).href, ...(isSite && { sameAs: w.url }), creator: { "@id": `${profile.site_url}#person` }, inLanguage: "ja" },
     crumbLd(site, [["実績", "works/"], [workName(w), route]]),
   ];
-  return layout(site, { route, title: workName(w), description, body, ld, image: workImage(w), tone: site.art.stage(scene).tone });
+  return layout(site, { route, title: workName(w), description, body, ld, image: workImage(site, w), tone: site.art.stage(scene).tone });
 }
 
 export function renderServices(site) {
@@ -993,14 +992,13 @@ export function renderServices(site) {
             const a = site.art.stage(`svc-${s.id}`);
             const tone = i % 4 === 0 || i % 4 === 3 ? "light" : "dark";
             return `<li class="svc-card svc-card-${tone}" style="--accent:${esc(s.accent)}" data-reveal>
-        ${a.wide ? `<img class="svc-bg" src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async">` : s.cover ? img(site, s.cover, base, { cls: "svc-bg" }) : ""}
+        ${a.wide ? `<img class="svc-bg" src="${base}${a.wide}" alt="" width="${a.w}" height="${a.h}" loading="lazy" decoding="async">` : ""}
         <p class="svc-no" lang="en" aria-hidden="true">${s.no}</p>
         <div class="svc-body">
           <h3 class="svc-card-en" lang="en"><a class="svc-link" href="${base}services/${esc(s.id)}/">${esc(s.en.replace(/ & .*/, "")).replace(/^(BUSINESS) /, "$1<br>")}<span class="sr-only">：${esc(s.name)}</span></a></h3>
           <p class="svc-card-desc">${s.card.map(esc).join("<br>")}</p>
           <p class="svc-card-foot"><a class="btn ${tone === "light" ? "btn-gold" : "btn-ghost"} btn-sm" href="${contactHref(base, `?service=${encodeURIComponent(s.id)}`)}">お問い合わせ${icon("arrow")}<span class="sr-only">（${esc(s.name)}）</span></a></p>
         </div>
-        ${s.video ? `<button class="play-ring" type="button" data-video="${base}${esc(s.video.video)}" data-video-title="${esc(s.video.title)}">${icon("play")}<span class="sr-only">${esc(s.name)}の紹介動画を再生</span></button>` : ""}
       </li>`;
           },
         )
@@ -1104,18 +1102,6 @@ ${
 </section>`
     : ""
 }
-${
-  s.video
-    ? `<section class="tale sv-film" aria-labelledby="film-title">
-  ${deco("deco-glints", "tale-glints")}
-  <div class="tale-in">
-    <p class="tale-label tale-label-light" lang="en"><span>Service Film</span></p>
-    <h2 class="sr-only" id="film-title">紹介動画</h2>
-    ${film(site, base, { video: s.video.video, poster: plate.plate ? plate.wide : s.video.cover ?? s.cover, title: s.video.title, cls: "film-svc", ar: "16/9", length: videoLength(s.video.video), overlay: `<b lang="en">${esc(s.en.replace(/ & .*/, ""))}</b><small lang="en">Service Film</small>` })}
-  </div>
-</section>`
-    : ""
-}
 <section class="tale sv-cap" style="--accent:${esc(s.accent)}" aria-labelledby="scope-title">
   ${plate.wide ? `<img class="tale-haze" src="${base}${plate.wide}" alt="" width="${plate.w}" height="${plate.h}" loading="lazy" decoding="async" aria-hidden="true">` : ""}
   <div class="tale-in">
@@ -1181,7 +1167,6 @@ ${
     ${s.packages
       .map(
         (p) => `<article class="pkg">
-      <div class="pkg-media">${p.cover ? img(site, p.cover, base, { alt: `${p.title}（パッケージ画像）` }) : ""}${p.video ? `<button class="play-ring" type="button" data-video="${base}${esc(p.video)}" data-video-title="${esc(p.title)}">${icon("play")}<span class="sr-only">紹介動画を再生</span></button>` : ""}</div>
       <div class="pkg-body">
         <h3 class="pkg-title">${ext(p.url, `${esc(p.title)}${icon("ext", "ic ic-xs")}`)}</h3>
         <ul class="plans">
@@ -1237,7 +1222,7 @@ ${inquiry(site, base, { title: `${s.short}のご相談`, text: "目的と現状�
     ldFaq(faq),
     crumbLd(site, [["サービス", "services/"], [s.name, route]]),
   ];
-  return layout(site, { route, title: s.name, description: s.description, body, ld, image: s.cover, tone: site.art.stage(scene).tone, style: `--accent:${s.accent};--svc-accent:${s.accent}` });
+  return layout(site, { route, title: s.name, description: s.description, body, ld, image: plate.wide ?? null, tone: site.art.stage(scene).tone, style: `--accent:${s.accent};--svc-accent:${s.accent}` });
 }
 
 // The technologies, grouped. Everything here appears in profile.yml (projects, certifications) or works.yml.
@@ -1535,7 +1520,7 @@ export function renderReviews(site) {
         </div>
       </figure>`;
           // A picture for every card: the project's own, else the artwork of the matching service.
-          const thumb = w ? workImage(w) : (() => {
+          const thumb = w ? workImage(site, w, { narrow: true }) : (() => {
             const id = /脆弱性|バグ|不具合|修正|セキュリティ/.test(t.job) ? "quality" : /AI|機械学習|エージェント|ChatGPT/.test(t.job) ? "ai-apps" : /WordPress|CMS|サイト|HTML|LP|コーディング|Elementor|Firebase/.test(t.job) ? "wordpress" : "system";
             const pa = site.art.stage(`svc-${id}`);
             return pa.plate ? pa.narrow : null;

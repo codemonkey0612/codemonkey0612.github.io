@@ -110,17 +110,15 @@ test("a service page that references a missing case or package fails the build",
   assert.throws(() => loadSite({ root: noVideo, profile, today }), /site\/assets\/media\/packages\/1\.mp4 does not exist/);
 });
 
-test("service pages show each package's cover and promo video", () => {
+test("the site shows no videos and none of the AI-drawn portfolio or package covers", () => {
   const site = loadSite({ root: ROOT, profile: loadProfile(), today });
   const files = renderSite(site);
-  for (const s of site.services) {
-    const html = files[`services/${s.id}/index.html`];
-    for (const p of s.packages.filter((x) => x.video)) {
-      assert.ok(html.includes(`data-video="../../${p.video}"`), `${s.id}: video of ${p.id}`);
-      assert.ok(html.includes(`src="../../${p.cover}"`), `${s.id}: image of ${p.id}`);
-    }
-    assert.ok(files["index.html"].includes(`href="./services/${s.id}/"`), `home links to ${s.id}`);
+  for (const [f, html] of Object.entries(files)) {
+    if (!f.endsWith(".html")) continue;
+    assert.doesNotMatch(html, /<video|data-video|\.mp4|class="vmodal"/, `${f} has a video`);
+    assert.doesNotMatch(html, /media\/(portfolio|packages)\//, `${f} shows a portfolio or package cover`);
   }
+  for (const s of site.services) assert.ok(files["index.html"].includes(`href="./services/${s.id}/"`), `home links to ${s.id}`);
 });
 
 test("the site lists every Lancers review and package profile.yml counts", () => {
@@ -161,9 +159,9 @@ test("every work page is backed by something a visitor can check", () => {
     assert.doesNotMatch(html, /【クライアント様のご評価より】|【掲載画像】/, `${w.id}: Lancers-only blocks are dropped`);
   }
   const featured = site.works.lancers.filter((w) => w.featured);
-  // The home page follows the mockup (one live site and one case study in device frames);
+  // The home page shows the live sites' real screens in device frames;
   // every featured work is on the works index.
-  assert.ok(files["index.html"].includes(`works/${featured[0].id}/`), "home shows the first featured work");
+  for (const w of site.works.sites) assert.ok(files["index.html"].includes(`works/${w.id}/`), `home shows the live site ${w.id}`);
   assert.ok(files["index.html"].includes('href="./works/"'), "home links to the works index");
   for (const w of featured) assert.ok(files["works/index.html"].includes(`works/${w.id}/`), `works index shows featured ${w.id}`);
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) {
@@ -185,43 +183,36 @@ test("works.yml typos fail the build", () => {
   assert.throws(() => loadSite({ root: dup, profile, today }), /duplicate id "a"/);
 });
 
-test("the works index says the covers are illustrations; no page carries an AI-character line (your choice, 2026-11-10)", () => {
+test("the works index says the Lancers works are shown as illustrations; no page carries an AI-character line (your choice, 2026-11-10)", () => {
   const site = loadSite({ root: ROOT, profile: loadProfile(), today });
   const files = renderSite(site);
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) {
     assert.doesNotMatch(files[page], /AIで生成した(イメージ)?キャラクター/, page);
   }
-  assert.match(files["works/index.html"], /カバー画像はイメージです/, "works index says the covers are illustrations");
+  assert.match(files["works/index.html"], /案件ごとのイラストで紹介しています/, "works index says why the Lancers works are illustrations");
 });
 
-test("your emblem, package images, showreel and promo videos are on the site", () => {
+test("your emblem is on every page, and every service and work has its own picture", () => {
   const site = loadSite({ root: ROOT, profile: loadProfile(), today });
   const files = renderSite(site);
   const home = files["index.html"];
   const { art } = site;
-  assert.ok(art.emblem && art.emblemSmall && art.showreel);
+  assert.ok(art.emblem && art.emblemSmall);
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html") && f !== "404.html")) {
     assert.match(files[page], /class="mark" src="[./]*assets\/brand\/emblem-160\.webp"/, `${page} shows the emblem in the header`);
   }
-  assert.ok(home.includes(`<source src="./${art.showreel.video}" type="video/mp4">`), "showreel video");
-  // The showreel's poster: its own artwork when it exists, else the home artwork, else its own frame.
-  const poster = site.art.section("reel-poster")?.src ?? (site.art.stage("home").plate ? site.art.stage("home").wide : art.showreel.poster);
-  assert.ok(home.includes(`data-poster="./${poster}"`), "showreel poster (set when the film comes near)");
   for (const s of site.services) {
-    assert.ok(s.cover, `${s.id} has a package image`);
-    // The services index shows the service's artwork when it exists, else its package image;
-    // the package image itself is always on the service page (checked below).
     const plate = site.art.stage(`svc-${s.id}`);
-    assert.ok(files["services/index.html"].includes(`src="../${plate.plate ? plate.wide : s.cover}"`), `services index shows the picture of ${s.id}`);
+    assert.ok(plate.plate, `${s.id} has its artwork`);
+    assert.ok(files["services/index.html"].includes(`src="../${plate.wide}"`), `services index shows the picture of ${s.id}`);
     const html = files[`services/${s.id}/index.html`];
-    assert.ok(html.includes(`src="../../${s.cover}"`), `${s.id} page shows its package image`);
-    assert.ok(html.includes(`<meta property="og:image" content="${new URL(s.cover, site.profile.site_url).href}">`), `${s.id} share image`);
-    if (s.video) assert.ok(html.includes(`data-video="../../${s.video.video}"`), `${s.id} page opens its video`);
+    assert.ok(html.includes(`<meta property="og:image" content="${new URL(plate.wide, site.profile.site_url).href}">`), `${s.id} share image`);
   }
-  const first = site.works.lancers.find((x) => x.featured);
-  assert.ok(home.includes(`src="./${first.cover}"`), `home shows the cover of ${first.id}`);
-  for (const w of site.works.lancers) assert.ok(files["works/index.html"].includes(`src="../${w.cover}"`), `works index shows the cover of ${w.id}`);
-  for (const w of site.works.sites) assert.ok(home.includes(`works/${w.id}/`), `home links to the live site ${w.id}`);
+  for (const w of site.works.lancers) {
+    const plate = site.art.stage(`work-${w.id}`);
+    assert.ok(files["works/index.html"].includes(`src="../${plate.wide}"`), `works index shows the scene of ${w.id}`);
+  }
+  for (const w of site.works.sites) assert.ok(home.includes(`src="./${w.top}"`), `home shows the real screen of ${w.id}`);
 });
 
 test("media.yml typos fail the build", () => {
@@ -270,7 +261,7 @@ test("every service and work page has its own hero scene, and each page's chapte
   for (const s of site.services) assert.match(files[`services/${s.id}/index.html`], new RegExp(`data-scene="svc-${s.id}"`));
   for (const w of site.works.all) assert.match(files[`works/${w.id}/index.html`], new RegExp(`data-scene="work-${w.id}"`));
   const svc = files["services/ai-chatbot/index.html"];
-  const order = ["intro-title", "film-title", "scope-title", "process-title", "faq-title", "price-title"].map((id) => svc.indexOf(`id="${id}"`));
+  const order = ["intro-title", "scope-title", "process-title", "faq-title", "price-title"].map((id) => svc.indexOf(`id="${id}"`));
   assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `service chapters in order: ${order}`);
   const scenes = new Set();
   for (const page of Object.keys(files).filter((f) => f.endsWith(".html"))) for (const [, n] of files[page].matchAll(/data-scene="([^"]+)"/g)) scenes.add(n);
@@ -282,7 +273,8 @@ test("the pages carry the mockups' elements", () => {
   const site = loadSite({ root: ROOT, profile: loadProfile(), today });
   const files = renderSite(site);
   const works = files["works/index.html"];
-  assert.equal((works.match(/class="gdev"/g) ?? []).length, site.works.all.length, "every works card shows its picture in a device frame");
+  assert.equal((works.match(/class="gdev"/g) ?? []).length, site.works.sites.length, "live sites show their screens in a device frame");
+  assert.equal((works.match(/class="gcard-media gcard-scene"/g) ?? []).length, site.works.lancers.length, "other works show their scene");
   const svc = files["services/index.html"];
   if (site.art.stage("services").plate) assert.equal((svc.match(/class="svc-label"/g) ?? []).length, 8, "the eight symbols are labelled");
   for (const s of site.services) assert.ok(svc.includes(s.card[0]), `${s.id} card has its two-line description`);
@@ -306,14 +298,12 @@ test("the home page uses the pilot plates when they exist, and its links survive
     assert.match(home, /class="stage stage-dark stage-home stage-pilot"/);
     assert.match(home, /<source media="\(max-width: 760px\)" srcset="\.\/assets\/plates\/sec-home-hero-m\.webp"/, "phones get the portrait hero");
   }
-  if (site.art.section("sec-home-sel")) {
-    assert.match(home, /<source media="\(min-width: 1024px\)" srcset="\.\/assets\/plates\/sec-home-sel\.webp[ "]/, "desktop gets the plate with the screenshots on its laptops");
-    // The laptops in the picture are links to the two works, with real alt text for the screenshots.
-    assert.match(home, /class="dev-laptop" href="\.\/works\/[^"]+\/" aria-label="[^"]+"><span class="dev-screen"><img[^>]+alt="[^"]+"/);
-    assert.match(home, /class="dev-tablet" href="\.\/works\/[^"]+\/" aria-label="[^"]+">/);
-  }
+  // Selected Work: the two live sites' real screens in a laptop and a tablet, linked to their pages.
+  assert.doesNotMatch(home, /sec-home-sel\.webp/, "the baked picture (with a portfolio cover) is not used");
+  assert.match(home, /class="dev-laptop" href="\.\/works\/[^"]+\/" aria-label="[^"]+"><span class="dev-screen"><img[^>]+alt="[^"]+"/);
+  assert.match(home, /class="dev-tablet" href="\.\/works\/[^"]+\/" aria-label="[^"]+"><span class="dev-screen"><img[^>]+alt="[^"]+"/);
   // Upscaled copies go to large and high-density screens only, through srcset (phones keep the 1× files).
-  for (const name of ["sec-home-hero", "sec-home-sel", "sec-home-exp", "sec-home-reel", "sec-home-cta"]) {
+  for (const name of ["sec-home-hero", "sec-home-exp", "sec-home-reel", "sec-home-cta"]) {
     const a = site.art.section(name);
     if (a?.src2x) assert.ok(home.includes(`${a.src} ${a.w}w, ./${a.src2x} ${a.w2}w`), `${name} offers its 2× copy`);
   }

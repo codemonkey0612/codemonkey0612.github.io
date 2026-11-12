@@ -45,7 +45,10 @@ const write = (file, content) => {
 };
 const files = renderSite(site);
 for (const [name, content] of Object.entries(files)) write(path.join(out, name), content);
-fs.cpSync(path.join(ROOT, "site", "assets"), path.join(out, "assets"), { recursive: true });
+// The site shows no videos and no portfolio or package covers (AI-drawn people; 2026-11-12):
+// those files stay in site/assets for Lancers but aren't published.
+const UNPUBLISHED = [/\.mp4$/i, /[\\/]media[\\/](portfolio|packages)(?:[\\/]|$)/, /[\\/]media[\\/]durations\.json$/];
+fs.cpSync(path.join(ROOT, "site", "assets"), path.join(out, "assets"), { recursive: true, filter: (src) => !UNPUBLISHED.some((re) => re.test(src)) });
 
 // Smaller stylesheets: rules for classes the site no longer uses are dropped, comments and
 // spacing removed (SITE_NO_MINIFY=1 keeps them as written, for comparing).

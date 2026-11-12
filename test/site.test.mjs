@@ -134,7 +134,7 @@ test("the site lists every Lancers review and package profile.yml counts", () =>
   for (const p of site.packages) assert.match(files["prices/index.html"], new RegExp(`menu/detail/${p.id}"`));
   // Lancers-only packages (site: false) appear nowhere on the site.
   const hidden = site.lancersPackages.filter((p) => !p.onSite);
-  assert.deepEqual(hidden.map((p) => p.id).sort(), ["1319001", "1319015", "1319679"]);
+  assert.deepEqual(hidden.map((p) => p.id).sort(), ["1319001", "1319015", "1319679", "1319682"]);
   for (const [f, html] of Object.entries(files)) for (const p of hidden) assert.ok(!html.includes(`menu/detail/${p.id}"`) && !html.includes(p.title), `${f} shows Lancers-only package ${p.id}`);
   const ids = new Set(profile.testimonials.map((t) => t.id));
   assert.equal(ids.size, profile.testimonials.length, "testimonial ids are unique");

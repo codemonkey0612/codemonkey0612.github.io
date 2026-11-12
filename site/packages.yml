@@ -260,6 +260,7 @@
       days: 45
       desc: "最大12画面の高機能アプリを開発。AI連携・複数API・権限管理・UI/UX設計・最適化・詳細テストに対応。修正3回まで。"
 "1319682":
+  site: false   # Lancers only: its plans mention getting around bot protection (you, 2026-11-12)
   title: "PythonでWebスクレイピングツールを開発します"
   plans:
     - name: ベーシック

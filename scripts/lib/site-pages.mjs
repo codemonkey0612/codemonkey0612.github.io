@@ -215,9 +215,9 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
           .join("")
       : "";
   const askEp = String(profile.chat?.endpoint ?? "").trim();
-  // The site assistant's button: a crystal orb with a gold orbit, and its label.
+  // The site assistant's button: the gold 匠 seal with its label.
   const askFab = askEp && !route.startsWith("contact/")
-    ? `<button class="ask-fab" type="button" data-ask data-endpoint="${esc(askEp)}" aria-haspopup="dialog" aria-label="AIに質問する（このサイトについて答えるAI）"><span class="ask-fab-label" aria-hidden="true"><span class="ask-fab-en" lang="en">Ask TAKUMI</span><span class="ask-fab-ja">AIに質問</span></span><span class="ask-orb" aria-hidden="true"><span class="ask-orb-core"></span><span class="ask-orb-ring"><i></i></span><svg class="ask-orb-ic" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 2.5c.5 4.6 2.4 6.9 7.5 7.6-5.1.7-7 3-7.5 7.6-.5-4.6-2.4-6.9-7.5-7.6 5.1-.7 7-3 7.5-7.6z"/><path d="M18.6 15.2c.2 1.9 1 2.8 3.1 3.1-2.1.3-2.9 1.2-3.1 3.1-.2-1.9-1-2.8-3.1-3.1 2.1-.3 2.9-1.2 3.1-3.1z" opacity=".75"/></svg></span></button>\n`
+    ? `<button class="ask-fab" type="button" data-ask data-endpoint="${esc(askEp)}" aria-haspopup="dialog" aria-label="AIに質問する（このサイトについて答えるAI）"><span class="ask-fab-label" aria-hidden="true">AIに質問する</span><span class="ask-seal" aria-hidden="true"><img src="${base}${site.art.emblemSmall}" alt="" width="160" height="160" decoding="async"></span></button>\n`
     : "";
   const cfToken = profile.analytics?.cloudflare;
   const beacon = cfToken && !route.startsWith("contact/") ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${esc(cfToken)}"}'></script>\n` : "";

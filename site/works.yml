@@ -675,7 +675,8 @@ lancers:
 # (1440×900, saved at 960×600) was captured on 2026-11-12 in headless Chrome (site/assets/media/showcase/):
 # slideshows caught on a clean frame, MokuMoku Match's welcome dialog closed, and an empty ad slot on
 # ならシカノオト hidden for the picture. Removed at your request (2026-11-12): hairsalon tomorrow,
-# 光と曲線の美容室 page, hair care&design Suzy, Aria Private Hair Salon, 喫茶室 山脈 オンラインストア.
+# 光と曲線の美容室 page, hair care&design Suzy, Aria Private Hair Salon, 喫茶室 山脈 オンラインストア;
+# later the same day, こころぼっと and ＆1（アンドワン）.
 # On 2026-11-12, after being shown commit 6f4dfea (which took an earlier version of this list down as
 # not established to be your work), you confirmed that you built these sites. List only sites you
 # actually worked on.
@@ -697,12 +698,10 @@ showcase:
   - { group: salon, name: N Salon, url: "https://nsalon.jp/", shot: media/showcase/nsalon-jp.webp }
   - { group: salon, name: AnS Hair Salon, url: "https://www.ans-hair.com/", shot: media/showcase/ans-hair-com.webp }
   - { group: service, name: aidly（中小企業専門 AIパートナー）, url: "https://www.aidly-ai.jp/", shot: media/showcase/aidly-ai-jp.webp }
-  - { group: service, name: こころぼっと, url: "https://cocorobot.me/", shot: media/showcase/cocorobot-me.webp }
   - { group: service, name: Uni-Log（ゆにろぐ）, url: "https://uni-log-official.web.app/index.html", shot: media/showcase/uni-log-official-web-app.webp }
   - { group: service, name: Selah, url: "https://selah.jp/", shot: media/showcase/selah-jp.webp }
   - { group: service, name: MokuMoku Match, url: "https://mokumokumatch.top/", shot: media/showcase/mokumokumatch-top.webp }
   - { group: service, name: CoPath（共同創業者マッチング）, url: "https://copath.jp/", shot: media/showcase/copath-jp.webp }
-  - { group: service, name: ＆1（アンドワン）, url: "https://www.andone.space/", shot: media/showcase/andone-space.webp }
   - { group: ec, name: sisiri online store, url: "https://sisiri-online.com/", shot: media/showcase/sisiri-online-com.webp }
   - { group: ec, name: プレヴナン オンラインショップ, url: "https://prevenant-shop.myshopify.com/", shot: media/showcase/prevenant-shop-myshopify-com.webp }
   - { group: media, name: シェアあだち, url: "https://share-adachi.com/", shot: media/showcase/share-adachi-com.webp }

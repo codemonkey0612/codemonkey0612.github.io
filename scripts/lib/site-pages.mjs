@@ -507,7 +507,7 @@ export function recordFacts(site) {
     n(l.jobs) && { n: n(l.jobs), u: "件", k: "ランサーズでのお仕事" },
     rv && rv[1] === rv[2] && { n: +rv[1], u: "件", k: "いただいた評価", note: "すべて「満足」" },
     (site.works.showcase ?? []).length
-      ? { n: site.works.sites.length + site.works.showcase.length, u: "件", k: "制作に携わった公開中のサイト", note: "LP・Webサイト・システム" }
+      ? { n: site.works.sites.length + site.works.showcase.length, u: "件", k: "制作に携わった公開中のサイト", note: site.works.showcaseGroups.map((g) => g.short).join("・") }
       : n(l.reply_rate_24h) && { n: n(l.reply_rate_24h), u: "%", k: "24時間以内の返信率", note: "ランサーズ" },
     ext && { n: +ext[1], u: "件", k: "他社サービスでの実績", note: `満足率${ext[2]}%` },
     (profile.cases ?? []).length && { n: profile.cases.length, u: "件", k: "チームでの開発プロジェクト", note: "お客さまの名前は非公開" },
@@ -876,15 +876,10 @@ ${
   show.length
     ? `<section class="ch ch-pearl show-sec" id="live-sites" aria-labelledby="show-title">
   <div class="wrap">
-    ${heading("Live Sites", "制作に携わった、公開中のサイト", { id: "show-title", cls: "sh-center", lead: `ランディングページ・Webサイト${show.filter((x) => x.group === "lp").length}件と、B2B・B2Cのシステム${show.filter((x) => x.group === "system").length}件。<br>画面を押すと、実際のサイトが新しいタブで開きます。` })}
-    ${[
-      ["lp", "ランディングページ・Webサイト", "Landing Pages"],
-      ["system", "B2B・B2C システム", "Systems"],
-    ]
-      .map(([g, ja, en]) => {
-        const list = show.filter((x) => x.group === g);
-        return list.length
-          ? `<h3 class="show-h"><span lang="en">${en}</span>${ja}<small>${list.length}件</small></h3>
+    ${heading("Live Sites", "制作に携わった、公開中のサイト", { id: "show-title", cls: "sh-center", lead: `${works.showcaseGroups.map((g) => `${esc(g.ja)}${g.items.length}件`).join("、")}。<br>画面を押すと、実際のサイトが新しいタブで開きます。` })}
+    ${works.showcaseGroups
+      .map(({ ja, en, items: list }) => {
+        return `<h3 class="show-h"><span lang="en">${esc(en)}</span>${esc(ja)}<small>${list.length}件</small></h3>
     <ul class="show-grid">
       ${list
         .map(
@@ -895,8 +890,7 @@ ${
       </a></li>`,
         )
         .join("\n      ")}
-    </ul>`
-          : "";
+    </ul>`;
       })
       .join("\n    ")}
     <p class="fine">画面は2026年11月12日に撮影したものです。各サイトの内容と権利は、それぞれの運営者に帰属します。</p>
@@ -1972,7 +1966,7 @@ export function renderLlmsTxt(site) {
     "",
     "## 実績",
     ...works.all.map((w) => `- [${workName(w)}](${new URL(`works/${w.id}/`, profile.site_url).href}): ${w.kindOf === "site" ? `${w.url} ${w.role}` : `${w.title}（ランサーズ・評価${w.reviews.length}件）`}`),
-    ...(works.showcase ?? []).map((x) => `- ${x.name}: ${x.url}（制作に携わった公開中の${x.group === "lp" ? "LP・Webサイト" : "システム"}）`),
+    ...(works.showcase ?? []).map((x) => `- ${x.name}: ${x.url}（制作に携わった公開中の${x.kind}）`),
     "",
     "## ほか",
     `- [料金（${site.packages.length}パッケージ）](${new URL("prices/", profile.site_url).href})`,

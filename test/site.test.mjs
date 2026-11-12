@@ -398,6 +398,10 @@ test("live sites: each listed site has its screen and opens in a new tab; the co
     assert.ok(works.includes(`src="../${x.shot}"`), `${x.name} shows its screen`);
   }
   assert.equal(new Set(show.map((x) => x.url)).size, show.length, "no site listed twice");
+  // One block per kind of site, every site in exactly one block, each headed with its count.
+  const groups = site.works.showcaseGroups;
+  assert.equal(groups.reduce((t, g) => t + g.items.length, 0), show.length, "every site is in a group");
+  for (const g of groups) assert.ok(works.includes(`${esc(g.ja)}<small>${g.items.length}件</small></h3>`), `${g.ja} has its heading and count`);
   const n = site.works.sites.length + show.length;
   assert.match(files["index.html"], new RegExp(`公開中のサイト${n}件`), "home says how many");
   assert.match(works, new RegExp(`data-to="${n}"`), "the track record counts them");

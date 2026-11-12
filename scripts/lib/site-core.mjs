@@ -19,6 +19,16 @@ const LANCERS_JOB = (id) => `https://www.lancers.jp/work/detail/${id}`;
 const isSet = (v) => typeof v === "string" && v.trim() !== "" && !/^\s*TODO\b/.test(v);
 // Works filter on /works/: a work's category follows its service's pillar.
 const PILLAR_KEY = { AI: "ai", "Web・EC": "web", システム開発: "system", "品質・セキュリティ": "system" };
+// Kinds of live site (works.yml showcase[].group): key, heading, English kicker, short label
+// for the track record. The works page shows them in this order.
+const SHOWCASE_GROUPS = [
+  ["salon", "美容室・サロンのWebサイト", "Hair Salons", "美容室"],
+  ["service", "Webサービス・アプリ", "Web Services & Apps", "Webサービス"],
+  ["ec", "ECサイト", "Online Stores", "EC"],
+  ["media", "地域メディア", "Local Media", "地域メディア"],
+  ["lp", "ランディングページ・Webサイト", "Landing Pages", "LP・Webサイト"],
+  ["system", "B2B・B2C システム", "Systems", "システム"],
+];
 
 /** "## heading" sections of a service page: their bullet items and plain paragraphs. */
 function mdSections(md) {
@@ -210,13 +220,16 @@ export function loadSite({ root, profile, today = new Date() }) {
       jobUrl: w.job ? LANCERS_JOB(w.job) : null,
     };
   });
-  // Live sites you worked on, shown as a gallery of screens (no page of their own).
+  // Live sites you worked on, shown as a gallery of screens (no page of their own),
+  // one block per kind of site, in SHOWCASE_GROUPS order.
+  const groupOf = new Map(SHOWCASE_GROUPS.map(([key, ja, en, short]) => [key, { key, ja, en, short }]));
   const showcase = (worksRaw.showcase ?? []).map((w, i) => {
     const where = `site/works.yml showcase ${i + 1}`;
-    if (!["lp", "system"].includes(w.group)) throw new Error(`${where}: group must be lp or system`);
+    if (!groupOf.has(w.group)) throw new Error(`${where}: group must be one of ${[...groupOf.keys()].join(", ")}`);
     if (!/^https:\/\//.test(w.url ?? "")) throw new Error(`${where}: url must be https://…`);
-    return { ...w, shot: asset(w.shot, `${where} shot`), host: new URL(w.url).host.replace(/^www\./, "") };
+    return { ...w, kind: groupOf.get(w.group).ja, shot: asset(w.shot, `${where} shot`), host: new URL(w.url).host.replace(/^www\./, "") };
   });
+  const showcaseGroups = [...groupOf.values()].map((g) => ({ ...g, items: showcase.filter((x) => x.group === g.key) })).filter((g) => g.items.length);
   const works = [...sites, ...lancers];
   const seen = new Set();
   for (const w of works) {
@@ -341,7 +354,7 @@ export function loadSite({ root, profile, today = new Date() }) {
     services,
     packages: allPackages.filter((p) => p.onSite), // what the site shows
     lancersPackages: allPackages, // every package on Lancers (the counts in profile.yml)
-    works: { sites, lancers, all: works, showcase },
+    works: { sites, lancers, all: works, showcase, showcaseGroups },
     art,
     years,
     aboutHtml,

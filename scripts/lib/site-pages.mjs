@@ -214,6 +214,10 @@ function layout(site, { route, title, description, body, ld = [], absolute = fal
           .map(([k, name]) => `<meta name="${name}" content="${esc(verify[k])}">\n`)
           .join("")
       : "";
+  const askEp = String(profile.chat?.endpoint ?? "").trim();
+  const askFab = askEp && !route.startsWith("contact/")
+    ? `<button class="ask-fab" type="button" data-ask data-endpoint="${esc(askEp)}" aria-haspopup="dialog"><svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 15l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg><span>AIに質問</span></button>\n`
+    : "";
   const cfToken = profile.analytics?.cloudflare;
   const beacon = cfToken && !route.startsWith("contact/") ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${esc(cfToken)}"}'></script>\n` : "";
   return `<!doctype html>
@@ -314,7 +318,7 @@ ${body}
     <p class="fo-motion"><button class="motion-toggle" type="button" aria-pressed="false">動きを減らす</button></p>
   </div>
 </footer>
-${beacon}</body>
+${askFab}${beacon}</body>
 </html>
 `;
 }
@@ -443,7 +447,7 @@ function caseItem(c, base = "") {
     </details>`;
 }
 
-const COMMON_FAQ = [
+export const COMMON_FAQ = [
   { q: "秘密保持契約（NDA）は結べますか？", a: "はい、対応しています。ご相談の段階から、お預かりする情報は秘密として扱います。" },
   { q: "打ち合わせはできますか？", a: "はい。メッセージでのやり取りのほか、ビデオ通話での打ち合わせにも対応しています。" },
   { q: "仕様が決まっていなくても相談できますか？", a: "はい。「こんなことは実現できる？」という段階から、目的を伺って一緒に整理します。" },
@@ -1329,6 +1333,19 @@ ${
       ${s.problems.map((p, k) => `<li data-reveal style="--k:${k}"><span class="sv-worry-num" lang="en" aria-hidden="true">${NUM[k]}</span><span class="tale-hl-orb" aria-hidden="true">${icon(pickIcon(p, "check"))}</span><p>${esc(p)}</p></li>`).join("\n      ")}
     </ol>
     <p class="sv-worry-cta">そのお悩み、まずはお聞かせください。<a href="${contactHref(base, q)}">相談する${icon("arrow", "ic ic-xs")}</a></p>
+  </div>
+</section>`
+    : ""
+}
+${
+  s.id === "ai-chatbot" && String(profile.chat?.endpoint ?? "").trim()
+    ? `<section class="tale sv-demo" aria-labelledby="demo-title">
+  ${deco("deco-glints", "tale-glints")}
+  <div class="tale-in tale-narrow">
+    <p class="tale-label tale-label-light" lang="en"><span>Live Demo</span></p>
+    <h2 class="tale-h2 center" id="demo-title">このサイトにも、資料を検索して答えるAIを置いています。</h2>
+    <p class="sv-demo-text">このサイトの文章を検索し、その内容だけを根拠に、出典つきで答えます。答えが見つからないときは、推測せずに「分かりません」と答えます。</p>
+    <p class="sv-demo-cta"><button class="btn btn-gold btn-lg" type="button" data-ask data-ask-q="RAGチャットボットでは何ができますか？">試しに質問する${icon("arrow")}</button></p>
   </div>
 </section>`
     : ""

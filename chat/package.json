@@ -1,0 +1,9 @@
+{
+  "name": "takumi-chat",
+  "private": true,
+  "type": "module",
+  "description": "The site assistant for shanaiai.com (Cloudflare Worker + Claude).",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0"
+  }
+}

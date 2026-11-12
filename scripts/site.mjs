@@ -9,6 +9,8 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { loadProfile, rel, ROOT } from "./lib/common.mjs";
 import { loadSite, renderGithubReadme, renderSite } from "./lib/site-core.mjs";
+import { buildKnowledge } from "./lib/kb.mjs";
+import { COMMON_FAQ } from "./lib/site-pages.mjs";
 
 const { values } = parseArgs({
   options: {
@@ -45,6 +47,8 @@ const write = (file, content) => {
 };
 const files = renderSite(site);
 for (const [name, content] of Object.entries(files)) write(path.join(out, name), content);
+// The site assistant's knowledge base (chat/ fetches it): the site's own content as passages.
+write(path.join(out, "assets", "kb.json"), JSON.stringify(buildKnowledge(site, { faq: COMMON_FAQ, root: ROOT })));
 // The site shows no videos and no portfolio or package covers (AI-drawn people; 2026-11-12):
 // those files stay in site/assets for Lancers but aren't published.
 const UNPUBLISHED = [/\.mp4$/i, /[\\/]media[\\/](portfolio|packages)(?:[\\/]|$)/, /[\\/]media[\\/]durations\.json$/];

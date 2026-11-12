@@ -8,6 +8,19 @@
   "use strict";
   window.TAKUMI = true;
   var d = document;
+  // The site assistant: chat.js (a module) loads only when someone opens it.
+  var APP_SRC = d.currentScript && d.currentScript.src;
+  d.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-ask]");
+    var fab = d.querySelector(".ask-fab");
+    if (!b || !fab || !APP_SRC) return;
+    e.preventDefault();
+    var u = new URL("chat.js", APP_SRC);
+    u.search = new URL(APP_SRC).search;
+    import(u.href).then(function (m) {
+      m.open(fab.getAttribute("data-endpoint"), b.getAttribute("data-ask-q") || "");
+    });
+  });
   var root = d.documentElement;
   var body = d.body;
   var base = body.getAttribute("data-base") || "./";

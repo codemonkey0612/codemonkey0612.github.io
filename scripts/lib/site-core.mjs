@@ -306,7 +306,7 @@ export function loadSite({ root, profile, today = new Date() }) {
   // A short hash of the stylesheet and script, added to their URLs so browsers
   // never keep an old copy after a deploy.
   const assetVersion = createHash("sha1")
-    .update(["style.css", "app.js", "celestial.js", "contact.js", "contact.css"].map((f) => {
+    .update(["style.css", "app.js", "celestial.js", "contact.js", "contact.css", "chat.js"].map((f) => {
       const file = path.join(root, "site", "assets", f);
       return fs.existsSync(file) ? fs.readFileSync(file) : "";
     }).join("\n"))

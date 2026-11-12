@@ -121,11 +121,17 @@ export function buildKnowledge(site, { faq = [], root = process.cwd() } = {}) {
     if (t.comment) add(`review-${t.id}`, `お客さまの評価：${t.job}`, `reviews/#${t.id}`, [`${t.date}の評価（満足）。`, t.comment]);
 
   // How to reach you, and how confidentiality is kept.
-  add("contact", "相談・お問い合わせの方法", "contact/", [
-    "ご相談は、このサイトのお問い合わせフォームから送れます。仕様が決まっていない段階でも大丈夫です。",
-    `ランサーズのメッセージからもご相談いただけます（${l.profile_url}）。`,
-    f.nda && "ご希望があれば、詳しいお話を伺う前にNDA（秘密保持契約）を結びます。",
-  ].filter(Boolean));
+  add("contact", "相談・お問い合わせの方法", "contact/", (site.lancersOnly
+    ? [
+        site.lancersOnly,
+        `ご相談は、ランサーズのメッセージからお送りください（${l.profile_url}）。仕様が決まっていない段階でも大丈夫です。出品中のパッケージからもご依頼いただけます。`,
+        "このサイトのお問い合わせフォームでの受付は、現在停止しています。",
+      ]
+    : [
+        "ご相談は、このサイトのお問い合わせフォームから送れます。仕様が決まっていない段階でも大丈夫です。",
+        `ランサーズのメッセージからもご相談いただけます（${l.profile_url}）。`,
+      ]
+  ).concat(f.nda ? ["ご希望があれば、詳しいお話を伺う前にNDA（秘密保持契約）を結びます。"] : []));
   add("nda", "機密保持について", "works/#nda", [
     f.nda && "NDA（秘密保持契約）を結べます。ご希望があれば、詳しいお話を伺う前に結びます。",
     (l.verified ?? []).length && `ランサーズで${l.verified.join("・")}を済ませています。`,

@@ -52,9 +52,11 @@ export const PRIVACY_HTML = `<h2 id="privacy-title" class="privacy-title">個人
  * The form panel (and its privacy dialog). The contact page sets it beside its introduction
  * inside <section class="inq-sec inq-scene">; load contact.css and contact.js (defer) on the
  * page. `base` is the relative path to the site root ("../").
+ * `closed`: inquiries are taken on Lancers only for now. The form stays in view but switched
+ * off (every field and the button disabled, nothing posted, no privacy dialog), with a notice.
  */
-export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], works = [], base = "../" } = {}) {
-  const ep = String(endpoint ?? "").trim();
+export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], works = [], base = "../", closed = false } = {}) {
+  const ep = closed ? "" : String(endpoint ?? "").trim();
   const lancers = esc(lancersUrl);
   const ext = (text) => `<a href="${lancers}" target="_blank" rel="noopener">${text}<span class="sr-only">（新しいタブで開きます）</span></a>`;
   // Names for ?service=<id> / ?work=<id>, read by contact.js.
@@ -74,10 +76,15 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
         </fieldset>`;
 
   return `<div class="inq-card" data-state="input">
-  <form class="inq" id="inquiry" novalidate data-endpoint="${esc(ep)}" data-lancers="${lancers}"${ep ? ` action="${esc(ep)}" method="post"` : ""} aria-labelledby="inq-title">
-    <h2 class="sr-only" id="inq-title">お問い合わせフォーム</h2>
-    <noscript><p class="inq-notice">${ep ? "JavaScriptが無効のため、送信後に結果のページが開きます。" : `このフォームはJavaScriptを使います。お手数ですが、${ext("Lancers")}からご相談ください。`}</p></noscript>
-    ${ep ? "" : `<p class="inq-notice">${ICON.alert}<span>このフォームからの送信は、現在準備中です。お手数ですが、ご相談は${ext("Lancers")}からお送りください。</span></p>`}
+  <form class="inq${closed ? " inq-closed" : ""}" id="inquiry" novalidate data-endpoint="${esc(ep)}" data-lancers="${lancers}"${closed ? " data-closed" : ""}${ep ? ` action="${esc(ep)}" method="post"` : ""} aria-labelledby="inq-title"${closed ? ' aria-describedby="inq-closed-note"' : ""}>
+    <h2 class="sr-only" id="inq-title">お問い合わせフォーム${closed ? "（現在は受付を停止しています）" : ""}</h2>
+    ${
+      closed
+        ? `<p class="inq-notice" id="inq-closed-note">${ICON.alert}<span>このフォームでの受付は、現在停止しています。ご相談は${ext("ランサーズ")}からお送りください。</span></p>
+    <fieldset class="inq-off" disabled>`
+        : `<noscript><p class="inq-notice">${ep ? "JavaScriptが無効のため、送信後に結果のページが開きます。" : `このフォームはJavaScriptを使います。お手数ですが、${ext("Lancers")}からご相談ください。`}</p></noscript>
+    ${ep ? "" : `<p class="inq-notice">${ICON.alert}<span>このフォームからの送信は、現在準備中です。お手数ですが、ご相談は${ext("Lancers")}からお送りください。</span></p>`}`
+    }
     <script type="application/json" class="inq-topics">${JSON.stringify(topics).replace(/</g, "\\u003c")}</script>
     <input type="hidden" name="context" value="">
     <p class="inq-context" hidden>
@@ -133,11 +140,15 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
     <input type="hidden" name="consent" value="on">
 
     <div class="inq-error" role="alert" tabindex="-1" hidden>${ICON.alert}<p><span class="inq-error-text"></span> <span class="inq-error-alt">${ext("Lancersで相談する")}</span></p></div>
-    <div class="inq-send${ep ? "" : " inq-needs-js"}">
-      <button class="btn btn-gold btn-lg inq-submit" type="submit"><span class="inq-submit-label">同意して送信する</span>${ICON.arrow}</button>
-      <p class="inq-consent"><a href="#privacy" class="privacy-open" aria-haspopup="dialog">個人情報の取り扱い</a></p>
+    <div class="inq-send${ep || closed ? "" : " inq-needs-js"}">
+      ${
+        closed
+          ? `<button class="btn btn-gold btn-lg inq-submit" type="submit" disabled><span class="inq-submit-label">フォームでの受付は停止中です</span></button>`
+          : `<button class="btn btn-gold btn-lg inq-submit" type="submit"><span class="inq-submit-label">同意して送信する</span>${ICON.arrow}</button>
+      <p class="inq-consent"><a href="#privacy" class="privacy-open" aria-haspopup="dialog">個人情報の取り扱い</a></p>`
+      }
     </div>
-    <p class="inq-status sr-only" role="status" aria-live="polite"></p>
+    ${closed ? "</fieldset>" : '<p class="inq-status sr-only" role="status" aria-live="polite"></p>'}
   </form>
 
   <div class="inq-done" hidden>
@@ -152,11 +163,15 @@ export function renderInquiryForm({ endpoint = "", lancersUrl, services = [], wo
     <p class="inq-done-actions"><a class="btn btn-ghost" href="${esc(base)}works/">実績を見る</a><a class="inq-link" href="${esc(base)}">トップへ戻る</a></p>
   </div>
 
-</div>
+</div>${
+    closed
+      ? ""
+      : `
 <dialog class="privacy" id="privacy" aria-labelledby="privacy-title">
   <div class="privacy-body">
     ${PRIVACY_HTML}
   </div>
   <p class="privacy-actions"><button type="button" class="btn btn-ghost privacy-close">閉じる</button></p>
-</dialog>`;
+</dialog>`
+  }`;
 }

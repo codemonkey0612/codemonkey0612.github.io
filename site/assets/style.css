@@ -16762,3 +16762,39 @@ body:has(.ask-fab) .fo-base {
     margin-left: 0;
   }
 }
+
+/* ---- works: the note about illustrations, first thing under the headline ---- */
+.works-note {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-sizing: border-box;
+  max-width: 40em;
+  margin: 22px 0 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(212, 166, 64, 0.5);
+  border-radius: 12px;
+  background: rgba(9, 16, 34, 0.62);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #f3efe6;
+  font-size: 14px;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
+.works-note .ic {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+  color: #e2b85a;
+}
+@media (max-width: 600px) {
+  .works-note {
+    margin-top: 18px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+  }
+}

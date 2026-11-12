@@ -910,3 +910,66 @@
 html.no-js .privacy-actions {
   display: none;
 }
+
+/* ---- consultations on Lancers only: the notice, the button, the form switched off ---- */
+.inq-only {
+  margin: 0 0 calc(24 * var(--s));
+  padding: 14px 18px;
+  border-left: 3px solid #c99a3c;
+  border-radius: 0 12px 12px 0;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink, #0f1d2e);
+  font-size: calc(16 * var(--s));
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+}
+.inq-only p {
+  margin: 0;
+}
+.inq-only strong {
+  font-weight: 700;
+  color: var(--gold-ink, #8a6418);
+}
+.inq-only .inq-only-sub {
+  margin-top: 6px;
+  color: #3a4658;
+  font-size: calc(13.5 * var(--s));
+  line-height: 1.8;
+}
+.inq-only-actions {
+  margin: 0;
+}
+.inq-lancers {
+  gap: 8px;
+}
+.inq-off {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+/* the fields fade; the button stays readable, since its words say why */
+.inq-off > :not(.inq-send) {
+  opacity: 0.5;
+  filter: grayscale(0.4);
+}
+.inq-off .inq-submit.btn-gold {
+  cursor: not-allowed;
+  border-color: #d9d4c8;
+  background: #ece8df;
+  box-shadow: none;
+  color: #4a5260;
+}
+@media (max-width: 600px) {
+  .inq-only {
+    font-size: 15px;
+    padding: 12px 14px;
+  }
+  .inq-only br {
+    display: none;
+  }
+  .inq-lancers {
+    width: 100%;
+    justify-content: center;
+  }
+}

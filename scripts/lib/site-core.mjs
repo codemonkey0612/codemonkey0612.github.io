@@ -120,6 +120,9 @@ export function imageSize(file) {
   return null;
 }
 
+/** Why consultations go through Lancers for now (contact page, FAQ, the assistant). */
+export const LANCERS_ONLY = "お客さまの安全と、より確実なお取引のため、現在ご相談はランサーズでのみ受け付けています。";
+
 export function loadSite({ root, profile, today = new Date() }) {
   const packages = readYaml(path.join(root, "site", "packages.yml"));
   const byId = (list, kind) => {
@@ -333,6 +336,8 @@ export function loadSite({ root, profile, today = new Date() }) {
   return {
     assetVersion,
     profile,
+    // Set when consultations are taken on Lancers only (profile.yml contact_form.accepting: false).
+    lancersOnly: profile.contact_form?.accepting === false ? LANCERS_ONLY : "",
     services,
     packages: allPackages.filter((p) => p.onSite), // what the site shows
     lancersPackages: allPackages, // every package on Lancers (the counts in profile.yml)

@@ -395,3 +395,34 @@ test("live sites: each listed site has its screen and opens in a new tab; the co
   assert.match(files["index.html"], new RegExp(`公開中のサイト${n}件`), "home says how many");
   assert.match(works, new RegExp(`data-to="${n}"`), "the track record counts them");
 });
+
+test("consultations on Lancers only: the contact page says why, links to Lancers, and the form is switched off", async () => {
+  const { LANCERS_ONLY } = await import("../scripts/lib/site-core.mjs");
+  const profile = loadProfile();
+  const site = loadSite({ root: ROOT, profile, today });
+  assert.equal(site.lancersOnly, LANCERS_ONLY, "profile.yml contact_form.accepting: false");
+  const files = renderSite(site);
+  const c = files["contact/index.html"];
+  assert.match(c, /お客さまの安全と、より確実なお取引のため、<br>現在ご相談は<strong>ランサーズでのみ<\/strong>受け付けています。/);
+  assert.ok(c.includes(`class="btn btn-gold btn-lg inq-lancers" href="${esc(profile.contact_url)}" target="_blank" rel="noopener"`), "a Lancers button");
+  assert.match(c, /<fieldset class="inq-off" disabled>[\s\S]*<button class="btn btn-gold btn-lg inq-submit" type="submit" disabled>[\s\S]*<\/fieldset>\s*<\/form>/, "every field and the button are disabled");
+  assert.doesNotMatch(c, /<form[^>]*\baction=/, "nothing is posted");
+  assert.doesNotMatch(c, /id="privacy"|同意して送信する/, "no consent step for a form that takes nothing");
+  // Every page's FAQ and the assistant say the same.
+  assert.match(files["prices/index.html"], /どこから相談・依頼できますか？[\s\S]*ランサーズでのみ受け付けています/);
+  assert.match(files["llms.txt"], /ご相談: ランサーズのみ/);
+});
+
+test("works: the note about illustrations comes first, under the headline", () => {
+  const site = loadSite({ root: ROOT, profile: loadProfile(), today });
+  const works = renderSite(site)["works/index.html"];
+  const note = "ランサーズの案件は、お客さまの画面を載せられないため、案件ごとのイラストで紹介しています";
+  assert.equal(works.split(note).length - 1, 1, "shown once");
+  assert.ok(works.indexOf(note) < works.indexOf('class="ggrid'), "before the gallery");
+  assert.ok(works.indexOf(note) > works.indexOf("<h1"), "after the headline");
+});
+
+test("no GitHub link anywhere on the site", () => {
+  const files = renderSite(loadSite({ root: ROOT, profile: loadProfile(), today }));
+  for (const [name, body] of Object.entries(files)) if (/\.(html|txt|xml|json)$/.test(name)) assert.doesNotMatch(body, /github\.com|>GitHub</i, name);
+});

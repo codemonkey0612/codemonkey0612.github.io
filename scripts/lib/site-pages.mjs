@@ -40,6 +40,7 @@ const brk = (s) => esc(s).replace(/([、。])(?!$)/g, "$1<wbr>");
 const ICON = {
   arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   ext: '<path d="M7 17 17 7M8.5 7H17v8.5"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.01"/>',
   check: '<path d="M5 12.5l4.2 4.2L19 7"/>',
   close: '<path d="M6 6l12 12M18 6 6 18"/>',
   play: '<path class="solid" d="M8 5.6v12.8a.8.8 0 0 0 1.2.7l10.3-6.4a.8.8 0 0 0 0-1.4L9.2 4.9A.8.8 0 0 0 8 5.6z"/>',
@@ -145,10 +146,10 @@ function sameAs(profile) {
     isSet(p.zenn) && `https://zenn.dev/${p.zenn}`,
     isSet(p.qiita) && `https://qiita.com/${p.qiita}`,
     isSet(p.note) && `https://note.com/${p.note}`,
-    isSet(p.github) && `https://github.com/${p.github}`,
+    // No GitHub link on the site (the owner's choice, 2026-11-12).
   ].filter(Boolean);
 }
-const linkLabel = (u) => (/lancers/.test(u) ? "Lancers" : /zenn/.test(u) ? "Zenn" : /qiita/.test(u) ? "Qiita" : /note\.com/.test(u) ? "note" : "GitHub");
+const linkLabel = (u) => (/lancers/.test(u) ? "Lancers" : /zenn/.test(u) ? "Zenn" : /qiita/.test(u) ? "Qiita" : "note");
 
 function personLd(site) {
   const { profile } = site;
@@ -454,6 +455,11 @@ export const COMMON_FAQ = [
   { q: "仕様が決まっていなくても相談できますか？", a: "はい。「こんなことは実現できる？」という段階から、目的を伺って一緒に整理します。" },
   { q: "ランサーズから依頼することもできますか？", a: "はい。ランサーズでパッケージを出品しているほか、メッセージからのご相談も受け付けています。" },
 ];
+/** The common FAQ for this site: while consultations are on Lancers only, the last answer says so. */
+export const commonFaq = (site) =>
+  site.lancersOnly
+    ? [...COMMON_FAQ.slice(0, -1), { q: "どこから相談・依頼できますか？", a: `${site.lancersOnly}ランサーズのメッセージからのご相談のほか、出品中のパッケージからもご依頼いただけます。` }]
+    : COMMON_FAQ;
 const faqList = (items) =>
   `<div class="faq">${items.map((f) => `<details class="acc"><summary><span class="acc-q" aria-hidden="true">Q.</span><span class="acc-title">${esc(f.q)}</span></summary><p>${esc(f.a)}</p></details>`).join("")}</div>`;
 const ldFaq = (items) => ({
@@ -821,6 +827,9 @@ ${inquiry(site, base, { label: "プロジェクトを相談する", titleHtml: "
   return layout(site, { route: "", title: profile.brand, description, body, ld, page: "home", tone: site.art.stage("home").tone });
 }
 
+/** Shown first on the works page (under the headline), so visitors read it before the pictures. */
+const WORKS_NOTE = "ランサーズの案件は、お客さまの画面を載せられないため、案件ごとのイラストで紹介しています（内容と評価はランサーズで確認できます）。公開中のサイトの画面は撮影時点のものです。";
+
 export function renderWorks(site) {
   const { profile, works } = site;
   const base = "../";
@@ -838,6 +847,7 @@ export function renderWorks(site) {
       <p class="kicker-ja">実績ギャラリー</p>
       <h1 class="display">作品の、<br><span class="d-ind">その<em>先</em>へ。</span></h1>
       <p class="lead">制作に携わった公開中のサイト、ランサーズで評価をいただいた案件、<br>そしてお客さまの名前を伏せたチーム開発の実績です。</p>
+      <p class="works-note">${icon("info", "ic")}<span>${WORKS_NOTE}</span></p>
     </div>`,
   })}
 <section class="ch ch-pearl gallery${hasSec(site, "sec-silk")}" aria-labelledby="gallery-title">
@@ -858,7 +868,6 @@ export function renderWorks(site) {
     <ul class="ggrid wgrid-edit">
       ${works.all.map((w, i) => galleryCard(site, w, base, i)).join("\n      ")}
     </ul>
-    <p class="fine">ランサーズの案件は、お客さまの画面を載せられないため、案件ごとのイラストで紹介しています（内容と評価はランサーズで確認できます）。公開中のサイトの画面は撮影時点のものです。</p>
   </div>
 </section>
 ${
@@ -1312,7 +1321,7 @@ export function renderService(site, s) {
   const url = new URL(route, profile.site_url).href;
   const scene = `svc-${s.id}`;
   const related = site.works.all.filter((w) => w.service?.id === s.id);
-  const faq = [...s.faq, ...COMMON_FAQ];
+  const faq = [...s.faq, ...commonFaq(site)];
   const q = `?service=${encodeURIComponent(s.id)}`;
   const isAI = s.pillar === "AI";
   // Two lines, split at the first 、; the web services set the second phrase in gold.
@@ -1681,7 +1690,7 @@ export function renderPrices(site) {
   const faq = [
     { q: "パッケージにない内容も相談できますか？", a: "はい。内容に合わせて、個別にお見積もりします。" },
     { q: "どのプランを選べばいいか分かりません。", a: "目的と現状を伺ったうえで、合ったプランや進め方をご提案します。" },
-    ...COMMON_FAQ,
+    ...commonFaq(site),
   ];
   const body = `${stage(site, base, {
     scene: "pricing",
@@ -1889,9 +1898,13 @@ export function renderContact(site) {
   const { profile, services, works } = site;
   const base = "../";
   const endpoint = profile.contact_form?.endpoint ?? "";
-  const description = `${profile.name}へのお問い合わせ。AI開発・Web制作・システム開発のご相談を、このページのフォームから受け付けています。`;
+  const only = site.lancersOnly; // consultations on Lancers only: the form is shown switched off
+  const description = only
+    ? `${profile.name}へのお問い合わせ。${only}`
+    : `${profile.name}へのお問い合わせ。AI開発・Web制作・システム開発のご相談を、このページのフォームから受け付けています。`;
+  const lancersBtn = `<a class="btn btn-gold btn-lg inq-lancers" href="${esc(profile.contact_url)}" target="_blank" rel="noopener">ランサーズで相談する${icon("ext", "ic ic-xs")}<span class="sr-only">（新しいタブで開きます）</span></a>`;
   const form = renderInquiryForm
-    ? renderInquiryForm({ endpoint, lancersUrl: profile.contact_url, services, works: works.all, base })
+    ? renderInquiryForm({ endpoint, lancersUrl: profile.contact_url, services, works: works.all, base, closed: Boolean(only) })
     : `<p class="fine">フォームを準備しています。<a href="${esc(profile.contact_url)}">Lancersからご相談ください。</a></p>`;
   // Below the page's own first screen: a window onto the misty mountains, with the words on its
   // sky and the form on a pale frosted panel.
@@ -1905,16 +1918,24 @@ export function renderContact(site) {
       ${crumbs(base, [[null, "お問い合わせ"]])}
       <p class="kicker" lang="en">Contact</p>
       <h1 class="display display-line">まだ、言葉にならない<em>構想</em>から。</h1>
-      <p class="lead">AI開発・Web制作・システム開発のご相談を受け付けています。まずはお気軽にお聞かせください。</p>
+      <p class="lead">${only ? "AI開発・Web制作・システム開発のご相談を、ランサーズで受け付けています。" : "AI開発・Web制作・システム開発のご相談を受け付けています。まずはお気軽にお聞かせください。"}</p>
     </div>`,
   })}
 <section class="ch ch-pearl inq-sec" aria-labelledby="inq-win-title">
   <div class="inq-window">
     ${bgImg}
     <div class="inq-intro">
-      <p class="inq-kicker" lang="en">Contact Form</p>
+      <p class="inq-kicker" lang="en">${only ? "Consultation" : "Contact Form"}</p>
       <h2 class="inq-h2" id="inq-win-title"><span class="nw">一緒に、</span><span class="nw">次の<em>景色</em>へ。</span></h2>
-      <p class="inq-alt"><a href="${esc(profile.contact_url)}" target="_blank" rel="noopener">Lancersで相談する${icon("ext", "ic ic-xs")}<span class="sr-only">（新しいタブで開きます）</span></a></p>
+      ${
+        only
+          ? `<div class="inq-only">
+        <p class="inq-only-main">${esc(only).replace("ため、", "ため、<br>").replace("ランサーズでのみ", "<strong>ランサーズでのみ</strong>")}</p>
+        <p class="inq-only-sub">ランサーズのメッセージから、仕様が決まっていない段階でもご相談いただけます。</p>
+      </div>
+      <p class="inq-only-actions">${lancersBtn}</p>`
+          : `<p class="inq-alt"><a href="${esc(profile.contact_url)}" target="_blank" rel="noopener">Lancersで相談する${icon("ext", "ic ic-xs")}<span class="sr-only">（新しいタブで開きます）</span></a></p>`
+      }
     </div>
 ${form}
   </div>
@@ -1942,7 +1963,7 @@ export function renderLlmsTxt(site) {
   return join([
     `# ${profile.brand}`,
     "",
-    `> ${profile.title}の${profile.name}。開発歴${site.years}年。AI（ChatGPT・RAG・AIエージェント）とWeb・業務システムの開発を、要件の整理から保守まで担当。ご相談: ${new URL("contact/", profile.site_url).href}（ランサーズ: ${profile.contact_url}）`,
+    `> ${profile.title}の${profile.name}。開発歴${site.years}年。AI（ChatGPT・RAG・AIエージェント）とWeb・業務システムの開発を、要件の整理から保守まで担当。${site.lancersOnly ? `ご相談: ランサーズのみ（${profile.contact_url}）` : `ご相談: ${new URL("contact/", profile.site_url).href}（ランサーズ: ${profile.contact_url}）`}`,
     "",
     "## サービス",
     ...services.map((s) => `- [${s.name}](${new URL(`services/${s.id}/`, profile.site_url).href}): ${s.summary}${s.priceFrom ? `（${yen(s.priceFrom)}〜）` : ""}`),
@@ -1974,7 +1995,9 @@ export function renderGithubReadme(site) {
     `- 🌐 ポートフォリオ: ${profile.site_url}`,
     `- 🗂 実績（${site.works.all.length}件）: ${url("works/")}`,
     `- ⭐ お客さまの声（${(profile.testimonials ?? []).length}件）: ${url("reviews/")}`,
-    `- 💬 お仕事のご相談: ${url("contact/")}（[ランサーズ](${l.profile_url ?? profile.contact_url})からも。${[l.rank, l.reviews && `評価${l.reviews.replace(/（.*$/, "")}すべて満足`].filter(Boolean).join("・")}）`,
+    site.lancersOnly
+      ? `- 💬 お仕事のご相談: [ランサーズ](${l.profile_url ?? profile.contact_url})で受け付けています（${[l.rank, l.reviews && `評価${l.reviews.replace(/（.*$/, "")}すべて満足`].filter(Boolean).join("・")}）`
+      : `- 💬 お仕事のご相談: ${url("contact/")}（[ランサーズ](${l.profile_url ?? profile.contact_url})からも。${[l.rank, l.reviews && `評価${l.reviews.replace(/（.*$/, "")}すべて満足`].filter(Boolean).join("・")}）`,
     isSet(p.zenn) && `- ✍️ Zenn: https://zenn.dev/${p.zenn}`,
     isSet(p.qiita) && `- ✍️ Qiita: https://qiita.com/${p.qiita}`,
     isSet(p.note) && `- ✍️ note: https://note.com/${p.note}`,

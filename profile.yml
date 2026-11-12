@@ -19,6 +19,9 @@ contact_url: https://www.lancers.jp/profile/navi_work/contact_light   # the seco
 # never here or on the site. With an empty endpoint the form says plainly that it cannot send.
 contact_form:
   endpoint: "https://form.shanaiai.com/"
+  # false: consultations are taken on Lancers only (2026-11-12, the owner's choice). The contact
+  # page says so, the form stays in view switched off, and the assistant points to Lancers.
+  accepting: false
 # The site assistant (chat/): a Cloudflare Worker that answers from the site's own content with
 # Claude. Empty: no 「AIに質問」 button. Setup: chat/README.md.
 chat:

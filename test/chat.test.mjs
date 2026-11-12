@@ -5,10 +5,11 @@ import { handle, resetKnowledge } from "../chat/src/handler.mjs";
 import { loadProfile, ROOT } from "../scripts/lib/common.mjs";
 import { buildKnowledge } from "../scripts/lib/kb.mjs";
 import { loadSite } from "../scripts/lib/site-core.mjs";
-import { COMMON_FAQ } from "../scripts/lib/site-pages.mjs";
+import { commonFaq } from "../scripts/lib/site-pages.mjs";
 
 const today = new Date("2026-11-12T00:00:00+09:00");
-const kb = buildKnowledge(loadSite({ root: ROOT, profile: loadProfile(), today }), { faq: COMMON_FAQ, root: ROOT });
+const kbSite = loadSite({ root: ROOT, profile: loadProfile(), today });
+const kb = buildKnowledge(kbSite, { faq: commonFaq(kbSite), root: ROOT });
 
 test("the knowledge base holds what the site shows, and nothing it hides", () => {
   const ids = new Set(kb.map((d) => d.id));
@@ -123,4 +124,12 @@ test("visitors are limited per ten minutes, and the site per day", async () => {
   const codes = [];
   for (let i = 0; i < 4; i++) codes.push((await handle(post({ messages: [{ role: "user", content: "料金は？" }] }), e, { client, fetch: kbFetch })).status);
   assert.deepEqual(codes, [200, 200, 200, 429]);
+});
+
+test("while consultations are on Lancers only, the assistant's sources say so", () => {
+  const contact = kb.find((d) => d.id === "contact").blocks.join("");
+  assert.match(contact, /ランサーズでのみ受け付けています/);
+  assert.doesNotMatch(contact, /フォームから送れます/);
+  const index = makeIndex(kb);
+  assert.ok(search(index, "どうやって依頼すればいいですか？").some((d) => d.id === "contact" || d.id === "faq"), "a how-to-ask question finds it");
 });

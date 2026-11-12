@@ -61,7 +61,7 @@ export async function handle(request, env = {}, deps = {}) {
     const ip = (await sha256(`${env.IP_SALT ?? "takumi-chat"}:${request.headers.get("CF-Connecting-IP") ?? ""}`)).slice(0, 32);
     const day = new Date().toISOString().slice(0, 10);
     const [mine, today] = await Promise.all([kv.get(`rl:${ip}`), kv.get(`day:${day}`)]);
-    if (Number(today ?? 0) >= Number(env.DAILY_CAP ?? RATE.perDay)) return json(429, { error: "本日の受付数の上限に達しました。お問い合わせフォームからご相談ください。" });
+    if (Number(today ?? 0) >= Number(env.DAILY_CAP ?? RATE.perDay)) return json(429, { error: "本日の受付数の上限に達しました。ご相談はランサーズからお送りください。" });
     if (Number(mine ?? 0) >= RATE.perVisitor) return json(429, { error: "短い時間に多くの質問をいただきました。10分ほどおいて、お試しください。" });
     await Promise.all([kv.put(`rl:${ip}`, String(Number(mine ?? 0) + 1), { expirationTtl: RATE.windowSec }), kv.put(`day:${day}`, String(Number(today ?? 0) + 1), { expirationTtl: 2 * 24 * 60 * 60 })]);
   }

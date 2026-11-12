@@ -4,7 +4,8 @@
 (function () {
   "use strict";
   var form = document.getElementById("inquiry");
-  if (!form) return;
+  // Closed (inquiries on Lancers only): the form is switched off in the markup; nothing to run.
+  if (!form || form.hasAttribute("data-closed")) return;
   var card = form.closest(".inq-card");
   var endpoint = (form.dataset.endpoint || "").trim();
   var lancers = form.dataset.lancers || "";

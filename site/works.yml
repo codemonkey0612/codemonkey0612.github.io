@@ -669,32 +669,7 @@ lancers:
 
       ※非公開のご依頼のため、システムの詳細は掲載を控えています。
 
-# Live sites you worked on, as you listed them on 2026-11-12 ("my landing page portfolio",
-# "my B2B, B2C system portfolio"). Names come from each site's own title; the first screen was
-# captured on 2026-11-12 (site/assets/media/showcase/). Left out: fabric-tokyo.com/lp/tokyo_suit_yda
-# (now "page not found") and fam-marketing-lp.com (unreachable) — add them back if they return.
-showcase:
-  - { group: lp, name: 日昌電気制御, url: "https://nisshodenkiseigyo.com/", shot: media/showcase/nisshodenkiseigyo-com.webp }
-  - { group: lp, name: Melt Mouse, url: "https://www.melt-interface.com/melt-mouse", shot: media/showcase/melt-interface-com-melt-mouse.webp }
-  - { group: lp, name: Teracy, url: "https://teracy.io/ja/", shot: media/showcase/teracy-io-ja.webp }
-  - { group: lp, name: たびぬきマップ・たびぬきラリー, url: "https://lp.tabinuki.com/", shot: media/showcase/lp-tabinuki-com.webp }
-  - { group: lp, name: Teen Spirits（Whiskey & Co.）, url: "https://whiskey.co.jp/teenspirits/", shot: media/showcase/whiskey-co-jp-teenspirits.webp }
-  - { group: lp, name: ル・パン神戸北野, url: "https://www.l-s.jp/lepan/", shot: media/showcase/l-s-jp-lepan.webp }
-  - { group: lp, name: MINABE CRAFT UMESHU, url: "https://minabecraftumeshu.jp/", shot: media/showcase/minabecraftumeshu-jp.webp }
-  - { group: lp, name: サンスパック, url: "https://www.sunspac.com/", shot: media/showcase/sunspac-com.webp }
-  - { group: lp, name: リトル・ママビジネススクール, url: "https://lm-c.or.jp/school/", shot: media/showcase/lm-c-or-jp-school.webp }
-  - { group: lp, name: GunMaaS, url: "https://lp.g3m.jp/", shot: media/showcase/lp-g3m-jp.webp }
-  - { group: lp, name: はなしてね（脳の健康習慣アプリ）, url: "https://lp.hanashitene.com/", shot: media/showcase/lp-hanashitene-com.webp }
-  - { group: lp, name: CRAYON, url: "https://c-rayon.com/", shot: media/showcase/c-rayon-com.webp }
-  - { group: lp, name: Haruulala organic 2025 EARLY SPRING, url: "https://haruulala.life/earlyspring2025/", shot: media/showcase/haruulala-life-earlyspring2025.webp }
-  - { group: lp, name: ベルフィールクリニック 美肌改革プログラム, url: "https://bellefeelclinic.com/lp/hada-01/", shot: media/showcase/bellefeelclinic-com-lp-hada-01.webp }
-  - { group: lp, name: BLUE HAMHAM, url: "https://bluehamham.com/", shot: media/showcase/bluehamham-com.webp }
-  - { group: lp, name: エス・トラスト 中途採用サイト, url: "https://career.strust-inc.co.jp/", shot: media/showcase/career-strust-inc-co-jp.webp }
-  - { group: system, name: JUNNI（ジュニ）, url: "https://junni.co.jp/", shot: media/showcase/junni-co-jp.webp }
-  - { group: system, name: Laugh Mind, url: "https://laugh-mind.co.jp/", shot: media/showcase/laugh-mind-co-jp.webp }
-  - { group: system, name: FunTech, url: "https://www.funtech.inc/ja", shot: media/showcase/funtech-inc-ja.webp }
-  - { group: system, name: IN FOCUS, url: "https://infocusinc.com/", shot: media/showcase/infocusinc-com.webp }
-  - { group: system, name: リベロジック, url: "https://www.liberogic.jp/", shot: media/showcase/liberogic-jp.webp }
-  - { group: system, name: CALAR.ink, url: "https://calar.ink/", shot: media/showcase/calar-ink.webp }
-  - { group: system, name: EXIT FILM, url: "https://www.exitfilm.jp/", shot: media/showcase/exitfilm-jp.webp }
-  - { group: system, name: SUNDAYVISION, url: "https://sunday-vision.com/", shot: media/showcase/sunday-vision-com.webp }
+# Live sites you built or worked on, shown in the works page's "Live Sites" section (group lp|system,
+# name, url, shot: media/showcase/<slug>.webp). Emptied on 2026-11-12 at your request; list only
+# sites you actually worked on.
+showcase: []

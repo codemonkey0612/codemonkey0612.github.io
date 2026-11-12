@@ -385,7 +385,14 @@ test("live sites: each listed site has its screen and opens in a new tab; the co
   const files = renderSite(site);
   const works = files["works/index.html"];
   const show = site.works.showcase;
-  assert.ok(show.length >= 20);
+  if (!show.length) {
+    // Emptied on 2026-11-12: no section, no count, nothing for the assistant.
+    assert.doesNotMatch(works, /id="live-sites"|class="show-card/);
+    assert.doesNotMatch(works, /<dt[^>]*>制作に携わった公開中のサイト/, "no live-sites figure in the track record");
+    assert.doesNotMatch(files["index.html"], /公開中のサイト\d+件/);
+    assert.match(works, /24時間以内の返信率/, "the track record keeps eight figures");
+    return;
+  }
   for (const x of show) {
     assert.ok(works.includes(`href="${esc(x.url)}" target="_blank" rel="noopener"`), `${x.name} links out`);
     assert.ok(works.includes(`src="../${x.shot}"`), `${x.name} shows its screen`);

@@ -506,7 +506,9 @@ export function recordFacts(site) {
     { n: years, u: "年", k: "開発歴" },
     n(l.jobs) && { n: n(l.jobs), u: "件", k: "ランサーズでのお仕事" },
     rv && rv[1] === rv[2] && { n: +rv[1], u: "件", k: "いただいた評価", note: "すべて「満足」" },
-    { n: site.works.sites.length + (site.works.showcase ?? []).length, u: "件", k: "制作に携わった公開中のサイト", note: "LP・Webサイト・システム" },
+    (site.works.showcase ?? []).length
+      ? { n: site.works.sites.length + site.works.showcase.length, u: "件", k: "制作に携わった公開中のサイト", note: "LP・Webサイト・システム" }
+      : n(l.reply_rate_24h) && { n: n(l.reply_rate_24h), u: "%", k: "24時間以内の返信率", note: "ランサーズ" },
     ext && { n: +ext[1], u: "件", k: "他社サービスでの実績", note: `満足率${ext[2]}%` },
     (profile.cases ?? []).length && { n: profile.cases.length, u: "件", k: "チームでの開発プロジェクト", note: "お客さまの名前は非公開" },
     n(l.repeat_clients) && { n: n(l.repeat_clients), u: "人", k: "リピートのお客さま" },
@@ -769,7 +771,7 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
     <div class="sel-copy" data-reveal>
       <p class="eyebrow" lang="en">Selected Work</p>
       <h2 class="strip-title" id="selected-title">実装で、<br><span class="nowrap"><em>成果</em>につなげる。</span></h2>
-      <p class="sel-lead">${works.sites.map((w) => `<a href="${base}works/${esc(w.id)}/">${esc(workName(w))}</a>${w.made ? `の${esc(w.made)}` : ""}`).join("、")}など、<br>制作に携わった公開中のサイト${works.sites.length + (works.showcase ?? []).length}件と、評価をいただいた案件。</p>
+      <p class="sel-lead">${works.sites.map((w) => `<a href="${base}works/${esc(w.id)}/">${esc(workName(w))}</a>${w.made ? `の${esc(w.made)}` : ""}`).join("、")}など、<br>${(works.showcase ?? []).length ? `制作に携わった公開中のサイト${works.sites.length + works.showcase.length}件` : "制作したページ"}と、評価をいただいた案件。</p>
       <p class="sel-cta"><a class="btn btn-ghost" href="${base}works/">実績を見る${icon("arrow")}</a></p>
     </div>
     <div class="sel-devices" data-reveal>

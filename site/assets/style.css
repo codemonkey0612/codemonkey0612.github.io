@@ -16585,3 +16585,7 @@ dialog.ask::backdrop {
 .sv-demo-cta {
   margin: clamp(26px, 3vw, 44px) 0 0;
 }
+/* the footer's last row stays clear of the 「AIに質問」 button */
+body:has(.ask-fab) .fo-base {
+  padding-bottom: 82px !important;
+}

@@ -22,7 +22,7 @@ contact_form:
 # The site assistant (chat/): a Cloudflare Worker that answers from the site's own content with
 # Claude. Empty: no 「AIに質問」 button. Setup: chat/README.md.
 chat:
-  endpoint: ""
+  endpoint: "https://chat.shanaiai.com/"   # deployed 2026-11-12 with chat/deploy.sh
 # Search engine ownership checks: paste only the code from the meta tag each one gives you
 # (Google Search Console → URL prefix https://shanaiai.com/ → HTML tag → content="…").
 site_verification:

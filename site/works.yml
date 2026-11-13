@@ -670,7 +670,7 @@ lancers:
       ※非公開のご依頼のため、システムの詳細は掲載を控えています。
 
 # Live sites you built or worked on, shown in the works page's "Live Sites" section, one block per
-# group (salon | service | ec | media | lp | system; see SHOWCASE_GROUPS in scripts/lib/site-core.mjs).
+# group (salon | shop | service | ec | media | lp | system; see SHOWCASE_GROUPS in scripts/lib/site-core.mjs).
 # From your portfolio list of 2026-11-12. Names come from each site's own title; the first screen
 # (1440×900, saved at 960×600) was captured on 2026-11-12 in headless Chrome (site/assets/media/showcase/):
 # slideshows caught on a clean frame, MokuMoku Match's welcome dialog closed, and an empty ad slot on
@@ -678,8 +678,12 @@ lancers:
 # 光と曲線の美容室 page, hair care&design Suzy, Aria Private Hair Salon, 喫茶室 山脈 オンラインストア;
 # later the same day, こころぼっと and ＆1（アンドワン）.
 # On 2026-11-12, after being shown commit 6f4dfea (which took an earlier version of this list down as
-# not established to be your work), you confirmed that you built these sites. List only sites you
-# actually worked on.
+# not established to be your work), you confirmed that you built the sites of that first list.
+# 2026-11-13: 38 more from your second list (17 salons, 9 shops, 9 services, 1 online store, 2 media),
+# captured the same day the same way: animated heroes caught on a clean frame (REPO design, 8 HAIR,
+# FRACTAL DESIGN, 藤乃花製造所, SATURDAYS, nanka.ai), nanka.ai's cookie notice declined, and
+# アンハーバー taken through Chrome DevTools (its page never finishes loading its fonts). On
+# 2026-11-13 you confirmed that you built these 38 too. List only sites you actually worked on.
 showcase:
   - { group: salon, name: hair salon MOU, url: "https://hairsalon-mou.com/", shot: media/showcase/hairsalon-mou-com.webp }
   - { group: salon, name: Re:coa, url: "https://recoa.jp/", shot: media/showcase/recoa-jp.webp }
@@ -697,13 +701,49 @@ showcase:
   - { group: salon, name: honu, url: "https://www.honu-kyoto.com/", shot: media/showcase/honu-kyoto-com.webp }
   - { group: salon, name: N Salon, url: "https://nsalon.jp/", shot: media/showcase/nsalon-jp.webp }
   - { group: salon, name: AnS Hair Salon, url: "https://www.ans-hair.com/", shot: media/showcase/ans-hair-com.webp }
+  - { group: salon, name: eto（エト）, url: "https://e-t-o.net/", shot: media/showcase/e-t-o-net.webp }
+  - { group: salon, name: BE HERE NOW（ビーヒアナウ）, url: "https://b-h-n.com/", shot: media/showcase/b-h-n-com.webp }
+  - { group: salon, name: 8 HAIR（エイトヘアー）, url: "https://8hair.jp/", shot: media/showcase/8hair-jp.webp }
+  - { group: salon, name: La Pause（ラ・ポーズ）, url: "https://la-pause-salon.com/", shot: media/showcase/la-pause-salon-com.webp }
+  - { group: salon, name: PLUME, url: "https://plume-private-salon.com/", shot: media/showcase/plume-private-salon-com.webp }
+  - { group: salon, name: REPO design（レポデザイン）, url: "https://www.repo-design.com/", shot: media/showcase/repo-design-com.webp }
+  - { group: salon, name: Pulcina美容室, url: "https://pulcina.jp/", shot: media/showcase/pulcina-jp.webp }
+  - { group: salon, name: 美容室シンディ（cynd）, url: "https://cynd.jp/", shot: media/showcase/cynd-jp.webp }
+  - { group: salon, name: "Hair Design Cre'er（クレエ）", url: "https://hairdesigncreer.com/", shot: media/showcase/hairdesigncreer-com.webp }
+  - { group: salon, name: cocorohair（ココロヘアー）, url: "https://www.cocorohair1122.com/", shot: media/showcase/cocorohair1122-com.webp }
+  - { group: salon, name: Farve（ファーブ）, url: "https://farve-hair.com/", shot: media/showcase/farve-hair-com.webp }
+  - { group: salon, name: HAIR GRACES（ヘアー グレイシス）, url: "https://i-hair-graces.com/", shot: media/showcase/i-hair-graces-com.webp }
+  - { group: salon, name: fido, url: "https://fido-haircare.com/", shot: media/showcase/fido-haircare-com.webp }
+  - { group: salon, name: C/SPICE hair（シースパイスヘア）, url: "https://www.cspicehair.jp/", shot: media/showcase/cspicehair-jp.webp }
+  - { group: salon, name: Hair and Make Putti（プッティ）, url: "https://www.putti.jp/putti/", shot: media/showcase/putti-jp-putti.webp }
+  - { group: salon, name: 美容室アンハーバー, url: "https://anharbor.jp/top", shot: media/showcase/anharbor-jp-top.webp }
+  - { group: salon, name: FRACTAL DESIGN（フラクタルデザイン）, url: "https://www.fractaldesign.jp/", shot: media/showcase/fractaldesign-jp.webp }
+  - { group: shop, name: POUSSE（プーゼ）, url: "https://www.pousse-kyoto.com/", shot: media/showcase/pousse-kyoto-com.webp }
+  - { group: shop, name: アトリエ コトコト, url: "https://coto2.com/", shot: media/showcase/coto2-com.webp }
+  - { group: shop, name: 花政（はなまさ）, url: "https://hanamasa-kyoto.com/", shot: media/showcase/hanamasa-kyoto-com.webp }
+  - { group: shop, name: リーフガーデン, url: "https://www.leaf-y.com/", shot: media/showcase/leaf-y-com.webp }
+  - { group: shop, name: 藤乃花製造所, url: "https://fujinohana-seizojyo.jp/", shot: media/showcase/fujinohana-seizojyo-jp.webp }
+  - { group: shop, name: "SIX COFFEE & CHOCOLATE", url: "https://www.six-coffee-chocolate.com/", shot: media/showcase/six-coffee-chocolate-com.webp }
+  - { group: shop, name: Beurre Noisette（ブールノワゼット）, url: "https://www.beurre-noisette.jp/", shot: media/showcase/beurre-noisette-jp.webp }
+  - { group: shop, name: SATURDAYS Chocolate, url: "https://www.saturdayschocolate.com/", shot: media/showcase/saturdayschocolate-com.webp }
+  - { group: shop, name: 十勝トテッポ工房, url: "https://www.toteppo-factory.com/", shot: media/showcase/toteppo-factory-com.webp }
   - { group: service, name: aidly（中小企業専門 AIパートナー）, url: "https://www.aidly-ai.jp/", shot: media/showcase/aidly-ai-jp.webp }
   - { group: service, name: Uni-Log（ゆにろぐ）, url: "https://uni-log-official.web.app/index.html", shot: media/showcase/uni-log-official-web-app.webp }
   - { group: service, name: Selah, url: "https://selah.jp/", shot: media/showcase/selah-jp.webp }
   - { group: service, name: MokuMoku Match, url: "https://mokumokumatch.top/", shot: media/showcase/mokumokumatch-top.webp }
   - { group: service, name: CoPath（共同創業者マッチング）, url: "https://copath.jp/", shot: media/showcase/copath-jp.webp }
+  - { group: service, name: まちのポケット, url: "https://machi-pocke.com/", shot: media/showcase/machi-pocke-com.webp }
+  - { group: service, name: Ikoi（ADHD向けタスク管理アプリ）, url: "https://ikoi.app/ja/", shot: media/showcase/ikoi-app-ja.webp }
+  - { group: service, name: tone, url: "https://tone-task.com/en", shot: media/showcase/tone-task-com-en.webp }
+  - { group: service, name: MissionTodo, url: "https://missiontodo.bpmjapan.co.jp/", shot: media/showcase/missiontodo-bpmjapan-co-jp.webp }
+  - { group: service, name: Snapair, url: "https://snapairapp.studio.site/", shot: media/showcase/snapairapp-studio-site.webp }
+  - { group: service, name: ともだね, url: "https://tomodane.com/", shot: media/showcase/tomodane-com.webp }
+  - { group: service, name: nanka.ai, url: "https://nanka.ai/", shot: media/showcase/nanka-ai.webp }
+  - { group: service, name: BizAI-Evo, url: "https://bizai-evo.com/", shot: media/showcase/bizai-evo-com.webp }
+  - { group: service, name: wmoto-ai, url: "https://www.wmoto-ai.com/", shot: media/showcase/wmoto-ai-com.webp }
   - { group: ec, name: sisiri online store, url: "https://sisiri-online.com/", shot: media/showcase/sisiri-online-com.webp }
   - { group: ec, name: プレヴナン オンラインショップ, url: "https://prevenant-shop.myshopify.com/", shot: media/showcase/prevenant-shop-myshopify-com.webp }
+  - { group: ec, name: フラノデリス オンラインショップ, url: "https://www.le-nord.com/", shot: media/showcase/le-nord-com.webp }
   - { group: media, name: シェアあだち, url: "https://share-adachi.com/", shot: media/showcase/share-adachi-com.webp }
   - { group: media, name: なだらぶ, url: "https://nadalove.com/", shot: media/showcase/nadalove-com.webp }
   - { group: media, name: 戸塚であそぼ！, url: "https://totsukadeasobo.com/", shot: media/showcase/totsukadeasobo-com.webp }
@@ -713,3 +753,5 @@ showcase:
   - { group: media, name: いずみごこち, url: "https://izumi-media.osaka.jp/", shot: media/showcase/izumi-media-osaka-jp.webp }
   - { group: media, name: 流山 暮らしガイド, url: "https://www.nagareyama.link/", shot: media/showcase/nagareyama-link.webp }
   - { group: media, name: はまこれ横浜, url: "https://hamakore.yokohama/", shot: media/showcase/hamakore-yokohama.webp }
+  - { group: media, name: KAMAKULANI（カマクラニ）, url: "https://www.kamakulani.com/", shot: media/showcase/kamakulani-com.webp }
+  - { group: media, name: 湘南ひとまち, url: "https://kamakura-hitohako.com/", shot: media/showcase/kamakura-hitohako-com.webp }

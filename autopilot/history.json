@@ -155,5 +155,25 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.33
+  },
+  {
+    "date": "2026-11-17 09:00",
+    "pillar": "ai-software",
+    "written_at": "2026-11-14T23:54:54.210Z",
+    "slug": "rag-retrieval-eval-recall-mrr",
+    "title": "評価用の質問セットでRAGの検索精度を測る：Recall@kとMRRをPythonで実装",
+    "service": "ai-chatbot",
+    "status": "scheduled",
+    "fact_check_warnings": 2,
+    "file": "articles/rag-retrieval-eval-recall-mrr.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 20,
+      "output_tokens": 14442,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 66706,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.31
   }
 ]

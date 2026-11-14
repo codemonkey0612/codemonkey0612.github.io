@@ -91,5 +91,23 @@
       "web_search_requests": 5
     },
     "cost_usd": 0.47
+  },
+  {
+    "date": "2026-11-16 09:00",
+    "zenn": "articles/replace-phone-sheets-status-screen.md",
+    "written_at": "2026-11-14T00:21:19.110Z",
+    "title": "PostgreSQLとFastAPIで作る、状態遷移を守る更新APIと履歴テーブル",
+    "file": "qiita/replace-phone-sheets-status-screen.md",
+    "status": "scheduled",
+    "fact_check_warnings": 0,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 28,
+      "output_tokens": 15846,
+      "cache_read_input_tokens": 21147,
+      "cache_creation_input_tokens": 76137,
+      "web_search_requests": 1
+    },
+    "cost_usd": 0.36
   }
 ]

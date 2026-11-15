@@ -129,5 +129,23 @@
       "web_search_requests": 1
     },
     "cost_usd": 0.33
+  },
+  {
+    "date": "2026-11-18 09:00",
+    "zenn": "articles/generative-ai-estimate-five-questions.md",
+    "written_at": "2026-11-15T23:24:20.644Z",
+    "title": "RAGの「分からない」と参照元を自動検証するPython評価スクリプトの作り方",
+    "file": "qiita/generative-ai-estimate-five-questions.md",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 18,
+      "output_tokens": 10627,
+      "cache_read_input_tokens": 14897,
+      "cache_creation_input_tokens": 52394,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.24
   }
 ]

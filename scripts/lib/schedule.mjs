@@ -5,6 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import YAML from "yaml";
 
 export const PUBLISH_TIME = "09:00";
 const JST_MS = 9 * 60 * 60 * 1000;
@@ -45,12 +46,26 @@ export function zennArticles(root) {
     .sort((a, b) => (a.at?.getTime() ?? Infinity) - (b.at?.getTime() ?? Infinity) || a.slug.localeCompare(b.slug));
 }
 
-/** The first day after today (Japan time) with no article scheduled, as "YYYY-MM-DD 09:00". */
-export function nextFreeSlot(root, now = new Date()) {
+/** autopilot.yml `zenn.every_days`: one Zenn article every this many mornings (default 1, daily). */
+export function zennEvery(root) {
+  const file = path.join(root, "autopilot.yml");
+  const n = fs.existsSync(file) ? YAML.parse(fs.readFileSync(file, "utf8"))?.zenn?.every_days : null;
+  return Number.isInteger(n) && n >= 1 ? n : 1;
+}
+
+/** Is `day` ("YYYY-MM-DD") free, with no article in `taken` within `every` − 1 days of it? */
+export function dayIsFree(day, taken, every = 1) {
+  const t = Date.parse(`${day}T00:00:00Z`);
+  for (let k = 1 - every; k < every; k++) if (taken.has(new Date(t + k * 86_400_000).toISOString().slice(0, 10))) return false;
+  return true;
+}
+
+/** The first free day after today (Japan time), as "YYYY-MM-DD 09:00" (see dayIsFree). */
+export function nextFreeSlot(root, now = new Date(), every = zennEvery(root)) {
   const taken = new Set(zennArticles(root).filter((a) => a.at).map((a) => jstDay(a.at)));
   for (let d = 1; d < 3660; d++) {
     const day = jstDay(new Date(now.getTime() + d * 86_400_000));
-    if (!taken.has(day)) return `${day} ${PUBLISH_TIME}`;
+    if (dayIsFree(day, taken, every)) return `${day} ${PUBLISH_TIME}`;
   }
   throw new Error("no free day found");
 }

@@ -40,6 +40,9 @@ test("a new article gets the next morning with no post", () => {
   });
   assert.equal(nextFreeSlot(dir, jst("2026-11-09T22:00")), "2026-11-11 09:00");
   assert.equal(nextFreeSlot(dir, jst("2026-11-12T10:00")), "2026-11-13 09:00");
+  assert.equal(nextFreeSlot(dir, jst("2026-11-09T22:00"), 2), "2026-11-14 09:00", "every_days 2: not next to the 10th or the 12th");
+  fs.writeFileSync(path.join(dir, "autopilot.yml"), "zenn:\n  every_days: 2\n");
+  assert.equal(nextFreeSlot(dir, jst("2026-11-09T22:00")), "2026-11-14 09:00", "read from autopilot.yml");
 });
 
 test("Zenn-only Markdown becomes Qiita and note Markdown", () => {

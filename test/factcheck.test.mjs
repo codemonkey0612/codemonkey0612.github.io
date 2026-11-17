@@ -173,6 +173,13 @@ test("severity: wrong or unsourced numbers block, verified ones pass", () => {
   assert.equal(severity({ ...finding, claim_type: "title_overclaim", verdict: "unsupported" }), "error");
 });
 
+test("severity: a number the article computes itself needs no source, but must be right", () => {
+  const computed = { ...finding, claim_type: "computed", source_in_article: false };
+  assert.equal(severity({ ...computed, verdict: "supported" }), "ok");
+  assert.equal(severity({ ...computed, verdict: "contradicted" }), "error");
+  assert.equal(severity({ ...computed, verdict: "unsupported" }), "warning");
+});
+
 test("renderReport lists problems first and counts them", () => {
   const ok = { ...finding, quote: "OK claim", verdict: "supported", source_in_article: true };
   const r = renderReport({

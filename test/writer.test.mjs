@@ -42,9 +42,72 @@ const zenn = (at) => `---\ntitle: 既存\nemoji: "🤖"\ntype: tech\ntopics: [ai
 
 test("the writer fills open mornings at least an hour ahead, and counts ones waiting for review", () => {
   const dir = repo({ "articles/existing-article.md": zenn("2026-11-11 09:00") });
-  assert.deepEqual(openSlots(dir, jst("2026-11-10T06:00"), 2, []), ["2026-11-10 09:00"], "today still counts at 06:00; the 11th is taken");
-  assert.deepEqual(openSlots(dir, jst("2026-11-10T08:30"), 2, []), ["2026-11-12 09:00"], "too late for today");
-  assert.deepEqual(openSlots(dir, jst("2026-11-10T06:00"), 2, [{ status: "in review", date: "2026-11-10 09:00" }]), []);
+  assert.deepEqual(openSlots(dir, jst("2026-11-10T06:00"), 2, { history: [] }), ["2026-11-10 09:00"], "today still counts at 06:00; the 11th is taken");
+  assert.deepEqual(openSlots(dir, jst("2026-11-10T08:30"), 2, { history: [] }), ["2026-11-12 09:00"], "too late for today");
+  assert.deepEqual(openSlots(dir, jst("2026-11-10T06:00"), 2, { history: [{ status: "in review", date: "2026-11-10 09:00" }] }), []);
+});
+
+test("every_days 2: a morning is open only when no article is on the day before or after it", () => {
+  const dir = repo({ "articles/existing-article.md": zenn("2026-11-11 09:00") });
+  const slots = (at, days) => openSlots(dir, jst(at), days, { history: [], every: 2 });
+  assert.deepEqual(slots("2026-11-10T06:00", 2), [], "the 10th and 12th are next to the 11th");
+  assert.deepEqual(slots("2026-11-12T06:00", 2), ["2026-11-13 09:00"]);
+  assert.deepEqual(slots("2026-11-12T06:00", 5), ["2026-11-13 09:00", "2026-11-15 09:00"], "and not next to each other");
+});
+
+// ---------- requeue_missing: an article Zenn never took is sent again ----------
+
+const qiitaFailed = `---\ntitle: Q\ntags: [Python]\nprivate: false\nignorePublish: true\nzenn: articles/missed-on-zenn.md\nstatus: failed\n---\n本文\n`;
+const requeueConfig = { ...config, max_per_run: 1, zenn: { every_days: 2, requeue_missing: true } };
+
+test("requeue: an article Zenn never took gets the next open morning instead of a new article", async () => {
+  const dir = repo({
+    "articles/missed-on-zenn.md": zenn("2026-11-14 09:00"),
+    "articles/live-on-zenn.md": zenn("2026-11-13 09:00"),
+    "articles/held-by-zenn.md": zenn("2026-11-15 09:00"),
+    "qiita/missed-on-zenn.md": qiitaFailed,
+  });
+  const asked = [];
+  const status = { "missed-on-zenn": 404, "live-on-zenn": 200, "held-by-zenn": 403 };
+  const zennStatus = async (slug) => (asked.push(slug), status[slug]);
+  const { steps, calls } = fakeSteps({ checks: [report()] });
+  const results = await autowrite({ root: dir, profile, config: requeueConfig, now: jst("2026-11-17T06:00"), steps, textlint: () => [], zennStatus });
+  assert.deepEqual(results.map((r) => [r.status, r.slug, r.date, r.from]), [["requeued", "missed-on-zenn", "2026-11-17 09:00", "2026-11-14 09:00"]]);
+  assert.deepEqual(calls, [], "no Claude calls: nothing new is written");
+  assert.deepEqual(matter(fs.readFileSync(path.join(dir, "articles/missed-on-zenn.md"), "utf8")).data.published_at, "2026-11-17 09:00");
+  assert.match(fs.readFileSync(path.join(dir, "articles/missed-on-zenn.md"), "utf8"), /^title: 既存\nemoji: "🤖"/m, "the rest of the front matter is kept as it was");
+  assert.equal(fs.existsSync(path.join(dir, "qiita/missed-on-zenn.md")), false, "its failed Qiita article is written again");
+  assert.equal(matter(fs.readFileSync(path.join(dir, "articles/held-by-zenn.md"), "utf8")).data.published_at, "2026-11-15 09:00", "a 403 is left alone");
+  assert.deepEqual(asked, ["live-on-zenn", "missed-on-zenn"], "oldest first, stopping at the first one sent again");
+});
+
+test("requeue: sent once; if Zenn still doesn't take it, it's reported once and then left alone", async () => {
+  const dir = repo({ "articles/missed-on-zenn.md": zenn("2026-11-17 09:00") });
+  fs.mkdirSync(path.join(dir, "autopilot"));
+  fs.writeFileSync(path.join(dir, "autopilot/history.json"), JSON.stringify([{ slug: "missed-on-zenn", status: "requeued", date: "2026-11-17 09:00", from: "2026-11-14 09:00" }]));
+  const zennStatus = async () => 404;
+  const { steps } = fakeSteps({ checks: [report()] });
+  const run = (at) => autowrite({ root: dir, profile, config: requeueConfig, now: jst(at), steps, textlint: () => [], zennStatus });
+  const first = await run("2026-11-18T06:00");
+  assert.equal(first[0].status, "missing");
+  assert.match(first[0].problems[0], /zenn\.dev\/dashboard\/deploys/);
+  assert.equal(first[1].status, "scheduled", "and a new article is written for the open morning");
+  assert.equal(first[1].date, "2026-11-19 09:00");
+  assert.equal(matter(fs.readFileSync(path.join(dir, "articles/missed-on-zenn.md"), "utf8")).data.published_at, "2026-11-17 09:00", "not moved again");
+  const again = await run("2026-11-20T06:00");
+  assert.ok(!again.some((r) => r.status === "missing"), "reported only once");
+});
+
+test("requeue is off by default, and a Zenn that can't be reached sends nothing again", async () => {
+  const dir = repo({ "articles/missed-on-zenn.md": zenn("2026-11-14 09:00") });
+  const { steps } = fakeSteps({ checks: [report()] });
+  let asked = 0;
+  const off = await autowrite({ root: dir, profile, config: { ...config, max_per_run: 1 }, now: jst("2026-11-17T06:00"), steps, textlint: () => [], zennStatus: async () => (asked++, 404) });
+  assert.equal(asked, 0);
+  assert.equal(off[0].status, "scheduled");
+  const dir2 = repo({ "articles/missed-on-zenn.md": zenn("2026-11-14 09:00") });
+  const down = await autowrite({ root: dir2, profile, config: requeueConfig, now: jst("2026-11-17T06:00"), steps, textlint: () => [], zennStatus: async () => null });
+  assert.deepEqual(down.map((r) => r.status), ["scheduled"]);
 });
 
 test("pillars rotate by weight", () => {

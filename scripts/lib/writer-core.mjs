@@ -11,7 +11,7 @@ import { z } from "zod";
 import { addUsage, costUsd, emptyUsage, PRICES, runSubmitTask } from "./claude-run.mjs";
 import { factcheck, severity } from "./factcheck-core.mjs";
 import { careerYears } from "./site-core.mjs";
-import { jstDay, PUBLISH_TIME, publishedAt, zennArticles } from "./schedule.mjs";
+import { dayIsFree, jstDay, PUBLISH_TIME, publishedAt, zennArticles } from "./schedule.mjs";
 import { validateArticle } from "./validate-core.mjs";
 
 export class WriterError extends Error {}
@@ -41,7 +41,22 @@ const Config = z.object({
       budget_usd_per_day: z.number().positive().optional(),
     })
     .default({}),
+  zenn: z
+    .object({
+      every_days: z.number().int().min(1).max(7).optional(),
+      requeue_missing: z.boolean().optional(),
+    })
+    .default({}),
 });
+
+/**
+ * Pacing for Zenn's per-account posting limit (autopilot.yml `zenn:`): a Zenn article every
+ * `every` mornings, and whether an article Zenn never took is sent again (see requeueMissing).
+ */
+export function zennSettings(config) {
+  const c = config.zenn ?? {};
+  return { every: c.every_days ?? 1, requeue: c.requeue_missing ?? false };
+}
 
 /**
  * How Claude is used (autopilot.yml `claude:`). Defaults keep a day's writing near $1: Claude
@@ -86,23 +101,83 @@ function appendHistory(root, entry) {
 /**
  * Mornings (09:00 JST) in the next `daysAhead` days that have no article yet, counting one
  * waiting in a pull request (review mode) as taken. A morning counts while it's ≥ 60 min away.
+ * With `every` > 1, a morning is open only when no article is within `every` − 1 days of it.
  */
-export function openSlots(root, now, daysAhead, history = readHistory(root)) {
+export function openSlots(root, now, daysAhead, { history = readHistory(root), every = 1 } = {}) {
   const taken = new Set(zennArticles(root).filter((a) => a.at).map((a) => jstDay(a.at)));
   for (const h of history) if (h.status === "in review" && publishedAt(h.date)) taken.add(jstDay(publishedAt(h.date)));
   const first = publishedAt(`${jstDay(now)} ${PUBLISH_TIME}`) - now >= 60 * 60 * 1000 ? 0 : 1;
   const slots = [];
   for (let d = first; d < first + daysAhead; d++) {
     const day = jstDay(new Date(now.getTime() + d * 86_400_000));
-    if (!taken.has(day)) slots.push(`${day} ${PUBLISH_TIME}`);
+    if (dayIsFree(day, taken, every)) {
+      slots.push(`${day} ${PUBLISH_TIME}`);
+      taken.add(day);
+    }
   }
   return slots;
+}
+
+/** The HTTP status of an article's page on Zenn, or null when Zenn couldn't be reached. */
+export const zennPageStatus = (profile, fetchImpl = globalThis.fetch) => async (slug) => {
+  const user = profile.platforms?.zenn;
+  if (!user) return null;
+  try {
+    const res = await fetchImpl(`https://zenn.dev/${user}/articles/${slug}`, { redirect: "manual", signal: AbortSignal.timeout(15_000) });
+    return res.status;
+  } catch {
+    return null;
+  }
+};
+
+const MISSING_AFTER_MS = 60 * 60 * 1000;
+const MISSING_WITHIN_MS = 14 * 86_400_000;
+
+/**
+ * `requeue_missing`: finds an article Zenn never took (published, its morning 1 hour to 14 days
+ * ago, and its Zenn page still 404; a 403 means Zenn holds it, and it's left alone) and gives it
+ * `slot` as its new published_at. Zenn imports a file only when it changes, so the next push
+ * sends it again. A failed Qiita article for it is removed, so a new one is written for the new
+ * morning. Each article is sent again once: if Zenn still doesn't have it after that, it's
+ * reported (status "missing", which fails the run) and then left alone.
+ * Returns { requeued, entries } (the history entries it added).
+ */
+export async function requeueMissing({ root, now, slot, zennStatus, log = () => {} }) {
+  const history = readHistory(root);
+  const had = (slug, status) => history.some((h) => h.slug === slug && h.status === status);
+  const entries = [];
+  const candidates = zennArticles(root).filter(
+    (a) => a.data.published === true && a.at && now - a.at >= MISSING_AFTER_MS && now - a.at <= MISSING_WITHIN_MS && !had(a.slug, "missing"),
+  );
+  for (const a of candidates) {
+    if ((await zennStatus(a.slug)) !== 404) continue;
+    const from = String(a.data.published_at);
+    const base = { slug: a.slug, title: a.data.title, file: path.relative(root, a.file), written_at: now.toISOString(), cost_usd: 0 };
+    if (had(a.slug, "requeued")) {
+      const entry = { ...base, date: from, status: "missing", problems: [`Zenn still doesn't have it after it was sent again (its page is 404): see the error at https://zenn.dev/dashboard/deploys. It isn't sent a third time.`] };
+      appendHistory(root, entry);
+      entries.push(entry);
+      log(`autowrite: Zenn still doesn't have 「${a.data.title}」; leaving it alone`);
+      continue;
+    }
+    const raw = fs.readFileSync(a.file, "utf8");
+    fs.writeFileSync(a.file, raw.replace(/^(---\r?\n[\s\S]*?)^published_at:.*$/m, `$1published_at: ${slot}`));
+    const qiita = path.join(root, QIITA_DIR, `${a.slug}.md`);
+    if (fs.existsSync(qiita) && matter(fs.readFileSync(qiita, "utf8")).data.status === "failed") fs.rmSync(qiita);
+    const entry = { ...base, date: slot, from, status: "requeued" };
+    appendHistory(root, entry);
+    entries.push(entry);
+    log(`autowrite: Zenn never took 「${a.data.title}」 (${from}); sending it again for ${slot}`);
+    return { requeued: true, entries };
+  }
+  return { requeued: false, entries };
 }
 
 /** The pillar furthest behind its share over recent posts (weights from autopilot.yml). */
 export function pickPillar(config, history) {
   const total = config.pillars.reduce((n, p) => n + p.weight, 0);
-  const recent = history.filter((h) => h.status !== "failed").slice(-Math.ceil(total * 2));
+  // Re-sent articles (requeueMissing) have no pillar of their own: their first entry counts.
+  const recent = history.filter((h) => h.status !== "failed" && h.pillar).slice(-Math.ceil(total * 2));
   const count = (id) => recent.filter((h) => h.pillar === id).length;
   let best = config.pillars[0];
   let bestScore = -Infinity;
@@ -380,12 +455,22 @@ async function check({ root, file, profile, steps, textlint }) {
  * draft (published: false, no date) with the remaining problems at the top, so the morning
  * stays open for the next run.
  */
-export async function autowrite({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, ideas = "", log = () => {} }) {
+export async function autowrite({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, ideas = "", log = () => {}, zennStatus = zennPageStatus(profile) }) {
   const author = authorContext(profile);
   const today = jstDay(now);
   const { model, fixRounds, budget } = claudeSettings(config);
+  const { every, requeue } = zennSettings(config);
+  // At most one article is sent again per run, and only in auto mode (in review mode the moved
+  // date would wait in a pull request while the next run saw the morning as still open).
+  let requeueTried = !requeue || config.mode !== "auto";
   const results = [];
-  for (const slot of openSlots(root, now, config.days_ahead).slice(0, config.max_per_run)) {
+  for (const slot of openSlots(root, now, config.days_ahead, { every }).slice(0, config.max_per_run)) {
+    if (!requeueTried) {
+      requeueTried = true;
+      const r = await requeueMissing({ root, now, slot, zennStatus, log });
+      results.push(...r.entries);
+      if (r.requeued) continue;
+    }
     if (spentToday(root, now) >= budget) {
       log(`autowrite: today's budget ($${budget}) is used up; ${slot} is written on the next run`);
       break;

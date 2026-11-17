@@ -8,7 +8,7 @@ export { echoableContent, MODEL };
 export const EFFORT = process.env.FACTCHECK_EFFORT || "high";
 export const MAX_SEARCHES = Number(process.env.FACTCHECK_MAX_SEARCHES || 15);
 
-const CLAIM_TYPES = ["statistic", "study_or_survey", "date_or_event", "attribution", "technical", "self_claim", "title_overclaim"];
+const CLAIM_TYPES = ["statistic", "computed", "study_or_survey", "date_or_event", "attribution", "technical", "self_claim", "title_overclaim"];
 const VERDICTS = ["supported", "contradicted", "unsupported", "unverifiable"];
 
 const Finding = z.object({
@@ -57,7 +57,8 @@ const REPORT_TOOL = {
 const SYSTEM = `You fact-check blog articles before they are published. The author is a freelance engineer whose articles also market their services, so a wrong number, a misread survey or misleading technical advice costs them credibility with the clients they want to reach.
 
 Find every claim a reader could check or act on, and classify it:
-- statistic: numbers, percentages, prices, durations, counts.
+- statistic: numbers, percentages, prices, durations, counts taken from outside the article.
+- computed: a number the article works out itself: the output of its own code example, or arithmetic on figures it states (a total, a ratio, a score from its sample data). Check it by recalculating or by tracing the code, not by searching; it needs no source. A figure from outside (a benchmark, a price, a survey result) stays a statistic, even when the article does arithmetic with it.
 - study_or_survey: a named study, survey, report or paper. Check that it says what the article says: what was measured, who was surveyed, how many, when, and who sponsored it.
 - date_or_event: dates, releases, incidents, court cases.
 - attribution: quotes, sayings or proverbs credited to a person, group or work.
@@ -65,7 +66,7 @@ Find every claim a reader could check or act on, and classify it:
 - self_claim: what the author says about themselves (years of experience, location, history, past work). Judge these against the author profile, not the web.
 - title_overclaim: the title or a heading claims more than the body or its source supports (e.g. "stops" when the study says "slows").
 
-Use web search to verify every type except self_claim, preferring primary sources: the original survey or paper, official documentation, the court ruling. For each claim, record whether the article itself links a source for it.
+Use web search to verify every type except self_claim and computed, preferring primary sources: the original survey or paper, official documentation, the court ruling. For each claim, record whether the article itself links a source for it.
 
 Verdicts: supported (a reliable source confirms it as written), contradicted (a reliable source says otherwise, or the article misstates its own source), unsupported (you found no support; it may still be true), unverifiable (private experience that can't be checked). Leave out pure opinion and facts that are common knowledge for the article's audience. Ignore style.
 

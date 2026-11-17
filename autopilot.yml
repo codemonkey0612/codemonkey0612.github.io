@@ -34,6 +34,18 @@ bluesky: auto         # auto: announce each new article on Bluesky once it's liv
                       # opening, your service page, a link card) | off: no Bluesky posts. Needs
                       # platforms.bluesky in profile.yml and the BLUESKY_APP_PASSWORD secret.
 
+# Zenn limits how many articles each account may post in a period (it doesn't publish the
+# numbers). The articles for 2026-11-14, 11-16 and 11-17 never reached Zenn (their pages 404).
+# Both on since 2026-11-17.
+zenn:
+  every_days: 2           # a Zenn article every this many mornings: 2 = every other morning. note,
+                          # Qiita and Bluesky follow, since each goes with a Zenn article.
+  requeue_missing: true   # true: an article Zenn never took (page still 404 an hour after its
+                          # morning) gets the next open morning instead of a new article, one per
+                          # run. Zenn imports a file only when it changes, so the moved date sends
+                          # it again. If Zenn still doesn't take it, the run fails and it's left
+                          # alone. Pages that are 403 (Zenn holds them) are never touched.
+
 # What to write about. The writer rotates through these by weight, so over two weeks roughly
 # 3 in 8 posts are about small-business problems, 3 in 8 about AI and software work and 2 in 8
 # about recent technology news.

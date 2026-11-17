@@ -9,18 +9,8 @@ tags:
 private: false
 ignorePublish: true
 zenn: articles/rag-retrieval-eval-recall-mrr.md
-status: failed
+published_at: 2026-11-17 09:00
 ---
-
-<!-- autopilot: not posted to Qiita, these checks still failed:
-- textlint (line 22): 箇条書き: "である"調 でなければなりません
-=> "である"調 であるべき箇所に、次の "ですます"調 の箇所があります: "ます。"
-Total:
-である  : 1
-ですます: 1
-
-- fact-check (computed, contradicted): 「私の手元では9件すべて通りました（越境検査6件、自テナント検査3件）。」 — 越境検査は TENANTS（2件）×QUESTIONS（3件）で6件、自テナント検査は3件なので合計9件になります。件数は正しいです。一方、通るかどうかを追うと、q1（tenant_a）の自テナント検査は a-leave が1件ヒットし、通ります。q2、q3も同様に通ります。結果として9件通ります。矛盾は見つかりませんでした。
--->
 
 ## 解決したい問題
 
@@ -30,7 +20,7 @@ Total:
 
 ## 前提
 
-- Python 3.9以上（型ヒントに `list[Hit]` を使います。標準のコレクションをジェネリクスとして使える仕様は、[Python 3.9 typing ドキュメント](https://docs.python.org/3.9/library/typing.html)にあるPEP 585で導入されました）
+- Python 3.9以上（型ヒントに `list[Hit]` を使うため。標準のコレクションをジェネリクスとして使える仕様は、[Python 3.9 typing ドキュメント](https://docs.python.org/3.9/library/typing.html)にあるPEP 585で導入された）
 - pytest
 - 検索関数が `search(tenant_id, question, top_n)` の形で呼べること
 
@@ -125,7 +115,7 @@ def test_own_tenant_recall_at_3(q):
 python -m pytest -q
 ```
 
-私の手元では9件すべて通りました（越境検査6件、自テナント検査3件）。
+このサンプルでは9件すべてが通ります（越境検査6件、自テナント検査3件）。
 
 次に、検査が本当に効くかを確かめます。`retriever.py` の `if d["tenant_id"] != tenant_id:` の2行をコメントアウトして再実行してください。越境検査が落ち、漏れた文書IDがメッセージに出れば成功です。落ちないテストは、通っていても安心材料になりません。
 

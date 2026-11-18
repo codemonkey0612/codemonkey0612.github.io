@@ -253,5 +253,49 @@
     "problems": [
       "withdrawn on 2026-11-18: it told the case with details the profile does not give (invented experience); rewritten under the stricter fact-check rule"
     ]
+  },
+  {
+    "date": "2026-11-19 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-18T19:13:48.221Z",
+    "zenn": true,
+    "slug": "production-progress-dashboard-case",
+    "title": "生産管理の「進捗を聞いて回る」をやめて、進捗確認を約60%短縮した話",
+    "service": "system",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "file": "articles/production-progress-dashboard-case.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 20,
+      "output_tokens": 11776,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 69185,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.29
+  },
+  {
+    "date": "2026-11-20 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-18T19:13:48.221Z",
+    "zenn": false,
+    "slug": "webrtc-live-streaming-ops-reduction",
+    "title": "ライブ配信の運営作業を約50%削減した話：WebRTC配信で最初に決めた4つのこと",
+    "service": "system",
+    "status": "failed",
+    "problems": [
+      "fact-check (title_overclaim, contradicted): 「ライブ配信の運営作業を約50%削減した話：WebRTC配信で最初に決めた4つのこと」 — タイトルは「最初に決めた4つ」と案件で実際に決めたように読めますが、本文では4つの分割は実際に決めたことではなく、50%削減との因果も述べていないとしています。 Fix: 「ライブ配信の運営作業を約50%削減した案件から考える、WebRTC配信で最初に決めたい4つの分割」のように、助言であることが分かる題にする。"
+    ],
+    "file": "off-zenn/webrtc-live-streaming-ops-reduction.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 28,
+      "output_tokens": 18792,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 97155,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.43
   }
 ]

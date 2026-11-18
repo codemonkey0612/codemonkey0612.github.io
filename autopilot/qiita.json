@@ -210,5 +210,23 @@
     "problems": [
       "withdrawn on 2026-11-18: it told the case with details the profile does not give (invented experience); rewritten under the stricter fact-check rule"
     ]
+  },
+  {
+    "date": "2026-11-19 09:00",
+    "zenn": "articles/production-progress-dashboard-case.md",
+    "written_at": "2026-11-18T19:13:48.221Z",
+    "title": "工程ステータスの「古い画面からの上書き」をMySQLの楽観ロックと遷移表で防ぐ",
+    "file": "qiita/production-progress-dashboard-case.md",
+    "status": "scheduled",
+    "fact_check_warnings": 0,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 24,
+      "output_tokens": 14891,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 80244,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.35
   }
 ]

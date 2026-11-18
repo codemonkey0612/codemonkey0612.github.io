@@ -297,5 +297,38 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.43
+  },
+  {
+    "date": "2026-11-19 09:00",
+    "slug": "production-progress-dashboard-case",
+    "title": "生産管理の「進捗を聞いて回る」をやめて、進捗確認を約60%短縮した話",
+    "file": "off-zenn/production-progress-dashboard-case.md",
+    "written_at": "2026-11-18T21:14:07.762Z",
+    "status": "zenn refused",
+    "cost_usd": 0
+  },
+  {
+    "date": "2026-11-20 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-18T21:14:07.762Z",
+    "zenn": false,
+    "slug": "internal-search-elasticsearch-60-percent",
+    "title": "社内の情報検索時間を約60%短縮した話：Elasticsearch導入で最初に決めた3つのこと",
+    "service": "ai-chatbot",
+    "status": "failed",
+    "problems": [
+      "fact-check (self_claim, unsupported): 「この順で進めた案件では、検索時間を約60%（測定方法は非公開）削減し、担当者への問い合わせも減らせました。」 — 「この順で進めた」という進め方（取り込み→権限→検索条件の順に決めた）はプロフィールに記載がない。プロフィールにあるのは実施内容と結果のみ。 Fix: 「この3点を、私なら最初に決めます。同種の案件では検索時間を約60%（測定方法は非公開）削減できました。」のように順序の主張を外す。",
+      "fact-check (self_claim, unsupported): 「この記事は、その案件で私が最初に決めた「取り込み」「権限」「検索条件とデータ構造」の3点を整理したものです。」 — 「最初に決めた」という時系列・意思決定の経緯はプロフィールに記載がない。実施内容として3点を実装したことのみ裏付けられる。タイトルの「最初に決めた3つのこと」も同様。 Fix: 「その案件で取り組んだ3点を、私なら最初に決める順で整理しました」のように言い換える。"
+    ],
+    "file": "off-zenn/internal-search-elasticsearch-60-percent.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 28,
+      "output_tokens": 21596,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 100552,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.47
   }
 ]

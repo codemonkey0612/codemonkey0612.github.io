@@ -195,5 +195,15 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.26
+  },
+  {
+    "slug": "rag-abstain-insufficient-evidence",
+    "title": "RAGの回答を「分からない」で止める：根拠不足の判定をPythonで実装する",
+    "file": "articles/rag-abstain-insufficient-evidence.md",
+    "written_at": "2026-11-18T01:36:57.061Z",
+    "cost_usd": 0,
+    "date": "2026-11-20 09:00",
+    "from": "2026-11-14 09:00",
+    "status": "requeued"
   }
 ]

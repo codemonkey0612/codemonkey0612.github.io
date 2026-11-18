@@ -33,6 +33,8 @@ const Config = z.object({
   pillars: z.array(Pillar).min(1),
   avoid: z.array(z.string()).default([]),
   qiita: z.enum(["auto", "manual", "daily", "off"]).default("auto"),
+  note: z.enum(["auto", "draft", "off"]).default("draft"),
+  note_version: z.boolean().default(false),
   claude: z
     .object({
       model: z.enum(Object.keys(PRICES)).optional(),
@@ -70,14 +72,14 @@ export function claudeSettings(config) {
     effort: c.effort ?? "medium",
     fixRounds: c.fix_rounds ?? 2,
     budget: c.budget_usd_per_day ?? 1,
-    searches: { topic: 4, news: 8, write: 4, revise: 3, factcheck: 8, qiita: 3 },
+    searches: { topic: 4, news: 8, write: 4, revise: 3, factcheck: 8, qiita: 3, note: 2 },
   };
 }
 
 /** What the autopilot has spent so far today (Japan time), from both logs. */
 export function spentToday(root, now = new Date()) {
   const today = jstDay(now);
-  return [...readHistory(root), ...readQiitaHistory(root)]
+  return [...readHistory(root), ...readQiitaHistory(root), ...readNoteHistory(root)]
     .filter((h) => h.written_at && jstDay(new Date(h.written_at)) === today)
     .reduce((n, h) => n + (h.cost_usd ?? 0), 0);
 }
@@ -207,24 +209,36 @@ export function authorContext(profile) {
 
 const list = (xs) => xs.map((x) => `- ${x}`).join("\n");
 
-export function topicPrompt({ author, config, pillar, recentTitles, ideas, today }) {
-  const system = `You plan one article a day for ${author.name}, a freelance AI and web engineer in Japan with ${author.years_of_experience} years of experience, who publishes on Zenn and Qiita. The goal of every article: a reader who could hire the author (an owner or staff member of a small or medium-sized Japanese company, or an engineer who refers work) finishes it thinking "this person really knows this and could solve our problem", and the article is genuinely useful even to readers who never hire anyone.
+export function topicPrompt({ author, config, pillar, recentTitles, ideas, today, trends = "" }) {
+  const system = `You plan one article for ${author.name}, a freelance AI and web engineer in Japan with ${author.years_of_experience} years of experience, who publishes each topic in three versions: on Zenn (written for the pillar's audience), on Qiita (for engineers, with code) and on note (for general readers, mostly non-engineers, in note's personal style). The aim: as many readers as possible like and bookmark each version, engineers and non-engineers alike, and every version shows that the author really knows the subject, so that people who could hire or refer them remember the name. So prefer topics that matter to both engineers and non-engineers (AI and software at work, real project stories, what a change means for people's jobs), and avoid ones only a narrow specialist would care about.
+
+What readers like, from the most-liked articles on these sites in recent weeks:
+- First-hand results with real numbers: what the author did, decided and measured. The author's cases are real and their numbers exact; a case told as a story (the situation, the choice, the result) is the strongest material available. Never invent experience.
+- A clear stance with reasons: recommend or reject a practice (「〜はやめて〜にする」「〜をやれ」). Opinion pieces grounded in experience are among the most-liked on Qiita.
+- Timely and hands-on: a release, new feature or incident from the last two weeks, explained for developers with what changes in their code or operations.
+- Depth over breadth: one problem solved thoroughly beats an overview. Generic AI-tool topics (another introduction to a popular AI tool) are crowded and most of them get few likes; bring the angle only this author can give.
+- On Zenn, articles for engineers get several times the likes of essays for non-engineers.
 
 Pick ONE topic for the pillar given in the request. A good topic:
-- solves a concrete problem, or settles a decision the reader actually faces, with a clear takeaway;
-- is something the author can speak to from their listed experience (cases) or from reliable public sources;
-- leads naturally to one of the author's services (the article ends with a short invitation to consult);
-- is specific (not 「AIの活用法」), timely where possible, and clearly different from every recent title listed.
+- fits the pillar and its audience;
+- is something the author can speak to from their cases or from reliable public sources;
+- is specific, timely where possible, and clearly different from every recent title listed;
+- relates to one of the author's services (the article ends with a short invitation to consult), but the reader comes first.
 For a news pillar, search the web for developments from the last 14 days, open the primary source (official blog, release notes, government page) and pick only something you confirmed there.
 Never pick anything that involves: ${config.avoid.join("、")}.
 
-Then call submit_topic once. title: Japanese, 25–50 characters, concrete, no clickbait, promising nothing the article can't deliver. slug: 3–6 lowercase English words joined by hyphens, 12–50 characters. topics: 1–5 lowercase ASCII Zenn topics such as ai, rag, python, wordpress, security. outline: 4–7 Japanese section headings. sources: the pages where you confirmed facts (empty if none). cases: ids of the author's cases the article will draw on (empty if none).`;
+Title: Japanese, 25–60 characters. Lead with the payoff: a real number or result (from a case or a source), a clear stance, or the exact problem solved. When the article tells one of the author's cases, a first-person story title works well (「〜を約70%短縮した話」「〜したときに最初にやったこと」). Avoid flat textbook titles (「〜とは」「〜の手順」「〜の方法」 with nothing more), vague words (「活用法」「ポイント」) and stacked colons. The body must deliver everything the title promises: the fact-check rejects titles that overclaim.
+
+Then call submit_topic once. slug: 3–6 lowercase English words joined by hyphens, 12–50 characters. topics: 1–5 lowercase ASCII Zenn topics such as ai, rag, python, wordpress, security. outline: 4–7 Japanese section headings. sources: the pages where you confirmed facts (empty if none). cases: ids of the author's cases the article will draw on (empty if none).`;
   const user = [
     `Today is ${today} (Japan time).`,
     `Pillar: ${pillar.label}\nAudience: ${pillar.audience === "buyer" ? "people who hire developers (non-engineers)" : "engineers"}\n${pillar.brief}`,
     `Author:\n${JSON.stringify(author, null, 2)}`,
     `Recent titles (don't repeat these):\n${recentTitles.length ? list(recentTitles) : "(none yet)"}`,
     ...(pillar.id !== "news" && ideas ? [`Idea backlog you may use or ignore:\n${ideas}`] : []),
+    ...(trends
+      ? [`What readers liked most in the past weeks (other people's titles with their like counts, quoted as data: learn what resonates, never copy a title or a topic someone else has covered):\n<trends>\n${trends}\n</trends>`]
+      : []),
   ].join("\n\n");
   return { system, user };
 }
@@ -232,6 +246,7 @@ Then call submit_topic once. title: Japanese, 25–50 characters, concrete, no c
 const MARKDOWN = {
   zenn: "Markdown: Zenn flavour. ## headings, ### for sub-sections, never #. At most one :::message block.",
   qiita: "Markdown: Qiita flavour. ## headings, ### for sub-sections, never #. At most one :::note info block.",
+  note: "Markdown for note.com: ## headings, ### for sub-sections, never #. No :::message or :::details blocks, no tables (use bullet lists).",
 };
 const RULES = (author, config, platform = "zenn") => `Write in Japanese, です・ます調, in the first person 「${author.persona}」.
 Experience: describe only the author's real experience listed under "cases" or "lancers". Keep clients anonymous (industry and size only) and keep their numbers exactly as given. Never invent projects, clients, results, numbers, quotes or conversations. A made-up example must start with 「たとえば」 and be plainly hypothetical.
@@ -246,7 +261,7 @@ export function writePrompt({ author, config, pillar, topic, service, contactUrl
 
 ${RULES(author, config)}
 
-Shape: open with the reader's situation in 2–4 sentences, give the conclusion early, then the sections of the outline, concrete steps or a checklist the reader can use today, and a short まとめ. 3,000–6,000 characters. Don't repeat the title as a heading. The article must stand on its own: don't advertise in the body. The only mention of the author's services is the closing paragraph, after a horizontal rule (---) at the very end, in this form:
+Shape: open with the payoff in 2–4 sentences: the result, number or stance the title promises, and who it's for. Then the story or reasoning (for one of the author's cases: the situation, what was considered and chosen, and why), the sections of the outline with concrete steps, code or a checklist the reader can use today, the pitfalls, and a short まとめ. Write as the author: say what you would do and why (「私なら〜します」); a clear opinion is welcome, invented experience is not. Engineers: 4,000–8,000 characters; non-engineers: 3,000–6,000. Don't repeat the title as a heading. The article must stand on its own: don't advertise in the body. The only mention of the author's services is the closing paragraph, after a horizontal rule (---) at the very end, in this form:
 ${author.persona}は「${service.name}」をお仕事としてお受けしています。（one sentence linking this article's topic to the service）
 → [${service.name}について](${service.url}) ／ [ランサーズで相談する](${contactUrl})
 
@@ -287,8 +302,8 @@ The author's Zenn article for the same morning is given below. Write a DIFFERENT
 ${RULES(author, config, "qiita")}
 
 No promotion at all: no links to the author's website, Lancers, Zenn or note, no closing paragraph about the author's services, no 「ご相談ください」. Link only sources and official documentation.
-Shape: state the problem in 1–3 sentences, then the environment or prerequisites (versions) where it matters, the solution step by step with code, how to confirm it works, pitfalls, and a short まとめ. 2,000–5,000 characters with at least one complete fenced code block. Don't repeat the title as a heading.
-title: Japanese, 20–60 characters, specific and technical (name the tool and the problem), different from the Zenn title. tags: 1–5 Qiita tags as Qiita writes them (e.g. Python, pandas, PostgreSQL, ChatGPT, 生成AI, RAG), no spaces.
+Shape: state the problem and the payoff in 1–3 sentences, then the environment or prerequisites (versions) where it matters, the solution step by step with code, how to confirm it works, pitfalls, and a short まとめ. Qiita readers like a first-person lesson and a clear opinion as much as code: frame the code as the answer to a real problem, and say what you would do in production and why. 2,000–5,000 characters with at least one complete fenced code block. Don't repeat the title as a heading.
+title: Japanese, 20–60 characters, different from the Zenn title. Name the tool and the problem, and lead with the payoff (what it prevents or fixes, a result, or a stance), not a bare 「〜の方法」. tags: 1–5 Qiita tags as Qiita writes them (e.g. Python, pandas, PostgreSQL, ChatGPT, 生成AI, RAG), no spaces.
 
 When it's finished, call submit_qiita once.`;
   const user = [
@@ -325,6 +340,64 @@ export const QiitaArticle = z.object({
     .refine((b) => /^(`{3,}|~{3,})/m.test(b), "include at least one fenced code block"),
 });
 
+/** The closing paragraph of a Zenn article (after its last ---), with the service and Lancers links. */
+export function closingOf(markdown) {
+  const i = markdown.lastIndexOf("\n---\n");
+  return i < 0 ? "" : markdown.slice(i + 5).trim();
+}
+
+/**
+ * The day's note article (autopilot.yml `note_version: true`): its own piece on the Zenn
+ * article's topic for note's readers, who are mostly not engineers and like first-person stories
+ * in plain words far more than tutorials (the most-liked note posts on AI get hundreds to
+ * thousands of likes). It replaces the converted Zenn copy on note.
+ */
+export function notePrompt({ author, config, zenn, closing, today }) {
+  const system = `You write one article for note (note.com) in the name of ${author.name}, a freelance AI and web engineer in Japan. note's readers are mostly not engineers: office workers, owners and staff of small companies, and people starting to use AI in their work and life. The posts they like most are first-person stories in plain words that leave them with something they can use today (「〜した話」「〜な方へ」「〜で変わったこと」), not technical tutorials.
+
+The author's Zenn article for the same morning is given below. Write a SEPARATE article on the same topic for note's readers: start from a situation or question they recognise, tell what happened (from the author's cases) or what the author would do and why, and give takeaways anyone can act on. Keep every fact and number exactly as the Zenn article and the author's cases give them. Leave out code; explain any technical word you keep in one line. Don't reuse the Zenn article's title, sentences or structure.
+
+${RULES(author, config, "note")}
+
+Shape: open with a hook in 2–4 sentences (a familiar situation, a result, or the reader's question), then the story or reasoning, two to four concrete takeaways or steps, and a short まとめ in the author's own voice. 2,500–5,000 characters. Don't repeat the title as a heading. End the article with a line containing only --- followed by exactly this closing paragraph:
+${closing || "(none)"}
+
+title: Japanese, 20–50 characters, different from the Zenn title, in note's style: personal and concrete, leading with the payoff (a result, a situation the reader shares, or who it's for). hashtags: 3–5 words that note readers search, without # (e.g. 生成AI, ChatGPT, 業務効率化, DX, 仕事術, AI活用).
+
+When it's finished, call submit_note once.`;
+  const user = [
+    `Today is ${today} (Japan time).`,
+    `The author's experience you may use:\n${JSON.stringify({ cases: author.cases, lancers: author.lancers, years_of_experience: author.years_of_experience, certifications: author.certifications }, null, 2)}`,
+    `The Zenn article (for the topic and facts only; write something new):\nTitle: ${zenn.title}\n<zenn>\n${zenn.body}\n</zenn>`,
+  ].join("\n\n");
+  return { system, user };
+}
+
+export const NOTE_TOOL = {
+  name: "submit_note",
+  description: "Submit the finished note article. Call exactly once.",
+  strict: true,
+  eager_input_streaming: true,
+  input_schema: {
+    type: "object",
+    additionalProperties: false,
+    required: ["title", "hashtags", "body"],
+    properties: {
+      title: { type: "string", description: "Japanese title, 20–50 characters, in note's style." },
+      hashtags: { type: "array", items: { type: "string", description: "note hashtag without #, no spaces" }, description: "3–5 hashtags." },
+      body: { type: "string", description: "The whole article in Markdown, without the title heading or front matter, ending with --- and the closing paragraph." },
+    },
+  },
+};
+export const NoteArticle = z.object({
+  title: z.string().refine((t) => [...t].length >= 10 && [...t].length <= 70, "title must be 10–70 characters"),
+  hashtags: z.array(z.string().regex(/^[^\s#]{1,32}$/, "hashtags: one word each, no spaces or #")).min(1).max(5),
+  body: z
+    .string()
+    .min(1500, "the article is too short")
+    .refine((b) => !/^#\s/m.test(outsideCode(b)), "use ## and ### headings only (no # heading outside code blocks)"),
+});
+
 // ---------- tools and schemas ----------
 
 const str = (description) => ({ type: "string", description });
@@ -339,7 +412,7 @@ export function topicTool(author) {
       additionalProperties: false,
       required: ["title", "slug", "emoji", "topics", "service_id", "angle", "outline", "sources", "cases"],
       properties: {
-        title: str("Japanese title, 25–50 characters."),
+        title: str("Japanese title, 25–60 characters, leading with the payoff."),
         slug: str("3–6 lowercase English words joined by hyphens, 12–50 characters."),
         emoji: str("One emoji for Zenn."),
         topics: { type: "array", items: str("lowercase ASCII Zenn topic"), description: "1–5 topics." },
@@ -404,6 +477,7 @@ export function claudeSteps(client, log, settings = claudeSettings({})) {
     writeArticle: (ctx) => run(writePrompt(ctx), ARTICLE_TOOL, Article, "article", searches.write),
     reviseArticle: (ctx) => run(revisePrompt(ctx), ARTICLE_TOOL, Article, "article", searches.revise),
     writeQiita: (ctx) => run(qiitaPrompt(ctx), QIITA_TOOL, QiitaArticle, "Qiita article", searches.qiita),
+    writeNote: (ctx) => run(notePrompt(ctx), NOTE_TOOL, NoteArticle, "note article", searches.note),
     factcheck: (article, profile) => factcheck({ client, article, profile, log, claudeModel: model, effort, maxSearches: searches.factcheck }),
   };
 }
@@ -427,9 +501,14 @@ function writeFile(file, frontMatter, body) {
   fs.writeFileSync(file, `---\n${YAML.stringify(frontMatter)}---\n\n${body.trim()}\n`);
 }
 
-function uniqueSlug(root, slug) {
+// A slug already used anywhere (Zenn, its Qiita and note posts, the prepared versions, or an
+// article Zenn never took) is taken: a new article reusing it would find its Qiita and note
+// posts "already done" and skip them.
+const SLUG_DIRS = ["articles", "public", "qiita", "notes", "note-src", "zenn-missed"];
+export function uniqueSlug(root, slug) {
+  const taken = (s) => SLUG_DIRS.some((d) => fs.existsSync(path.join(root, d, `${s}.md`)));
   let s = slug;
-  for (let n = 2; fs.existsSync(path.join(root, "articles", `${s}.md`)); n++) s = `${slug}-${n}`.slice(0, 50);
+  for (let n = 2; taken(s); n++) s = `${slug}-${n}`.slice(0, 50);
   return s;
 }
 
@@ -455,7 +534,7 @@ async function check({ root, file, profile, steps, textlint }) {
  * draft (published: false, no date) with the remaining problems at the top, so the morning
  * stays open for the next run.
  */
-export async function autowrite({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, ideas = "", log = () => {}, zennStatus = zennPageStatus(profile) }) {
+export async function autowrite({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, ideas = "", log = () => {}, zennStatus = zennPageStatus(profile), trends = async () => "" }) {
   const author = authorContext(profile);
   const today = jstDay(now);
   const { model, fixRounds, budget } = claudeSettings(config);
@@ -463,6 +542,13 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
   // At most one article is sent again per run, and only in auto mode (in review mode the moved
   // date would wait in a pull request while the next run saw the morning as still open).
   let requeueTried = !requeue || config.mode !== "auto";
+  // What readers are liking on Zenn, Qiita and note (lib/trends.mjs), read once per run and only
+  // when a new article is planned. A failure leaves it empty: the topic is planned without it.
+  let digest = null;
+  const readTrends = async () => {
+    if (digest === null) digest = await trends().catch((err) => (log(`autowrite: trends skipped (${err.message})`), ""));
+    return digest;
+  };
   const results = [];
   for (const slot of openSlots(root, now, config.days_ahead, { every }).slice(0, config.max_per_run)) {
     if (!requeueTried) {
@@ -481,7 +567,7 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
     const entry = { date: slot, pillar: pillar.id, written_at: now.toISOString() };
     try {
       log(`autowrite: ${slot} — planning a ${pillar.id} article`);
-      const t = await steps.chooseTopic({ author, config, pillar, recentTitles, ideas, today });
+      const t = await steps.chooseTopic({ author, config, pillar, recentTitles, ideas, today, trends: await readTrends() });
       addUsage(usage, t.usage);
       const topic = t.value;
       const service = author.services.find((s) => s.id === topic.service_id) ?? author.services[0];
@@ -638,6 +724,102 @@ export async function qiitaCompanions({ root, profile, config, now = new Date(),
     fs.writeFileSync(QIITA_HISTORY(root), `${JSON.stringify(history, null, 2)}\n`);
     results.push(entry);
     log(`autowrite: Qiita ${entry.status} — ${entry.title ?? "(none)"} ($${entry.cost_usd})`);
+  }
+  return results;
+}
+
+// ---------- the note version (autopilot.yml `note_version: true`) ----------
+
+export const NOTE_DIR = "note-src";
+const NOTE_HISTORY = (root) => path.join(root, "autopilot", "note.json");
+export const readNoteHistory = (root) => (fs.existsSync(NOTE_HISTORY(root)) ? JSON.parse(fs.readFileSync(NOTE_HISTORY(root), "utf8")) : []);
+// The same facts and the same closing paragraph are expected, so a little more shared text than
+// on Qiita is fine; more than this means it wasn't rewritten for note's readers.
+export const NOTE_MAX_OVERLAP = 0.3;
+
+async function checkNoteVersion({ root, file, zenn, profile, steps, textlint }) {
+  const { data, content } = matter(fs.readFileSync(file, "utf8"));
+  // Checked as it will be posted (status: ready), so the publish rules apply (a link back to your site).
+  const article = { file, platform: "note", data: { ...data, status: "ready" }, content, raw: "" };
+  const problems = [];
+  problems.push(...validateArticle(article, profile).errors.map((e) => `validate: ${e}`));
+  problems.push(...textlint(root, file));
+  if (data.title === zenn.title) problems.push("use a different title from the Zenn article");
+  const shared = overlap(content, zenn.body);
+  if (shared > NOTE_MAX_OVERLAP)
+    problems.push(`${Math.round(shared * 100)}% of the text is copied from the Zenn article: rewrite it for note's readers in your own words and structure`);
+  const fc = await steps.factcheck(article, profile);
+  const findings = fc.report.findings.map((f) => ({ ...f, level: severity(f) }));
+  for (const f of findings.filter((x) => x.level === "error"))
+    problems.push(`fact-check (${f.claim_type}, ${f.verdict}): 「${f.quote}」 — ${f.explanation}${f.suggested_fix ? ` Fix: ${f.suggested_fix}` : ""}`);
+  return { problems, warnings: findings.filter((x) => x.level === "warning").length, usage: fc.usage };
+}
+
+/**
+ * Writes the note version of every scheduled Zenn article from today on that has none yet
+ * (note-src/<slug>.md, or a note post already made as notes/<slug>.md). Same checks and up to
+ * two rounds of fixes as the Zenn article, plus a different title and limited shared text. A
+ * passing one gets published_at (the Zenn article's morning) and crosspost.mjs puts it on note
+ * then, in place of the Zenn copy; a failing one is kept with status: failed, and note gets the
+ * Zenn copy as before.
+ */
+export async function noteCompanions({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, log = () => {} }) {
+  const author = authorContext(profile);
+  const today = jstDay(now);
+  const { model, fixRounds, budget } = claudeSettings(config);
+  const results = [];
+  const todo = zennArticles(root).filter(
+    (a) => a.data.published === true && a.at && jstDay(a.at) >= today && ![path.join(root, "notes", `${a.slug}.md`), path.join(root, NOTE_DIR, `${a.slug}.md`)].some((f) => fs.existsSync(f)),
+  );
+  for (const a of todo.slice(0, config.days_ahead + 1)) {
+    if (spentToday(root, now) >= budget) {
+      log(`autowrite: today's budget ($${budget}) is used up; the note article for ${a.slug} is written on the next run`);
+      break;
+    }
+    const usage = emptyUsage();
+    const slot = String(a.data.published_at);
+    const entry = { date: slot, zenn: `articles/${a.slug}.md`, written_at: now.toISOString() };
+    const file = path.join(root, NOTE_DIR, `${a.slug}.md`);
+    const zenn = { title: String(a.data.title), body: a.content.trim() };
+    try {
+      log(`autowrite: note article for 「${zenn.title}」`);
+      const w = await steps.writeNote({ author, config, zenn, closing: closingOf(zenn.body), today });
+      addUsage(usage, w.usage);
+      const { title, hashtags } = w.value;
+      let body = w.value.body;
+      const frontMatter = { title, hashtags, zenn: `articles/${a.slug}.md` };
+      Object.assign(entry, { title, file: path.relative(root, file) });
+      writeFile(file, frontMatter, body);
+      let result;
+      for (let round = 0; ; round++) {
+        log(`autowrite: checking the note article (round ${round + 1})`);
+        result = await checkNoteVersion({ root, file, zenn, profile, steps, textlint });
+        addUsage(usage, result.usage);
+        if (!result.problems.length || round >= fixRounds) break;
+        log(`autowrite: fixing ${result.problems.length} problem(s)`);
+        const r = await steps.reviseArticle({ author, config, title, body, problems: result.problems, today, platform: "note" });
+        addUsage(usage, r.usage);
+        body = r.value.body;
+        writeFile(file, frontMatter, body);
+      }
+      if (result.problems.length) {
+        const note = `<!-- autopilot: not used on note (it gets the Zenn copy), these checks still failed:\n${result.problems.map((p) => `- ${p.replace(/--/g, "‐‐")}`).join("\n")}\n-->`;
+        writeFile(file, { ...frontMatter, status: "failed" }, `${note}\n\n${body}`);
+        Object.assign(entry, { status: "failed", problems: result.problems });
+      } else {
+        writeFile(file, { ...frontMatter, published_at: slot }, body);
+        Object.assign(entry, { status: "scheduled", fact_check_warnings: result.warnings });
+      }
+    } catch (err) {
+      Object.assign(entry, { status: "failed", problems: [err.message] });
+    }
+    Object.assign(entry, { model, usage, cost_usd: Number(costUsd(usage, model).toFixed(2)) });
+    const history = readNoteHistory(root);
+    history.push(entry);
+    fs.mkdirSync(path.dirname(NOTE_HISTORY(root)), { recursive: true });
+    fs.writeFileSync(NOTE_HISTORY(root), `${JSON.stringify(history, null, 2)}\n`);
+    results.push(entry);
+    log(`autowrite: note ${entry.status} — ${entry.title ?? "(none)"} ($${entry.cost_usd})`);
   }
   return results;
 }

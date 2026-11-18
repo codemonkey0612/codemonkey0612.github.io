@@ -19,10 +19,17 @@ claude:
   model: claude-sonnet-5-5  # claude-opus-5-5 writes a little better at about twice the price
   effort: medium            # low | medium | high (more thinking, more output tokens, more cost)
   fix_rounds: 2             # rounds of fixes after the checks (each one is a full fact-check)
-  budget_usd_per_day: 1     # no new article (Zenn or Qiita) is started once today's runs have
-                            # spent this much; the rest is written on the next run
+  budget_usd_per_day: 1     # no new article (Zenn, Qiita or note) is started once today's runs
+                            # have spent this much; the rest is written on the next run (articles
+                            # are written a day ahead, so a wait still makes the morning)
 note: auto            # auto: publish each article on note at 09:00 too (needs the NOTE_SESSION
                       # secret) | draft: save it as a note draft for you | off: no note copies
+note_version: true    # true (since 2026-11-18): the writer also writes a separate note article
+                      # for each morning, for note's readers (mostly non-engineers: plain words, a
+                      # first-person story, takeaways anyone can use), on the Zenn article's
+                      # topic, checked like the others (note-src/<slug>.md); it goes to note in
+                      # place of the Zenn copy. About $0.3 more per article. If it isn't ready or
+                      # fails its checks, note gets the Zenn copy as before | false: the Zenn copy.
 qiita: daily          # daily: the writer also writes a separate Qiita article for each morning
                       # (engineer-facing, working code, no links to your site, Lancers, Zenn or
                       # note, little text shared with the Zenn article) and the Publish job posts
@@ -36,20 +43,39 @@ bluesky: auto         # auto: announce each new article on Bluesky once it's liv
 
 # Zenn limits how many articles each account may post in a period (it doesn't publish the
 # numbers). The articles for 2026-11-14, 11-16 and 11-17 never reached Zenn (their pages 404).
-# Both on since 2026-11-17.
+# every_days 2 since 2026-11-17. requeue_missing was on from 2026-11-17 and is off since
+# 2026-11-18 (your choice): the open mornings get new articles, and those three stay on note and
+# Qiita only. A delayed run had already sent the 11-14 one again (for 11-20) on 11-18 at 10:36
+# JST and Zenn refused it again, so all three were moved to zenn-missed/ (that frees 11-20, and
+# the hub site no longer links to Zenn pages that don't exist). To try Zenn again, move one back
+# to articles/ and set requeue_missing: true.
 zenn:
   every_days: 2           # a Zenn article every this many mornings: 2 = every other morning. note,
                           # Qiita and Bluesky follow, since each goes with a Zenn article.
-  requeue_missing: true   # true: an article Zenn never took (page still 404 an hour after its
+  requeue_missing: false  # true: an article Zenn never took (page still 404 an hour after its
                           # morning) gets the next open morning instead of a new article, one per
                           # run. Zenn imports a file only when it changes, so the moved date sends
                           # it again. If Zenn still doesn't take it, the run fails and it's left
                           # alone. Pages that are 403 (Zenn holds them) are never touched.
 
-# What to write about. The writer rotates through these by weight, so over two weeks roughly
-# 3 in 8 posts are about small-business problems, 3 in 8 about AI and software work and 2 in 8
-# about recent technology news.
+# What to write about. The writer rotates through these by weight, so roughly 3 in 11 posts are
+# stories from your own projects, 3 in 11 about small-business problems, 3 in 11 about AI and
+# software work and 2 in 11 about recent technology news. Each topic goes out in three versions:
+# Zenn (written for the pillar's audience), Qiita (engineers, with code) and note (general readers,
+# in note's style; note_version above), so no audience is left out.
 pillars:
+  - id: case-story
+    weight: 3
+    label: 案件の実録（自分の現場で起きた問題と、その解決）
+    audience: engineer
+    brief: >-
+      One of the author's real projects (cases), told as a first-hand story: the problem as it
+      looked at the start, what was considered and chosen and why, the result with the case's
+      exact numbers, and what someone facing the same problem should do first. Name the case in
+      `cases`. Only the case's facts count as experience: explain general technique as general
+      technique (with sources) or as a plainly hypothetical 「たとえば」 example, and never add
+      details the case doesn't give. Real numbers, real decisions and a clear lesson are what
+      readers like most, engineers and non-engineers alike.
   - id: sme
     weight: 3
     label: 中小企業が抱える技術課題と、その解決策

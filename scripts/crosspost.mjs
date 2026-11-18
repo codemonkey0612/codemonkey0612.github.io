@@ -70,13 +70,26 @@ function qiitaCopy(a, { root, base, topics, profile }) {
   return [old ? "updated" : "created"];
 }
 
+/**
+ * The note version the writer prepared for this article (note-src/<slug>.md, autopilot.yml
+ * `note_version`), if it passed its checks: it goes to note in place of the Zenn copy.
+ */
+export function noteVersion(root, slug) {
+  const file = path.join(root, "note-src", `${slug}.md`);
+  if (!fs.existsSync(file)) return null;
+  const v = matter(fs.readFileSync(file, "utf8"));
+  return v.data.status === "failed" || !v.data.title || !v.content.trim() ? null : v;
+}
+
 function noteCopy(a, { root, base, topics, cover }) {
   const out = path.join(root, "notes", `${a.slug}.md`);
   const old = existing(out, a.slug);
   if (old === "theirs") return ["skipped", "a note post you wrote with the same name already exists"];
   if (old?.data.url) return ["unchanged"]; // already public on note: edit notes/<slug>.md itself
+  const version = noteVersion(root, a.slug);
+  const tags = version && Array.isArray(version.data.hashtags) && version.data.hashtags.length ? version.data.hashtags : topics;
   // Keep what note-draft.mjs wrote back (note_id, note_key, note_hash).
-  const fm = { title: a.data.title, status: "ready", hashtags: topics.slice(0, 5) };
+  const fm = { title: version ? version.data.title : a.data.title, status: "ready", hashtags: tags.slice(0, 5) };
   for (const k of ["cover", "note_id", "note_key", "note_hash"]) if (old?.data[k] != null) fm[k] = old.data[k];
   fm.url = null;
   // Your own header image (notes/<slug>.png or .jpg, 1280×670) wins; otherwise the package
@@ -87,10 +100,10 @@ function noteCopy(a, { root, base, topics, cover }) {
     const chosen = cover({ title: a.data.title, topics });
     if (chosen) fm.cover = chosen;
   }
-  const body = `${MARK(a.slug)}\n${zennToNote(a.content.replace(/^\n+/, ""), { base })}`;
-  if (old && old.data.title === fm.title && old.data.cover === fm.cover && old.content.trim() === body.trim()) return ["unchanged"];
+  const body = `${MARK(a.slug)}\n${zennToNote((version ? version.content : a.content).replace(/^\n+/, ""), { base })}`;
+  if (old && old.data.title === fm.title && old.data.cover === fm.cover && JSON.stringify(old.data.hashtags) === JSON.stringify(fm.hashtags) && old.content.trim() === body.trim()) return ["unchanged"];
   write(out, fm, body);
-  return [old ? "updated" : "created"];
+  return [old ? "updated" : "created", version ? "from the note version in note-src/" : ""];
 }
 
 /**

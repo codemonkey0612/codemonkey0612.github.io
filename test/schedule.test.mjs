@@ -177,6 +177,26 @@ test("with note on, due articles also get a note copy with a header image; your 
   assert.doesNotMatch(fs.readFileSync(copy, "utf8"), /もう一度/);
 });
 
+test("note_version: the note article the writer prepared goes to note in place of the Zenn copy; a failed one doesn't", () => {
+  const version = (status = "") =>
+    `---\ntitle: 一般の読者向けのタイトル\nhashtags:\n  - 生成AI\n  - 業務効率化\nzenn: articles/live-article-01.md\n${status ? `status: ${status}\n` : 'published_at: "2026-11-10 09:00"\n'}---\n\nnote読者向けの本文。\n`;
+  const dir = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }), "note-src/live-article-01.md": version() });
+  const now = jst("2026-11-10T09:00");
+  const cover = () => "covers/1351631.jpg";
+  const [r] = crosspost({ root: dir, profile, now, qiita: false, note: true, cover });
+  assert.deepEqual([r.action, r.reason], ["created", "from the note version in note-src/"]);
+  const { data, content } = matter(fs.readFileSync(path.join(dir, "notes/live-article-01.md"), "utf8"));
+  assert.deepEqual([data.title, data.hashtags, data.status], ["一般の読者向けのタイトル", ["生成AI", "業務効率化"], "ready"]);
+  assert.match(content, /note読者向けの本文/);
+  assert.doesNotMatch(content, /相談する/, "not the Zenn article's text");
+  assert.match(content, /^<!-- crossposted from articles\/live-article-01\.md/, "still marked as made by this tool");
+
+  const dir2 = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }), "note-src/live-article-01.md": version("failed") });
+  crosspost({ root: dir2, profile, now, qiita: false, note: true, cover });
+  const copy = matter(fs.readFileSync(path.join(dir2, "notes/live-article-01.md"), "utf8"));
+  assert.deepEqual([copy.data.title, copy.data.hashtags], ["今日の記事", ["ai", "rag"]], "a failed note version: the Zenn copy, as before");
+});
+
 test("a header image you put at notes/<slug>.jpg (or .png) is used instead of a package image", () => {
   const dir = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }), "notes/live-article-01.jpg": "jpeg" });
   let made = 0;

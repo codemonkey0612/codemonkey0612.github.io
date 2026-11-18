@@ -4,7 +4,24 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import matter from "gray-matter";
-import { Article, authorContext, autowrite, openSlots, pickPillar, readHistory, Topic, topicTool, writePrompt } from "../scripts/lib/writer-core.mjs";
+import {
+  Article,
+  authorContext,
+  autowrite,
+  closingOf,
+  noteCompanions,
+  notePrompt,
+  openSlots,
+  pickPillar,
+  readHistory,
+  readNoteHistory,
+  spentToday,
+  Topic,
+  topicPrompt,
+  topicTool,
+  uniqueSlug,
+  writePrompt,
+} from "../scripts/lib/writer-core.mjs";
 
 const jst = (s) => new Date(`${s}+09:00`);
 const config = {
@@ -192,6 +209,90 @@ test("an article that still fails after two fixes is kept as an unpublished draf
   assert.equal(data.published_at, undefined);
   assert.match(content, /^\s*<!-- autopilot: not published/);
   assert.deepEqual(openSlots(dir, jst("2026-11-10T06:00"), 1), ["2026-11-10 09:00"]);
+});
+
+test("the topic step sees what readers are liking, once per run, and plans without it when it's unavailable", async () => {
+  const author = authorContext(profile);
+  const ctx = { author, config, pillar: config.pillars[0], recentTitles: [], ideas: "", today: "2026-11-18" };
+  const withTrends = topicPrompt({ ...ctx, trends: "Zenn: …\n- 475 likes · ある記事" });
+  assert.match(withTrends.user, /<trends>\nZenn: …\n- 475 likes · ある記事\n<\/trends>/);
+  assert.match(withTrends.user, /never copy a title/);
+  assert.doesNotMatch(topicPrompt(ctx).user, /<trends>/);
+  assert.match(withTrends.system, /three versions/);
+  assert.match(withTrends.system, /Never invent experience/);
+
+  const dir = repo();
+  const { steps } = fakeSteps({ checks: [report()] });
+  const seen = [];
+  const watching = { ...steps, chooseTopic: async (c) => (seen.push(c.trends), steps.chooseTopic(c)) };
+  let fetched = 0;
+  await autowrite({ root: dir, profile, config, now: jst("2026-11-10T06:00"), steps: watching, textlint: () => [], trends: async () => (fetched++, "DIGEST") });
+  assert.deepEqual([fetched, seen], [1, ["DIGEST", "DIGEST"]], "two articles, one fetch");
+  const down = await autowrite({ root: repo(), profile, config: { ...config, max_per_run: 1 }, now: jst("2026-11-10T06:00"), steps, textlint: () => [], trends: async () => Promise.reject(new Error("offline")) });
+  assert.equal(down[0].status, "scheduled");
+});
+
+// ---------- note_version: a separate note article for general readers ----------
+
+const zennWithClosing = (at) =>
+  `---\ntitle: 既存\nemoji: "🤖"\ntype: tech\ntopics: [ai]\npublished: true\npublished_at: "${at}"\n---\n${BODY()}`;
+const NOTE_BODY = `${Array.from({ length: 40 }, (_, i) => `${i + 1}つ目の場面では、${["請求書", "見積書", "日報", "議事録", "問い合わせ", "在庫表", "勤怠"][i % 7]}の作業を見直して、手順を一つずつ確かめました。`).join("")}\n\n---\n\n私は「AIチャットボット・社内文書検索（RAG）」をお仕事としてお受けしています。\n→ [AIチャットボット・社内文書検索（RAG）について](https://codemonkey0612.github.io/services/ai-chatbot/) ／ [ランサーズで相談する](https://www.lancers.jp/profile/navi_work/contact_light)\n`;
+const noteSteps = (checks) => {
+  const { steps, calls } = fakeSteps({ checks });
+  return {
+    calls,
+    steps: {
+      ...steps,
+      writeNote: async (ctx) => (calls.push(["note", ctx.closing]), { value: { title: "仕事でAIを使い始めた方へ", hashtags: ["生成AI", "業務効率化"], body: NOTE_BODY }, usage }),
+    },
+  };
+};
+
+test("note_version: each scheduled article gets a note article for general readers, dated for its morning", async () => {
+  const dir = repo({
+    "articles/scheduled-article.md": zennWithClosing("2026-11-20 09:00"),
+    "articles/already-on-note.md": zennWithClosing("2026-11-19 09:00"),
+    "notes/already-on-note.md": "---\ntitle: x\nstatus: ready\n---\nx\n",
+    "articles/yesterdays-article.md": zennWithClosing("2026-11-17 09:00"),
+  });
+  const { steps, calls } = noteSteps([report()]);
+  const results = await noteCompanions({ root: dir, profile, config, now: jst("2026-11-18T06:00"), steps, textlint: () => [] });
+  assert.deepEqual(results.map((r) => [r.status, r.zenn]), [["scheduled", "articles/scheduled-article.md"]], "not for one already on note, or a past morning");
+  assert.match(calls[0][1], /^私は「AIチャットボット・社内文書検索（RAG）」をお仕事としてお受けしています。\n→ \[/, "it's given the Zenn article's closing paragraph");
+  const { data, content } = matter(fs.readFileSync(path.join(dir, "note-src/scheduled-article.md"), "utf8"));
+  assert.deepEqual([data.title, data.hashtags, data.published_at, data.status], ["仕事でAIを使い始めた方へ", ["生成AI", "業務効率化"], "2026-11-20 09:00", undefined]);
+  assert.match(content, /ランサーズで相談する/);
+  assert.equal(readNoteHistory(dir).length, 1);
+  assert.ok(spentToday(dir, jst("2026-11-18T07:00")) > 0, "its cost counts toward the day's budget");
+});
+
+test("note_version: one that still fails is marked failed, so note gets the Zenn copy", async () => {
+  const dir = repo({ "articles/scheduled-article.md": zennWithClosing("2026-11-20 09:00") });
+  const { steps } = noteSteps([report([wrong])]);
+  const [r] = await noteCompanions({ root: dir, profile, config, now: jst("2026-11-18T06:00"), steps, textlint: () => [] });
+  assert.equal(r.status, "failed");
+  const { data, content } = matter(fs.readFileSync(path.join(dir, "note-src/scheduled-article.md"), "utf8"));
+  assert.deepEqual([data.status, data.published_at], ["failed", undefined]);
+  assert.match(content, /^\s*<!-- autopilot: not used on note/);
+});
+
+test("the note prompt asks for note's readers and keeps the facts and the closing", () => {
+  const closing = closingOf(BODY());
+  assert.match(closing, /^私は「/);
+  assert.equal(closingOf("no rule here"), "");
+  const { system, user } = notePrompt({ author: authorContext(profile), config, zenn: { title: "Zennの題", body: BODY() }, closing, today: "2026-11-18" });
+  assert.match(system, /mostly not engineers/);
+  assert.match(system, /Never invent projects, clients, results, numbers, quotes or conversations/);
+  assert.ok(system.includes(closing));
+  assert.match(user, /Title: Zennの題/);
+});
+
+test("a new article never reuses a slug that's taken on any platform", () => {
+  const dir = repo({ "notes/old-slug-here.md": "x", "zenn-missed/missed-slug-x.md": "x", "public/qiita-slug-x.md": "x" });
+  assert.equal(uniqueSlug(dir, "old-slug-here"), "old-slug-here-2");
+  assert.equal(uniqueSlug(dir, "missed-slug-x"), "missed-slug-x-2");
+  assert.equal(uniqueSlug(dir, "qiita-slug-x"), "qiita-slug-x-2");
+  assert.equal(uniqueSlug(dir, "brand-new-slug"), "brand-new-slug");
 });
 
 test("an error in one morning doesn't stop the next", async () => {

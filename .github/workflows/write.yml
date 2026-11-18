@@ -70,6 +70,7 @@ jobs:
             git switch -c "$branch"
             git add articles
             if [ -d qiita ]; then git add qiita; fi
+            if [ -d note-src ]; then git add note-src; fi
             git commit -m "Autopilot: ${names}"
             git push origin "$branch"
             gh pr create --base main --head "$branch" --title "Autopilot: ${names}" \
@@ -80,7 +81,8 @@ jobs:
           else
             git add articles autopilot
             if [ -d qiita ]; then git add qiita; fi
-            git commit -m "Autopilot: ${names:-Qiita articles}"
+            if [ -d note-src ]; then git add note-src; fi
+            git commit -m "Autopilot: ${names:-Qiita and note articles}"
           fi
           git pull --rebase origin main
           git push origin HEAD:main

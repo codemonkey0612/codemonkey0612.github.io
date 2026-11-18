@@ -31,9 +31,10 @@ export function isLive(data, now = new Date()) {
   return !at || at <= now;
 }
 
-/** Zenn articles with their front matter, sorted by publish date. */
-export function zennArticles(root) {
-  const dir = path.join(root, "articles");
+const byDate = (a, b) => (a.at?.getTime() ?? Infinity) - (b.at?.getTime() ?? Infinity) || a.slug.localeCompare(b.slug);
+
+function readArticles(root, dirName) {
+  const dir = path.join(root, dirName);
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
@@ -41,9 +42,35 @@ export function zennArticles(root) {
     .map((f) => {
       const file = path.join(dir, f);
       const { data, content } = matter(fs.readFileSync(file, "utf8"));
-      return { file, slug: path.basename(f, ".md"), data, content, at: publishedAt(data.published_at) };
-    })
-    .sort((a, b) => (a.at?.getTime() ?? Infinity) - (b.at?.getTime() ?? Infinity) || a.slug.localeCompare(b.slug));
+      return { file, dir: dirName, slug: path.basename(f, ".md"), data, content, at: publishedAt(data.published_at) };
+    });
+}
+
+/** Zenn articles with their front matter, sorted by publish date. */
+export function zennArticles(root) {
+  return readArticles(root, "articles").sort(byDate);
+}
+
+/**
+ * Articles written like Zenn articles that go to note and Qiita only: the mornings between Zenn's
+ * (Zenn limits how often an account may post), and ones Zenn refused. Zenn never reads this folder.
+ */
+export const OFF_ZENN_DIR = "off-zenn";
+
+/** Every morning's article, on Zenn (articles/, `zenn: true`) or not (off-zenn/, `zenn: false`), by date. */
+export function anchors(root) {
+  return [...readArticles(root, "articles").map((a) => ({ ...a, zenn: true })), ...readArticles(root, OFF_ZENN_DIR).map((a) => ({ ...a, zenn: false }))].sort(byDate);
+}
+
+/**
+ * The note version the writer prepared for an article (note-src/<slug>.md, autopilot.yml
+ * `note_version`), if it passed its checks; null otherwise. It goes to note in place of the copy.
+ */
+export function noteVersionOf(root, slug) {
+  const file = path.join(root, "note-src", `${slug}.md`);
+  if (!fs.existsSync(file)) return null;
+  const v = matter(fs.readFileSync(file, "utf8"));
+  return v.data.status === "failed" || !v.data.title || !v.content.trim() ? null : v;
 }
 
 /** autopilot.yml `zenn.every_days`: one Zenn article every this many mornings (default 1, daily). */

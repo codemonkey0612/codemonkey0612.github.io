@@ -19,9 +19,13 @@ import matter from "gray-matter";
 import YAML from "yaml";
 import { loadProfile, rel, ROOT, siteUrls } from "./lib/common.mjs";
 import { chooseCover, coverPath, coverUsage, loadCovers } from "./lib/note-covers.mjs";
-import { imageBase, isLive, jstDay, publishedAt, zennArticles, zennToNote, zennToQiita } from "./lib/schedule.mjs";
+import { anchors, imageBase, isLive, jstDay, noteVersionOf, OFF_ZENN_DIR, publishedAt, zennToNote, zennToQiita } from "./lib/schedule.mjs";
 
-const MARK = (slug) => `<!-- crossposted from articles/${slug}.md: edit the Zenn article, not this copy -->`;
+// The hidden first line of every copy, naming the article it came from (articles/ for Zenn
+// articles, off-zenn/ for the ones that go to note and Qiita only).
+const MARK = (slug, dir = "articles") =>
+  dir === "articles" ? `<!-- crossposted from articles/${slug}.md: edit the Zenn article, not this copy -->` : `<!-- crossposted from ${dir}/${slug}.md: edit that article, not this copy -->`;
+const isOurs = (content, slug) => [MARK(slug), MARK(slug, OFF_ZENN_DIR)].some((m) => content.includes(m));
 const write = (file, fm, body) => {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, `---\n${YAML.stringify(fm)}---\n${body.endsWith("\n") ? body : `${body}\n`}`);
@@ -30,7 +34,7 @@ const write = (file, fm, body) => {
 function existing(file, slug) {
   if (!fs.existsSync(file)) return null;
   const old = matter(fs.readFileSync(file, "utf8"));
-  return old.content.includes(MARK(slug)) ? old : "theirs";
+  return isOurs(old.content, slug) ? old : "theirs";
 }
 
 /** The article without its closing call to action (the part after the last --- that links to you). */
@@ -61,7 +65,7 @@ function qiitaCopy(a, { root, base, topics, profile }) {
     posting_campaign_uuid: old?.data.posting_campaign_uuid ?? null,
     agreed_posting_campaign_term: old?.data.agreed_posting_campaign_term ?? false,
   };
-  const body = `${MARK(a.slug)}\n${zennToQiita(withoutCta(a.content.replace(/^\n+/, ""), profile), { base })}`;
+  const body = `${MARK(a.slug, a.dir)}\n${zennToQiita(withoutCta(a.content.replace(/^\n+/, ""), profile), { base })}`;
   // Compare what matters, not the bytes: qiita-cli rewrites the front matter in its own style.
   if (old && old.data.title === fm.title && JSON.stringify(old.data.tags) === JSON.stringify(fm.tags) && old.data.ignorePublish === false && old.content.trim() === body.trim()) {
     return ["unchanged"];
@@ -70,23 +74,13 @@ function qiitaCopy(a, { root, base, topics, profile }) {
   return [old ? "updated" : "created"];
 }
 
-/**
- * The note version the writer prepared for this article (note-src/<slug>.md, autopilot.yml
- * `note_version`), if it passed its checks: it goes to note in place of the Zenn copy.
- */
-export function noteVersion(root, slug) {
-  const file = path.join(root, "note-src", `${slug}.md`);
-  if (!fs.existsSync(file)) return null;
-  const v = matter(fs.readFileSync(file, "utf8"));
-  return v.data.status === "failed" || !v.data.title || !v.content.trim() ? null : v;
-}
-
 function noteCopy(a, { root, base, topics, cover }) {
   const out = path.join(root, "notes", `${a.slug}.md`);
   const old = existing(out, a.slug);
   if (old === "theirs") return ["skipped", "a note post you wrote with the same name already exists"];
   if (old?.data.url) return ["unchanged"]; // already public on note: edit notes/<slug>.md itself
-  const version = noteVersion(root, a.slug);
+  // The note version the writer prepared (note-src/<slug>.md), if it passed its checks.
+  const version = noteVersionOf(root, a.slug);
   const tags = version && Array.isArray(version.data.hashtags) && version.data.hashtags.length ? version.data.hashtags : topics;
   // Keep what note-draft.mjs wrote back (note_id, note_key, note_hash).
   const fm = { title: version ? version.data.title : a.data.title, status: "ready", hashtags: tags.slice(0, 5) };
@@ -100,21 +94,21 @@ function noteCopy(a, { root, base, topics, cover }) {
     const chosen = cover({ title: a.data.title, topics });
     if (chosen) fm.cover = chosen;
   }
-  const body = `${MARK(a.slug)}\n${zennToNote((version ? version.content : a.content).replace(/^\n+/, ""), { base })}`;
+  const body = `${MARK(a.slug, a.dir)}\n${zennToNote((version ? version.content : a.content).replace(/^\n+/, ""), { base })}`;
   if (old && old.data.title === fm.title && old.data.cover === fm.cover && JSON.stringify(old.data.hashtags) === JSON.stringify(fm.hashtags) && old.content.trim() === body.trim()) return ["unchanged"];
   write(out, fm, body);
   return [old ? "updated" : "created", version ? "from the note version in note-src/" : ""];
 }
 
 /**
- * Writes or refreshes the Qiita copy (and, with `note`, the note copy) of every due Zenn
- * article. `cover({ title, topics })` returns the note header image for a new note copy, as a
- * path relative to notes/ (or null for none).
+ * Writes or refreshes the Qiita copy (and, with `note`, the note copy) of every due article,
+ * on Zenn (articles/) or not (off-zenn/). `cover({ title, topics })` returns the note header
+ * image for a new note copy, as a path relative to notes/ (or null for none).
  */
 export function crosspost({ root = ROOT, profile, now = new Date(), qiita = true, note = false, cover = null }) {
   const base = imageBase(profile);
   const results = [];
-  for (const a of zennArticles(root)) {
+  for (const a of anchors(root)) {
     if (!isLive(a.data, now)) continue;
     const topics = Array.isArray(a.data.topics) ? a.data.topics.filter(Boolean) : [];
     const record = (platform, dir, [action, reason = ""]) => results.push({ slug: a.slug, platform, file: rel(path.join(root, dir, `${a.slug}.md`)), action, reason });

@@ -26,7 +26,7 @@ const zenn = (title, at, { topics = "[python, rag, ai, llm]", body = "最初の�
   `---\ntitle: ${title}\nemoji: "🤖"\ntype: tech\ntopics: ${topics}\npublished: true\npublished_at: "${at}"\n---\n\n<!-- 読者: エンジニア -->\n## はじめに\n\n${body}\n\n## 本題\n\n本文。\n\n---\n\n私は「AI」をお仕事としてお受けしています。\n→ [AIチャットボットについて](https://codemonkey0612.github.io/services/ai-chatbot/) ／ [相談](https://www.lancers.jp/x)\n`;
 
 // A fake Bluesky server: sign-in, own posts, image upload, new posts; and Zenn's public pages.
-function fakeBluesky({ password = "app-pass", existing = [], zennUp = true } = {}) {
+function fakeBluesky({ password = "app-pass", existing = [], zennUp = true, noteUp = true } = {}) {
   const calls = [];
   const posts = [...existing];
   const fetch = async (url, init = {}) => {
@@ -34,6 +34,7 @@ function fakeBluesky({ password = "app-pass", existing = [], zennUp = true } = {
     calls.push({ method: init.method ?? "GET", path: `${u.origin}${u.pathname}`, auth: init.headers?.authorization, body: init.body });
     const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
     if (u.hostname === "zenn.dev") return new Response("", { status: zennUp ? 200 : 404 });
+    if (u.hostname === "note.com") return new Response("", { status: noteUp ? 200 : 404 });
     if (u.pathname === "/xrpc/com.atproto.server.createSession") {
       const { identifier, password: p } = JSON.parse(init.body);
       if (p !== password) return json({ error: "AuthenticationRequired", message: "Invalid identifier or password" }, 401);
@@ -118,6 +119,30 @@ test("an article already posted (its record lost) is found, not posted again; on
   assert.equal(waiting.action, "waiting");
   assert.equal(down.posts.length, 0);
   assert.deepEqual(loadRecord(dir2), {});
+});
+
+test("a morning's article that isn't on Zenn (off-zenn/) is announced with its note post, once that's up", async () => {
+  const now = new Date("2026-11-11T00:05:00Z");
+  const files = {
+    "off-zenn/note-only-0001.md": zenn("元の記事", "2026-11-11 09:00"),
+    "note-src/note-only-0001.md": "---\ntitle: note向けの題\nhashtags: [生成AI, 業務効率化]\n---\n\nnote向けの最初の段落です。二文目です。\n",
+  };
+  const notYet = repo({ ...files, "notes/note-only-0001.md": "---\ntitle: note向けの題\nstatus: ready\nurl: null\n---\n本文\n" });
+  const fake = fakeBluesky();
+  const [waiting] = await syncBluesky({ root: notYet, client: fake.client, profile, now, fetchPage: fake.fetch });
+  assert.deepEqual([waiting.action, fake.posts.length], ["waiting", 0]);
+
+  const dir = repo({ ...files, "notes/note-only-0001.md": "---\ntitle: note向けの題\nstatus: ready\nurl: https://note.com/shanaiai/n/nabc123def456\n---\n本文\n" });
+  const live = fakeBluesky();
+  const [posted] = await syncBluesky({ root: dir, client: live.client, profile, now, fetchPage: live.fetch });
+  assert.equal(posted.action, "posted");
+  const record = live.posts[0].value;
+  assert.equal(record.embed.external.uri, "https://note.com/shanaiai/n/nabc123def456");
+  assert.equal(record.embed.external.title, "note向けの題");
+  assert.match(record.embed.external.description, /note/);
+  assert.match(record.text, /^📝 新しい記事：note向けの題\n\nnote向けの最初の段落です。/, "the note version's title and opening");
+  assert.match(record.text, /#生成AI/);
+  assert.ok(!live.calls.some((c) => c.path.includes("zenn.dev")), "Zenn isn't asked about it");
 });
 
 test("a wrong App Password stops the run with what to check; the client can't delete or follow", async () => {

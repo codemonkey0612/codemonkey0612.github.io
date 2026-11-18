@@ -9,6 +9,8 @@ import {
   authorContext,
   autowrite,
   closingOf,
+  lastZennUpload,
+  moveRefused,
   noteCompanions,
   notePrompt,
   openSlots,
@@ -20,6 +22,7 @@ import {
   topicPrompt,
   topicTool,
   uniqueSlug,
+  writeMornings,
   writePrompt,
 } from "../scripts/lib/writer-core.mjs";
 
@@ -109,7 +112,7 @@ test("requeue: sent once; if Zenn still doesn't take it, it's reported once and 
   assert.equal(first[0].status, "missing");
   assert.match(first[0].problems[0], /zenn\.dev\/dashboard\/deploys/);
   assert.equal(first[1].status, "scheduled", "and a new article is written for the open morning");
-  assert.equal(first[1].date, "2026-11-19 09:00");
+  assert.equal(first[1].date, "2026-11-18 09:00", "every morning gets an article; Zenn's spacing is separate");
   assert.equal(matter(fs.readFileSync(path.join(dir, "articles/missed-on-zenn.md"), "utf8")).data.published_at, "2026-11-17 09:00", "not moved again");
   const again = await run("2026-11-20T06:00");
   assert.ok(!again.some((r) => r.status === "missing"), "reported only once");
@@ -198,13 +201,14 @@ test("the writer plans, writes, fixes what the fact-check finds and schedules th
   assert.deepEqual(openSlots(dir, jst("2026-11-10T06:00"), 1), [], "the morning is now taken");
 });
 
-test("an article that still fails after two fixes is kept as an unpublished draft and the morning stays open", async () => {
+test("an article that still fails after two fixes is kept as an unpublished draft, out of Zenn's sight, and the morning stays open", async () => {
   const dir = repo();
   const { steps, calls } = fakeSteps({ checks: [report([wrong])] });
   const [r] = await autowrite({ root: dir, profile, config: { ...config, max_per_run: 1 }, now: jst("2026-11-10T06:00"), steps, textlint: () => ["textlint (line 3): 一文が長すぎます"] });
   assert.equal(r.status, "failed");
   assert.equal(calls.filter((c) => c[0] === "revise").length, 2);
-  const { data, content } = matter(fs.readFileSync(path.join(dir, "articles/rag-before-you-start.md"), "utf8"));
+  assert.equal(fs.existsSync(path.join(dir, "articles/rag-before-you-start.md")), false, "not left in articles/ for Zenn to import");
+  const { data, content } = matter(fs.readFileSync(path.join(dir, "off-zenn/rag-before-you-start.md"), "utf8"));
   assert.equal(data.published, false);
   assert.equal(data.published_at, undefined);
   assert.match(content, /^\s*<!-- autopilot: not published/);
@@ -287,8 +291,77 @@ test("the note prompt asks for note's readers and keeps the facts and the closin
   assert.match(user, /Title: Zennの題/);
 });
 
+// ---------- Zenn every few days, note and Qiita every morning ----------
+
+test("Zenn gets a morning's article only when its last upload is old enough; other mornings go to note and Qiita only", async () => {
+  const setup = () =>
+    repo({
+      "articles/last-on-zenn.md": zenn("2026-11-17 09:00"),
+      "autopilot/history.json": JSON.stringify([{ slug: "last-on-zenn", status: "scheduled", pillar: "sme", date: "2026-11-17 09:00", written_at: jst("2026-11-16T04:15").toISOString() }]),
+    });
+  const cfg = { ...config, zenn: { every_days: 3 } };
+  const { steps } = fakeSteps({ checks: [report()] });
+
+  const early = setup();
+  const r1 = await autowrite({ root: early, profile, config: cfg, now: jst("2026-11-18T04:13"), steps, textlint: () => [] });
+  assert.deepEqual(r1.map((r) => [r.date, r.zenn]), [["2026-11-18 09:00", false], ["2026-11-19 09:00", false]], "48 hours after the last upload: too soon");
+  assert.ok(fs.existsSync(path.join(early, "off-zenn/rag-before-you-start.md")));
+  assert.ok(!fs.existsSync(path.join(early, "articles/rag-before-you-start.md")));
+
+  const due = setup();
+  const r2 = await autowrite({ root: due, profile, config: cfg, now: jst("2026-11-19T04:13"), steps, textlint: () => [] });
+  assert.deepEqual(r2.map((r) => [r.date, r.zenn]), [["2026-11-19 09:00", true], ["2026-11-20 09:00", false]], "72 hours: this one goes to Zenn, the next waits");
+  assert.ok(fs.existsSync(path.join(due, "articles/rag-before-you-start.md")));
+  assert.ok(fs.existsSync(path.join(due, "off-zenn/rag-before-you-start-2.md")));
+});
+
+test("an article Zenn refused moves to off-zenn/ (it still goes to note and Qiita); one Zenn holds, or just sent, stays", async () => {
+  const sent = (slug, at) => ({ slug, status: "scheduled", pillar: "sme", date: "2026-11-20 09:00", written_at: jst(at).toISOString() });
+  const dir = repo({
+    "articles/refused-one.md": zenn("2026-11-20 09:00"),
+    "articles/held-by-zenn.md": zenn("2026-11-21 09:00"),
+    "articles/just-sent-one.md": zenn("2026-11-22 09:00"),
+    "articles/written-by-hand.md": zenn("2026-11-23 09:00"),
+    "autopilot/history.json": JSON.stringify([sent("refused-one", "2026-11-19T04:15"), sent("held-by-zenn", "2026-11-19T04:15"), sent("just-sent-one", "2026-11-20T04:00")]),
+  });
+  const status = { "refused-one": 404, "held-by-zenn": 403, "just-sent-one": 404, "written-by-hand": 404 };
+  const moved = await moveRefused({ root: dir, now: jst("2026-11-20T04:13"), zennStatus: async (s) => status[s] });
+  assert.deepEqual(moved.map((m) => [m.slug, m.status, m.file]), [["refused-one", "zenn refused", "off-zenn/refused-one.md"]]);
+  assert.ok(fs.existsSync(path.join(dir, "off-zenn/refused-one.md")) && !fs.existsSync(path.join(dir, "articles/refused-one.md")));
+  assert.ok(fs.existsSync(path.join(dir, "articles/held-by-zenn.md")), "403: Zenn holds it");
+  assert.ok(fs.existsSync(path.join(dir, "articles/just-sent-one.md")), "sent under an hour ago");
+  assert.ok(fs.existsSync(path.join(dir, "articles/written-by-hand.md")), "not sent by the writer");
+  assert.equal(lastZennUpload(dir).toISOString(), jst("2026-11-20T04:00").toISOString(), "a refused upload isn't Zenn's last one");
+});
+
+test("note and Qiita versions are written for every morning's article, on Zenn or not; `only` limits them", async () => {
+  const dir = repo({
+    "off-zenn/off-zenn-article.md": zennWithClosing("2026-11-20 09:00"),
+    "articles/zenn-article-01.md": zennWithClosing("2026-11-21 09:00"),
+  });
+  const { steps } = noteSteps([report()]);
+  const now = jst("2026-11-19T04:13");
+  const first = await noteCompanions({ root: dir, profile, config, now, steps, textlint: () => [], only: ["off-zenn-article"] });
+  assert.deepEqual(first.map((r) => [r.status, r.zenn]), [["scheduled", "off-zenn/off-zenn-article.md"]]);
+  const rest = await noteCompanions({ root: dir, profile, config, now, steps, textlint: () => [] });
+  assert.deepEqual(rest.map((r) => r.zenn), ["articles/zenn-article-01.md"]);
+});
+
+test("a run finishes each morning (its article, then its Qiita and note versions) before starting the next", async () => {
+  const dir = repo();
+  const { steps, calls } = noteSteps([report()]);
+  let n = 0;
+  const qiitaBody = `${Array.from({ length: 60 }, (_, i) => `処理${i}は入力を検証して辞書に変換します。`).join("")}\n\n\`\`\`python\nprint(1)\n\`\`\`\n`;
+  const all = { ...steps, writeQiita: async () => (calls.push(["qiita"]), { value: { title: `Qiitaの記事その${++n}を検証する`, tags: ["Python"], body: qiitaBody }, usage }) };
+  const cfg = { ...config, qiita: "daily", note_version: true, note: "auto" };
+  const r = await writeMornings({ root: dir, profile, config: cfg, steps: all, now: jst("2026-11-10T06:00"), textlint: () => [], zennStatus: async () => 403 });
+  assert.deepEqual(r.results.map((x) => x.date), ["2026-11-10 09:00", "2026-11-11 09:00"]);
+  assert.deepEqual(calls.map((c) => c[0]).filter((c) => ["topic", "qiita", "note"].includes(c)), ["topic", "qiita", "note", "topic", "qiita", "note"]);
+  assert.deepEqual([r.qiita.map((x) => x.status), r.note.map((x) => x.status)], [["scheduled", "scheduled"], ["scheduled", "scheduled"]]);
+});
+
 test("a new article never reuses a slug that's taken on any platform", () => {
-  const dir = repo({ "notes/old-slug-here.md": "x", "zenn-missed/missed-slug-x.md": "x", "public/qiita-slug-x.md": "x" });
+  const dir = repo({ "notes/old-slug-here.md": "x", "off-zenn/missed-slug-x.md": "x", "public/qiita-slug-x.md": "x" });
   assert.equal(uniqueSlug(dir, "old-slug-here"), "old-slug-here-2");
   assert.equal(uniqueSlug(dir, "missed-slug-x"), "missed-slug-x-2");
   assert.equal(uniqueSlug(dir, "qiita-slug-x"), "qiita-slug-x-2");

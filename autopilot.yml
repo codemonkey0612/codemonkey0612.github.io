@@ -1,7 +1,8 @@
 # The automatic writer (scripts/autowrite.mjs, run every morning by .github/workflows/write.yml).
-# It picks a topic, researches it, writes the article, checks it (validate, textlint and the
-# Claude fact-check, with up to two rounds of fixes) and schedules it for the next free 09:00
-# (Japan time). Zenn publishes it then, and the Publish workflow copies it to Qiita.
+# For every morning (09:00 Japan time) it picks a topic, researches it, writes the article,
+# checks it (validate, textlint and the Claude fact-check, with up to two rounds of fixes) and
+# writes its Qiita and note versions, which the Publish workflow posts that morning. Every few
+# days (zenn.every_days, Zenn's posting limit) the article itself also goes to Zenn.
 #
 # Zenn's terms count posting machine-generated text as spam and Zenn can freeze accounts;
 # Qiita asks you to check AI-written content before posting. `mode: auto` publishes without
@@ -19,17 +20,19 @@ claude:
   model: claude-sonnet-5-5  # claude-opus-5-5 writes a little better at about twice the price
   effort: medium            # low | medium | high (more thinking, more output tokens, more cost)
   fix_rounds: 2             # rounds of fixes after the checks (each one is a full fact-check)
-  budget_usd_per_day: 1     # no new article (Zenn, Qiita or note) is started once today's runs
+  budget_usd_per_day: 1.5   # no new article (Zenn, Qiita or note) is started once today's runs
                             # have spent this much; the rest is written on the next run (articles
-                            # are written a day ahead, so a wait still makes the morning)
+                            # are written a day ahead, so a wait still makes the morning). $1.5
+                            # since 2026-11-18 (an article, its Qiita and its note version every
+                            # day: about $1–1.4); $1 before.
 note: auto            # auto: publish each article on note at 09:00 too (needs the NOTE_SESSION
                       # secret) | draft: save it as a note draft for you | off: no note copies
 note_version: true    # true (since 2026-11-18): the writer also writes a separate note article
                       # for each morning, for note's readers (mostly non-engineers: plain words, a
-                      # first-person story, takeaways anyone can use), on the Zenn article's
+                      # first-person story, takeaways anyone can use), on the morning article's
                       # topic, checked like the others (note-src/<slug>.md); it goes to note in
-                      # place of the Zenn copy. About $0.3 more per article. If it isn't ready or
-                      # fails its checks, note gets the Zenn copy as before | false: the Zenn copy.
+                      # place of the article's copy. About $0.3 more per article. If it isn't
+                      # ready or fails its checks, note gets the article's copy | false: the copy.
 qiita: daily          # daily: the writer also writes a separate Qiita article for each morning
                       # (engineer-facing, working code, no links to your site, Lancers, Zenn or
                       # note, little text shared with the Zenn article) and the Publish job posts
@@ -37,22 +40,26 @@ qiita: daily          # daily: the writer also writes a separate Qiita article f
                       # qiita/PAUSED exists (written when Qiita hides or refuses a post; delete it
                       # to resume) | auto: copy each Zenn article to Qiita (Qiita hid the first
                       # copy on 2026-11-09) | manual: only what you put in public/ | off: nothing.
-bluesky: auto         # auto: announce each new article on Bluesky once it's live on Zenn (title,
-                      # opening, your service page, a link card) | off: no Bluesky posts. Needs
-                      # platforms.bluesky in profile.yml and the BLUESKY_APP_PASSWORD secret.
+bluesky: auto         # auto: announce each new article on Bluesky (title, opening, your service
+                      # page, a link card to Zenn, or to the note post when it isn't on Zenn) |
+                      # off: no Bluesky posts. Needs platforms.bluesky in profile.yml and the
+                      # BLUESKY_APP_PASSWORD secret.
 
-# Zenn limits how many articles each account may post in a period (it doesn't publish the
-# numbers). The articles for 2026-11-14, 11-16 and 11-17 never reached Zenn (their pages 404).
-# every_days 2 since 2026-11-17. requeue_missing was on from 2026-11-17 and is off since
-# 2026-11-18 (your choice): the open mornings get new articles, and those three stay on note and
-# Qiita only. A delayed run had already sent the 11-14 one again (for 11-20) on 11-18 at 10:36
-# JST and Zenn refused it again, so all three were moved to zenn-missed/ (that frees 11-20, and
-# the hub site no longer links to Zenn pages that don't exist). To try Zenn again, move one back
-# to articles/ and set requeue_missing: true.
+# Zenn limits how many articles each account may post (its Deploys page: 「投稿数の上限に達した
+# ためデプロイされませんでした」; counted over about the last 24 hours, scheduled ones included,
+# and the cap moves with your recent pace; Zenn publishes no numbers and doesn't retry a refused
+# article). Yours were accepted 48 and 71 hours after the previous upload and refused at 24–50,
+# so since 2026-11-18 Zenn gets an article about every 3 days while note and Qiita get one every
+# morning. An article Zenn refuses anyway moves to off-zenn/ on the next run (its note and Qiita
+# posts still go out; Bluesky links the note post). The three Zenn refused on 2026-11-12/14/15
+# (and again on 11-18) are in off-zenn/ too, and stay on note and Qiita only (your choice).
 zenn:
-  every_days: 2           # a Zenn article every this many mornings: 2 = every other morning. note,
-                          # Qiita and Bluesky follow, since each goes with a Zenn article.
-  requeue_missing: false  # true: an article Zenn never took (page still 404 an hour after its
+  every_days: 3           # an article goes to Zenn when the last one the writer sent there (and
+                          # Zenn kept) is at least this many days old, less 6 hours (3: 66 h);
+                          # the other mornings' articles go to note and Qiita only (off-zenn/).
+                          # 1: every article goes to Zenn.
+  requeue_missing: false  # false: an article Zenn refused moves to off-zenn/ (above) | true: an
+                          # article Zenn never took (page still 404 an hour after its
                           # morning) gets the next open morning instead of a new article, one per
                           # run. Zenn imports a file only when it changes, so the moved date sends
                           # it again. If Zenn still doesn't take it, the run fails and it's left
@@ -60,9 +67,10 @@ zenn:
 
 # What to write about. The writer rotates through these by weight, so roughly 3 in 11 posts are
 # stories from your own projects, 3 in 11 about small-business problems, 3 in 11 about AI and
-# software work and 2 in 11 about recent technology news. Each topic goes out in three versions:
-# Zenn (written for the pillar's audience), Qiita (engineers, with code) and note (general readers,
-# in note's style; note_version above), so no audience is left out.
+# software work and 2 in 11 about recent technology news. Each morning's topic goes out on Qiita
+# (engineers, with code) and note (general readers, in note's style; note_version above), and
+# every few days on Zenn too (the article as written, for the pillar's audience), so no
+# audience is left out.
 pillars:
   - id: case-story
     weight: 3

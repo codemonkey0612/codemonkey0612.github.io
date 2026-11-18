@@ -197,6 +197,22 @@ test("note_version: the note article the writer prepared goes to note in place o
   assert.deepEqual([copy.data.title, copy.data.hashtags], ["今日の記事", ["ai", "rag"]], "a failed note version: the Zenn copy, as before");
 });
 
+test("a morning's article in off-zenn/ gets its note copy too, and a copy stays ours when its article moves there", () => {
+  const now = jst("2026-11-10T09:00");
+  const dir = repo({ "off-zenn/off-zenn-day-1.md": zenn("note向けの日", { at: "2026-11-10 09:00" }) });
+  const [r] = crosspost({ root: dir, profile, now, qiita: false, note: true, cover: () => null });
+  assert.equal(r.action, "created");
+  assert.match(matter(fs.readFileSync(path.join(dir, "notes/off-zenn-day-1.md"), "utf8")).content, /^<!-- crossposted from off-zenn\/off-zenn-day-1\.md/);
+
+  // Copied while the article was in articles/, then Zenn refused it and it moved to off-zenn/.
+  const dir2 = repo({ "articles/moved-day-001.md": zenn("移った記事", { at: "2026-11-10 09:00" }) });
+  crosspost({ root: dir2, profile, now, qiita: false, note: true, cover: () => null });
+  fs.mkdirSync(path.join(dir2, "off-zenn"));
+  fs.renameSync(path.join(dir2, "articles/moved-day-001.md"), path.join(dir2, "off-zenn/moved-day-001.md"));
+  const [again] = crosspost({ root: dir2, profile, now, qiita: false, note: true, cover: () => null });
+  assert.equal(again.action, "updated", "still ours, not someone else's post");
+});
+
 test("a header image you put at notes/<slug>.jpg (or .png) is used instead of a package image", () => {
   const dir = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }), "notes/live-article-01.jpg": "jpeg" });
   let made = 0;

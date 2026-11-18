@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Announces each new Zenn article on Bluesky: one post with its title, its opening sentences,
-// a link to the service page the article ends with, up to three hashtags, and a link card to
-// the article (with the same Lancers package image as the note copy). The Publish workflow runs
+// Announces each new article on Bluesky: one post with its title, its opening sentences, a link
+// to the service page the article ends with, up to three hashtags, and a link card to the
+// article (with the same Lancers package image as the note copy). The card links to Zenn, or,
+// for a morning whose article isn't on Zenn (off-zenn/), to its note post. The Publish workflow runs
 // this after the 09:00 wait once the BLUESKY_APP_PASSWORD secret is set and profile.yml has
 // platforms.bluesky (your handle); autopilot.yml `bluesky: off` stops it. See README.
 //   node scripts/bluesky-post.mjs            post what's new (live on Zenn in the last 2 days)
@@ -17,7 +18,7 @@ import YAML from "yaml";
 import { loadProfile, rel, ROOT, siteUrls } from "./lib/common.mjs";
 import { BlueskyClient, graphemeLength, MAX_GRAPHEMES, postUrl, richText } from "./lib/bluesky-client.mjs";
 import { chooseCover, coverPath, coverUsage, loadCovers } from "./lib/note-covers.mjs";
-import { isLive, zennArticles } from "./lib/schedule.mjs";
+import { anchors, isLive, noteVersionOf } from "./lib/schedule.mjs";
 
 export const RECENT_MS = 2 * 24 * 60 * 60 * 1000; // older articles (before you connected Bluesky) aren't posted
 export const RECORD = path.join("social", "bluesky.yml");
@@ -70,8 +71,8 @@ export function serviceLink(markdown, profile) {
   return own ? site + own.slice(new URL(own).origin.length) : profile.site_url;
 }
 
-/** The post for an article: text with links and hashtags, and a link card to the article. */
-export function composePost(article, { profile, articleUrl }) {
+/** The post for an article: text with links and hashtags, and a link card to the article (on Zenn, or on note). */
+export function composePost(article, { profile, articleUrl, where = "Zenn" }) {
   const title = String(article.data.title);
   const service = serviceLink(article.content, profile);
   const head = `📝 新しい記事：${title}`;
@@ -88,7 +89,7 @@ export function composePost(article, { profile, articleUrl }) {
     text,
     facets,
     langs: ["ja"],
-    embed: { $type: "app.bsky.embed.external", external: { uri: articleUrl, title, description: `${profile.brand ?? ""}の技術記事（Zenn）`.replace(/^の/, "") } },
+    embed: { $type: "app.bsky.embed.external", external: { uri: articleUrl, title, description: `${profile.brand ?? ""}${where === "note" ? "の記事（note）" : "の技術記事（Zenn）"}`.replace(/^の/, "") } },
   };
 }
 
@@ -107,14 +108,31 @@ function coverFor(root, article) {
 }
 
 /**
- * Posts every article that went live on Zenn in the last RECENT_MS and isn't on Bluesky yet.
+ * Where an article that isn't on Zenn (off-zenn/) is read: its public note post, announced with
+ * the note version's title and opening (or the article's, when note got the plain copy). Null
+ * until the note post is up.
+ */
+function onNote(root, a) {
+  const file = path.join(root, "notes", `${a.slug}.md`);
+  if (!fs.existsSync(file)) return null;
+  const n = matter(fs.readFileSync(file, "utf8"));
+  if (typeof n.data.url !== "string" || !n.data.url.startsWith("https://note.com/")) return null;
+  const v = noteVersionOf(root, a.slug);
+  const listed = (x) => (Array.isArray(x) && x.length ? x : null);
+  const tags = listed(n.data.hashtags) ?? listed(v?.data.hashtags) ?? a.data.topics;
+  return { url: n.data.url, article: { slug: a.slug, data: { title: n.data.title ?? a.data.title, topics: tags }, content: v ? v.content : a.content } };
+}
+
+/**
+ * Posts every article that went live in the last RECENT_MS and isn't on Bluesky yet: one on
+ * Zenn links to Zenn (once Zenn shows it), one that isn't (off-zenn/) links to its note post.
  * Returns one result per article: { slug, action: "posted" | "found" | "waiting" | "dry-run" | "failed", ... }.
  */
 export async function syncBluesky({ root = ROOT, client, profile, now = new Date(), dryRun = false, fetchPage = globalThis.fetch, log = () => {} }) {
   const zenn = profile.platforms?.zenn;
   if (!isSet(zenn)) throw new Error("profile.yml platforms.zenn is not set, so there's no article link to post");
   const record = loadRecord(root);
-  const due = zennArticles(root).filter((a) => a.at && isLive(a.data, now) && now - a.at <= RECENT_MS && !record[a.slug]);
+  const due = anchors(root).filter((a) => a.at && isLive(a.data, now) && now - a.at <= RECENT_MS && !record[a.slug]);
   const results = [];
   if (!due.length) return results;
   let recent = [];
@@ -123,8 +141,13 @@ export async function syncBluesky({ root = ROOT, client, profile, now = new Date
     recent = await client.recentPosts(50);
   }
   for (const a of due) {
-    const articleUrl = `https://zenn.dev/${zenn}/articles/${a.slug}`;
-    const post = composePost(a, { profile, articleUrl });
+    const note = a.zenn ? null : onNote(root, a);
+    if (!a.zenn && !note) {
+      results.push({ slug: a.slug, action: "waiting", reason: "it isn't on Zenn, and its note post isn't up yet" });
+      continue;
+    }
+    const articleUrl = a.zenn ? `https://zenn.dev/${zenn}/articles/${a.slug}` : note.url;
+    const post = a.zenn ? composePost(a, { profile, articleUrl }) : composePost(note.article, { profile, articleUrl, where: "note" });
     if (dryRun) {
       results.push({ slug: a.slug, action: "dry-run", text: post.text, link: articleUrl });
       continue;
@@ -141,7 +164,7 @@ export async function syncBluesky({ root = ROOT, client, profile, now = new Date
       // Zenn publishes on its own; don't link a page that isn't up yet (a later run posts it).
       const page = await fetchPage(articleUrl, { method: "GET" });
       if (!page.ok) {
-        results.push({ slug: a.slug, action: "waiting", reason: `${articleUrl} isn't public on Zenn yet (HTTP ${page.status})` });
+        results.push({ slug: a.slug, action: "waiting", reason: `${articleUrl} isn't public on ${a.zenn ? "Zenn" : "note"} yet (HTTP ${page.status})` });
         continue;
       }
       const image = coverFor(root, a);

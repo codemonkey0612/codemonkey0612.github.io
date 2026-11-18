@@ -11,7 +11,7 @@ import { z } from "zod";
 import { addUsage, costUsd, emptyUsage, PRICES, runSubmitTask } from "./claude-run.mjs";
 import { factcheck, severity } from "./factcheck-core.mjs";
 import { careerYears } from "./site-core.mjs";
-import { dayIsFree, jstDay, PUBLISH_TIME, publishedAt, zennArticles } from "./schedule.mjs";
+import { anchors, dayIsFree, jstDay, OFF_ZENN_DIR, PUBLISH_TIME, publishedAt, zennArticles } from "./schedule.mjs";
 import { validateArticle } from "./validate-core.mjs";
 
 export class WriterError extends Error {}
@@ -101,12 +101,13 @@ function appendHistory(root, entry) {
 }
 
 /**
- * Mornings (09:00 JST) in the next `daysAhead` days that have no article yet, counting one
- * waiting in a pull request (review mode) as taken. A morning counts while it's ≥ 60 min away.
- * With `every` > 1, a morning is open only when no article is within `every` − 1 days of it.
+ * Mornings (09:00 JST) in the next `daysAhead` days that have no article yet (on Zenn or in
+ * off-zenn/), counting one waiting in a pull request (review mode) as taken. A morning counts
+ * while it's ≥ 60 min away. With `every` > 1, a morning is open only when no article is within
+ * `every` − 1 days of it (the writer itself fills every morning: Zenn's spacing is zennUploadDue).
  */
 export function openSlots(root, now, daysAhead, { history = readHistory(root), every = 1 } = {}) {
-  const taken = new Set(zennArticles(root).filter((a) => a.at).map((a) => jstDay(a.at)));
+  const taken = new Set(anchors(root).filter((a) => a.at).map((a) => jstDay(a.at)));
   for (const h of history) if (h.status === "in review" && publishedAt(h.date)) taken.add(jstDay(publishedAt(h.date)));
   const first = publishedAt(`${jstDay(now)} ${PUBLISH_TIME}`) - now >= 60 * 60 * 1000 ? 0 : 1;
   const slots = [];
@@ -173,6 +174,62 @@ export async function requeueMissing({ root, now, slot, zennStatus, log = () => 
     return { requeued: true, entries };
   }
   return { requeued: false, entries };
+}
+
+// ---------- Zenn's posting limit: an upload every few days, the rest go to note and Qiita only ----------
+
+const HOUR_MS = 3_600_000;
+
+/**
+ * When the writer last sent an article to Zenn that Zenn still has: the latest written_at of
+ * its runs for articles now in articles/ (one Zenn refused has been moved out by moveRefused,
+ * so it doesn't count). Null if there's none.
+ */
+export function lastZennUpload(root, history = readHistory(root)) {
+  const onZenn = new Set(zennArticles(root).map((a) => a.slug));
+  const times = history
+    .filter((h) => h.slug && onZenn.has(h.slug) && ["scheduled", "requeued", "in review"].includes(h.status) && h.written_at)
+    .map((h) => Date.parse(h.written_at))
+    .filter(Number.isFinite);
+  return times.length ? new Date(Math.max(...times)) : null;
+}
+
+/**
+ * May the article being written now go to Zenn? Zenn limits how many articles an account may
+ * post in a period, and refuses the rest (2026-11: accepted 48 and 71 hours after the previous
+ * one, refused at 24–50). `every` days apart, less 6 hours so a run that starts a little late
+ * still counts: with every 3, at least 66 hours after the last upload. every 1: always.
+ */
+export function zennUploadDue(root, now, every, history = readHistory(root)) {
+  if (every <= 1) return true;
+  const last = lastZennUpload(root, history);
+  return !last || now - last >= (every * 24 - 6) * HOUR_MS;
+}
+
+/**
+ * Articles Zenn refused (with `requeue_missing` off): an article in articles/ that the writer
+ * sent at least an hour ago (and in the last 14 days) whose Zenn page is 404 moves to off-zenn/.
+ * Zenn doesn't retry it anyway; its note and Qiita posts still go out on its morning, Bluesky
+ * announces the note post instead, and the hub site doesn't link to a missing Zenn page. A 403
+ * (Zenn holds it) or an unreachable Zenn leaves it alone. Returns the history entries it added.
+ */
+export async function moveRefused({ root, now, zennStatus, log = () => {} }) {
+  const sent = new Map();
+  for (const h of readHistory(root)) if (h.slug && h.written_at && ["scheduled", "requeued"].includes(h.status)) sent.set(h.slug, Date.parse(h.written_at));
+  const entries = [];
+  for (const a of zennArticles(root)) {
+    const at = sent.get(a.slug);
+    if (a.data.published !== true || !at || now - at < MISSING_AFTER_MS || now - at > MISSING_WITHIN_MS) continue;
+    if ((await zennStatus(a.slug)) !== 404) continue;
+    const dest = path.join(root, OFF_ZENN_DIR, path.basename(a.file));
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.renameSync(a.file, dest);
+    const entry = { date: String(a.data.published_at), slug: a.slug, title: a.data.title, file: path.relative(root, dest), written_at: now.toISOString(), status: "zenn refused", cost_usd: 0 };
+    appendHistory(root, entry);
+    entries.push(entry);
+    log(`autowrite: Zenn didn't take 「${a.data.title}」 (posting limit, most likely); it goes to note and Qiita only (${OFF_ZENN_DIR}/)`);
+  }
+  return entries;
 }
 
 /** The pillar furthest behind its share over recent posts (weights from autopilot.yml). */
@@ -504,7 +561,7 @@ function writeFile(file, frontMatter, body) {
 // A slug already used anywhere (Zenn, its Qiita and note posts, the prepared versions, or an
 // article Zenn never took) is taken: a new article reusing it would find its Qiita and note
 // posts "already done" and skip them.
-const SLUG_DIRS = ["articles", "public", "qiita", "notes", "note-src", "zenn-missed"];
+const SLUG_DIRS = ["articles", OFF_ZENN_DIR, "public", "qiita", "notes", "note-src"];
 export function uniqueSlug(root, slug) {
   const taken = (s) => SLUG_DIRS.some((d) => fs.existsSync(path.join(root, d, `${s}.md`)));
   let s = slug;
@@ -528,13 +585,15 @@ async function check({ root, file, profile, steps, textlint }) {
 }
 
 /**
- * Fills the open mornings. For each one: plan a topic, write, check, fix (up to two rounds).
- * A passing article is saved scheduled for its morning (published: true in auto mode, and in
- * review mode for the pull request to carry). A failing one is saved as an unscheduled Zenn
- * draft (published: false, no date) with the remaining problems at the top, so the morning
- * stays open for the next run.
+ * Fills the open mornings (or just `slots`, when given). For each one: plan a topic, write,
+ * check, fix (up to two rounds). A passing article is saved scheduled for its morning
+ * (published: true in auto mode, and in review mode for the pull request to carry): in
+ * articles/ when a Zenn upload is due (zennUploadDue), otherwise in off-zenn/, from where only
+ * its note and Qiita versions go out. A failing one is saved as an unscheduled draft (published:
+ * false, no date) in off-zenn/, never sent to Zenn, with the remaining problems at the top, so
+ * the morning stays open for the next run.
  */
-export async function autowrite({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, ideas = "", log = () => {}, zennStatus = zennPageStatus(profile), trends = async () => "" }) {
+export async function autowrite({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, ideas = "", log = () => {}, zennStatus = zennPageStatus(profile), trends = async () => "", slots = null }) {
   const author = authorContext(profile);
   const today = jstDay(now);
   const { model, fixRounds, budget } = claudeSettings(config);
@@ -550,7 +609,7 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
     return digest;
   };
   const results = [];
-  for (const slot of openSlots(root, now, config.days_ahead, { every }).slice(0, config.max_per_run)) {
+  for (const slot of slots ?? openSlots(root, now, config.days_ahead).slice(0, config.max_per_run)) {
     if (!requeueTried) {
       requeueTried = true;
       const r = await requeueMissing({ root, now, slot, zennStatus, log });
@@ -563,16 +622,18 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
     }
     const usage = emptyUsage();
     const pillar = pickPillar(config, readHistory(root));
-    const recentTitles = [...new Set([...zennArticles(root).map((a) => a.data.title), ...readHistory(root).map((h) => h.title)].filter(Boolean))].slice(-60);
-    const entry = { date: slot, pillar: pillar.id, written_at: now.toISOString() };
+    const recentTitles = [...new Set([...anchors(root).map((a) => a.data.title), ...readHistory(root).map((h) => h.title)].filter(Boolean))].slice(-60);
+    // Zenn gets this one only if its last upload was long enough ago; otherwise note and Qiita only.
+    const toZenn = zennUploadDue(root, now, every);
+    const entry = { date: slot, pillar: pillar.id, written_at: now.toISOString(), zenn: toZenn };
     try {
-      log(`autowrite: ${slot} — planning a ${pillar.id} article`);
+      log(`autowrite: ${slot} — planning a ${pillar.id} article (${toZenn ? "Zenn, Qiita and note" : "Qiita and note; Zenn's next upload isn't due yet"})`);
       const t = await steps.chooseTopic({ author, config, pillar, recentTitles, ideas, today, trends: await readTrends() });
       addUsage(usage, t.usage);
       const topic = t.value;
       const service = author.services.find((s) => s.id === topic.service_id) ?? author.services[0];
       const slug = uniqueSlug(root, topic.slug);
-      const file = path.join(root, "articles", `${slug}.md`);
+      let file = path.join(root, toZenn ? "articles" : OFF_ZENN_DIR, `${slug}.md`);
       Object.assign(entry, { slug, title: topic.title, service: service.id });
       const frontMatter = {
         title: topic.title,
@@ -605,8 +666,13 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
       if (result.problems.length) {
         const { published_at, ...draft } = frontMatter;
         const note = `<!-- autopilot: not published, these checks still failed:\n${result.problems.map((p) => `- ${p.replace(/--/g, "‐‐")}`).join("\n")}\n-->`;
+        // Kept out of Zenn (a draft there may still count against its posting limit).
+        if (toZenn) {
+          fs.rmSync(file, { force: true });
+          file = path.join(root, OFF_ZENN_DIR, `${slug}.md`);
+        }
         writeFile(file, { ...draft, published: false }, `${note}\n\n${body}`);
-        Object.assign(entry, { status: "failed", problems: result.problems });
+        Object.assign(entry, { status: "failed", problems: result.problems, zenn: false });
       } else {
         Object.assign(entry, { status: config.mode === "auto" ? "scheduled" : "in review", fact_check_warnings: result.warnings });
       }
@@ -620,6 +686,41 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
     log(`autowrite: ${entry.status} — ${entry.title ?? "(no topic)"} ($${entry.cost_usd})`);
   }
   return results;
+}
+
+/**
+ * One run of the writer, as the Write workflow does it every morning:
+ * 1. an article Zenn refused moves to off-zenn/ (with requeue_missing off; on, it's sent again);
+ * 2. the Qiita and note versions still missing for mornings already written, nearest first;
+ * 3. each open morning in turn: its article (to Zenn when an upload is due, otherwise off-zenn/),
+ *    then its Qiita and note versions, so a day's budget never leaves the nearest morning half done.
+ * Returns { slots, moved, results, qiita, note }.
+ */
+export async function writeMornings({ root, profile, config, steps, now = new Date(), ideas = "", log = () => {}, trends = async () => "", zennStatus = zennPageStatus(profile), textlint = textlintErrors }) {
+  const qiitaDaily = config.qiita === "daily";
+  const noteVersions = config.note_version && config.note !== "off";
+  const moved = zennSettings(config).requeue ? [] : await moveRefused({ root, now, zennStatus, log });
+  const qiita = [];
+  const note = [];
+  // The Qiita version, then the note version (one after the other: each checks the day's budget).
+  const companions = async (only = null) => {
+    if (qiitaDaily) qiita.push(...(await qiitaCompanions({ root, profile, config, now, steps, textlint, log, only })));
+    if (noteVersions) note.push(...(await noteCompanions({ root, profile, config, now, steps, textlint, log, only })));
+  };
+  await companions();
+  let digest = null;
+  const readTrends = async () => (digest ??= await trends());
+  const results = [];
+  const slots = openSlots(root, now, config.days_ahead).slice(0, config.max_per_run);
+  for (const [i, slot] of slots.entries()) {
+    // At most one article is sent to Zenn again per run (requeue_missing).
+    const runConfig = i ? { ...config, zenn: { ...config.zenn, requeue_missing: false } } : config;
+    const made = await autowrite({ root, profile, config: runConfig, now, steps, textlint, ideas, log, zennStatus, trends: readTrends, slots: [slot] });
+    results.push(...made);
+    const fresh = made.filter((r) => r.date === slot && r.slug && ["scheduled", "in review", "requeued"].includes(r.status)).map((r) => r.slug);
+    if (fresh.length) await companions(fresh);
+  }
+  return { slots, moved, results, qiita, note };
 }
 
 // ---------- the daily Qiita article (autopilot.yml `qiita: daily`) ----------
@@ -667,13 +768,19 @@ async function checkQiita({ root, file, zenn, profile, steps, textlint }) {
  * and little shared text. A passing one gets published_at (the Zenn article's morning) and the
  * Publish workflow posts it then; a failing one is kept without a date, so it's never posted.
  */
-export async function qiitaCompanions({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, log = () => {} }) {
+export async function qiitaCompanions({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, log = () => {}, only = null }) {
   const author = authorContext(profile);
   const today = jstDay(now);
   const { model, fixRounds, budget } = claudeSettings(config);
   const results = [];
-  const todo = zennArticles(root).filter(
-    (a) => a.data.published === true && a.at && jstDay(a.at) >= today && ![path.join(root, "public", `${a.slug}.md`), path.join(root, QIITA_DIR, `${a.slug}.md`)].some((f) => fs.existsSync(f)),
+  // Every scheduled morning's article, on Zenn or not (`only`: just these slugs), nearest first.
+  const todo = anchors(root).filter(
+    (a) =>
+      (!only || only.includes(a.slug)) &&
+      a.data.published === true &&
+      a.at &&
+      jstDay(a.at) >= today &&
+      ![path.join(root, "public", `${a.slug}.md`), path.join(root, QIITA_DIR, `${a.slug}.md`)].some((f) => fs.existsSync(f)),
   );
   for (const a of todo.slice(0, config.days_ahead + 1)) {
     if (spentToday(root, now) >= budget) {
@@ -682,7 +789,7 @@ export async function qiitaCompanions({ root, profile, config, now = new Date(),
     }
     const usage = emptyUsage();
     const slot = String(a.data.published_at);
-    const entry = { date: slot, zenn: `articles/${a.slug}.md`, written_at: now.toISOString() };
+    const entry = { date: slot, zenn: `${a.dir}/${a.slug}.md`, written_at: now.toISOString() };
     const file = path.join(root, QIITA_DIR, `${a.slug}.md`);
     const zenn = { title: String(a.data.title), body: a.content.trim() };
     try {
@@ -691,7 +798,7 @@ export async function qiitaCompanions({ root, profile, config, now = new Date(),
       addUsage(usage, w.usage);
       const { title, tags } = w.value;
       let body = w.value.body;
-      const frontMatter = { title, tags, private: false, ignorePublish: true, zenn: `articles/${a.slug}.md` };
+      const frontMatter = { title, tags, private: false, ignorePublish: true, zenn: `${a.dir}/${a.slug}.md` };
       Object.assign(entry, { title, file: path.relative(root, file) });
       writeFile(file, frontMatter, body);
       let result;
@@ -763,13 +870,19 @@ async function checkNoteVersion({ root, file, zenn, profile, steps, textlint }) 
  * then, in place of the Zenn copy; a failing one is kept with status: failed, and note gets the
  * Zenn copy as before.
  */
-export async function noteCompanions({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, log = () => {} }) {
+export async function noteCompanions({ root, profile, config, now = new Date(), steps, textlint = textlintErrors, log = () => {}, only = null }) {
   const author = authorContext(profile);
   const today = jstDay(now);
   const { model, fixRounds, budget } = claudeSettings(config);
   const results = [];
-  const todo = zennArticles(root).filter(
-    (a) => a.data.published === true && a.at && jstDay(a.at) >= today && ![path.join(root, "notes", `${a.slug}.md`), path.join(root, NOTE_DIR, `${a.slug}.md`)].some((f) => fs.existsSync(f)),
+  // Every scheduled morning's article, on Zenn or not (`only`: just these slugs), nearest first.
+  const todo = anchors(root).filter(
+    (a) =>
+      (!only || only.includes(a.slug)) &&
+      a.data.published === true &&
+      a.at &&
+      jstDay(a.at) >= today &&
+      ![path.join(root, "notes", `${a.slug}.md`), path.join(root, NOTE_DIR, `${a.slug}.md`)].some((f) => fs.existsSync(f)),
   );
   for (const a of todo.slice(0, config.days_ahead + 1)) {
     if (spentToday(root, now) >= budget) {
@@ -778,7 +891,7 @@ export async function noteCompanions({ root, profile, config, now = new Date(), 
     }
     const usage = emptyUsage();
     const slot = String(a.data.published_at);
-    const entry = { date: slot, zenn: `articles/${a.slug}.md`, written_at: now.toISOString() };
+    const entry = { date: slot, zenn: `${a.dir}/${a.slug}.md`, written_at: now.toISOString() };
     const file = path.join(root, NOTE_DIR, `${a.slug}.md`);
     const zenn = { title: String(a.data.title), body: a.content.trim() };
     try {
@@ -787,7 +900,7 @@ export async function noteCompanions({ root, profile, config, now = new Date(), 
       addUsage(usage, w.usage);
       const { title, hashtags } = w.value;
       let body = w.value.body;
-      const frontMatter = { title, hashtags, zenn: `articles/${a.slug}.md` };
+      const frontMatter = { title, hashtags, zenn: `${a.dir}/${a.slug}.md` };
       Object.assign(entry, { title, file: path.relative(root, file) });
       writeFile(file, frontMatter, body);
       let result;

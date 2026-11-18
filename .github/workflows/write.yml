@@ -3,12 +3,14 @@
 # GitHub's own schedule below is a fallback, since it starts runs late or drops them; a later try
 # only does what's still open, within the day's budget), and whenever autopilot.yml changes, it
 # fills the open mornings:
-# picks a topic, researches it, writes and checks the article and schedules it for 09:00.
-# mode: auto commits it to main; Zenn publishes it at 09:00. With `qiita: daily` it also writes
-# a separate Qiita article for each one (qiita/<slug>.md), which the Publish workflow posts at
-# 09:00. mode: review opens a pull request instead (merge to publish).
+# picks a topic, researches it, writes and checks the article and schedules it for 09:00, one
+# for every morning. Every few days (Zenn's posting limit; autopilot.yml zenn.every_days) the
+# article goes to Zenn (articles/), otherwise it stays in off-zenn/. With `qiita: daily` and
+# `note_version: true` each morning's article also gets its own Qiita article (qiita/<slug>.md)
+# and note article (note-src/<slug>.md), which the Publish workflow posts at 09:00.
+# mode: auto commits to main; mode: review opens a pull request instead (merge to publish).
 # Needs the ANTHROPIC_API_KEY secret. A morning that couldn't be filled fails the run, so
-# GitHub emails you; the failed draft is kept unpublished in articles/ to look at.
+# GitHub emails you; the failed draft is kept unpublished in off-zenn/ to look at.
 name: Write articles
 
 on:
@@ -64,13 +66,14 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          names="$(git status --porcelain -- articles | awk '{print $2}' | xargs -rn1 basename | tr '\n' ' ')"
+          names="$(git status --porcelain -uall -- articles off-zenn | awk '{print $NF}' | xargs -rn1 basename | sort -u | tr '\n' ' ')"
           if [ "$MODE" = "review" ]; then
             branch="autopilot/$(date -u +%Y%m%d-%H%M)"
             git switch -c "$branch"
             git add articles
             if [ -d qiita ]; then git add qiita; fi
             if [ -d note-src ]; then git add note-src; fi
+            if [ -d off-zenn ]; then git add off-zenn; fi
             git commit -m "Autopilot: ${names}"
             git push origin "$branch"
             gh pr create --base main --head "$branch" --title "Autopilot: ${names}" \
@@ -82,6 +85,7 @@ jobs:
             git add articles autopilot
             if [ -d qiita ]; then git add qiita; fi
             if [ -d note-src ]; then git add note-src; fi
+            if [ -d off-zenn ]; then git add off-zenn; fi
             git commit -m "Autopilot: ${names:-Qiita and note articles}"
           fi
           git pull --rebase origin main

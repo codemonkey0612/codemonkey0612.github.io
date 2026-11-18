@@ -63,7 +63,7 @@ Find every claim a reader could check or act on, and classify it:
 - date_or_event: dates, releases, incidents, court cases.
 - attribution: quotes, sayings or proverbs credited to a person, group or work.
 - technical: technical statements and advice, especially security advice a reader might rely on.
-- self_claim: what the author says about themselves (years of experience, location, history, past work). Judge these against the author profile, not the web.
+- self_claim: what the author says about themselves or their own past work (years of experience, location, history, and in a project: what was built, decided, tried, seen or said, in what order and why, and what they always do). Judge these against the author profile only, not the web: a detail the profile doesn't state is unsupported, however plausible, and its suggested_fix rewords it as general advice or as what the author would do (「私なら〜します」), not as what happened. Opinions and advice phrased as such are not claims.
 - title_overclaim: the title or a heading claims more than the body or its source supports (e.g. "stops" when the study says "slows").
 
 Use web search to verify every type except self_claim and computed, preferring primary sources: the original survey or paper, official documentation, the court ruling. For each claim, record whether the article itself links a source for it.
@@ -80,7 +80,8 @@ export function buildUserMessage({ article, profile, today }) {
     ...(profile.lancers && { lancers: profile.lancers }),
     ...(profile.certifications && { certifications: profile.certifications }),
     ...(profile.cases && {
-      cases: profile.cases.map(({ title, period, role, result, stack }) => ({ title, period, role, result, stack })),
+      // Every field the writer may use: a claim it took from the case must be checkable here.
+      cases: profile.cases.map(({ title, period, team, role, challenge, actions, result, stack }) => ({ title, period, team, role, challenge, actions, result, stack })),
     }),
   };
   return [
@@ -120,6 +121,9 @@ export async function factcheck({ client, article, profile, today = new Date().t
 export function severity(f) {
   if (f.verdict === "contradicted") return "error";
   if (f.claim_type === "title_overclaim" && f.verdict !== "supported") return "error";
+  // The author's own experience: only what the profile says. A plausible detail it doesn't give
+  // (a decision, a step, a cause, a tool) is invented experience, and blocks like a wrong number.
+  if (f.claim_type === "self_claim" && f.verdict !== "supported") return "error";
   if (["statistic", "study_or_survey"].includes(f.claim_type) && !f.source_in_article) return "error";
   if (f.verdict === "supported") return "ok";
   return "warning";

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  buildUserMessage,
   echoableContent,
   factcheck,
   FactcheckError,
@@ -171,6 +172,23 @@ test("severity: wrong or unsourced numbers block, verified ones pass", () => {
   assert.equal(severity({ ...finding, verdict: "unsupported", source_in_article: true }), "warning");
   assert.equal(severity({ ...finding, claim_type: "technical", verdict: "unsupported", source_in_article: false }), "warning");
   assert.equal(severity({ ...finding, claim_type: "title_overclaim", verdict: "unsupported" }), "error");
+});
+
+test("severity: the author's own experience must be in the profile; a plausible detail it doesn't give blocks", () => {
+  const self = { ...finding, claim_type: "self_claim", source_in_article: false };
+  assert.equal(severity({ ...self, verdict: "supported" }), "ok");
+  assert.equal(severity({ ...self, verdict: "unsupported" }), "error");
+  assert.equal(severity({ ...self, verdict: "unverifiable" }), "error");
+  assert.equal(severity({ ...self, verdict: "contradicted" }), "error");
+});
+
+test("the fact-check sees every field of a case the writer may use", () => {
+  const msg = buildUserMessage({
+    article: { platform: "zenn", data: { title: "t" }, content: "本文" },
+    profile: { name: "n", persona: "私", cases: [{ id: "c", title: "案件", period: "2017", team: "5名", role: "バックエンド", challenge: "課題", actions: "定期実行バッチ、再試行処理", result: "約80%", stack: ["PHP"] }] },
+    today: "2026-11-18",
+  });
+  for (const v of ["5名", "課題", "定期実行バッチ、再試行処理", "約80%"]) assert.ok(msg.includes(v), v);
 });
 
 test("severity: a number the article computes itself needs no source, but must be right", () => {

@@ -214,7 +214,7 @@
     "slug": "delivery-status-time-cut-70",
     "title": "配送状況の確認時間を約70%短縮した話：電話と管理表をやめて最初に作った4つの機能",
     "service": "system",
-    "status": "scheduled",
+    "status": "failed",
     "fact_check_warnings": 1,
     "file": "off-zenn/delivery-status-time-cut-70.md",
     "model": "claude-sonnet-5-5",
@@ -225,7 +225,10 @@
       "cache_creation_input_tokens": 67083,
       "web_search_requests": 0
     },
-    "cost_usd": 0.3
+    "cost_usd": 0.3,
+    "problems": [
+      "withdrawn on 2026-11-18: it told the case with details the profile does not give (invented experience); rewritten under the stricter fact-check rule"
+    ]
   },
   {
     "date": "2026-11-20 09:00",
@@ -235,7 +238,7 @@
     "slug": "ec-inventory-sync-80-percent-automation",
     "title": "在庫更新の約80%を自動化したとき、二重更新と取りこぼしを防ぐために入れた4つの仕組み",
     "service": "system",
-    "status": "scheduled",
+    "status": "failed",
     "fact_check_warnings": 1,
     "file": "off-zenn/ec-inventory-sync-80-percent-automation.md",
     "model": "claude-sonnet-5-5",
@@ -246,6 +249,9 @@
       "cache_creation_input_tokens": 70657,
       "web_search_requests": 3
     },
-    "cost_usd": 0.37
+    "cost_usd": 0.37,
+    "problems": [
+      "withdrawn on 2026-11-18: it told the case with details the profile does not give (invented experience); rewritten under the stricter fact-check rule"
+    ]
   }
 ]

@@ -5,7 +5,7 @@
     "written_at": "2026-11-18T07:08:13.830Z",
     "title": "電話と管理表をやめたら、配送状況の確認時間が約70%減った話",
     "file": "note-src/delivery-status-time-cut-70.md",
-    "status": "scheduled",
+    "status": "withdrawn",
     "fact_check_warnings": 1,
     "model": "claude-sonnet-5-5",
     "usage": {
@@ -15,7 +15,10 @@
       "cache_creation_input_tokens": 50836,
       "web_search_requests": 0
     },
-    "cost_usd": 0.19
+    "cost_usd": 0.19,
+    "problems": [
+      "withdrawn on 2026-11-18: it told the case with details the profile does not give (invented experience); rewritten under the stricter fact-check rule"
+    ]
   },
   {
     "date": "2026-11-20 09:00",
@@ -23,7 +26,7 @@
     "written_at": "2026-11-18T07:08:13.830Z",
     "title": "在庫更新の8割を自動化して分かった、ネットショップ運営で一番怖いこと",
     "file": "note-src/ec-inventory-sync-80-percent-automation.md",
-    "status": "scheduled",
+    "status": "withdrawn",
     "fact_check_warnings": 1,
     "model": "claude-sonnet-5-5",
     "usage": {
@@ -33,6 +36,9 @@
       "cache_creation_input_tokens": 51383,
       "web_search_requests": 0
     },
-    "cost_usd": 0.19
+    "cost_usd": 0.19,
+    "problems": [
+      "withdrawn on 2026-11-18: it told the case with details the profile does not give (invented experience); rewritten under the stricter fact-check rule"
+    ]
   }
 ]

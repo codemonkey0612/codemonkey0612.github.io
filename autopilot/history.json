@@ -205,5 +205,47 @@
     "date": "2026-11-20 09:00",
     "from": "2026-11-14 09:00",
     "status": "requeued"
+  },
+  {
+    "date": "2026-11-19 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-18T07:08:13.830Z",
+    "zenn": false,
+    "slug": "delivery-status-time-cut-70",
+    "title": "配送状況の確認時間を約70%短縮した話：電話と管理表をやめて最初に作った4つの機能",
+    "service": "system",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "file": "off-zenn/delivery-status-time-cut-70.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 20,
+      "output_tokens": 13236,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 67083,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.3
+  },
+  {
+    "date": "2026-11-20 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-18T07:08:13.830Z",
+    "zenn": false,
+    "slug": "ec-inventory-sync-80-percent-automation",
+    "title": "在庫更新の約80%を自動化したとき、二重更新と取りこぼしを防ぐために入れた4つの仕組み",
+    "service": "system",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "file": "off-zenn/ec-inventory-sync-80-percent-automation.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 24,
+      "output_tokens": 16036,
+      "cache_read_input_tokens": 17388,
+      "cache_creation_input_tokens": 70657,
+      "web_search_requests": 3
+    },
+    "cost_usd": 0.37
   }
 ]

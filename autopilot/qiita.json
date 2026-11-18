@@ -168,5 +168,41 @@
       "web_search_requests": 1
     },
     "cost_usd": 0.36
+  },
+  {
+    "date": "2026-11-19 09:00",
+    "zenn": "off-zenn/delivery-status-time-cut-70.md",
+    "written_at": "2026-11-18T07:08:13.830Z",
+    "title": "配送ステータス更新の二重送信と順序逆転をPostgreSQLの冪等キーで防ぐ",
+    "file": "qiita/delivery-status-time-cut-70.md",
+    "status": "scheduled",
+    "fact_check_warnings": 0,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 16,
+      "output_tokens": 9061,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 53717,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.22
+  },
+  {
+    "date": "2026-11-20 09:00",
+    "zenn": "off-zenn/ec-inventory-sync-80-percent-automation.md",
+    "written_at": "2026-11-18T07:08:13.830Z",
+    "title": "MySQLのSKIP LOCKEDで送信ジョブの多重実行を防ぐ：flock卒業とリース設計",
+    "file": "qiita/ec-inventory-sync-80-percent-automation.md",
+    "status": "scheduled",
+    "fact_check_warnings": 0,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 22,
+      "output_tokens": 9513,
+      "cache_read_input_tokens": 53929,
+      "cache_creation_input_tokens": 56326,
+      "web_search_requests": 2
+    },
+    "cost_usd": 0.27
   }
 ]

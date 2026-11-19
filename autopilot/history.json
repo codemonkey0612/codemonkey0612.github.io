@@ -330,5 +330,49 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.47
+  },
+  {
+    "date": "2026-11-20 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-19T19:13:48.700Z",
+    "zenn": true,
+    "slug": "unify-authz-oauth-rbac-legacy",
+    "title": "認証・認可がバラバラな既存Webアプリを、OAuth 2.0とRBACで統一したときの進め方",
+    "service": "quality",
+    "status": "scheduled",
+    "fact_check_warnings": 0,
+    "file": "articles/unify-authz-oauth-rbac-legacy.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 24,
+      "output_tokens": 17446,
+      "cache_read_input_tokens": 17405,
+      "cache_creation_input_tokens": 76976,
+      "web_search_requests": 4
+    },
+    "cost_usd": 0.41
+  },
+  {
+    "date": "2026-11-21 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-19T19:13:48.700Z",
+    "zenn": false,
+    "slug": "wordpress-property-search-field-design",
+    "title": "物件情報の更新時間を約65%削減した話：WordPress物件検索サイトで最初にやった項目設計",
+    "service": "wordpress",
+    "status": "failed",
+    "problems": [
+      "fact-check (self_claim, unverifiable): 「この2つは別の問題に見えますが、原因は同じことが多いと私は考えます。」 — 意見として述べられており、検証対象外に近いです。"
+    ],
+    "file": "off-zenn/wordpress-property-search-field-design.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 28,
+      "output_tokens": 30960,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 105033,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.57
   }
 ]

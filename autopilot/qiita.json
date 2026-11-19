@@ -228,5 +228,23 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.35
+  },
+  {
+    "date": "2026-11-20 09:00",
+    "zenn": "articles/unify-authz-oauth-rbac-legacy.md",
+    "written_at": "2026-11-19T19:13:48.700Z",
+    "title": "PostgreSQLのRLSでテナント越えを防ぐ：WHERE句の書き忘れを無効化する",
+    "file": "qiita/unify-authz-oauth-rbac-legacy.md",
+    "status": "scheduled",
+    "fact_check_warnings": 2,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 32,
+      "output_tokens": 15697,
+      "cache_read_input_tokens": 77774,
+      "cache_creation_input_tokens": 87106,
+      "web_search_requests": 2
+    },
+    "cost_usd": 0.41
   }
 ]

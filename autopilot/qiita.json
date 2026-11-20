@@ -246,5 +246,23 @@
       "web_search_requests": 2
     },
     "cost_usd": 0.41
+  },
+  {
+    "date": "2026-11-22 09:00",
+    "zenn": "off-zenn/rag-docs-cite-sources-abstain.md",
+    "written_at": "2026-11-20T19:13:53.865Z",
+    "title": "pgvectorのHNSWでテナント絞り込みすると検索が0件になる問題と対策",
+    "file": "qiita/rag-docs-cite-sources-abstain.md",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 28,
+      "output_tokens": 8058,
+      "cache_read_input_tokens": 76823,
+      "cache_creation_input_tokens": 60150,
+      "web_search_requests": 3
+    },
+    "cost_usd": 0.28
   }
 ]

@@ -374,5 +374,49 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.57
+  },
+  {
+    "date": "2026-11-21 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-20T19:13:53.865Z",
+    "zenn": false,
+    "slug": "excel-duplicate-check-history",
+    "title": "複数Excelの重複処理を止めたい：転記ミスをなくすため私が入れた重複チェックと処理履歴",
+    "service": "system",
+    "status": "failed",
+    "problems": [
+      "fact-check (self_claim, unsupported): 「そこで処理履歴を持たせる判断をします。案件のスタックにSQLiteが入っていた通り、小さなデスクトップアプリなら、サーバーなしで動くSQLiteが相性の良い選択肢です。」 — スタックにSQLiteがあることは事実です。ただし、履歴の保存先にSQLiteを使ったとはプロフィールに書かれていません。 Fix: 「私なら処理履歴の保存先にSQLiteを選びます」のように、実際にやったことではなく考え方として書き直してください。"
+    ],
+    "file": "off-zenn/excel-duplicate-check-history.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 28,
+      "output_tokens": 22836,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 104557,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.49
+  },
+  {
+    "date": "2026-11-22 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-20T19:13:53.865Z",
+    "zenn": false,
+    "slug": "rag-docs-cite-sources-abstain",
+    "title": "社内文書RAGで「参照元つき・根拠不足は回答を控える」を選んだ理由と、評価用質問で改善を回した話",
+    "service": "ai-chatbot",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "file": "off-zenn/rag-docs-cite-sources-abstain.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 28,
+      "output_tokens": 22601,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 104330,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.49
   }
 ]

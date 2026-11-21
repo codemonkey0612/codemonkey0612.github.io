@@ -284,7 +284,7 @@ Pick ONE topic for the pillar given in the request. A good topic:
 For a news pillar, search the web for developments from the last 14 days, open the primary source (official blog, release notes, government page) and pick only something you confirmed there.
 Never pick anything that involves: ${config.avoid.join("、")}.
 
-Title: Japanese, 25–60 characters. Lead with the payoff: a real number or result (from a case or a source), a clear stance, or the exact problem solved. When the article tells one of the author's cases, a first-person story title works well (「〜を約70%短縮した話」「〜したときに最初にやったこと」). Avoid flat textbook titles (「〜とは」「〜の手順」「〜の方法」 with nothing more), vague words (「活用法」「ポイント」) and stacked colons. The body must deliver everything the title promises: the fact-check rejects titles that overclaim.
+Title: Japanese, 25–60 characters. Lead with the payoff: a real number or result (from a case or a source), a clear stance, or the exact problem solved. When the article tells one of the author's cases, a first-person story title works well, but it may claim only what the case says (its result and what was built: 「〜を約70%短縮した話」); anything else the article offers is the author's advice, so word it as advice (「〜を約50%減らした案件から考える、最初に決めたい4つのこと」), never as something that happened (「最初に決めた4つのこと」「〜したときにやったこと」) unless the case says so. Avoid flat textbook titles (「〜とは」「〜の手順」「〜の方法」 with nothing more), vague words (「活用法」「ポイント」) and stacked colons. The body must deliver everything the title promises: the fact-check rejects titles that overclaim.
 
 Then call submit_topic once. slug: 3–6 lowercase English words joined by hyphens, 12–50 characters. topics: 1–5 lowercase ASCII Zenn topics such as ai, rag, python, wordpress, security. outline: 4–7 Japanese section headings. sources: the pages where you confirmed facts (empty if none). cases: ids of the author's cases the article will draw on (empty if none).`;
   const user = [
@@ -340,7 +340,9 @@ export function revisePrompt({ author, config, title, body, problems, today, pla
 
 ${RULES(author, config, platform)}
 
-Call submit_article once with the complete corrected article body.`;
+Keep the title as given, unless a problem says the title claims more than the body supports (title_overclaim): then reword the title so it claims only what the body supports, on the same topic, in Japanese, 20–60 characters (and don't add claims to the body to match the old title).
+
+Call submit_revision once with the title and the complete corrected article body.`;
   const user = [`Today is ${today} (Japan time).`, `Title: ${title}`, `Problems to fix:\n${list(problems)}`, `<article>\n${body}\n</article>`].join("\n\n");
   return { system, user };
 }
@@ -523,6 +525,30 @@ export const Article = z.object({
   summary: z.string(),
 });
 
+/** A fix round's result: the corrected body, and the title (reworded only when it claimed too much). */
+export const REVISE_TOOL = {
+  name: "submit_revision",
+  description: "Submit the corrected article. Call exactly once.",
+  strict: true,
+  eager_input_streaming: true,
+  input_schema: {
+    type: "object",
+    additionalProperties: false,
+    required: ["title", "body", "summary"],
+    properties: {
+      title: str("The title: as given, or reworded if a problem says it claims more than the body supports."),
+      body: str("The whole corrected article in Markdown, without the title heading or front matter."),
+      summary: str("One Japanese sentence saying what the article covers."),
+    },
+  },
+};
+export const Revision = Article.extend({
+  title: z.string().refine((t) => [...t.trim()].length >= 10 && [...t.trim()].length <= 70, "title must be 10–70 characters"),
+});
+
+/** The title after a fix round: the revision's, if it changed it, else the one it had. */
+export const revisedTitle = (revision, title) => (typeof revision?.title === "string" && revision.title.trim() ? revision.title.trim() : title);
+
 // ---------- the pieces that call Claude (the CLI passes these in) ----------
 
 export function claudeSteps(client, log, settings = claudeSettings({})) {
@@ -532,7 +558,7 @@ export function claudeSteps(client, log, settings = claudeSettings({})) {
   return {
     chooseTopic: (ctx) => run(topicPrompt(ctx), topicTool(ctx.author), Topic, "topic", ctx.pillar.id === "news" ? searches.news : searches.topic),
     writeArticle: (ctx) => run(writePrompt(ctx), ARTICLE_TOOL, Article, "article", searches.write),
-    reviseArticle: (ctx) => run(revisePrompt(ctx), ARTICLE_TOOL, Article, "article", searches.revise),
+    reviseArticle: (ctx) => run(revisePrompt(ctx), REVISE_TOOL, Revision, "article", searches.revise),
     writeQiita: (ctx) => run(qiitaPrompt(ctx), QIITA_TOOL, QiitaArticle, "Qiita article", searches.qiita),
     writeNote: (ctx) => run(notePrompt(ctx), NOTE_TOOL, NoteArticle, "note article", searches.note),
     factcheck: (article, profile) => factcheck({ client, article, profile, log, claudeModel: model, effort, maxSearches: searches.factcheck }),
@@ -657,9 +683,11 @@ export async function autowrite({ root, profile, config, now = new Date(), steps
         addUsage(usage, result.usage);
         if (!result.problems.length || round >= fixRounds) break;
         log(`autowrite: fixing ${result.problems.length} problem(s)`);
-        const r = await steps.reviseArticle({ author, config, title: topic.title, body, problems: result.problems, today });
+        const r = await steps.reviseArticle({ author, config, title: frontMatter.title, body, problems: result.problems, today });
         addUsage(usage, r.usage);
         body = r.value.body;
+        frontMatter.title = revisedTitle(r.value, frontMatter.title);
+        entry.title = frontMatter.title;
         writeFile(file, frontMatter, body);
       }
 
@@ -808,9 +836,11 @@ export async function qiitaCompanions({ root, profile, config, now = new Date(),
         addUsage(usage, result.usage);
         if (!result.problems.length || round >= fixRounds) break;
         log(`autowrite: fixing ${result.problems.length} problem(s)`);
-        const r = await steps.reviseArticle({ author, config, title, body, problems: result.problems, today, platform: "qiita" });
+        const r = await steps.reviseArticle({ author, config, title: frontMatter.title, body, problems: result.problems, today, platform: "qiita" });
         addUsage(usage, r.usage);
         body = r.value.body;
+        frontMatter.title = revisedTitle(r.value, frontMatter.title);
+        entry.title = frontMatter.title;
         writeFile(file, frontMatter, body);
       }
       if (result.problems.length) {
@@ -910,9 +940,11 @@ export async function noteCompanions({ root, profile, config, now = new Date(), 
         addUsage(usage, result.usage);
         if (!result.problems.length || round >= fixRounds) break;
         log(`autowrite: fixing ${result.problems.length} problem(s)`);
-        const r = await steps.reviseArticle({ author, config, title, body, problems: result.problems, today, platform: "note" });
+        const r = await steps.reviseArticle({ author, config, title: frontMatter.title, body, problems: result.problems, today, platform: "note" });
         addUsage(usage, r.usage);
         body = r.value.body;
+        frontMatter.title = revisedTitle(r.value, frontMatter.title);
+        entry.title = frontMatter.title;
         writeFile(file, frontMatter, body);
       }
       if (result.problems.length) {

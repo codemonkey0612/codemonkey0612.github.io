@@ -368,6 +368,18 @@ test("a new article never reuses a slug that's taken on any platform", () => {
   assert.equal(uniqueSlug(dir, "brand-new-slug"), "brand-new-slug");
 });
 
+test("a title that claims more than the body supports is reworded in the fix round, not left to fail", async () => {
+  const dir = repo();
+  const overclaim = { quote: "社内の問い合わせ対応をRAGで減らす前に決めること", claim_type: "title_overclaim", verdict: "unsupported", source_in_article: false, evidence_url: "", explanation: "e", suggested_fix: "助言と分かる題にする" };
+  const { steps, calls } = fakeSteps({ checks: [report([overclaim]), report()] });
+  const retitling = { ...steps, reviseArticle: async (ctx) => (calls.push(["revise", ctx.title]), { value: { title: "社内の問い合わせ対応をRAGで減らす前に決めたい3つのこと", body: BODY("約60%"), summary: "s" }, usage }) };
+  const [r] = await autowrite({ root: dir, profile, config: { ...config, max_per_run: 1 }, now: jst("2026-11-10T06:00"), steps: retitling, textlint: () => [] });
+  assert.deepEqual([r.status, r.title], ["scheduled", "社内の問い合わせ対応をRAGで減らす前に決めたい3つのこと"]);
+  assert.equal(calls.find((c) => c[0] === "revise")[1], "社内の問い合わせ対応をRAGで減らす前に決めること", "the fix step sees the current title");
+  const { data } = matter(fs.readFileSync(path.join(dir, "articles/rag-before-you-start.md"), "utf8"));
+  assert.equal(data.title, "社内の問い合わせ対応をRAGで減らす前に決めたい3つのこと");
+});
+
 test("an error in one morning doesn't stop the next", async () => {
   const dir = repo();
   const { steps } = fakeSteps({ checks: [report()] });

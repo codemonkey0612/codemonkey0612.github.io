@@ -48,14 +48,15 @@ bluesky: auto         # auto: announce each new article on Bluesky (title, openi
 # Zenn limits how many articles each account may post (its Deploys page: 「投稿数の上限に達した
 # ためデプロイされませんでした」; counted over about the last 24 hours, scheduled ones included,
 # and the cap moves with your recent pace; Zenn publishes no numbers and doesn't retry a refused
-# article). Yours were accepted 48 and 71 hours after the previous upload and refused at 24–50,
-# so since 2026-11-18 Zenn gets an article about every 3 days while note and Qiita get one every
-# morning. An article Zenn refuses anyway moves to off-zenn/ on the next run (its note and Qiita
-# posts still go out; Bluesky links the note post). The three Zenn refused on 2026-11-12/14/15
-# (and again on 11-18) are in off-zenn/ too, and stay on note and Qiita only (your choice).
+# article). Yours were accepted 48, 71 and 92 hours after the previous kept upload and refused at
+# 24–50 and, on 2026-11-19, at 68, so since 2026-11-21 Zenn gets an article about every 4 days
+# (every 3 from 11-18) while note and Qiita get one every morning. An article Zenn refuses anyway
+# moves to off-zenn/ on the next run (its note and Qiita posts still go out; Bluesky links the
+# note post). The three Zenn refused on 2026-11-12/14/15 (and again on 11-18) are in off-zenn/
+# too, and stay on note and Qiita only (your choice).
 zenn:
-  every_days: 3           # an article goes to Zenn when the last one the writer sent there (and
-                          # Zenn kept) is at least this many days old, less 6 hours (3: 66 h);
+  every_days: 4           # an article goes to Zenn when the last one the writer sent there (and
+                          # Zenn kept) is at least this many days old, less 6 hours (4: 90 h);
                           # the other mornings' articles go to note and Qiita only (off-zenn/).
                           # 1: every article goes to Zenn.
   requeue_missing: false  # false: an article Zenn refused moves to off-zenn/ (above) | true: an

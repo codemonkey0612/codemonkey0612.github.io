@@ -123,7 +123,9 @@ export function severity(f) {
   if (f.claim_type === "title_overclaim" && f.verdict !== "supported") return "error";
   // The author's own experience: only what the profile says. A plausible detail it doesn't give
   // (a decision, a step, a cause, a tool) is invented experience, and blocks like a wrong number.
-  if (f.claim_type === "self_claim" && f.verdict !== "supported") return "error";
+  // "unverifiable" stays a warning: the checker uses it for opinions and advice (「私なら〜」,
+  // 「〜と考えます」), which it explains are fine (2026-11-20/21 it blocked three such articles).
+  if (f.claim_type === "self_claim" && f.verdict === "unsupported") return "error";
   if (["statistic", "study_or_survey"].includes(f.claim_type) && !f.source_in_article) return "error";
   if (f.verdict === "supported") return "ok";
   return "warning";

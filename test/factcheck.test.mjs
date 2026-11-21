@@ -174,12 +174,12 @@ test("severity: wrong or unsourced numbers block, verified ones pass", () => {
   assert.equal(severity({ ...finding, claim_type: "title_overclaim", verdict: "unsupported" }), "error");
 });
 
-test("severity: the author's own experience must be in the profile; a plausible detail it doesn't give blocks", () => {
+test("severity: the author's own experience must be in the profile; a plausible detail it doesn't give blocks, an opinion doesn't", () => {
   const self = { ...finding, claim_type: "self_claim", source_in_article: false };
   assert.equal(severity({ ...self, verdict: "supported" }), "ok");
   assert.equal(severity({ ...self, verdict: "unsupported" }), "error");
-  assert.equal(severity({ ...self, verdict: "unverifiable" }), "error");
   assert.equal(severity({ ...self, verdict: "contradicted" }), "error");
+  assert.equal(severity({ ...self, verdict: "unverifiable" }), "warning", "opinions and advice: 「私なら〜」「〜と考えます」");
 });
 
 test("the fact-check sees every field of a case the writer may use", () => {

@@ -687,7 +687,8 @@ lancers:
 # 2026-11-21: 社内FAQ AI, your own product (github.com/codemonkey0612/shanai-faq-ai), on Vercel as
 # its service site: landing page at /, the inquiry form mailing contact@shanaiai.com, and a demo
 # at /chat on the fictional sample company's documents (抜粋モード, no API key). Its picture is the
-# landing page's first screen, taken once the hero's demo card shows its answer and citation. List only sites you actually worked on.
+# landing page's first screen, taken once the hero's demo card shows its answer and citation. Since
+# 2026-11-22 it lives at faq.shanaiai.com (the old vercel.app address redirects there). List only sites you actually worked on.
 showcase:
   - { group: salon, name: hair salon MOU, url: "https://hairsalon-mou.com/", shot: media/showcase/hairsalon-mou-com.webp }
   - { group: salon, name: Re:coa, url: "https://recoa.jp/", shot: media/showcase/recoa-jp.webp }
@@ -731,7 +732,7 @@ showcase:
   - { group: shop, name: Beurre Noisette（ブールノワゼット）, url: "https://www.beurre-noisette.jp/", shot: media/showcase/beurre-noisette-jp.webp }
   - { group: shop, name: SATURDAYS Chocolate, url: "https://www.saturdayschocolate.com/", shot: media/showcase/saturdayschocolate-com.webp }
   - { group: shop, name: 十勝トテッポ工房, url: "https://www.toteppo-factory.com/", shot: media/showcase/toteppo-factory-com.webp }
-  - { group: service, name: 社内FAQ AI, url: "https://shanai-faq-ai.vercel.app/", shot: media/showcase/shanai-faq-ai-vercel-app.webp }
+  - { group: service, name: 社内FAQ AI, url: "https://faq.shanaiai.com/", shot: media/showcase/faq-shanaiai-com.webp }
   - { group: service, name: aidly（中小企業専門 AIパートナー）, url: "https://www.aidly-ai.jp/", shot: media/showcase/aidly-ai-jp.webp }
   - { group: service, name: Uni-Log（ゆにろぐ）, url: "https://uni-log-official.web.app/index.html", shot: media/showcase/uni-log-official-web-app.webp }
   - { group: service, name: Selah, url: "https://selah.jp/", shot: media/showcase/selah-jp.webp }

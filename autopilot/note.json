@@ -97,5 +97,23 @@
     },
     "cost_usd": 0.21,
     "moved": "posted on 2026-11-21 at about 19:00 JST (no article had gone out that day)"
+  },
+  {
+    "date": "2026-11-22 09:00",
+    "zenn": "off-zenn/webrtc-live-ops-reduction-lessons.md",
+    "written_at": "2026-11-21T19:13:49.081Z",
+    "title": "オンライン研修の配信、運営の手間を約50%減らせた案件で学んだこと",
+    "file": "note-src/webrtc-live-ops-reduction-lessons.md",
+    "status": "scheduled",
+    "fact_check_warnings": 0,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 16,
+      "output_tokens": 8387,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 55157,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.22
   }
 ]

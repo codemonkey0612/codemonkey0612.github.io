@@ -684,9 +684,10 @@ lancers:
 # FRACTAL DESIGN, 藤乃花製造所, SATURDAYS, nanka.ai), nanka.ai's cookie notice declined, and
 # アンハーバー taken through Chrome DevTools (its page never finishes loading its fonts). On
 # 2026-11-13 you confirmed that you built these 38 too.
-# 2026-11-21: 社内FAQ AI, your own product (github.com/codemonkey0612/shanai-faq-ai), deployed to
-# Vercel as a public demo on the fictional sample company's documents (抜粋モード, no API key). Its
-# picture shows the app answering a suggested question with citations, not its empty first screen. List only sites you actually worked on.
+# 2026-11-21: 社内FAQ AI, your own product (github.com/codemonkey0612/shanai-faq-ai), on Vercel as
+# its service site: landing page at /, the inquiry form mailing contact@shanaiai.com, and a demo
+# at /chat on the fictional sample company's documents (抜粋モード, no API key). Its picture is the
+# landing page's first screen, taken once the hero's demo card shows its answer and citation. List only sites you actually worked on.
 showcase:
   - { group: salon, name: hair salon MOU, url: "https://hairsalon-mou.com/", shot: media/showcase/hairsalon-mou-com.webp }
   - { group: salon, name: Re:coa, url: "https://recoa.jp/", shot: media/showcase/recoa-jp.webp }

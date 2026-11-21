@@ -16798,3 +16798,99 @@ body:has(.ask-fab) .fo-base {
     font-size: 13.5px;
   }
 }
+
+/* home: your own product next to Selected Work's button (works.yml showcase[].product).
+   Phones and tablets: a card under the button. Desktop, where the section has a fixed
+   height: a pill on the button's row, so the copy column grows no taller. */
+.sel-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+.sel-product-link {
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 2px;
+  align-items: center;
+  min-height: 44px;
+  padding: 12px 16px;
+  border: 1px solid rgba(201, 162, 74, 0.45);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.sel-product-link:hover,
+.sel-product-link:focus-visible {
+  border-color: var(--gold);
+  background: #fff;
+}
+.sel-product-tag {
+  grid-row: 1 / span 3;
+  align-self: start;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(201, 162, 74, 0.14);
+  color: var(--gold-ink);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sel-product-link b {
+  font: 600 16px/1.35 var(--f-serif);
+}
+.sel-product-desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.sel-product-host {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  color: var(--gold-ink);
+}
+@media (min-width: 1024px) {
+  /* The section and its column had fixed heights, so at 1024–1280px, where the lead wraps
+     onto more lines, the button row fell below the section's clipped edge. Minimums
+     instead: the column still sits centred in the same space and grows only when it must. */
+  .page-home .strip-sel {
+    height: auto;
+  }
+  .page-home .strip-sel .sel-in {
+    height: auto;
+    min-height: calc(330 * var(--u));
+  }
+  .page-home .sel-cta {
+    flex-wrap: nowrap;
+    gap: calc(12 * var(--u));
+  }
+  .page-home .sel-cta .btn {
+    flex: none;
+    white-space: nowrap;
+  }
+  .page-home .sel-product-link {
+    flex: 0 0 auto;
+    display: inline-flex;
+    gap: calc(8 * var(--u));
+    height: calc(34 * var(--u));
+    min-height: 0;
+    padding: 0 calc(14 * var(--u)) 0 calc(6 * var(--u));
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .page-home .sel-product-desc {
+    display: none;
+  }
+  .page-home .sel-product-tag {
+    align-self: center;
+  }
+  .page-home .sel-product-link b {
+    font-size: 15px;
+  }
+}

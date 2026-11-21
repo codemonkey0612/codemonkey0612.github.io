@@ -228,8 +228,11 @@ export function loadSite({ root, profile, today = new Date() }) {
     const where = `site/works.yml showcase ${i + 1}`;
     if (!groupOf.has(w.group)) throw new Error(`${where}: group must be one of ${[...groupOf.keys()].join(", ")}`);
     if (!/^https:\/\//.test(w.url ?? "")) throw new Error(`${where}: url must be https://…`);
+    if (w.product != null && (typeof w.product !== "string" || !w.product.trim())) throw new Error(`${where}: product must be a one-line description`);
     return { ...w, kind: groupOf.get(w.group).ja, shot: asset(w.shot, `${where} shot`), host: new URL(w.url).host.replace(/^www\./, "") };
   });
+  // Your own products (showcase entries with a `product:` line) also get a link on the home page.
+  const products = showcase.filter((x) => x.product);
   const showcaseGroups = [...groupOf.values()].map((g) => ({ ...g, items: showcase.filter((x) => x.group === g.key) })).filter((g) => g.items.length);
   const works = [...sites, ...lancers];
   const seen = new Set();
@@ -355,7 +358,7 @@ export function loadSite({ root, profile, today = new Date() }) {
     services,
     packages: allPackages.filter((p) => p.onSite), // what the site shows
     lancersPackages: allPackages, // every package on Lancers (the counts in profile.yml)
-    works: { sites, lancers, all: works, showcase, showcaseGroups },
+    works: { sites, lancers, all: works, showcase, showcaseGroups, products },
     art,
     years,
     aboutHtml,

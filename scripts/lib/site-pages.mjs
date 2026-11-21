@@ -772,7 +772,7 @@ ${seam(site, base, "seam-hero", ["deco-ribbon", "deco-ribbon-a"])}
       <p class="eyebrow" lang="en">Selected Work</p>
       <h2 class="strip-title" id="selected-title">実装で、<br><span class="nowrap"><em>成果</em>につなげる。</span></h2>
       <p class="sel-lead">${works.sites.map((w) => `<a href="${base}works/${esc(w.id)}/">${esc(workName(w))}</a>${w.made ? `の${esc(w.made)}` : ""}`).join("、")}など、<br>${(works.showcase ?? []).length ? `制作に携わった公開中のサイト${works.sites.length + works.showcase.length}件` : "制作したページ"}と、評価をいただいた案件。</p>
-      <p class="sel-cta"><a class="btn btn-ghost" href="${base}works/">実績を見る${icon("arrow")}</a></p>
+      <p class="sel-cta"><a class="btn btn-ghost" href="${base}works/">実績を見る${icon("arrow")}</a>${works.products.map((w) => ext(w.url, `<span class="sel-product-tag">自社プロダクト</span><b>${esc(w.name)}</b><span class="sel-product-desc">${esc(w.product)}</span><span class="sel-product-host">${esc(w.host)}${icon("ext", "ic ic-xs")}</span>`, "sel-product-link")).join("")}</p>
     </div>
     <div class="sel-devices" data-reveal>
       <a class="dev-laptop" href="${base}works/${esc(lead.id)}/" aria-label="${esc(workName(lead))}の実績を見る"><span class="dev-screen">${img(site, lead.top, base, { alt: `${workName(lead)}のトップページ` })}</span><span class="dev-base" aria-hidden="true"></span></a>

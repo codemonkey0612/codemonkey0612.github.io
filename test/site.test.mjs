@@ -405,6 +405,11 @@ test("live sites: each listed site has its screen and opens in a new tab; the co
   const n = site.works.sites.length + show.length;
   assert.match(files["index.html"], new RegExp(`公開中のサイト${n}件`), "home says how many");
   assert.match(works, new RegExp(`data-to="${n}"`), "the track record counts them");
+  // Your own products (a `product:` line) are also linked from the home page, beside Selected Work's button.
+  for (const x of site.works.products) {
+    assert.ok(files["index.html"].includes(`class="sel-product-link" href="${esc(x.url)}" target="_blank" rel="noopener"`), `${x.name} is linked from the home page`);
+    assert.ok(files["index.html"].includes(esc(x.product)), `${x.name}'s one-line description is shown`);
+  }
 });
 
 test("consultations on Lancers only: the contact page says why, links to Lancers, and the form is switched off", async () => {

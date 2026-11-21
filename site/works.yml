@@ -733,7 +733,7 @@ showcase:
   - { group: shop, name: Beurre Noisette（ブールノワゼット）, url: "https://www.beurre-noisette.jp/", shot: media/showcase/beurre-noisette-jp.webp }
   - { group: shop, name: SATURDAYS Chocolate, url: "https://www.saturdayschocolate.com/", shot: media/showcase/saturdayschocolate-com.webp }
   - { group: shop, name: 十勝トテッポ工房, url: "https://www.toteppo-factory.com/", shot: media/showcase/toteppo-factory-com.webp }
-  - { group: service, name: 社内FAQ AI, url: "https://faq.shanaiai.com/", shot: media/showcase/faq-shanaiai-com.webp }
+  - { group: service, name: 社内FAQ AI, url: "https://faq.shanaiai.com/", shot: media/showcase/faq-shanaiai-com.webp, product: "就業規則・社内規程に、根拠付きで答えるAI" }
   - { group: service, name: aidly（中小企業専門 AIパートナー）, url: "https://www.aidly-ai.jp/", shot: media/showcase/aidly-ai-jp.webp }
   - { group: service, name: Uni-Log（ゆにろぐ）, url: "https://uni-log-official.web.app/index.html", shot: media/showcase/uni-log-official-web-app.webp }
   - { group: service, name: Selah, url: "https://selah.jp/", shot: media/showcase/selah-jp.webp }

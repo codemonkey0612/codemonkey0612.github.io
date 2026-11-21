@@ -9,7 +9,7 @@ tags:
 private: false
 ignorePublish: true
 zenn: off-zenn/rag-docs-cite-sources-abstain.md
-published_at: 2026-11-22 09:00
+published_at: 2026-11-21 09:00
 ---
 
 マルチテナントのRAGで、pgvectorのHNSWインデックスに `WHERE tenant_id = ...` を付けると、LIMITより少ない件数しか返らないことがあります。この記事では、その仕組みと、再現・対策・検知までをコードで示します。

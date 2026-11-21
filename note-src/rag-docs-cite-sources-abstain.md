@@ -7,7 +7,7 @@ hashtags:
   - 業務効率化
   - AI活用
 zenn: off-zenn/rag-docs-cite-sources-abstain.md
-published_at: 2026-11-22 09:00
+published_at: 2026-11-21 09:00
 ---
 
 「社内の資料をAIに読ませて、質問したら答えてくれるようにしたい」。そう考えたとき、多くの方が最初にぶつかるのが「間違った答えを出したらどうしよう」という不安ではないでしょうか。

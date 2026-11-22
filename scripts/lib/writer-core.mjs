@@ -757,6 +757,20 @@ export const QIITA_DIR = "qiita";
 const QIITA_HISTORY = (root) => path.join(root, "autopilot", "qiita.json");
 export const readQiitaHistory = (root) => (fs.existsSync(QIITA_HISTORY(root)) ? JSON.parse(fs.readFileSync(QIITA_HISTORY(root), "utf8")) : []);
 
+/**
+ * A Qiita or note version that failed its checks is written again on a later run, while its
+ * morning is still ahead, up to VERSION_TRIES tries in all (about $0.3 each). Before 2026-11-22 a
+ * failed one was never retried, so that morning got no Qiita post (or only the note copy).
+ */
+export const VERSION_TRIES = 2;
+function needsVersion(root, slug, { posted, dir, history }) {
+  if (fs.existsSync(path.join(root, posted, `${slug}.md`))) return false; // already on the site
+  const file = path.join(root, dir, `${slug}.md`);
+  if (fs.existsSync(file) && matter(fs.readFileSync(file, "utf8")).data.status !== "failed") return false; // written and passed
+  const tries = history.filter((e) => e.status === "failed" && String(e.zenn ?? "").endsWith(`/${slug}.md`)).length;
+  return tries < VERSION_TRIES;
+}
+
 /** Share (0–1) of the Qiita article's prose that also appears word for word in the Zenn article. */
 export function overlap(qiitaBody, zennBody) {
   const plain = (md) => outsideCode(md).replace(/<!--[\s\S]*?-->/g, "").replace(/\]\([^)]*\)/g, "]").replace(/[\s#*`>\-[\]|:]/g, "");
@@ -802,13 +816,14 @@ export async function qiitaCompanions({ root, profile, config, now = new Date(),
   const { model, fixRounds, budget } = claudeSettings(config);
   const results = [];
   // Every scheduled morning's article, on Zenn or not (`only`: just these slugs), nearest first.
+  const history = readQiitaHistory(root);
   const todo = anchors(root).filter(
     (a) =>
       (!only || only.includes(a.slug)) &&
       a.data.published === true &&
       a.at &&
       jstDay(a.at) >= today &&
-      ![path.join(root, "public", `${a.slug}.md`), path.join(root, QIITA_DIR, `${a.slug}.md`)].some((f) => fs.existsSync(f)),
+      needsVersion(root, a.slug, { posted: "public", dir: QIITA_DIR, history }),
   );
   for (const a of todo.slice(0, config.days_ahead + 1)) {
     if (spentToday(root, now) >= budget) {
@@ -906,13 +921,14 @@ export async function noteCompanions({ root, profile, config, now = new Date(), 
   const { model, fixRounds, budget } = claudeSettings(config);
   const results = [];
   // Every scheduled morning's article, on Zenn or not (`only`: just these slugs), nearest first.
+  const history = readNoteHistory(root);
   const todo = anchors(root).filter(
     (a) =>
       (!only || only.includes(a.slug)) &&
       a.data.published === true &&
       a.at &&
       jstDay(a.at) >= today &&
-      ![path.join(root, "notes", `${a.slug}.md`), path.join(root, NOTE_DIR, `${a.slug}.md`)].some((f) => fs.existsSync(f)),
+      needsVersion(root, a.slug, { posted: "notes", dir: NOTE_DIR, history }),
   );
   for (const a of todo.slice(0, config.days_ahead + 1)) {
     if (spentToday(root, now) >= budget) {

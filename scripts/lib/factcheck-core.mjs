@@ -68,7 +68,7 @@ Find every claim a reader could check or act on, and classify it:
 
 Use web search to verify every type except self_claim and computed, preferring primary sources: the original survey or paper, official documentation, the court ruling. For each claim, record whether the article itself links a source for it.
 
-Verdicts: supported (a reliable source confirms it as written), contradicted (a reliable source says otherwise, or the article misstates its own source), unsupported (you found no support; it may still be true), unverifiable (private experience that can't be checked). Leave out pure opinion and facts that are common knowledge for the article's audience. Ignore style.
+Verdicts: supported (a reliable source confirms it as written), contradicted (a reliable source says otherwise, or the article misstates its own source), unsupported (you found no support; it may still be true), unverifiable (private experience that can't be checked). A number the article gives as approximate (約, およそ, 前後, ほど, 程度, about) is supported when it's within about 10% of the true value (「約15行」 for 16 lines is right); call it contradicted only when it's clearly off. Leave out pure opinion and facts that are common knowledge for the article's audience. Ignore style.
 
 Copy each quote exactly from the article. Write summary, explanation and suggested_fix in the article's language. When you have checked everything, call submit_report once with all findings.`;
 

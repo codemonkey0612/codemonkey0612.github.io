@@ -15,6 +15,7 @@ import {
   notePrompt,
   openSlots,
   pickPillar,
+  qiitaCompanions,
   readHistory,
   readNoteHistory,
   spentToday,
@@ -358,6 +359,37 @@ test("a run finishes each morning (its article, then its Qiita and note versions
   assert.deepEqual(r.results.map((x) => x.date), ["2026-11-10 09:00", "2026-11-11 09:00"]);
   assert.deepEqual(calls.map((c) => c[0]).filter((c) => ["topic", "qiita", "note"].includes(c)), ["topic", "qiita", "note", "topic", "qiita", "note"]);
   assert.deepEqual([r.qiita.map((x) => x.status), r.note.map((x) => x.status)], [["scheduled", "scheduled"], ["scheduled", "scheduled"]]);
+});
+
+test("a Qiita or note version that failed is tried once more on a later run; after two failures, or once it's posted, it's left alone", async () => {
+  const failedQiita = `---\ntitle: Q\ntags: [Python]\nzenn: off-zenn/retry-me-please.md\nstatus: failed\n---\n本文\n`;
+  const failedNote = `---\ntitle: N\nhashtags: [生成AI]\nzenn: off-zenn/retry-me-please.md\nstatus: failed\n---\n本文\n`;
+  const tried = (n) => Array.from({ length: n }, () => ({ status: "failed", zenn: "off-zenn/retry-me-please.md" }));
+  const setup = (tries, extra = {}) =>
+    repo({
+      "off-zenn/retry-me-please.md": zennWithClosing("2026-11-23 09:00"),
+      "qiita/retry-me-please.md": failedQiita,
+      "note-src/retry-me-please.md": failedNote,
+      "autopilot/qiita.json": JSON.stringify(tried(tries)),
+      "autopilot/note.json": JSON.stringify(tried(tries)),
+      ...extra,
+    });
+  const { steps } = noteSteps([report()]);
+  const qiitaBody = `${Array.from({ length: 60 }, (_, i) => `処理${i}は入力を検証して辞書に変換します。`).join("")}\n\n\`\`\`python\nprint(1)\n\`\`\`\n`;
+  const all = { ...steps, writeQiita: async () => ({ value: { title: "Qiitaでもう一度書いた記事のタイトル", tags: ["Python"], body: qiitaBody }, usage }) };
+  const now = jst("2026-11-23T04:13");
+  const run = (dir) => Promise.all([qiitaCompanions({ root: dir, profile, config, now, steps: all, textlint: () => [] }), noteCompanions({ root: dir, profile, config, now, steps: all, textlint: () => [] })]);
+
+  const once = setup(1);
+  const [q1, n1] = await run(once);
+  assert.deepEqual([q1.map((r) => r.status), n1.map((r) => r.status)], [["scheduled"], ["scheduled"]], "one failure: written again");
+  assert.equal(matter(fs.readFileSync(path.join(once, "qiita/retry-me-please.md"), "utf8")).data.published_at, "2026-11-23 09:00");
+
+  const [q2, n2] = await run(setup(2));
+  assert.deepEqual([q2.length, n2.length], [0, 0], "two failures: left alone");
+
+  const [q3, n3] = await run(setup(0, { "public/retry-me-please.md": "x", "notes/retry-me-please.md": "x" }));
+  assert.deepEqual([q3.length, n3.length], [0, 0], "already posted: left alone");
 });
 
 test("a new article never reuses a slug that's taken on any platform", () => {

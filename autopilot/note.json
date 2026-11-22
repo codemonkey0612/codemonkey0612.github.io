@@ -115,5 +115,23 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.22
+  },
+  {
+    "date": "2026-11-23 09:00",
+    "zenn": "off-zenn/rag-regression-test-eval-set.md",
+    "written_at": "2026-11-22T19:13:46.440Z",
+    "title": "AIチャットボットを直すたび不安だった方へ。30問の「回答テスト」で見張る話",
+    "file": "note-src/rag-regression-test-eval-set.md",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 16,
+      "output_tokens": 6667,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 55874,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.21
   }
 ]

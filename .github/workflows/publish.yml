@@ -11,8 +11,9 @@ on:
     branches:
       - main
       - master
-  # The morning runs are started on time by the Cloudflare Worker in clock/ (08:50 JST with
-  # at: 09:00, and 09:20 JST for anything missed). GitHub's own schedule below is only a
+  # The runs are started on time by the Cloudflare Worker in clock/ (08:50 JST with at: 09:00;
+  # 11:50 JST with at: 12:00 for note, autopilot.yml note_time; 12:20 JST for anything missed).
+  # GitHub's own schedule below is only a
   # fallback: it starts runs hours late or not at all when GitHub is busy (on 2026-11-10 the
   # 08:40 run started at 13:45). The first run to start before 09:00 waits until 09:00 and posts;
   # the others queue behind it (see concurrency) and then find nothing left to do.
@@ -23,6 +24,7 @@ on:
     - cron: "47 21 * * *" # 06:47 JST
     - cron: "47 22 * * *" # 07:47 JST
     - cron: "37 23 * * *" # 08:37 JST
+    - cron: "7 4 * * *" # 13:07 JST: note goes out at 12:00 (autopilot.yml note_time); a fallback
   workflow_dispatch:
     inputs:
       at:

@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { NoteAuthError, NoteClient } from "../scripts/lib/note-client.mjs";
 import { localImages, markdownToNote } from "../scripts/lib/note-html.mjs";
-import { readyNotes, syncNotes } from "../scripts/note-draft.mjs";
+import { fillMagazine, readyNotes, syncNotes } from "../scripts/note-draft.mjs";
 
 const ids = () => {
   let n = 0;
@@ -51,7 +51,7 @@ test("Markdown becomes note editor HTML: block ids, two heading levels, figures,
 });
 
 // A fake note: records calls, answers like the real endpoints.
-function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published = [], publishWorks = true, eyecatchWorks = true, keys = {} } = {}) {
+function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published = [], publishWorks = true, eyecatchWorks = true, keys = {}, magazines = [], magazineWorks = true } = {}) {
   const calls = [];
   const keyOf = new Map(Object.entries(keys));
   let nextId = 1000;
@@ -83,6 +83,16 @@ function fakeNote({ urlname = "shanaiai", status = 200, drafts = [], published =
     if (u.pathname.startsWith(`/${urlname}/n/`)) return new Response("", { status: published.includes(u.pathname.split("/").pop()) ? 200 : 404 });
     const pub = /^\/api\/v3\/notes\/(\w+)$/.exec(u.pathname);
     if (pub) return published.includes(pub[1]) ? json({ data: { status: "published", eyecatch } }) : new Response("", { status: 404 });
+    if (u.pathname === "/api/v1/my/magazines") return json({ data: { magazines: magazines.map(({ id, key, name }) => ({ id, key, name })) } });
+    const add = init.method === "POST" && /^\/api\/v1\/our\/magazines\/(m\w+)\/notes$/.exec(u.pathname);
+    if (add) {
+      const m = magazines.find((x) => x.key === add[1]);
+      if (!m || !magazineWorks) return new Response("", { status: 404 });
+      m.notes.unshift(JSON.parse(init.body).note_key);
+      return json({ data: {} });
+    }
+    const list = /^\/api\/v1\/magazines\/(m\w+)\/notes$/.exec(u.pathname);
+    if (list) return json({ data: { notes: (magazines.find((x) => x.key === list[1])?.notes ?? []).map((key) => ({ key })), isLastPage: true } });
     return new Response("not found", { status: 404 });
   };
   return { calls, fetch };
@@ -239,4 +249,38 @@ test("with publish, a ready post goes out on note and its public link is recorde
   assert.equal(bad.action, "failed");
   assert.match(bad.reason, /isn't public: open https:\/\/editor\.note\.com\/notes\/nkey1001\/edit\//);
   assert.doesNotMatch(fs.readFileSync(path.join(dir2, "notes/ai.md"), "utf8"), /^url: https/m);
+});
+
+test("note_magazine: every public post this tool made goes into the magazine, recorded once the magazine lists it", async () => {
+  const dir = tmpNotes({
+    "notes/one.md": post("url: https://note.com/shanaiai/n/nkey1\nnote_id: \"11\"\nnote_key: nkey1\n"),
+    "notes/two.md": post("url: https://note.com/shanaiai/n/nkey2\nnote_id: \"12\"\nnote_key: nkey2\nmagazine: mabc123\n"),
+    "notes/draft.md": post("note_id: \"13\"\nnote_key: nkey3\n"),
+  });
+  const logs = [];
+  const quietLog = (m) => logs.push(m);
+  const note = fakeNote({ magazines: [{ id: 5, key: "mabc123", name: "中小企業のAI活用と業務改善", notes: ["nkey2"] }] });
+  const client = new NoteClient("s", { fetch: note.fetch });
+  const results = await fillMagazine({ root: dir, client, magazine: "中小企業のAI活用と業務改善", log: quietLog });
+  assert.deepEqual(results.map((r) => [path.basename(r.file), r.action]), [["one.md", "added"]], "only the public one not yet in it");
+  assert.deepEqual(JSON.parse(note.calls.find((c) => c.method === "POST").body), { note_id: 11, note_key: "nkey1" });
+  assert.match(fs.readFileSync(path.join(dir, "notes/one.md"), "utf8"), /^magazine: mabc123$/m);
+  assert.deepEqual(await fillMagazine({ root: dir, client, magazine: "mabc123", log: quietLog }), [], "by key too; nothing left to add");
+
+  // note says OK but the magazine doesn't list it: not recorded, tried again next run.
+  const dir2 = tmpNotes({ "notes/one.md": post("url: https://note.com/shanaiai/n/nkey1\nnote_id: \"11\"\nnote_key: nkey1\n") });
+  const silent = fakeNote({ magazines: [{ id: 5, key: "mabc123", name: "M", notes: [] }] });
+  const quietClient = new NoteClient("s", { fetch: silent.fetch });
+  quietClient.addToMagazine = async () => {}; // accepted, but nothing changes
+  const [r] = await fillMagazine({ root: dir2, client: quietClient, magazine: "M", log: quietLog });
+  assert.equal(r.action, "failed");
+  assert.doesNotMatch(fs.readFileSync(path.join(dir2, "notes/one.md"), "utf8"), /^magazine:/m);
+
+  // No such magazine yet: says how to make it, changes nothing.
+  logs.length = 0;
+  const none = await fillMagazine({ root: dir2, client: new NoteClient("s", { fetch: fakeNote().fetch }), magazine: "まだ無い", log: quietLog });
+  assert.deepEqual(none, [{ action: "no magazine", magazine: "まだ無い" }]);
+  assert.match(logs.join("\n"), /create it on note/);
+  assert.deepEqual(await fillMagazine({ root: dir2, client, magazine: "", log: quietLog }), [], "no magazine set: nothing");
+  await assert.rejects(client.request("POST", "/api/v1/magazines"), /not an allowed note endpoint/, "it can't create one");
 });

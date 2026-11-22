@@ -27,11 +27,11 @@ test("every Cron Trigger has a job, every job a trigger, and each starts a workf
 test("the writer starts well before 09:00 JST; Publish starts just before and waits until 09:00, then once more after", () => {
   const at = (file) => Object.entries(JOBS).filter(([, j]) => j.workflow === file);
   for (const [cron] of at("write.yml")) assert.ok(jst(cron) <= 7 * 60, `${cron} writes by 07:00 JST`);
-  const [early, late] = at("publish.yml").sort(([a], [b]) => jst(a) - jst(b));
+  const [early, ...later] = at("publish.yml").sort(([a], [b]) => jst(a) - jst(b));
   assert.ok(jst(early[0]) < 9 * 60 && jst(early[0]) >= 8 * 60 + 30, "the first Publish start is 08:30–09:00 JST");
   assert.equal(early[1].inputs?.at, "09:00");
-  assert.ok(jst(late[0]) > 9 * 60, "a catch-up run after 09:00");
-  assert.equal(late[1].inputs, undefined, "the catch-up posts at once");
+  assert.ok(later.some(([cron, j]) => jst(cron) > 9 * 60 && !j.inputs), "a catch-up run after 09:00 that posts at once");
+  assert.ok(Object.keys(JOBS).length <= 5, "Cloudflare's free plan: at most 5 Cron Triggers per account");
 });
 
 test("the Publish workflow only passes a well-formed time to crosspost", () => {
@@ -88,4 +88,14 @@ test("a secret that isn't a token (say, the prompt pasted by mistake) is named a
 
 test("an unknown trigger is an error, not a silent no-op", async () => {
   await assert.rejects(worker.scheduled({ cron: "0 0 1 1 *" }, env), /no job for the cron/);
+});
+
+test("note's own time: Publish starts at 11:50 and waits until autopilot.yml note_time, then once more after", () => {
+  const noteTime = YAML.parse(fs.readFileSync(path.join(ROOT, "autopilot.yml"), "utf8")).note_time;
+  const runs = Object.entries(JOBS).filter(([, j]) => j.workflow === "publish.yml");
+  const waiting = runs.find(([, j]) => j.inputs?.at === noteTime);
+  assert.ok(waiting, `a Publish start that waits until ${noteTime}`);
+  const [h, m] = noteTime.split(":").map(Number);
+  assert.ok(jst(waiting[0]) < h * 60 + m && jst(waiting[0]) >= h * 60 + m - 30, "it starts up to 30 minutes before");
+  assert.ok(runs.some(([cron, j]) => !j.inputs && jst(cron) > h * 60 + m && jst(cron) <= h * 60 + m + 60), "and a catch-up within the hour after");
 });

@@ -223,6 +223,57 @@ export async function syncNotes({
   return results;
 }
 
+/**
+ * autopilot.yml `note_magazine`: every public post this tool made (notes/*.md with url, note_id
+ * and note_key) that isn't in the magazine yet is added to it, and `magazine:` is recorded once
+ * the magazine lists it. The magazine is one of yours, found by key (m…) or exact name; note has
+ * no way to create one from here, so until it exists this only says so. Never fails the run.
+ */
+export async function fillMagazine({ root = ROOT, client, magazine, log = console.log }) {
+  const want = String(magazine ?? "").trim();
+  if (!want) return [];
+  const mine = await client.myMagazines();
+  const mag = mine.find((m) => m.key === want) ?? mine.find((m) => m.name === want);
+  if (!mag) {
+    log(`note: there's no magazine 「${want}」 yet: create it on note (マガジン → 作成) with exactly that name, and the next run fills it`);
+    return [{ action: "no magazine", magazine: want }];
+  }
+  const dir = path.join(root, PLATFORM_DIRS.note);
+  const todo = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".md"))
+    .sort()
+    .map((f) => ({ file: path.join(dir, f), data: readArticle(path.join(dir, f)).data }))
+    .filter(({ data }) => data.url && data.note_id && data.note_key && data.magazine !== mag.key);
+  if (!todo.length) return [];
+  const results = [];
+  for (const { file, data } of todo) {
+    try {
+      await client.addToMagazine(mag.key, { id: data.note_id, key: data.note_key });
+      results.push({ file, key: String(data.note_key), action: "sent" });
+    } catch (err) {
+      if (err.name === "NoteAuthError") throw err;
+      results.push({ file, action: "failed", reason: err.message });
+      break; // the same call would fail for the rest
+    }
+  }
+  // Trust the magazine's own list, not the reply: only what it shows is recorded.
+  const listed = new Set(await client.magazineNoteKeys(mag.key).catch(() => []));
+  for (const r of results.filter((x) => x.action === "sent")) {
+    if (listed.has(r.key)) {
+      setFrontMatter(r.file, { magazine: mag.key });
+      r.action = "added";
+    } else {
+      r.action = "failed";
+      r.reason = `note took the request, but the magazine doesn't list it yet (the next run tries again)`;
+    }
+  }
+  const added = results.filter((r) => r.action === "added").length;
+  if (added) log(`note: added ${added} post(s) to the magazine 「${mag.name}」 (${mag.key})`);
+  for (const r of results.filter((x) => x.action === "failed")) log(`note: couldn't add ${rel(r.file)} to the magazine: ${r.reason}`);
+  return results;
+}
+
 function report(results) {
   const lines = [];
   for (const r of results) {
@@ -255,6 +306,17 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
     console.log(text);
     if (process.env.GITHUB_STEP_SUMMARY && shown.length) {
       fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### note\n\n\`\`\`\n${text}\n\`\`\`\n`);
+    }
+    // autopilot.yml note_magazine: put every public post this tool made into the magazine. Its
+    // problems are reported but never fail the run (the posts themselves are out).
+    if (!dryRun && publish && !given.length) {
+      const magazine = fs.existsSync(autopilot) ? YAML.parse(fs.readFileSync(autopilot, "utf8"))?.note_magazine : null;
+      try {
+        await fillMagazine({ client, magazine });
+      } catch (err) {
+        if (err.name === "NoteAuthError") throw err;
+        console.log(`note: the magazine step failed: ${err.message}`);
+      }
     }
     if (results.some((r) => r.action === "failed")) process.exit(1);
   } catch (err) {

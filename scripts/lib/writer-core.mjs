@@ -418,10 +418,10 @@ The author's Zenn article for the same morning is given below. Write a SEPARATE 
 
 ${RULES(author, config, "note")}
 
-Shape: open with a hook in 2–4 sentences (a familiar situation, a result, or the reader's question), then the story or reasoning, two to four concrete takeaways or steps, and a short まとめ in the author's own voice. 2,500–5,000 characters. Don't repeat the title as a heading. End the article with a line containing only --- followed by exactly this closing paragraph:
+Shape: open with a hook in 2–4 sentences (a familiar situation, a result, or the reader's question): note shows only the first lines in its feed. Then the story or reasoning, two to four concrete takeaways or steps, and a short まとめ in the author's own voice. Where it helps, give readers something to use as is (a short prompt, a checklist, questions to ask a vendor) in a bullet list. Short paragraphs: most readers are on phones. 2,500–5,000 characters. Don't repeat the title as a heading. End the article with a line containing only --- followed by exactly this closing paragraph:
 ${closing || "(none)"}
 
-title: Japanese, 20–50 characters, different from the Zenn title, in note's style: personal and concrete, leading with the payoff (a result, a situation the reader shares, or who it's for). hashtags: 3–5 words that note readers search, without # (e.g. 生成AI, ChatGPT, 業務効率化, DX, 仕事術, AI活用).
+title: Japanese, 20–50 characters, different from the Zenn title, in note's style: personal and concrete, leading with the payoff (a result, a situation the reader shares, or who it's for). When the article hands readers something complete to copy or keep (a prompt, a checklist, a template, a list of questions to ask), start the title with 【コピペOK】 (something to paste) or 【保存版】 (something to keep), as popular note posts do; never when it doesn't. hashtags: 3–5 words that note readers search, without # (e.g. 生成AI, ChatGPT, 業務効率化, DX, 仕事術, AI活用).
 
 When it's finished, call submit_note once.`;
   const user = [

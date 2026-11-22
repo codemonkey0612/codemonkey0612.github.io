@@ -14,8 +14,11 @@ crons = [
   "13 19 * * *", # 04:13 JST  Write articles
   "13 21 * * *", # 06:13 JST  Write articles (second try)
   "50 23 * * *", # 08:50 JST  Publish articles, waits until 09:00
-  "20 0 * * *",  # 09:20 JST  Publish articles (anything still missing)
+  "50 2 * * *",  # 11:50 JST  Publish articles, waits until 12:00 (note: autopilot.yml note_time)
+  "20 3 * * *",  # 12:20 JST  Publish articles (anything still missing)
 ]
+# Cloudflare's free plan allows 5 Cron Triggers per account. Until 2026-11-22 the fourth was a
+# 09:20 catch-up; now a missed 09:00 post goes out with the 12:00 run instead.
 
 [vars]
 REPO = "codemonkey0612/codemonkey0612.github.io"

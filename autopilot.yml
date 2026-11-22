@@ -25,8 +25,17 @@ claude:
                             # are written a day ahead, so a wait still makes the morning). $1.5
                             # since 2026-11-18 (an article, its Qiita and its note version every
                             # day: about $1–1.4); $1 before.
-note: auto            # auto: publish each article on note at 09:00 too (needs the NOTE_SESSION
-                      # secret) | draft: save it as a note draft for you | off: no note copies
+note: auto            # auto: publish each article on note too, at note_time (needs the
+                      # NOTE_SESSION secret) | draft: save it as a note draft for you | off: none
+note_time: "12:00"    # when note gets the morning's article (Japan time). Since 2026-11-22: among
+                      # popular note posts, ones published 12:00–14:00 had the most likes (median
+                      # 270, against 216 for 09:00–11:00). The clock Worker starts a Publish run
+                      # at 11:50 (it waits until 12:00) and 12:20. Zenn, Qiita and Bluesky stay at
+                      # 09:00; Bluesky announces a morning that isn't on Zenn once note has it.
+note_magazine: 中小企業のAI活用と業務改善   # every note post this tool makes goes into the
+                      # magazine with this name (or key, m…), past ones too. note has no way for
+                      # this tool to create one: make it once on note with exactly this name
+                      # (until then, posts go out without a magazine). Empty: no magazine.
 note_version: true    # true (since 2026-11-18): the writer also writes a separate note article
                       # for each morning, for note's readers (mostly non-engineers: plain words, a
                       # first-person story, takeaways anyone can use), on the morning article's

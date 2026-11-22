@@ -11,8 +11,12 @@ GitHub に「ワークフローを今すぐ実行して」と頼みます（手�
 |---|---|
 | 04:13 | Write articles（次の記事と Qiita 記事を書く） |
 | 06:13 | Write articles（2回目。まだ書けていないものだけ） |
-| 08:50 | Publish articles（09:00 まで待ってから note・Qiita・Bluesky に投稿） |
-| 09:20 | Publish articles（取りこぼしがあれば投稿） |
+| 08:50 | Publish articles（09:00 まで待ってから Qiita・Bluesky に投稿。Zenn は 09:00 に自動で公開） |
+| 11:50 | Publish articles（12:00 まで待ってから note に投稿。autopilot.yml の note_time） |
+| 12:20 | Publish articles（取りこぼしがあれば投稿） |
+
+Cloudflare の無料プランでは、Cron Trigger はアカウント全体で5つまでです（2026-11-22 に 09:20 の
+取りこぼし用を 11:50・12:20 に置き換えました。09:00 の投稿が漏れたときは 12:00 の実行で出ます）。
 
 どのワークフローも、すでに済んだことはやり直しません。2回目の実行や、遅れて届いた GitHub の
 スケジュール実行があっても、二重に投稿・執筆することはありません。GitHub のスケジュールは予備として残しています。
@@ -94,8 +98,9 @@ rm wrangler.selftest.toml
 GitHub's `schedule:` triggers start runs hours late or not at all when GitHub is busy, so this
 Cloudflare Worker's Cron Triggers start the workflows through the GitHub API
 (`POST /repos/{repo}/actions/workflows/{file}/dispatches`): Write articles at 04:13 and 06:13 JST,
-Publish articles at 08:50 JST with `at: 09:00` (it waits, then posts at 09:00) and again at 09:20 JST
-for anything missed. Every workflow skips finished work, so extra starts are harmless; the GitHub
+Publish articles at 08:50 JST with `at: 09:00` (it waits, then posts at 09:00), at 11:50 JST with
+`at: 12:00` (note, autopilot.yml note_time) and again at 12:20 JST for anything missed (5 Cron
+Triggers: the most Cloudflare's free plan allows per account). Every workflow skips finished work, so extra starts are harmless; the GitHub
 schedules remain as a fallback. Server errors, rate limits and network failures are retried 5 times
 (20 s, 40 s, …); a 4xx (bad or expired token) fails at once and shows in the Worker's logs.
 

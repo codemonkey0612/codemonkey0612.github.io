@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import matter from "gray-matter";
-import { crosspost, msUntil, withoutCta } from "../scripts/crosspost.mjs";
+import { crosspost, msUntil, withBigHashtag, withoutCta } from "../scripts/crosspost.mjs";
 import { holdUnsent } from "../scripts/qiita-hold.mjs";
 import { listArticles } from "../scripts/lib/site-core.mjs";
 import { imageBase, isLive, nextFreeSlot, publishedAt, zennToNote, zennToQiita } from "../scripts/lib/schedule.mjs";
@@ -43,6 +43,24 @@ test("a new article gets the next morning with no post", () => {
   assert.equal(nextFreeSlot(dir, jst("2026-11-09T22:00"), 2), "2026-11-14 09:00", "every_days 2: not next to the 10th or the 12th");
   fs.writeFileSync(path.join(dir, "autopilot.yml"), "zenn:\n  every_days: 2\n");
   assert.equal(nextFreeSlot(dir, jst("2026-11-09T22:00")), "2026-11-14 09:00", "read from autopilot.yml");
+});
+
+test("note_time: note gets the morning's article at its own time; Qiita copies don't wait", () => {
+  const dir = repo({ "articles/morning-art-01.md": zenn("朝の記事", { at: "2026-11-22 09:00" }) });
+  const run = (at) => crosspost({ root: dir, profile, now: jst(at), qiita: true, note: true, cover: () => null, noteTime: "12:00" });
+  assert.deepEqual(run("2026-11-22T09:00").map((r) => [r.platform, r.action]), [["qiita", "created"]], "09:00: Qiita, not note yet");
+  assert.deepEqual(run("2026-11-22T12:00").map((r) => [r.platform, r.action]), [["qiita", "unchanged"], ["note", "created"]]);
+  const early = repo({ "articles/morning-art-02.md": zenn("朝の記事", { at: "2026-11-22 09:00" }) });
+  const r = crosspost({ root: early, profile, now: jst("2026-11-22T09:00"), qiita: false, note: true, cover: () => null, noteTime: "08:00" });
+  assert.deepEqual(r.map((x) => x.action), ["created"], "a note_time before the article's own time: at the article's time");
+});
+
+test("every note post carries a big hashtag: #生成AI for AI topics, otherwise #仕事術, first and within 5", () => {
+  assert.deepEqual(withBigHashtag(["rag", "python"], "RAGの記事"), ["生成AI", "rag", "python"]);
+  assert.deepEqual(withBigHashtag(["業務効率化", "DX"], "電話と管理表をやめた話"), ["仕事術", "業務効率化", "DX"]);
+  assert.deepEqual(withBigHashtag(["業務効率化", "生成AI"], "x"), ["業務効率化", "生成AI"], "already there: unchanged");
+  assert.deepEqual(withBigHashtag(["a", "b", "c", "d", "e"], "ChatGPT"), ["生成AI", "a", "b", "c", "d"]);
+  assert.deepEqual(withBigHashtag(["#DX", "DX"], "x"), ["仕事術", "DX"]);
 });
 
 test("Zenn-only Markdown becomes Qiita and note Markdown", () => {
@@ -155,7 +173,7 @@ test("with note on, due articles also get a note copy with a header image; your 
   assert.deepEqual(note, { "own-note-post-1": "skipped", "live-article-01": "created" });
   const copy = path.join(dir, "notes/live-article-01.md");
   const { data, content } = matter(fs.readFileSync(copy, "utf8"));
-  assert.deepEqual([data.title, data.status, data.hashtags, data.cover, data.url], ["今日の記事", "ready", ["ai", "rag"], "covers/1351631.jpg", null]);
+  assert.deepEqual([data.title, data.status, data.hashtags, data.cover, data.url], ["今日の記事", "ready", ["生成AI", "ai", "rag"], "covers/1351631.jpg", null]);
   assert.match(content, /^<!-- crossposted from articles\/live-article-01\.md/);
   assert.deepEqual(covers, [["今日の記事", ["ai", "rag"]]], "one cover, for the new copy");
 
@@ -194,7 +212,7 @@ test("note_version: the note article the writer prepared goes to note in place o
   const dir2 = repo({ "articles/live-article-01.md": zenn("今日の記事", { at: "2026-11-10 09:00" }), "note-src/live-article-01.md": version("failed") });
   crosspost({ root: dir2, profile, now, qiita: false, note: true, cover });
   const copy = matter(fs.readFileSync(path.join(dir2, "notes/live-article-01.md"), "utf8"));
-  assert.deepEqual([copy.data.title, copy.data.hashtags], ["今日の記事", ["ai", "rag"]], "a failed note version: the Zenn copy, as before");
+  assert.deepEqual([copy.data.title, copy.data.hashtags], ["今日の記事", ["生成AI", "ai", "rag"]], "a failed note version: the Zenn copy, as before");
 });
 
 test("a morning's article in off-zenn/ gets its note copy too, and a copy stays ours when its article moves there", () => {

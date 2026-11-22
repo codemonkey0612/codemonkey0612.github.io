@@ -22,6 +22,12 @@ const ALLOWED = [
   ["POST", /^\/api\/v3\/images\/upload\/presigned_post$/],
   ["POST", /^\/api\/v1\/image_upload\/note_eyecatch$/],
   ["PUT", /^\/api\/v1\/text_notes\/\d+$/], // publish (see publish())
+  // Magazines (autopilot.yml note_magazine): list yours, add a post, read one's posts to check.
+  // The same calls as three open-source clients (shimayuz/note-com-mcp, shoot16625/note-cli,
+  // daigotanaka/social-blog-skills). None creates a magazine, so neither does this.
+  ["GET", /^\/api\/v1\/my\/magazines$/],
+  ["POST", /^\/api\/v1\/our\/magazines\/m[0-9a-z]+\/notes$/],
+  ["GET", /^\/api\/v1\/magazines\/m[0-9a-z]+\/notes$/],
 ];
 export const IMAGE_TYPES = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif" };
 
@@ -155,6 +161,31 @@ export class NoteClient {
         is_lead_form: false,
       },
     });
+  }
+
+  /** Your magazines, the ones you can add posts to: [{ id, key, name }]. */
+  async myMagazines() {
+    const list = record(record(await this.request("GET", "/api/v1/my/magazines")).data).magazines;
+    return Array.isArray(list) ? list.filter((m) => typeof m?.key === "string").map((m) => ({ id: m.id ?? null, key: m.key, name: String(m.name ?? "") })) : [];
+  }
+
+  /** Adds one of your posts (its numeric id and its key, n…) to one of your magazines (m…). */
+  async addToMagazine(magazineKey, { id, key }) {
+    if (!/^m[0-9a-z]+$/.test(String(magazineKey))) throw new Error(`not a magazine key: ${magazineKey}`);
+    await this.request("POST", `/api/v1/our/magazines/${magazineKey}/notes`, { json: { note_id: Number(id), note_key: String(key) } });
+  }
+
+  /** The keys (n…) of the posts in a magazine, newest first (the first `pages` pages). */
+  async magazineNoteKeys(magazineKey, pages = 3) {
+    if (!/^m[0-9a-z]+$/.test(String(magazineKey))) throw new Error(`not a magazine key: ${magazineKey}`);
+    const keys = [];
+    for (let page = 1; page <= pages; page++) {
+      const data = record(record(await this.request("GET", `/api/v1/magazines/${magazineKey}/notes`, { query: { page } })).data);
+      const notes = Array.isArray(data.notes) ? data.notes : Array.isArray(data.contents) ? data.contents : [];
+      keys.push(...notes.map((n) => n?.key).filter((k) => typeof k === "string"));
+      if (!notes.length || data.isLastPage === true || data.is_last_page === true) break;
+    }
+    return keys;
   }
 
   async request(method, path, { query, json, form } = {}) {

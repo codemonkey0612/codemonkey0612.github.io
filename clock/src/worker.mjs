@@ -11,7 +11,8 @@ export const JOBS = {
   "13 19 * * *": { workflow: "write.yml", what: "04:13 JST: write the next articles" },
   "13 21 * * *": { workflow: "write.yml", what: "06:13 JST: second try (only what's still open)" },
   "50 23 * * *": { workflow: "publish.yml", inputs: { at: "09:00" }, what: "08:50 JST: start Publish, which posts at 09:00" },
-  "20 0 * * *": { workflow: "publish.yml", what: "09:20 JST: post anything still missing" },
+  "50 2 * * *": { workflow: "publish.yml", inputs: { at: "12:00" }, what: "11:50 JST: start Publish, which posts to note at 12:00 (note_time)" },
+  "20 3 * * *": { workflow: "publish.yml", what: "12:20 JST: post anything still missing" },
 };
 
 const TRIES = 5;

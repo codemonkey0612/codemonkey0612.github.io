@@ -74,6 +74,18 @@ function qiitaCopy(a, { root, base, topics, profile }) {
   return [old ? "updated" : "created"];
 }
 
+/**
+ * note readers browse a few big hashtags (each has a 人気 list), so every post carries one of
+ * them: #生成AI when it's about AI, otherwise #仕事術. First, so it survives note's limit of 5.
+ */
+export const BIG_HASHTAGS = ["生成AI", "仕事術"];
+export function withBigHashtag(tags, text) {
+  const list = [...new Set(tags.map((t) => String(t).replace(/^#/, "")).filter(Boolean))];
+  if (list.some((t) => BIG_HASHTAGS.includes(t))) return list.slice(0, 5);
+  const big = /\bAI\b|生成AI|ChatGPT|Claude|Gemini|LLM|RAG|エージェント|人工知能/i.test(text) ? "生成AI" : "仕事術";
+  return [big, ...list].slice(0, 5);
+}
+
 function noteCopy(a, { root, base, topics, cover }) {
   const out = path.join(root, "notes", `${a.slug}.md`);
   const old = existing(out, a.slug);
@@ -82,8 +94,9 @@ function noteCopy(a, { root, base, topics, cover }) {
   // The note version the writer prepared (note-src/<slug>.md), if it passed its checks.
   const version = noteVersionOf(root, a.slug);
   const tags = version && Array.isArray(version.data.hashtags) && version.data.hashtags.length ? version.data.hashtags : topics;
+  const title = version ? version.data.title : a.data.title;
   // Keep what note-draft.mjs wrote back (note_id, note_key, note_hash).
-  const fm = { title: version ? version.data.title : a.data.title, status: "ready", hashtags: tags.slice(0, 5) };
+  const fm = { title, status: "ready", hashtags: withBigHashtag(tags, `${title} ${tags.join(" ")} ${version ? version.content : a.content}`) };
   for (const k of ["cover", "note_id", "note_key", "note_hash"]) if (old?.data[k] != null) fm[k] = old.data[k];
   fm.url = null;
   // Your own header image (notes/<slug>.png or .jpg, 1280×670) wins; otherwise the package
@@ -105,9 +118,11 @@ function noteCopy(a, { root, base, topics, cover }) {
  * on Zenn (articles/) or not (off-zenn/). `cover({ title, topics })` returns the note header
  * image for a new note copy, as a path relative to notes/ (or null for none).
  */
-export function crosspost({ root = ROOT, profile, now = new Date(), qiita = true, note = false, cover = null }) {
+export function crosspost({ root = ROOT, profile, now = new Date(), qiita = true, note = false, cover = null, noteTime = "09:00" }) {
   const base = imageBase(profile);
   const results = [];
+  // autopilot.yml `note_time`: note gets the morning's article at this time (Japan time) that day.
+  const noteDue = (a) => !a.at || now >= Math.max(a.at.getTime(), publishedAt(`${jstDay(a.at)} ${noteTime}`)?.getTime() ?? 0);
   for (const a of anchors(root)) {
     if (!isLive(a.data, now)) continue;
     const topics = Array.isArray(a.data.topics) ? a.data.topics.filter(Boolean) : [];
@@ -117,7 +132,7 @@ export function crosspost({ root = ROOT, profile, now = new Date(), qiita = true
       continue;
     }
     if (qiita) record("qiita", "public", qiitaCopy(a, { root, base, topics, profile }));
-    if (note) record("note", "notes", noteCopy(a, { root, base, topics, cover }));
+    if (note && noteDue(a)) record("note", "notes", noteCopy(a, { root, base, topics, cover }));
   }
   return results;
 }
@@ -151,6 +166,7 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
     profile,
     qiita: (settings.qiita ?? "auto") === "auto", // `manual` publishes only what you prepared in public/
     note: noteMode !== "off",
+    noteTime: /^[0-2]\d:[0-5]\d$/.test(String(settings.note_time ?? "")) ? String(settings.note_time) : "09:00",
     cover: ({ title, topics }) => {
       const pick = chooseCover(covers, { title, topics, used });
       if (!pick) return null;

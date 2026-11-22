@@ -11,6 +11,7 @@ cover: covers/1351569.jpg
 note_id: "190643707"
 note_key: n0ba2203eaae8
 note_hash: 54423182ee52
+magazine: m470db8f81816
 ---
 <!-- crossposted from articles/gemini-gems-to-skills-business-checklist.md: edit the Zenn article, not this copy -->
 業務でGeminiのGemを使っている会社は多いと思います。Gemとは、指示文や参考資料を保存して作る「用途別のGemini」のことです。そのGemが、2026年11月から「スキル」という仕組みへ順に移ります。個人用アカウントの場合、残り時間は1週間ほどです。

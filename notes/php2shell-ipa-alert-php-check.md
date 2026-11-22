@@ -11,6 +11,7 @@ cover: covers/1319677.jpg
 note_id: "191181587"
 note_key: n4db34ab4523e
 note_hash: 9617503376cf
+magazine: m470db8f81816
 ---
 <!-- crossposted from articles/php2shell-ipa-alert-php-check.md: edit the Zenn article, not this copy -->
 自社サイトや業務システムが「PHP」で動いているかどうか、すぐには答えられない方は多いと思います。制作会社との契約が終わり、誰が保守しているのか曖昧なサイトも珍しくありません。

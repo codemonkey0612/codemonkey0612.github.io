@@ -12,6 +12,7 @@ cover: covers/1351631.jpg
 note_id: "192431109"
 note_key: n9a055702d2a7
 note_hash: 6a629bf37a89
+magazine: m470db8f81816
 ---
 <!-- crossposted from off-zenn/rag-docs-cite-sources-abstain.md: edit that article, not this copy -->
 「社内の資料をAIに読ませて、質問したら答えてくれるようにしたい」。そう考えたとき、多くの方が最初にぶつかるのが「間違った答えを出したらどうしよう」という不安ではないでしょうか。

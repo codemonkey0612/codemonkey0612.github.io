@@ -10,6 +10,7 @@ cover: covers/1351569.jpg
 note_id: "191380775"
 note_key: n2d700c26ae3d
 note_hash: b8066abd7d37
+magazine: m470db8f81816
 ---
 <!-- crossposted from articles/replace-phone-sheets-status-screen.md: edit the Zenn article, not this copy -->
 配送、案件、工程の「今どうなっているか」を知るために、電話をかけたり、複数のExcelを開いたりしていないでしょうか。担当者ごとに管理表が違い、どれが最新か分からなくなることもあると思います。

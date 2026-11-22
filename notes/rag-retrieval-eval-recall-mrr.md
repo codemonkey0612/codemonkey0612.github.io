@@ -11,6 +11,7 @@ cover: covers/1351631.jpg
 note_id: "191571578"
 note_key: n38c2cef28f97
 note_hash: 1a42410502f8
+magazine: m470db8f81816
 ---
 <!-- crossposted from articles/rag-retrieval-eval-recall-mrr.md: edit the Zenn article, not this copy -->
 RAGのチャンクサイズを変えたり、ハイブリッド検索を入れたりして「前より良くなった気がする」で止まっていないでしょうか。数件の質問を手で試すだけでは、改善と悪化を区別できません。

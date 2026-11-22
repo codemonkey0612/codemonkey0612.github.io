@@ -12,6 +12,7 @@ cover: covers/1319683.jpg
 note_id: "192525463"
 note_key: nab913aa5243c
 note_hash: 8761c8e89630
+magazine: m470db8f81816
 ---
 <!-- crossposted from off-zenn/webrtc-live-ops-reduction-lessons.md: edit that article, not this copy -->
 オンライン研修やセミナーを配信したいけれど、何から決めればいいか分からない。そんな声をよく耳にします。

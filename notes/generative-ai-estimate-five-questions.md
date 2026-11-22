@@ -11,6 +11,7 @@ cover: covers/1351667.jpg
 note_id: "191765745"
 note_key: nc1206ae17351
 note_hash: f13f0c9e2618
+magazine: m470db8f81816
 ---
 <!-- crossposted from articles/generative-ai-estimate-five-questions.md: edit the Zenn article, not this copy -->
 生成AI開発の見積書を受け取ったものの、金額が高いのか安いのか判断できずに困っていませんか。他社の見積もりと並べても、項目名が違っていて比べられないことがよくあります。

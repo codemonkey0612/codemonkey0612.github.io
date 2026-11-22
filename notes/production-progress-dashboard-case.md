@@ -12,6 +12,7 @@ cover: covers/1319683.jpg
 note_id: "191957386"
 note_key: n744a1a9fb752
 note_hash: 165228cb87eb
+magazine: m470db8f81816
 ---
 <!-- crossposted from off-zenn/production-progress-dashboard-case.md: edit that article, not this copy -->
 「あの注文、いまどの工程まで進んでいますか？」

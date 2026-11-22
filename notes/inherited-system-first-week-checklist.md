@@ -10,6 +10,7 @@ cover: covers/1319677.jpg
 note_id: "190820097"
 note_key: n53cd23466328
 note_hash: 6c7ebdcbfe37
+magazine: m470db8f81816
 ---
 <!-- crossposted from articles/inherited-system-first-week-checklist.md: edit the Zenn article, not this copy -->
 担当者が退職した、あるいは保守を頼んでいた業者が廃業した。その結果、社内の業務システムを誰も触れなくなっている。そんな状況で、何から手を付ければよいか分からない方は少なくありません。

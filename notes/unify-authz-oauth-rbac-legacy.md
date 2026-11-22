@@ -12,6 +12,7 @@ cover: covers/1319677.jpg
 note_id: "192146216"
 note_key: n12e06031b2e4
 note_hash: 97b2d6702ec1
+magazine: m470db8f81816
 ---
 <!-- crossposted from articles/unify-authz-oauth-rbac-legacy.md: edit the Zenn article, not this copy -->
 認証・認可の実装が機能ごとにばらばらな既存Webアプリは、先に「何があるか」を一覧にして「どこで判断するか」を1か所に決めると、統一まで迷わず進められます。私が関わった中堅IT企業向けWebアプリの案件では、OAuth 2.0・トークン管理・RBACに寄せて、認証・認可の処理を統一しました。この記事は、同じ状況の既存システムを引き継いだ、あるいは改修する立場のバックエンドエンジニア向けです。棚卸しの観点、設計の決め方、Node.js/TypeScriptの実装例、再テストの進め方をまとめます。

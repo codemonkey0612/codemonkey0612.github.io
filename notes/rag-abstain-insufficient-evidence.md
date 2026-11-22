@@ -11,6 +11,7 @@ cover: covers/1351631.jpg
 note_id: "191000080"
 note_key: n641dd5cc9d23
 note_hash: cc13d25e55ea
+magazine: m470db8f81816
 ---
 <!-- crossposted from articles/rag-abstain-insufficient-evidence.md: edit the Zenn article, not this copy -->
 社内文書のRAGを作ると、資料に書かれていないことまで、もっともらしく答えてしまう場面に出会います。プロンプトで「分からなければ分からないと答えて」と書いても、完全には止まりません。

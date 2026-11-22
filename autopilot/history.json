@@ -527,5 +527,26 @@
       "web_search_requests": 10
     },
     "cost_usd": 0.63
+  },
+  {
+    "date": "2026-11-24 09:00",
+    "pillar": "news",
+    "written_at": "2026-11-22T21:13:52.825Z",
+    "zenn": false,
+    "slug": "php-security-release-nov-2026-check",
+    "title": "PHP 8.5.13など修正版が公開、更新を急ぐ理由と発注先への確認事項",
+    "service": "quality",
+    "status": "scheduled",
+    "fact_check_warnings": 0,
+    "file": "off-zenn/php-security-release-nov-2026-check.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 48,
+      "output_tokens": 15716,
+      "cache_read_input_tokens": 197872,
+      "cache_creation_input_tokens": 89897,
+      "web_search_requests": 24
+    },
+    "cost_usd": 0.66
   }
 ]

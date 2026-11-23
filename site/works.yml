@@ -692,13 +692,12 @@ lancers:
 # was retaken there that day.
 # 2026-11-23: 11 hair salon sites removed at your request (SUEDA Hair Room, La Pause, Pulcina,
 # Putti, FRACTAL DESIGN, fido, HAIR GRACES, ORIGINAL, honu, J@m, HAIR PEPPINO), with their pictures.
+# 2026-11-23, later: 7 more removed at your request (hair salon haru, Re:coa, 髪KOTOBA, REPO design,
+# 8 HAIR, Hair Design Cre'er, Farve), with their pictures.
 # List only sites you actually worked on.
 showcase:
   - { group: salon, name: hair salon MOU, url: "https://hairsalon-mou.com/", shot: media/showcase/hairsalon-mou-com.webp }
-  - { group: salon, name: Re:coa, url: "https://recoa.jp/", shot: media/showcase/recoa-jp.webp }
   - { group: salon, name: ハナブルー, url: "https://www.hana.blue/", shot: media/showcase/hana-blue.webp }
-  - { group: salon, name: hair salon haru, url: "https://salon.haru-hp.jp/", shot: media/showcase/salon-haru-hp-jp.webp }
-  - { group: salon, name: 髪KOTOBA美容室, url: "https://kamikotoba.com/", shot: media/showcase/kamikotoba-com.webp }
   - { group: salon, name: Malie Hair Salon, url: "https://malie-hairsalon.jp/", shot: media/showcase/malie-hairsalon-jp.webp }
   - { group: salon, name: プライベートヘアサロン Sur, url: "https://kobe-sur.com/", shot: media/showcase/kobe-sur-com.webp }
   - { group: salon, name: FASCINO, url: "https://kobe-fascino.jp/", shot: media/showcase/kobe-fascino-jp.webp }
@@ -707,13 +706,9 @@ showcase:
   - { group: salon, name: AnS Hair Salon, url: "https://www.ans-hair.com/", shot: media/showcase/ans-hair-com.webp }
   - { group: salon, name: eto（エト）, url: "https://e-t-o.net/", shot: media/showcase/e-t-o-net.webp }
   - { group: salon, name: BE HERE NOW（ビーヒアナウ）, url: "https://b-h-n.com/", shot: media/showcase/b-h-n-com.webp }
-  - { group: salon, name: 8 HAIR（エイトヘアー）, url: "https://8hair.jp/", shot: media/showcase/8hair-jp.webp }
   - { group: salon, name: PLUME, url: "https://plume-private-salon.com/", shot: media/showcase/plume-private-salon-com.webp }
-  - { group: salon, name: REPO design（レポデザイン）, url: "https://www.repo-design.com/", shot: media/showcase/repo-design-com.webp }
   - { group: salon, name: 美容室シンディ（cynd）, url: "https://cynd.jp/", shot: media/showcase/cynd-jp.webp }
-  - { group: salon, name: "Hair Design Cre'er（クレエ）", url: "https://hairdesigncreer.com/", shot: media/showcase/hairdesigncreer-com.webp }
   - { group: salon, name: cocorohair（ココロヘアー）, url: "https://www.cocorohair1122.com/", shot: media/showcase/cocorohair1122-com.webp }
-  - { group: salon, name: Farve（ファーブ）, url: "https://farve-hair.com/", shot: media/showcase/farve-hair-com.webp }
   - { group: salon, name: C/SPICE hair（シースパイスヘア）, url: "https://www.cspicehair.jp/", shot: media/showcase/cspicehair-jp.webp }
   - { group: salon, name: 美容室アンハーバー, url: "https://anharbor.jp/top", shot: media/showcase/anharbor-jp-top.webp }
   - { group: shop, name: POUSSE（プーゼ）, url: "https://www.pousse-kyoto.com/", shot: media/showcase/pousse-kyoto-com.webp }

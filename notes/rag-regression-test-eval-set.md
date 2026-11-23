@@ -7,8 +7,12 @@ hashtags:
   - AIチャットボット
   - 業務効率化
   - 社内DX
-url: null
+url: https://note.com/shanaiai/n/n58c24b0089dc
 cover: covers/1351631.jpg
+note_id: "192799302"
+note_key: n58c24b0089dc
+note_hash: ae8c1eddf3b4
+magazine: m470db8f81816
 ---
 <!-- crossposted from off-zenn/rag-regression-test-eval-set.md: edit that article, not this copy -->
 社内向けのAIチャットボットを少し直したら、前より良くなった気がする。でも本当に良くなったのか、自信がない。

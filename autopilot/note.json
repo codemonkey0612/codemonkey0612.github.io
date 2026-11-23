@@ -133,5 +133,41 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.21
+  },
+  {
+    "date": "2026-11-24 09:00",
+    "zenn": "off-zenn/php-security-release-nov-2026-check.md",
+    "written_at": "2026-11-23T19:13:49.594Z",
+    "title": "PHPの更新ニュースが届いた週に、発注先へ送りたい8つの質問",
+    "file": "note-src/php-security-release-nov-2026-check.md",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 30,
+      "output_tokens": 9664,
+      "cache_read_input_tokens": 114650,
+      "cache_creation_input_tokens": 63797,
+      "web_search_requests": 10
+    },
+    "cost_usd": 0.38
+  },
+  {
+    "date": "2026-11-25 09:00",
+    "zenn": "articles/multitenant-ai-saas-quality-cost-ops.md",
+    "written_at": "2026-11-23T19:13:49.594Z",
+    "title": "社内AIを「安心して任せられる」状態にするために、最初に決めておきたい4つのこと",
+    "file": "note-src/multitenant-ai-saas-quality-cost-ops.md",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 24,
+      "output_tokens": 10483,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 76921,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.3
   }
 ]

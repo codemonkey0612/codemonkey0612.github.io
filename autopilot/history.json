@@ -548,5 +548,26 @@
       "web_search_requests": 24
     },
     "cost_usd": 0.66
+  },
+  {
+    "date": "2026-11-25 09:00",
+    "pillar": "case-story",
+    "written_at": "2026-11-23T19:13:49.594Z",
+    "zenn": true,
+    "slug": "multitenant-ai-saas-quality-cost-ops",
+    "title": "マルチテナントAI SaaS開発から考える、回答品質・速度・コストを両立する運用の土台4つ",
+    "service": "ai-chatbot",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "file": "articles/multitenant-ai-saas-quality-cost-ops.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 20,
+      "output_tokens": 9567,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 67095,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.26
   }
 ]

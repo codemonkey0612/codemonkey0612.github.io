@@ -689,41 +689,33 @@ lancers:
 # at /chat on the fictional sample company's documents (抜粋モード, no API key). Its picture is the
 # landing page's first screen, taken once the hero's demo card shows its answer and citation. Since
 # 2026-11-22 it lives at faq.shanaiai.com (the old vercel.app address redirects there); the picture
-# was retaken there that day. List only sites you actually worked on.
+# was retaken there that day.
+# 2026-11-23: 11 hair salon sites removed at your request (SUEDA Hair Room, La Pause, Pulcina,
+# Putti, FRACTAL DESIGN, fido, HAIR GRACES, ORIGINAL, honu, J@m, HAIR PEPPINO), with their pictures.
+# List only sites you actually worked on.
 showcase:
   - { group: salon, name: hair salon MOU, url: "https://hairsalon-mou.com/", shot: media/showcase/hairsalon-mou-com.webp }
   - { group: salon, name: Re:coa, url: "https://recoa.jp/", shot: media/showcase/recoa-jp.webp }
-  - { group: salon, name: J@m（アットジャム）, url: "https://www.jamtruebeauty.com/", shot: media/showcase/jamtruebeauty-com.webp }
-  - { group: salon, name: HAIR PEPPINO, url: "https://hairpeppino.com/", shot: media/showcase/hairpeppino-com.webp }
   - { group: salon, name: ハナブルー, url: "https://www.hana.blue/", shot: media/showcase/hana-blue.webp }
   - { group: salon, name: hair salon haru, url: "https://salon.haru-hp.jp/", shot: media/showcase/salon-haru-hp-jp.webp }
-  - { group: salon, name: SUEDA Hair Room, url: "https://sueda-hr.com/", shot: media/showcase/sueda-hr-com.webp }
   - { group: salon, name: 髪KOTOBA美容室, url: "https://kamikotoba.com/", shot: media/showcase/kamikotoba-com.webp }
   - { group: salon, name: Malie Hair Salon, url: "https://malie-hairsalon.jp/", shot: media/showcase/malie-hairsalon-jp.webp }
   - { group: salon, name: プライベートヘアサロン Sur, url: "https://kobe-sur.com/", shot: media/showcase/kobe-sur-com.webp }
   - { group: salon, name: FASCINO, url: "https://kobe-fascino.jp/", shot: media/showcase/kobe-fascino-jp.webp }
   - { group: salon, name: South Place hair&spa, url: "https://southplace-kobe.com/", shot: media/showcase/southplace-kobe-com.webp }
-  - { group: salon, name: 美容室 オリジナル（ORIGINAL）, url: "https://original-1930.com/", shot: media/showcase/original-1930-com.webp }
-  - { group: salon, name: honu, url: "https://www.honu-kyoto.com/", shot: media/showcase/honu-kyoto-com.webp }
   - { group: salon, name: N Salon, url: "https://nsalon.jp/", shot: media/showcase/nsalon-jp.webp }
   - { group: salon, name: AnS Hair Salon, url: "https://www.ans-hair.com/", shot: media/showcase/ans-hair-com.webp }
   - { group: salon, name: eto（エト）, url: "https://e-t-o.net/", shot: media/showcase/e-t-o-net.webp }
   - { group: salon, name: BE HERE NOW（ビーヒアナウ）, url: "https://b-h-n.com/", shot: media/showcase/b-h-n-com.webp }
   - { group: salon, name: 8 HAIR（エイトヘアー）, url: "https://8hair.jp/", shot: media/showcase/8hair-jp.webp }
-  - { group: salon, name: La Pause（ラ・ポーズ）, url: "https://la-pause-salon.com/", shot: media/showcase/la-pause-salon-com.webp }
   - { group: salon, name: PLUME, url: "https://plume-private-salon.com/", shot: media/showcase/plume-private-salon-com.webp }
   - { group: salon, name: REPO design（レポデザイン）, url: "https://www.repo-design.com/", shot: media/showcase/repo-design-com.webp }
-  - { group: salon, name: Pulcina美容室, url: "https://pulcina.jp/", shot: media/showcase/pulcina-jp.webp }
   - { group: salon, name: 美容室シンディ（cynd）, url: "https://cynd.jp/", shot: media/showcase/cynd-jp.webp }
   - { group: salon, name: "Hair Design Cre'er（クレエ）", url: "https://hairdesigncreer.com/", shot: media/showcase/hairdesigncreer-com.webp }
   - { group: salon, name: cocorohair（ココロヘアー）, url: "https://www.cocorohair1122.com/", shot: media/showcase/cocorohair1122-com.webp }
   - { group: salon, name: Farve（ファーブ）, url: "https://farve-hair.com/", shot: media/showcase/farve-hair-com.webp }
-  - { group: salon, name: HAIR GRACES（ヘアー グレイシス）, url: "https://i-hair-graces.com/", shot: media/showcase/i-hair-graces-com.webp }
-  - { group: salon, name: fido, url: "https://fido-haircare.com/", shot: media/showcase/fido-haircare-com.webp }
   - { group: salon, name: C/SPICE hair（シースパイスヘア）, url: "https://www.cspicehair.jp/", shot: media/showcase/cspicehair-jp.webp }
-  - { group: salon, name: Hair and Make Putti（プッティ）, url: "https://www.putti.jp/putti/", shot: media/showcase/putti-jp-putti.webp }
   - { group: salon, name: 美容室アンハーバー, url: "https://anharbor.jp/top", shot: media/showcase/anharbor-jp-top.webp }
-  - { group: salon, name: FRACTAL DESIGN（フラクタルデザイン）, url: "https://www.fractaldesign.jp/", shot: media/showcase/fractaldesign-jp.webp }
   - { group: shop, name: POUSSE（プーゼ）, url: "https://www.pousse-kyoto.com/", shot: media/showcase/pousse-kyoto-com.webp }
   - { group: shop, name: アトリエ コトコト, url: "https://coto2.com/", shot: media/showcase/coto2-com.webp }
   - { group: shop, name: 花政（はなまさ）, url: "https://hanamasa-kyoto.com/", shot: media/showcase/hanamasa-kyoto-com.webp }

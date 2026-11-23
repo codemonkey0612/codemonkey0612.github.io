@@ -22,9 +22,9 @@ const PILLAR_KEY = { AI: "ai", "Web・EC": "web", システム開発: "system", 
 // Kinds of live site (works.yml showcase[].group): key, heading, English kicker, short label
 // for the track record. The works page shows them in this order.
 const SHOWCASE_GROUPS = [
+  ["service", "Webサービス・アプリ", "Web Services & Apps", "Webサービス"],
   ["salon", "美容室・サロンのWebサイト", "Hair Salons", "美容室"],
   ["shop", "花屋・菓子店・カフェのWebサイト", "Flowers, Sweets & Cafés", "店舗"],
-  ["service", "Webサービス・アプリ", "Web Services & Apps", "Webサービス"],
   ["ec", "ECサイト", "Online Stores", "EC"],
   ["media", "地域メディア", "Local Media", "地域メディア"],
   ["lp", "ランディングページ・Webサイト", "Landing Pages", "LP・Webサイト"],

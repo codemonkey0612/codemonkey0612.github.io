@@ -47,3 +47,7 @@ rag-regression-test-eval-set:
   url: https://bsky.app/profile/naviwork.bsky.social/post/3n2xlzcatwu2k
   uri: at://did:plc:kubwclkx7cmwzz4zy6uyrmuq/app.bsky.feed.post/3n2xlzcatwu2k
   at: 2026-11-23T07:25:10.267Z
+php-security-release-nov-2026-check:
+  url: https://bsky.app/profile/naviwork.bsky.social/post/3n2znoq6ltt2t
+  uri: at://did:plc:kubwclkx7cmwzz4zy6uyrmuq/app.bsky.feed.post/3n2znoq6ltt2t
+  at: 2026-11-24T03:00:20.256Z

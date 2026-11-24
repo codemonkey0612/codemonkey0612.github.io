@@ -592,5 +592,26 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.42
+  },
+  {
+    "date": "2026-11-26 09:00",
+    "pillar": "sme",
+    "written_at": "2026-11-24T21:13:50.440Z",
+    "zenn": false,
+    "slug": "align-data-before-system-building",
+    "title": "生産管理案件の経験から考える、システム化の前に部署間で揃えたい4つのこと",
+    "service": "system",
+    "status": "scheduled",
+    "fact_check_warnings": 2,
+    "file": "off-zenn/align-data-before-system-building.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 30,
+      "output_tokens": 13415,
+      "cache_read_input_tokens": 17486,
+      "cache_creation_input_tokens": 92604,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.37
   }
 ]

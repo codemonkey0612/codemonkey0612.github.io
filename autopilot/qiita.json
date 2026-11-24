@@ -357,5 +357,23 @@
       "web_search_requests": 2
     },
     "cost_usd": 0.28
+  },
+  {
+    "date": "2026-11-26 09:00",
+    "zenn": "off-zenn/align-data-before-system-building.md",
+    "written_at": "2026-11-24T21:13:50.440Z",
+    "title": "部署別Excelの列名とステータス値をpandasで棚卸しし、統合DB設計の手戻りを防ぐ",
+    "file": "qiita/align-data-before-system-building.md",
+    "status": "scheduled",
+    "fact_check_warnings": 0,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 16,
+      "output_tokens": 9813,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 55455,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.24
   }
 ]

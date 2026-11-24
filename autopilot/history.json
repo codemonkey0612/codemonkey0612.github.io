@@ -569,5 +569,28 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.26
+  },
+  {
+    "date": "2026-11-26 09:00",
+    "pillar": "sme",
+    "written_at": "2026-11-24T19:13:55.006Z",
+    "zenn": false,
+    "slug": "wordpress-renewal-before-decide-four",
+    "title": "WordPressの更新が怖い会社へ:物件検索サイトで更新時間を約65%削減した案件から考える、移行前に決めたい4つのこと",
+    "service": "wordpress",
+    "status": "failed",
+    "problems": [
+      "fact-check (title_overclaim, unsupported): 「物件検索サイトの案件では、項目の整理や管理画面の調整を含む改善の結果、更新時間は約65%削減となりました。」 — プロフィールには「約65%削減」とありますが、その要因が項目整理と管理画面調整だという内訳はありません。検索機能などを含む案件全体の結果とも読めます。 Fix: 「案件全体の結果として約65%削減。内訳は未分解」のように断定を弱めてください。"
+    ],
+    "file": "off-zenn/wordpress-renewal-before-decide-four.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 30,
+      "output_tokens": 17012,
+      "cache_read_input_tokens": 17430,
+      "cache_creation_input_tokens": 96747,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.42
   }
 ]

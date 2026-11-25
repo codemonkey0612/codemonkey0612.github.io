@@ -54,7 +54,7 @@ if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] ?? "")) {
       continue;
     }
     execFileSync("ffmpeg", ["-loglevel", "error", "-y", "-i", src, "-filter_complex", filter, "-frames:v", "1", "-q:v", "2", out]);
-    console.log(`note-covers: ${rel(out)} ← ${entry.original} (y ${entry.y ?? 0.5}) ${entry.service ?? ""}`);
+    console.log(`note-covers: ${rel(out)} ← ${entry.original} (y ${entry.y ?? 0.5}) ${entry.theme ?? entry.service ?? ""}`);
   }
   if (failed) process.exit(1);
 }

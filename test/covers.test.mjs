@@ -11,33 +11,46 @@ import { coverFilter } from "../scripts/note-covers.mjs";
 const covers = loadCovers();
 const pick = (title, topics, used) => chooseCover(covers, { title, topics, used }).id;
 
-test("each article gets the package image that fits its topic", () => {
-  assert.equal(pick("Excelの転記・集計作業を約75%減らしたとき、最初にやったこと", ["excel", "python", "automation", "dx"]), "1351569");
-  assert.equal(pick("マルチテナントRAGの情報漏えいを防ぐ：PostgreSQLのRLSとpgvectorでの実装", ["rag", "postgresql", "security"]), "1351631");
-  assert.equal(pick("PHPの脆弱性「PHP2shell」IPA注意喚起：自社サイトで今確認すべきこと", ["php", "security", "wordpress"]), "1319677");
-  assert.equal(pick("社内問い合わせをLINEのAIチャットボットで減らす", ["chatbot", "line"]), "1351686");
-  assert.equal(pick("生成AIを社内に導入する前に決めておくルール", ["ai", "dx"]), "1351667");
-  assert.equal(pick("ShopifyでECサイトを始める前に", ["shopify"]), "1351689");
-  assert.equal(pick("今日の雑記", []), "1319674", "no match: the default image");
+test("with nothing used yet, each article gets the mascot image that fits its topic", () => {
+  assert.equal(pick("Excelの転記・集計作業を約75%減らしたとき、最初にやったこと", ["excel", "python"]), "mascot-08");
+  assert.equal(pick("PHPの脆弱性：自社サイトで今確認すべきこと", ["php", "security"]), "mascot-06");
+  assert.equal(pick("社内問い合わせをAIチャットボットで減らす", ["chatbot"]), "mascot-02");
+  assert.equal(pick("配送状況の確認時間を約70%短縮した話", ["logistics"]), "mascot-10");
+  assert.equal(pick("今日の雑記", []), "mascot-01", "no match: the first in the list");
 });
 
-test("English keywords match whole words only, and equally good images take turns", () => {
-  assert.equal(pick("CI/CDのpipelineを見直す", []), "1351769", "'pipeline' is not LINE, but CI is testing");
-  assert.equal(pick("WordPressの始め方", ["wordpress"]), "1319797");
-  assert.equal(pick("WordPressの始め方", ["wordpress"], { "covers/1319797.jpg": 2 }), "1351723", "the less used WordPress image");
+test("every image is used once before any is used twice; among the least used, the best fit wins", () => {
+  const A = { id: "a", keywords: ["rag"] };
+  const B = { id: "b", keywords: ["excel"] };
+  const C = { id: "c", keywords: ["security"] };
+  const choose = (used) => chooseCover([A, B, C], { title: "x", topics: ["rag"], used }).id;
+  assert.equal(choose({}), "a");
+  assert.equal(choose({ "covers/a.jpg": 1 }), "b", "a was used: the next least used, even without a match");
+  assert.equal(choose({ "covers/a.jpg": 1, "covers/b.jpg": 1, "covers/c.jpg": 1 }), "a", "all used once: the best fit again");
+  assert.equal(chooseCover([A, B, C], { title: "x", topics: ["security"], used: { "covers/a.jpg": 1 } }).id, "c");
+  const used = {};
+  const month = Array.from({ length: 30 }, () => {
+    const c = chooseCover(covers, { title: "RAGの回答精度を上げる", topics: ["rag"], used });
+    used[coverPath(c)] = (used[coverPath(c)] ?? 0) + 1;
+    return c.id;
+  });
+  assert.equal(new Set(month).size, covers.length, "30 posts on the same topic: 30 different images");
 });
 
-test("every package image is rendered at note's size, and the excluded services aren't offered", () => {
-  assert.ok(covers.length >= 10);
-  assert.equal(covers.filter((c) => c.default).length, 1);
+test("English keywords match whole words only", () => {
+  const T = [{ id: "t", keywords: ["test"] }, { id: "l", keywords: ["line"] }];
+  assert.equal(chooseCover(T, { title: "CI/CDのpipelineを見直す", topics: ["test"] }).id, "t", "'pipeline' is not LINE");
+});
+
+test("all 30 mascot images are rendered at note's size, each with a theme and keywords", () => {
+  assert.equal(covers.length, 30);
   for (const c of covers) {
     const file = path.join(ROOT, "notes", coverPath(c));
-    assert.ok(fs.existsSync(file), `${coverPath(c)} is rendered (npm run note:covers)`);
+    assert.ok(fs.existsSync(file), `${coverPath(c)} is rendered (npm run note:covers -- --from ../note-covers)`);
     const { width, height } = imageSize(fs.readFileSync(file));
     assert.deepEqual([width, height], [1280, 670], coverPath(c));
+    assert.ok(c.theme && c.keywords.length >= 3, c.id);
   }
-  const services = covers.map((c) => c.service).join(" ");
-  assert.doesNotMatch(services, /顔交換|フェイス|スクレイピング|ゲーム|ビジネスパートナー/);
 });
 
 test("a 16:9 image is cropped to fill the frame; a 4:3 or square one is refused", () => {

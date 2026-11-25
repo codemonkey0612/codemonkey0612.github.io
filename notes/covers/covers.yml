@@ -1,111 +1,191 @@
-# note header images (見出し画像, 1280×670): one per Lancers package image.
+# note header images (見出し画像, 1280×670): the mascot series, 30 images made with ChatGPT
+# on 2026-11-25 from ../note-covers/prompts.md (one theme each, the same navy-and-gold robot
+# craftsman). Until then these were the Lancers package images; those files stay in this folder
+# because earlier note posts use them, but they're no longer offered.
 #
-# scripts/note-covers.mjs renders notes/covers/<id>.jpg from `original` in the portfolio folder
-# (../portfolio); run it again after you change a package image. scripts/crosspost.mjs gives
-# each new note post the image whose keywords best match the article: a keyword equal to one of
-# the Zenn topics counts 3, one in the title counts 2. Ties go to the image used least so far;
-# with no match at all, the `default: true` image is used. Your own notes/<slug>.png or .jpg
-# always wins.
-#
-# Only 16:9 images: each is cropped to fill 1280×670, and `y` is which part of the height to
-# keep (0 top, 0.5 middle, 1 bottom). note-covers refuses a 4:3 or square image, which would
-# need its sides filled in.
-#
-# Not here on purpose: face swap, AI business matching, scraping and game development.
+# scripts/note-covers.mjs renders notes/covers/<id>.jpg from `original`:
+#   npm run note:covers -- --from ../note-covers
+# scripts/crosspost.mjs gives each new note post an image: first the ones used least so far (so
+# all 30 are used before any repeats), and among those the one whose keywords best match the
+# article (a keyword equal to one of its topics counts 3, one in its title 2). Your own
+# notes/<slug>.png or .jpg always wins.
 
-- id: "1351569"
-  service: ChatGPT・生成AIを活用した業務効率化AIアプリ開発
-  original: aa8eecde-8efb-4354-a8b4-adf9cceb2465.png
+- id: mascot-01
+  theme: 社内文書RAG・検索
+  original: "01.png"
   y: 0.5
-  keywords: [excel, automation, chatgpt, openai, gpt, claude, gemini, copilot, python, gas, vba, rpa, spreadsheet, 業務効率化, 効率化, 自動化, 転記, 集計, スプレッドシート, 手作業, 生成AI, 議事録]
+  keywords: [rag, "検索", "文書", "社内文書", "ナレッジ"]
 
-- id: "1351631"
-  service: AWS・Azureで生成AI基盤とクラウド環境を構築
-  original: 04-ai-cloud.png
+- id: mascot-02
+  theme: AIチャットボット・問い合わせ対応
+  original: "02.png"
   y: 0.5
-  keywords: [rag, llm, pgvector, vector, embedding, embeddings, agent, agents, bedrock, vertexai, langchain, llamaindex, mcp, aws, azure, ベクトル, 埋め込み, エージェント, 生成AI基盤, マルチテナント]
+  keywords: [chatbot, "チャットボット", "問い合わせ", faq, "自動応答"]
 
-- id: "1351686"
-  service: ChatGPT・LINE対応のAIチャットボット開発
-  original: 02-ai-chatbot.png
-  y: 0
-  keywords: [chatbot, line, faq, slack, teams, チャットボット, 問い合わせ, 社内FAQ, 自動応答, 一次対応]
-
-- id: "1351667"
-  service: ChatGPT・生成AIの導入コンサルティングと業務改善
-  original: 03-ai-consulting.png
-  y: 0
-  keywords: [dx, consulting, poc, governance, guideline, roi, AI導入, 生成AI導入, 導入, 活用, 社内ルール, ガイドライン, 研修, 戦略, 費用対効果, 社内展開]
-
-- id: "1319674"
-  service: IT・AI・システムの技術相談から導入まで支援
-  original: a1400287-399d-422a-9a4e-b90594198fc6.png
+- id: mascot-03
+  theme: 「分からない」と言えるAI・誤回答対策
+  original: "03.png"
   y: 0.5
-  default: true
-  keywords: [it, vendor, estimate, outsourcing, 相談, 見積, 発注, 外注, ベンダー, 依頼, 選び方, 補助金, 助成金, 情シス, IT担当, 中小企業, 社内SE]
+  keywords: ["ハルシネーション", "誤回答", "根拠", "参照元", abstain]
 
-- id: "1319677"
-  service: Web・システムのセキュリティ診断と対策
-  original: 591c2185-20ae-485d-9aae-e09ba478d392.png
+- id: mascot-04
+  theme: RAGの評価・回答テスト
+  original: "04.png"
   y: 0.5
-  keywords: [security, vulnerability, cve, authentication, auth, password, ransomware, phishing, zerotrust, waf, セキュリティ, 脆弱性, 情報漏えい, 情報漏洩, 不正アクセス, ランサムウェア, パスワード, 認証, サイバー攻撃, 注意喚起, 改ざん]
+  keywords: [evaluation, test, "テスト", "評価", "回答テスト"]
 
-- id: "1319683"
-  service: サーバー・クラウド環境の構築・移行・運用
-  original: 16c0f8ba-42e2-4114-a078-b6aa1cc30cf6.png
+- id: mascot-05
+  theme: マルチテナント・データ分離
+  original: "05.png"
   y: 0.5
-  keywords: [server, infra, infrastructure, linux, docker, kubernetes, k8s, terraform, cloud, gcp, vps, nginx, ssl, dns, backup, postgresql, mysql, database, aws, azure, サーバー, インフラ, クラウド, 移行, バックアップ, データベース, ドメイン, レンタルサーバー]
+  keywords: ["マルチテナント", tenant, rls, "分離", "情報漏えい"]
 
-- id: "1319797"
-  service: WordPressサイトの構築・移行・保守運用
-  original: 1c0fdcdd-3edc-4380-8460-e18570f43e47.png
+- id: mascot-06
+  theme: 脆弱性・セキュリティ更新
+  original: "06.png"
   y: 0.5
-  keywords: [wordpress, wp, plugin, woocommerce, プラグイン, 保守, 運用, 更新]
+  keywords: [security, vulnerability, "脆弱性", "パッチ", "セキュリティ", php, nginx]
 
-- id: "1351723"
-  service: WordPress・CMSで高品質なWebサイトを構築
-  original: 55b12558-a624-4784-b977-f799b159c734.png
+- id: mascot-07
+  theme: 認証・認可・権限管理
+  original: "07.png"
   y: 0.5
-  keywords: [wordpress, cms, headless, microcms, contentful, strapi, ブロックエディタ, テーマ, サイト構築]
+  keywords: [oauth, rbac, "認証", "認可", "権限", "ログイン"]
 
-- id: "1351735"
-  service: Webサイト・ホームページ制作
-  original: efbe83b7-253f-402a-b865-dd05d5ea9333.png
-  y: 0.1
-  keywords: [website, homepage, seo, lp, ga4, analytics, ホームページ, Webサイト, リニューアル, 集客, アクセス解析, 問い合わせフォーム]
-
-- id: "1351762"
-  service: HTML/CSSコーディング代行
-  original: 451e7f2d-8a78-4c9b-aeb3-1b587f10f21e.png
-  y: 0.1
-  keywords: [html, css, frontend, javascript, typescript, react, nextjs, vue, tailwind, accessibility, a11y, performance, corewebvitals, フロントエンド, コーディング, レスポンシブ, 表示速度, アクセシビリティ]
-
-- id: "1351689"
-  service: Shopify・ECサイト構築
-  original: 037d3188-7d5a-45ca-92cb-acc8531cda21.png
-  y: 0.1
-  keywords: [shopify, ec, ecommerce, stripe, payment, ネットショップ, ECサイト, 通販, 決済, カート]
-
-- id: "1351705"
-  service: iOS・Android対応のスマホアプリ開発
-  original: 13d7561d-82e3-45b0-85da-36c273866819.png
+- id: mascot-08
+  theme: Excel転記・集計の自動化
+  original: "08.png"
   y: 0.5
-  keywords: [ios, android, flutter, reactnative, swift, kotlin, mobile, expo, スマホアプリ, スマホ, アプリ開発, iPhone]
+  keywords: [excel, "転記", "集計", "自動化", "スプレッドシート", "手作業"]
 
-- id: "1319794"
-  service: Windows・Mac対応のデスクトップアプリ開発
-  original: a1be306a-a131-4b41-9026-2eab807d9c38.png
+- id: mascot-09
+  theme: 一覧画面・状況の見える化
+  original: "09.png"
   y: 0.5
-  keywords: [desktop, electron, tauri, windows, mac, macos, wpf, デスクトップ, 社内ツール, 業務ツール]
+  keywords: [dashboard, "一覧", "状況確認", "管理表", "見える化"]
 
-- id: "1351769"
-  service: システムの不具合調査・デバッグ・コードレビュー
-  original: 4e8800b6-31a5-4fa2-a803-e1cdf597950c.png
-  y: 0.1
-  keywords: [test, testing, debug, debugging, codereview, review, ci, cicd, githubactions, playwright, jest, vitest, eval, evaluation, qa, refactoring, テスト, デバッグ, バグ, 不具合, コードレビュー, 品質, リファクタリング, 障害]
+- id: mascot-10
+  theme: 配送・物流管理
+  original: "10.png"
+  y: 0.5
+  keywords: [logistics, "配送", "物流", "地図", "運行管理"]
 
-- id: "1319670"
-  service: 民泊・求人向けマッチングシステム開発
-  original: 06-ai-matching.png
-  y: 0.3
-  keywords: [matching, marketplace, booking, reservation, saas, マッチング, 民泊, 求人, 予約, 予約システム, プラットフォーム]
+- id: mascot-11
+  theme: 生産管理・製造現場
+  original: "11.png"
+  y: 0.5
+  keywords: [manufacturing, "生産管理", "製造", "工程", "進捗"]
+
+- id: mascot-12
+  theme: 在庫・EC連携
+  original: "12.png"
+  y: 0.5
+  keywords: [inventory, "在庫", "同期", "ネットショップ", "複数チャネル"]
+
+- id: mascot-13
+  theme: WordPressサイト移行・リニューアル
+  original: "13.png"
+  y: 0.5
+  keywords: [wordpress, "移行", "サイト", "リニューアル", web]
+
+- id: mascot-14
+  theme: ECサイト構築
+  original: "14.png"
+  y: 0.5
+  keywords: [shopify, ec, "ネットショップ", "通販", "ecサイト"]
+
+- id: mascot-15
+  theme: 引き継ぎ・レガシーシステム
+  original: "15.png"
+  y: 0.5
+  keywords: [legacy, "引き継ぎ", "前任者", "保守", "レガシー"]
+
+- id: mascot-16
+  theme: 見積もり・発注の判断
+  original: "16.png"
+  y: 0.5
+  keywords: [estimate, "見積もり", "発注", "費用", "予算", "外注"]
+
+- id: mascot-17
+  theme: クラウド・インフラ
+  original: "17.png"
+  y: 0.5
+  keywords: [cloud, aws, azure, gcp, "クラウド", "インフラ"]
+
+- id: mascot-18
+  theme: コードレビュー・テスト品質
+  original: "18.png"
+  y: 0.5
+  keywords: [test, "テスト", "レビュー", "品質", "バグ", mutation]
+
+- id: mascot-19
+  theme: データ分析・可視化
+  original: "19.png"
+  y: 0.5
+  keywords: [data, "分析", "グラフ", "可視化", "データ"]
+
+- id: mascot-20
+  theme: AIエージェント・業務の自動化
+  original: "20.png"
+  y: 0.5
+  keywords: [agent, "エージェント", "自動化", "ワークフロー", mcp]
+
+- id: mascot-21
+  theme: ChatGPT・プロンプト活用術
+  original: "21.png"
+  y: 0.5
+  keywords: [chatgpt, prompt, "プロンプト", "活用", "生成AI", "コツ"]
+
+- id: mascot-22
+  theme: 時短・業務改善
+  original: "22.png"
+  y: 0.5
+  keywords: ["時短", "効率化", "業務改善", "生産性", "業務効率化"]
+
+- id: mascot-23
+  theme: 中小企業のDX
+  original: "23.png"
+  y: 0.5
+  keywords: [dx, "中小企業", "デジタル化", "商店", "地域"]
+
+- id: mascot-24
+  theme: ライブ配信・オンライン研修
+  original: "24.png"
+  y: 0.5
+  keywords: ["配信", "ライブ", "オンライン", "研修", webrtc]
+
+- id: mascot-25
+  theme: 社内ナレッジ共有
+  original: "25.png"
+  y: 0.5
+  keywords: ["ナレッジ", "社内情報", "共有", "文書管理", "社内FAQ"]
+
+- id: mascot-26
+  theme: 障害対応・トラブル復旧
+  original: "26.png"
+  y: 0.5
+  keywords: ["障害", "トラブル", "復旧", "緊急", "監視"]
+
+- id: mascot-27
+  theme: 最新技術ニュース
+  original: "27.png"
+  y: 0.5
+  keywords: [news, "ニュース", "発表", "リリース", "最新"]
+
+- id: mascot-28
+  theme: 補助金・コスト削減
+  original: "28.png"
+  y: 0.5
+  keywords: ["補助金", "コスト", "削減", "費用対効果", "予算"]
+
+- id: mascot-29
+  theme: 資格・学び直し
+  original: "29.png"
+  y: 0.5
+  keywords: ["資格", "学習", "試験", "勉強", "スキル"]
+
+- id: mascot-30
+  theme: 相談・信頼できる発注先
+  original: "30.png"
+  y: 0.5
+  keywords: ["相談", "発注", "信頼", "フリーランス", "パートナー"]

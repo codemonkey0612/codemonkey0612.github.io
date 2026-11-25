@@ -46,16 +46,20 @@ export function scoreCover(entry, { title = "", topics = [] }) {
 }
 
 /**
- * The best package image for an article. `used` counts how often each cover path is already in
- * use, so equally good images take turns. No match at all: the `default: true` image.
+ * The image for an article: among the ones used least so far (`used` counts how often each cover
+ * path is in use), the one whose keywords fit it best, then a `default: true` one, then list
+ * order. So every image is used once before any is used twice, and each day's post still gets the
+ * best fit of what's left (since 2026-11-25; before, the best fit always won and the most common
+ * topics kept getting the same image).
  */
 export function chooseCover(covers, { title, topics, used = {} }) {
   if (!covers.length) return null;
-  const scored = covers.map((c, i) => ({ c, i, s: scoreCover(c, { title, topics }) }));
-  const best = Math.max(...scored.map((x) => x.s));
-  if (best <= 0) return covers.find((c) => c.default) ?? covers[0];
   const uses = (c) => used[coverPath(c)] ?? 0;
-  return scored.filter((x) => x.s === best).sort((a, b) => uses(a.c) - uses(b.c) || a.i - b.i)[0].c;
+  const least = Math.min(...covers.map(uses));
+  return covers
+    .map((c, i) => ({ c, i, s: scoreCover(c, { title, topics }) }))
+    .filter((x) => uses(x.c) === least)
+    .sort((a, b) => b.s - a.s || Number(Boolean(b.c.default)) - Number(Boolean(a.c.default)) || a.i - b.i)[0].c;
 }
 
 /** How many note posts already use each cover path. */

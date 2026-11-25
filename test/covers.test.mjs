@@ -29,12 +29,12 @@ test("every image is used once before any is used twice; among the least used, t
   assert.equal(choose({ "covers/a.jpg": 1, "covers/b.jpg": 1, "covers/c.jpg": 1 }), "a", "all used once: the best fit again");
   assert.equal(chooseCover([A, B, C], { title: "x", topics: ["security"], used: { "covers/a.jpg": 1 } }).id, "c");
   const used = {};
-  const month = Array.from({ length: 30 }, () => {
+  const month = Array.from({ length: covers.length }, () => {
     const c = chooseCover(covers, { title: "RAGの回答精度を上げる", topics: ["rag"], used });
     used[coverPath(c)] = (used[coverPath(c)] ?? 0) + 1;
     return c.id;
   });
-  assert.equal(new Set(month).size, covers.length, "30 posts on the same topic: 30 different images");
+  assert.equal(new Set(month).size, covers.length, "as many posts on the same topic as there are images: all different");
 });
 
 test("English keywords match whole words only", () => {
@@ -42,8 +42,8 @@ test("English keywords match whole words only", () => {
   assert.equal(chooseCover(T, { title: "CI/CDのpipelineを見直す", topics: ["test"] }).id, "t", "'pipeline' is not LINE");
 });
 
-test("all 30 mascot images are rendered at note's size, each with a theme and keywords", () => {
-  assert.equal(covers.length, 30);
+test("all 85 mascot images are rendered at note's size, each with a theme and keywords", () => {
+  assert.equal(covers.length, 85);
   for (const c of covers) {
     const file = path.join(ROOT, "notes", coverPath(c));
     assert.ok(fs.existsSync(file), `${coverPath(c)} is rendered (npm run note:covers -- --from ../note-covers)`);

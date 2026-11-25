@@ -1,7 +1,7 @@
-# note header images (見出し画像, 1280×670): the mascot series, 30 images made with ChatGPT
-# on 2026-11-25 from ../note-covers/prompts.md (one theme each, the same navy-and-gold robot
-# craftsman). Until then these were the Lancers package images; those files stay in this folder
-# because earlier note posts use them, but they're no longer offered.
+# note header images (見出し画像, 1280×670): the mascot series, 85 images made with ChatGPT
+# from ../note-covers/prompts.md (01–30 on 2026-11-25, 31–85 on 2026-11-26; one theme each, the
+# same navy-and-gold robot craftsman). Until 2026-11-25 these were the Lancers package images;
+# those files stay in this folder because earlier note posts use them, but they're no longer offered.
 #
 # scripts/note-covers.mjs renders notes/covers/<id>.jpg from `original`:
 #   npm run note:covers -- --from ../note-covers
@@ -189,3 +189,333 @@
   original: "30.png"
   y: 0.5
   keywords: ["相談", "発注", "信頼", "フリーランス", "パートナー"]
+
+- id: mascot-31
+  theme: 生成AIの社内ルール・ガイドライン
+  original: "31.png"
+  y: 0.5
+  keywords: ["ガイドライン", "ルール", "社内ルール", governance, "生成AI導入"]
+
+- id: mascot-32
+  theme: 個人情報・データ保護
+  original: "32.png"
+  y: 0.5
+  keywords: ["個人情報", "データ保護", privacy, "プライバシー", "漏えい"]
+
+- id: mascot-33
+  theme: バックアップ
+  original: "33.png"
+  y: 0.5
+  keywords: [backup, "バックアップ", "復元", "データ消失"]
+
+- id: mascot-34
+  theme: パスワード・二要素認証
+  original: "34.png"
+  y: 0.5
+  keywords: [password, mfa, "パスワード", "二要素認証", "多要素認証"]
+
+- id: mascot-35
+  theme: フィッシング詐欺対策
+  original: "35.png"
+  y: 0.5
+  keywords: [phishing, "フィッシング", "詐欺", "メール", "なりすまし"]
+
+- id: mascot-36
+  theme: ランサムウェア対策
+  original: "36.png"
+  y: 0.5
+  keywords: [ransomware, "ランサムウェア", "マルウェア", "感染", "被害"]
+
+- id: mascot-37
+  theme: 監視・アクセスログ
+  original: "37.png"
+  y: 0.5
+  keywords: [monitoring, log, "ログ", "監視", "アクセスログ"]
+
+- id: mascot-38
+  theme: API連携・システム連携
+  original: "38.png"
+  y: 0.5
+  keywords: [api, "連携", "システム連携", integration, "データ連携"]
+
+- id: mascot-39
+  theme: データ移行
+  original: "39.png"
+  y: 0.5
+  keywords: [migration, "データ移行", "移行", "移管"]
+
+- id: mascot-40
+  theme: 紙の書類のデジタル化・OCR
+  original: "40.png"
+  y: 0.5
+  keywords: [ocr, "紙", "ペーパーレス", "スキャン", "デジタル化"]
+
+- id: mascot-41
+  theme: 議事録の自動化・音声認識
+  original: "41.png"
+  y: 0.5
+  keywords: ["議事録", "音声認識", "文字起こし", "会議", transcription]
+
+- id: mascot-42
+  theme: 翻訳・多言語対応
+  original: "42.png"
+  y: 0.5
+  keywords: ["翻訳", "多言語", translation, "英語", "インバウンド"]
+
+- id: mascot-43
+  theme: LINE・チャット連携
+  original: "43.png"
+  y: 0.5
+  keywords: [line, "チャット", "メッセージ", "通知", slack]
+
+- id: mascot-44
+  theme: 予約システム
+  original: "44.png"
+  y: 0.5
+  keywords: ["予約", reservation, "予約システム", "受付", "店舗"]
+
+- id: mascot-45
+  theme: 勤怠・シフト管理
+  original: "45.png"
+  y: 0.5
+  keywords: ["勤怠", "シフト", "勤務", "労務", "スケジュール"]
+
+- id: mascot-46
+  theme: 請求書・経理の自動化
+  original: "46.png"
+  y: 0.5
+  keywords: ["請求書", "経理", "会計", invoice, "支払い"]
+
+- id: mascot-47
+  theme: 顧客管理・CRM
+  original: "47.png"
+  y: 0.5
+  keywords: [crm, "顧客管理", "顧客", "営業", "名簿"]
+
+- id: mascot-48
+  theme: SEO・Web集客
+  original: "48.png"
+  y: 0.5
+  keywords: [seo, "集客", "検索順位", "アクセス", "マーケティング"]
+
+- id: mascot-49
+  theme: Webサイトの表示速度
+  original: "49.png"
+  y: 0.5
+  keywords: [performance, "表示速度", "高速化", "core web vitals", "速度"]
+
+- id: mascot-50
+  theme: スマホ対応・レスポンシブ
+  original: "50.png"
+  y: 0.5
+  keywords: [responsive, "スマホ", "スマホ対応", "モバイル", "レスポンシブ"]
+
+- id: mascot-51
+  theme: 問い合わせフォーム・導線改善
+  original: "51.png"
+  y: 0.5
+  keywords: ["フォーム", "問い合わせ", "導線", cvr, "コンバージョン"]
+
+- id: mascot-52
+  theme: ファイル共有・クラウドストレージ
+  original: "52.png"
+  y: 0.5
+  keywords: ["ファイル共有", "共有", "ストレージ", "クラウド", "ドキュメント"]
+
+- id: mascot-53
+  theme: RPA・定型作業の自動化
+  original: "53.png"
+  y: 0.5
+  keywords: [rpa, "定型作業", "自動化", "クリック", "繰り返し"]
+
+- id: mascot-54
+  theme: 社内でのプログラミング・内製化
+  original: "54.png"
+  y: 0.5
+  keywords: ["内製化", "プログラミング", "研修", "教育", "学習"]
+
+- id: mascot-55
+  theme: ノーコード・ローコード
+  original: "55.png"
+  y: 0.5
+  keywords: [nocode, "ノーコード", "ローコード", "アプリ", "業務アプリ"]
+
+- id: mascot-56
+  theme: Pythonで業務自動化
+  original: "56.png"
+  y: 0.5
+  keywords: [python, "スクリプト", "自動化", "業務効率化", pandas]
+
+- id: mascot-57
+  theme: データベース設計
+  original: "57.png"
+  y: 0.5
+  keywords: [database, "データベース", db, postgresql, mysql]
+
+- id: mascot-58
+  theme: ベクトル検索・埋め込み
+  original: "58.png"
+  y: 0.5
+  keywords: [embedding, vector, "ベクトル", "類似検索", "意味検索"]
+
+- id: mascot-59
+  theme: LLMのコスト最適化
+  original: "59.png"
+  y: 0.5
+  keywords: ["コスト", "トークン", token, "料金", llm]
+
+- id: mascot-60
+  theme: AIへの攻撃・プロンプトインジェクション対策
+  original: "60.png"
+  y: 0.5
+  keywords: ["prompt injection", "プロンプトインジェクション", "aiセキュリティ", "攻撃", "安全"]
+
+- id: mascot-61
+  theme: AIモデルの選び方
+  original: "61.png"
+  y: 0.5
+  keywords: ["モデル", model, llm, "選び方", "比較"]
+
+- id: mascot-62
+  theme: 画像・音声も扱うマルチモーダルAI
+  original: "62.png"
+  y: 0.5
+  keywords: [multimodal, "マルチモーダル", "画像認識", "音声", ai]
+
+- id: mascot-63
+  theme: 画像生成AIの活用
+  original: "63.png"
+  y: 0.5
+  keywords: ["画像生成", "生成ai", "デザイン", "クリエイティブ", "イラスト"]
+
+- id: mascot-64
+  theme: AI利用のリスク確認
+  original: "64.png"
+  y: 0.5
+  keywords: ["リスク", "確認", "注意点", "チェック", "安全"]
+
+- id: mascot-65
+  theme: 小さく始めるPoC
+  original: "65.png"
+  y: 0.5
+  keywords: [poc, "検証", "スモールスタート", "試験導入", "導入"]
+
+- id: mascot-66
+  theme: AI研修・社内勉強会
+  original: "66.png"
+  y: 0.5
+  keywords: ["研修", "勉強会", "教育", "ai研修", "リテラシー"]
+
+- id: mascot-67
+  theme: 業務フローの見直し
+  original: "67.png"
+  y: 0.5
+  keywords: ["業務フロー", "業務改善", "フロー", "見直し", "効率化"]
+
+- id: mascot-68
+  theme: ペーパーレス化
+  original: "68.png"
+  y: 0.5
+  keywords: ["ペーパーレス", "紙", "電子化", "書類", "押印"]
+
+- id: mascot-69
+  theme: テレワーク・リモートワーク
+  original: "69.png"
+  y: 0.5
+  keywords: ["テレワーク", "リモート", "在宅", "リモートワーク", "働き方"]
+
+- id: mascot-70
+  theme: 社内のセキュリティ教育
+  original: "70.png"
+  y: 0.5
+  keywords: ["セキュリティ教育", "研修", "訓練", "標的型", "意識"]
+
+- id: mascot-71
+  theme: IT資産・PC管理
+  original: "71.png"
+  y: 0.5
+  keywords: ["it資産", pc, "端末", "管理", "ライセンス"]
+
+- id: mascot-72
+  theme: ネットワーク・Wi-Fi
+  original: "72.png"
+  y: 0.5
+  keywords: [network, "ネットワーク", wifi, "通信", "ルーター"]
+
+- id: mascot-73
+  theme: スマホアプリ開発
+  original: "73.png"
+  y: 0.5
+  keywords: ["アプリ", "スマホアプリ", ios, android, "アプリ開発"]
+
+- id: mascot-74
+  theme: Webアプリ開発
+  original: "74.png"
+  y: 0.5
+  keywords: ["webアプリ", "開発", "システム開発", "フロントエンド", "バックエンド"]
+
+- id: mascot-75
+  theme: 保守・運用
+  original: "75.png"
+  y: 0.5
+  keywords: ["保守", "運用", "メンテナンス", "更新", "監視"]
+
+- id: mascot-76
+  theme: 古いシステムの刷新
+  original: "76.png"
+  y: 0.5
+  keywords: ["刷新", "リプレース", "老朽化", "モダナイズ", "移行"]
+
+- id: mascot-77
+  theme: 要件定義・ヒアリング
+  original: "77.png"
+  y: 0.5
+  keywords: ["要件定義", "ヒアリング", "要望", "仕様", "打ち合わせ"]
+
+- id: mascot-78
+  theme: プロジェクト管理
+  original: "78.png"
+  y: 0.5
+  keywords: ["プロジェクト管理", "進行管理", "スケジュール", "マイルストーン", pm]
+
+- id: mascot-79
+  theme: 外注先・開発会社の選び方
+  original: "79.png"
+  y: 0.5
+  keywords: ["外注", "発注先", "選び方", "開発会社", "比較"]
+
+- id: mascot-80
+  theme: 年度計画・新年の目標
+  original: "80.png"
+  y: 0.5
+  keywords: ["計画", "目標", "新年", "年度", "ロードマップ"]
+
+- id: mascot-81
+  theme: 年末の振り返り・大掃除
+  original: "81.png"
+  y: 0.5
+  keywords: ["振り返り", "年末", "大掃除", "改善", "整理"]
+
+- id: mascot-82
+  theme: イベント集客・キャンペーン
+  original: "82.png"
+  y: 0.5
+  keywords: ["イベント", "集客", "キャンペーン", "告知", "夏"]
+
+- id: mascot-83
+  theme: 新人・オンボーディング
+  original: "83.png"
+  y: 0.5
+  keywords: ["オンボーディング", "新人", "新入社員", "教育", "引き継ぎ"]
+
+- id: mascot-84
+  theme: フリーランスの働き方
+  original: "84.png"
+  y: 0.5
+  keywords: ["フリーランス", "働き方", "独立", "個人事業", "仕事"]
+
+- id: mascot-85
+  theme: 成果・導入事例
+  original: "85.png"
+  y: 0.5
+  keywords: ["事例", "成果", "実績", "導入事例", "効果"]

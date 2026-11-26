@@ -227,5 +227,23 @@
       "web_search_requests": 6
     },
     "cost_usd": 0.5
+  },
+  {
+    "date": "2026-11-28 09:00",
+    "zenn": "off-zenn/oracle-java-november-2026-update-check.md",
+    "written_at": "2026-11-26T21:13:56.093Z",
+    "title": "【保存版】Javaの更新ニュースで慌てない。発注先に送る4つの質問",
+    "file": "note-src/oracle-java-november-2026-update-check.md",
+    "status": "scheduled",
+    "fact_check_warnings": 4,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 66,
+      "output_tokens": 15283,
+      "cache_read_input_tokens": 321771,
+      "cache_creation_input_tokens": 98485,
+      "web_search_requests": 8
+    },
+    "cost_usd": 0.54
   }
 ]

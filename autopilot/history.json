@@ -682,5 +682,26 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.52
+  },
+  {
+    "date": "2026-11-28 09:00",
+    "pillar": "news",
+    "written_at": "2026-11-26T02:12:30.362Z",
+    "zenn": false,
+    "slug": "oracle-java-november-2026-update-check",
+    "title": "Oracle Java更新(2026年11月)でIPAが早急対応を呼びかけ、発注先に確認したい4つのこと",
+    "service": "quality",
+    "status": "scheduled",
+    "fact_check_warnings": 3,
+    "file": "off-zenn/oracle-java-november-2026-update-check.md",
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 76,
+      "output_tokens": 16428,
+      "cache_read_input_tokens": 454738,
+      "cache_creation_input_tokens": 95091,
+      "web_search_requests": 21
+    },
+    "cost_usd": 0.7
   }
 ]

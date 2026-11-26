@@ -205,5 +205,27 @@
       "web_search_requests": 0
     },
     "cost_usd": 0.21
+  },
+  {
+    "date": "2026-11-28 09:00",
+    "zenn": "off-zenn/oracle-java-november-2026-update-check.md",
+    "written_at": "2026-11-26T19:13:50.215Z",
+    "title": "【コピペOK】Javaの更新ニュースを見た経営者へ。発注先に送る4つの質問",
+    "file": "note-src/oracle-java-november-2026-update-check.md",
+    "status": "failed",
+    "problems": [
+      "textlint (line 78): 箇条書き: \"である\"調 でなければなりません\n=> \"である\"調 であるべき箇所に、次の \"ですます\"調 の箇所があります: \"ます。\"\nTotal:\nである  : 0\nですます: 3\n",
+      "textlint (line 79): 箇条書き: \"である\"調 でなければなりません\n=> \"である\"調 であるべき箇所に、次の \"ですます\"調 の箇所があります: \"です。\"\nTotal:\nである  : 0\nですます: 3\n",
+      "textlint (line 81): 箇条書き: \"である\"調 でなければなりません\n=> \"である\"調 であるべき箇所に、次の \"ですます\"調 の箇所があります: \"ます。\"\nTotal:\nである  : 0\nですます: 3\n"
+    ],
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 62,
+      "output_tokens": 14880,
+      "cache_read_input_tokens": 271155,
+      "cache_creation_input_tokens": 94829,
+      "web_search_requests": 6
+    },
+    "cost_usd": 0.5
   }
 ]

@@ -411,5 +411,23 @@
       "web_search_requests": 4
     },
     "cost_usd": 0.33
+  },
+  {
+    "date": "2026-11-29 09:00",
+    "zenn": "off-zenn/permission-aware-fulltext-search-design.md",
+    "written_at": "2026-11-27T19:13:49.529Z",
+    "title": "Elasticsearchの権限変更が検索に反映されない事故を防ぐ ACL同期の実装",
+    "file": "qiita/permission-aware-fulltext-search-design.md",
+    "status": "scheduled",
+    "fact_check_warnings": 0,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 12,
+      "output_tokens": 4939,
+      "cache_read_input_tokens": 34740,
+      "cache_creation_input_tokens": 34191,
+      "web_search_requests": 2
+    },
+    "cost_usd": 0.16
   }
 ]

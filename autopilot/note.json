@@ -245,5 +245,23 @@
       "web_search_requests": 8
     },
     "cost_usd": 0.54
+  },
+  {
+    "date": "2026-11-29 09:00",
+    "zenn": "off-zenn/permission-aware-fulltext-search-design.md",
+    "written_at": "2026-11-27T19:13:49.529Z",
+    "title": "【保存版】社内の探し物を約60%短縮した案件で学んだ、検索づくり前の確認リスト",
+    "file": "note-src/permission-aware-fulltext-search-design.md",
+    "status": "scheduled",
+    "fact_check_warnings": 1,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 8,
+      "output_tokens": 3373,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 31713,
+      "web_search_requests": 0
+    },
+    "cost_usd": 0.11
   }
 ]

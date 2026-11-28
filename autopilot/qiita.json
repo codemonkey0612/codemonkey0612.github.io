@@ -429,5 +429,23 @@
       "web_search_requests": 2
     },
     "cost_usd": 0.16
+  },
+  {
+    "date": "2026-11-30 09:00",
+    "zenn": "articles/before-ai-inquiry-chatbot-three-rules.md",
+    "written_at": "2026-11-28T01:58:16.223Z",
+    "title": "RAG問い合わせボットの改悪をCIで検知する評価スクリプトをPythonで作る",
+    "file": "qiita/before-ai-inquiry-chatbot-three-rules.md",
+    "status": "scheduled",
+    "fact_check_warnings": 2,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 20,
+      "output_tokens": 11915,
+      "cache_read_input_tokens": 24565,
+      "cache_creation_input_tokens": 57787,
+      "web_search_requests": 1
+    },
+    "cost_usd": 0.28
   }
 ]
